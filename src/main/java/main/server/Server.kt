@@ -6,27 +6,13 @@ import main.router.Router
 import java.io.File
 import java.io.IOException
 import java.net.ServerSocket
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class Server {
 
-    companion object {
-        lateinit var fileLocation: String
-    }
-
-    constructor(location: String = "") {
-        fileLocation = location + "clients.txt"
-        try {
-            val file = File(location + "clients.txt")
-            if (!file.exists()) {
-                file.createNewFile()
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-
     private lateinit var socket: ServerSocket
-
+    val executorService = Executors.newCachedThreadPool()
 
     fun startServer(port: Int) {
         Thread {
@@ -34,7 +20,9 @@ class Server {
                 socket = ServerSocket(port)
                 while (socket.isBound) {
                     val client = socket.accept()
-                    Thread(ClientHandler(client)).start()
+                    executorService.submit {
+                        ClientHandler(client).start()
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

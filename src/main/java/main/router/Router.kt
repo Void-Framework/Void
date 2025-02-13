@@ -1,5 +1,6 @@
 package main.router
 
+import main.html.page.Page
 import main.java.main.DTO.RequestDTO
 import main.java.main.DTO.ResponseDTO
 import main.java.main.HTTP.Builder.HTTPBuilder
@@ -17,10 +18,10 @@ import kotlin.reflect.full.findAnnotation
 class Router {
 
     companion object {
-        val routes = mutableMapOf<String, String>()
+        val routes = mutableMapOf<String, Page>()
 
         //Add a function to add routes without finding the annotations
-        fun addRoute(route: Any) {
+        fun addRoute(route: Page) {
             val clazz = route::class
             val annotation = clazz.findAnnotation<Route>()
 
@@ -28,7 +29,7 @@ class Router {
                 if (routes.containsKey(annotation.target)) {
                     throw RouteTargetUsedException()
                 } else {
-                    //routes[annotation.target] =
+                    routes[annotation.target] = route
                 }
             } else {
                 throw NotAnnotatedException()
@@ -49,7 +50,7 @@ class Router {
                     Pair("Upgrade", "websocket"),
                     Pair("Connection", "Upgrade")
                 ),
-                "<html><body>${routes[target]}</body></html>"),
+                "<html><body>${routes[target]!!.content.render()}</body></html>"),
                 client.getOutputStream())
         } else {
             HTTPBuilder().build(

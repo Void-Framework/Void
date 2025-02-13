@@ -1,12 +1,17 @@
 package main.html.element.content
 
+import main.html.element.ElementWithChildren
 import main.html.attributes.Attribute
 import main.html.element.Element
 
-class Div(vararg attributes: Attribute,function: Element.() -> Unit) : Element("div")
+class Div(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren("div") {
 
-inline fun <reified T : Element> Element.element(block: T.() -> Unit): T {
-    val instance = T::class.java.getDeclaredConstructor().newInstance()
-    children.add(instance.apply(block))
-    return instance
+    init {
+        this.apply(function)  // Apply the provided block to initialize the content
+        attributes.forEach {
+            set(it.name, it.value)
+        }
+
+    }
 }
+
