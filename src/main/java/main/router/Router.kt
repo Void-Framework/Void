@@ -1,5 +1,6 @@
 package main.router
 
+import main.html.exceptions.ExceptionPage
 import main.html.page.Page
 import main.java.main.DTO.RequestDTO
 import main.java.main.DTO.ResponseDTO
@@ -74,16 +75,7 @@ class Router {
                     Pair("Content-Type", "text/html"),
                     Pair("Connection", "close")
                 ),
-                "<html>" +
-                        "<body>" +
-                        "<div style=\"background-color: #ff5555; color: white; padding: 20px; font-family: monospace; overflow: auto;\">\n" +
-                        "  <h2 style=\"font-size: 24px;\">${e::class.simpleName}: ${e.localizedMessage}</h2>\n" +
-                        "  <pre style=\"white-space: pre-wrap; word-wrap: break-word; font-family: monospace;\">\n" +
-                        "    ${e.stackTrace.joinToString("\n")}" +
-                        "  </pre>\n" +
-                        "</div>" +
-                        "</body>" +
-                        "</html>"),
+                ExceptionPage(e).page),
             client.getOutputStream())
     }
 }

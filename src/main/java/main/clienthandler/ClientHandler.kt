@@ -10,7 +10,6 @@ import java.nio.file.StandardOpenOption
 class ClientHandler(private val client: Socket) {
 
     fun start() {
-        throw RuntimeException("Testing server error handling!")
         try {
             val request = HTTPParser().parse(client.getInputStream())
             Router().route(request, client)
