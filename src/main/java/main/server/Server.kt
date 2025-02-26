@@ -21,7 +21,11 @@ class Server {
                 while (socket.isBound) {
                     val client = socket.accept()
                     executorService.submit {
-                        ClientHandler(client).start()
+                        try {
+                            ClientHandler(client).start()
+                        } catch (e: Exception) {
+                            ClientHandler(client).error(e)
+                        }
                     }
                 }
             } catch (e: Exception) {
