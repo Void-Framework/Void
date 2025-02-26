@@ -65,4 +65,25 @@ class Router {
                 client.getOutputStream())
         }
     }
+
+    fun error(client: Socket, e: Exception) {
+        HTTPBuilder().build(
+            ResponseDTO(500,
+                "Server Error",
+                mapOf(
+                    Pair("Content-Type", "text/html"),
+                    Pair("Connection", "close")
+                ),
+                "<html>" +
+                        "<body>" +
+                        "<div style=\"background-color: #ff5555; color: white; padding: 20px; font-family: monospace; overflow: auto;\">\n" +
+                        "  <h2 style=\"font-size: 24px;\">${e::class.simpleName}: ${e.localizedMessage}</h2>\n" +
+                        "  <pre style=\"white-space: pre-wrap; word-wrap: break-word; font-family: monospace;\">\n" +
+                        "    ${e.stackTrace.joinToString("\n")}" +
+                        "  </pre>\n" +
+                        "</div>" +
+                        "</body>" +
+                        "</html>"),
+            client.getOutputStream())
+    }
 }
