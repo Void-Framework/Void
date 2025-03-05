@@ -1,8 +1,8 @@
 package main.html.element.content
 
-import main.html.element.ElementWithChildren
 import main.html.attributes.Attribute
 import main.html.element.Element
+import main.html.element.ElementWithChildren
 
 class Div(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren("div") {
 
