@@ -1,7 +1,6 @@
 package main.html.element
 
 import main.html.element.content.HtmlString
-import javax.swing.text.html.HTML
 
 abstract class TextElement(name: String, private var text: HtmlString) : Element(name) {
 

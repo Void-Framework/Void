@@ -6,14 +6,8 @@ import main.java.main.DTO.RequestDTO
 import main.java.main.DTO.ResponseDTO
 import main.java.main.HTTP.Builder.HTTPBuilder
 import main.router.exceptions.NotAnnotatedException
-import main.router.exceptions.RouteNoLocationException
 import main.router.exceptions.RouteTargetUsedException
-import main.router.exceptions.RoutesNotFoundException
-import java.io.File
 import java.net.Socket
-import java.nio.file.Files
-import java.nio.file.Paths
-import kotlin.io.path.Path
 import kotlin.reflect.full.findAnnotation
 
 class Router {

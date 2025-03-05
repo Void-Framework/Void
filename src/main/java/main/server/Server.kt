@@ -1,12 +1,7 @@
 package main.java.main.Server
 
 import main.java.main.ClientHandler.ClientHandler
-import main.router.Route
-import main.router.Router
-import java.io.File
-import java.io.IOException
 import java.net.ServerSocket
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class Server {
