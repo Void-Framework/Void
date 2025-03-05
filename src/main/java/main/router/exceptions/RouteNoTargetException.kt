@@ -1,3 +1,3 @@
 package main.router.exceptions
 
-class RouteNoTargetException: Exception("Route is incorrectly formatted/doesn't being with /")
+class RouteNoTargetException(target: String): Exception("$target is incorrectly formatted/doesn't being with /")
