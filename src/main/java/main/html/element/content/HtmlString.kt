@@ -4,11 +4,15 @@ import main.html.element.Element
 import main.html.element.SelfClosingElement
 import main.html.exceptions.ElementException
 
-class HtmlString(private val pos: MutableMap<IntRange, InlineElement>, private val text: String) {
+typealias IntRangePosition = MutableMap<IntRange, InlineElement>
+typealias Position = MutableMap<Int, InlineElement>
 
-    constructor(pos: MutableMap<Int, InlineElement>, text: String) : this(pos.mapKeys {
-        return@mapKeys IntRange(it.key, it.key)
-    } as MutableMap<IntRange, InlineElement>, text)
+
+class HtmlString(private val pos: IntRangePosition, private val text: String) {
+
+    constructor(pos: Position, text: String) : this(pos.mapKeys {
+        IntRange(it.key, it.key)
+    } as IntRangePosition, text)
 
     fun convert(): String {
         val result = StringBuilder(text)
