@@ -1,4 +1,3 @@
 package main.router.exceptions
 
-class RouteTargetUsedException: Exception("Specified target location is already used in a different route") {
-}
+class RouteTargetUsedException(target: String): Exception("$target is already used in a different route")

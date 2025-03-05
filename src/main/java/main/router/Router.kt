@@ -23,12 +23,12 @@ class Router {
 
             if (annotation != null) {
                 if (routes.containsKey(annotation.target)) {
-                    throw RouteTargetUsedException()
+                    throw RouteTargetUsedException(annotation.target)
                 } else {
                     if (annotation.target.startsWith("/")) {
                         routes[annotation.target] = route
                     } else {
-                        throw RouteNoTargetException()
+                        throw RouteNoTargetException(annotation.target)
                     }
                 }
             } else {
