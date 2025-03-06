@@ -1,3 +1,5 @@
 package main.java.main.DTO
 
-data class RequestDTO(var method: String, var target: String, var headers: Map<String, String>, var body: String)
+import main.api.Method
+
+data class RequestDTO(var method: Method, var target: String, var headers: Map<String, String>, var body: String)
