@@ -1,4 +1,4 @@
-package main.api
+package main.api.method
 
 enum class Method {
 
