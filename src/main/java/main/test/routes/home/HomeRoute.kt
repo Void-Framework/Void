@@ -18,7 +18,7 @@ class HomeRoute: Page(
     target = "/"
 ) {
 
-    override var content: Element = Div(divAtt) {
+    override var content: Element? = Div(divAtt) {
         textElement<H1>(HtmlString.fromSinglePositions(mutableMapOf(5 to Br()), "Hello, How are you"))
         selfClosingElement<Br>()
     }
