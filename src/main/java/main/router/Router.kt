@@ -37,58 +37,48 @@ class Router {
         val target = requestDTO.target
         if (routes.containsKey(target)) {
             if (routes[target] is ApiPage) {
-                (routes[target] as ApiPage).serverGetter()
                 HTTPBuilder().build(
-                    ResponseDTO(
-                        200,
-                        "All is well",
-                        mapOf(
-                            "Content-Type" to "text/html",
-                            "Upgrade" to "websocket",
-                            "Connection" to "Upgrade"
-                        ),
-                        "<html><body>${routes[target]!!.content.render()}</body></html>"
-                    ),
+                    (routes[target] as ApiPage).serverGetter(request = requestDTO),
                     client.getOutputStream()
                 )
             } else {
                 HTTPBuilder().build(
-                    ResponseDTO(
-                        200,
-                        "All is well",
-                        mapOf(
+                    response = ResponseDTO(
+                        status = 200,
+                        statusText = "All is well",
+                        headers = mapOf(
                             "Content-Type" to "text/html",
                             "Upgrade" to "websocket",
                             "Connection" to "Upgrade"
                         ),
-                        "<html><body>${routes[target]!!.content.render()}</body></html>"
+                        body = "<html><body>${routes[target]!!.content!!.render()}</body></html>"
                     ),
-                    client.getOutputStream()
+                    outputStream = client.getOutputStream()
                 )
             }
         } else {
             HTTPBuilder().build(
-                ResponseDTO(404,
-                "Not Found",
-                mapOf(
+                response = ResponseDTO(status = 404,
+                statusText = "Not Found",
+                headers = mapOf(
                     "Content-Type" to "text/html",
                     "Upgrade" to "websocket",
                     "Connection" to "Upgrade"
                 ),
-                "<html><body><h1>No Route Found!</h1></body></html>"),
-                client.getOutputStream())
+                body = "<html><body><h1>No Route Found!</h1></body></html>"),
+                outputStream = client.getOutputStream())
         }
     }
 
     fun error(client: Socket, e: Exception) {
         HTTPBuilder().build(
-            ResponseDTO(500,
-                "Server Error",
-                mapOf(
-                    Pair("Content-Type", "text/html"),
-                    Pair("Connection", "close")
+            response = ResponseDTO(status = 500,
+                statusText = "Server Error",
+                headers = mapOf(
+                    "Content-Type" to "text/html",
+                    "Connection" to "close"
                 ),
-                ExceptionPage(e).page),
-            client.getOutputStream())
+                body = ExceptionPage(e).page),
+            outputStream = client.getOutputStream())
     }
 }
