@@ -19,7 +19,7 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
 
         private fun generateJson(key: String, value: Any?): String? {
             when (value) {
-                (value == null) -> return "\"$key\":null,"
+                null -> return "\"$key\":null,"
                 is Boolean, is Number -> return "\"$key\":$value,"
                 is String -> return "\"$key\":\"$value\","
                 is Array<*>, is Iterable<*> -> {
@@ -36,7 +36,8 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
                             else -> {
                                 val nestedValue = generateJson("", it)
                                 if (nestedValue != null) {
-                                    arrayBuilder.append("${nestedValue.substringBeforeLast(',')},")
+                                    val editedValueForList = nestedValue.substring(3)
+                                    arrayBuilder.append("${editedValueForList.substringBeforeLast(',')},")
                                 }
                             }
                         }
@@ -50,22 +51,14 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
                 is Map<*, *> -> {
                     val mapBuilder = StringBuilder("{")
 
-                    value.forEach {
-                        if (it.key is String) {
-                            if (it.value is String) {
-                                mapBuilder.append("\"${it.key}\":\"${it.value}\",")
-                            } else if (it.value is Boolean || it.value is Number || it.value == null) {
-                                mapBuilder.append("\"${it.key}\":${it.value},")
-                            } else {
-                                val nestedValue = generateJson(it.key as String, it.value)
-                                if (nestedValue != null) {
-                                    mapBuilder.append(nestedValue)
-                                } else {
-                                    mapBuilder.append("\"${it.key}\":null,")
-                                }
+                    value.forEach { (mapKey, mapValue) ->
+                        if (mapKey is String) {
+                            val nestedValue = generateJson(mapKey, mapValue)
+                            if (nestedValue != null) {
+                                mapBuilder.append(nestedValue)
                             }
                         } else {
-                            throw UnsupportedOperationException("Names of parameters in a json map can only be strings")
+                            throw UnsupportedOperationException("Map keys must be strings.")
                         }
                     }
                     if (value.isNotEmpty()) {
@@ -75,11 +68,7 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
                     return "\"$key\":$mapBuilder,"
                 }
                 else -> {
-                    return if (value != null) {
-                        generateObjectJson(key, value)
-                    } else {
-                        "\"$key\":$value,"
-                    }
+                    return generateObjectJson(key, value)
                 }
             }
         }
@@ -101,6 +90,7 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
 
             entries.forEach { (key, value) ->
                 jsonBuilder.append(generateJson(key, value))
+                println(jsonBuilder.toString())
             }
             if (entries.isNotEmpty()) {
                 jsonBuilder.setLength(jsonBuilder.length - 1)
