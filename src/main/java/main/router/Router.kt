@@ -1,11 +1,11 @@
 package main.router
 
 import main.html.exceptions.ExceptionPage
+import main.html.page.ApiPage
 import main.html.page.Page
 import main.java.main.DTO.RequestDTO
 import main.java.main.DTO.ResponseDTO
 import main.java.main.HTTP.Builder.HTTPBuilder
-import main.router.exceptions.NotAnnotatedException
 import main.router.exceptions.RouteNoTargetException
 import main.router.exceptions.RouteTargetUsedException
 import java.net.Socket
@@ -37,23 +37,44 @@ class Router {
     fun route(requestDTO: RequestDTO, client: Socket) {
         val target = requestDTO.target
         if (routes.containsKey(target)) {
-            HTTPBuilder().build(ResponseDTO(200,
-                "All is well",
-                mapOf(
-                    Pair("Content-Type", "text/html"),
-                    Pair("Upgrade", "websocket"),
-                    Pair("Connection", "Upgrade")
-                ),
-                "<html><body>${routes[target]!!.content.render()}</body></html>"),
-                client.getOutputStream())
+            if (routes[target] is ApiPage) {
+                (routes[target] as ApiPage).serverGetter()
+                HTTPBuilder().build(
+                    ResponseDTO(
+                        200,
+                        "All is well",
+                        mapOf(
+                            "Content-Type" to "text/html",
+                            "Upgrade" to "websocket",
+                            "Connection" to "Upgrade"
+                        ),
+                        "<html><body>${routes[target]!!.content.render()}</body></html>"
+                    ),
+                    client.getOutputStream()
+                )
+            } else {
+                HTTPBuilder().build(
+                    ResponseDTO(
+                        200,
+                        "All is well",
+                        mapOf(
+                            "Content-Type" to "text/html",
+                            "Upgrade" to "websocket",
+                            "Connection" to "Upgrade"
+                        ),
+                        "<html><body>${routes[target]!!.content.render()}</body></html>"
+                    ),
+                    client.getOutputStream()
+                )
+            }
         } else {
             HTTPBuilder().build(
                 ResponseDTO(404,
                 "Not Found",
                 mapOf(
-                    Pair("Content-Type", "text/html"),
-                    Pair("Upgrade", "websocket"),
-                    Pair("Connection", "Upgrade")
+                    "Content-Type" to "text/html",
+                    "Upgrade" to "websocket",
+                    "Connection" to "Upgrade"
                 ),
                 "<html><body><h1>No Route Found!</h1></body></html>"),
                 client.getOutputStream())
