@@ -18,21 +18,15 @@ class Router {
 
         //Add a function to add routes without finding the annotations
         fun addRoute(route: Page) {
-            val clazz = route::class
-            val annotation = clazz.findAnnotation<Route>()
 
-            if (annotation != null) {
-                if (routes.containsKey(annotation.target)) {
-                    throw RouteTargetUsedException(annotation.target)
-                } else {
-                    if (annotation.target.startsWith("/")) {
-                        routes[annotation.target] = route
-                    } else {
-                        throw RouteNoTargetException(annotation.target)
-                    }
-                }
+            if (routes.containsKey(route.target)) {
+                throw RouteTargetUsedException(route.target)
             } else {
-                throw NotAnnotatedException()
+                if (route.target.startsWith("/")) {
+                    routes[route.target] = route
+                } else {
+                    throw RouteNoTargetException(route.target)
+                }
             }
         }
 
