@@ -1,5 +1,6 @@
 package main.java.main.DTO
 
+import java.util.ArrayList
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.internal.impl.builtins.PrimitiveType
 import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType.Primitive
@@ -18,33 +19,50 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
 
         private fun generateJson(key: String, value: Any?): String? {
             when (value) {
+                (value == null) -> return "\"$key\":null,"
                 is Boolean, is Number -> return "\"$key\":$value,"
                 is String -> return "\"$key\":\"$value\","
-                is Array<*> -> {
+                is Array<*>, is Iterable<*> -> {
+                    val items = when (value) {
+                        is Array<*> -> value.toList()
+                        is Collection<*> -> value.toList()
+                        else -> emptyList()
+                    }
                     val arrayBuilder = StringBuilder("[")
-                    value.forEach {
+                    items.forEach {
                         when (it) {
                             is Number, is Boolean -> arrayBuilder.append("$it,")
                             is String -> arrayBuilder.append("\"$it\",")
-                            else -> arrayBuilder.append(generateJson(key, value))
+                            else -> {
+                                val nestedValue = generateJson("", it)
+                                if (nestedValue != null) {
+                                    arrayBuilder.append("${nestedValue.substringBeforeLast(',')},")
+                                }
+                            }
                         }
                     }
-                    if (value.isNotEmpty()) {
+                    if (items.isNotEmpty()) {
                         arrayBuilder.setLength(arrayBuilder.length - 1)
                     }
                     arrayBuilder.append("]")
                     return ("\"$key\":$arrayBuilder,")
                 }
                 is Map<*, *> -> {
-                    val mapBuilder = StringBuilder("\"$key\":{")
+                    val mapBuilder = StringBuilder("{")
+
                     value.forEach {
                         if (it.key is String) {
                             if (it.value is String) {
-                                mapBuilder.append("\"$it.key\":\"$it.value\",")
+                                mapBuilder.append("\"${it.key}\":\"${it.value}\",")
                             } else if (it.value is Boolean || it.value is Number || it.value == null) {
-                                mapBuilder.append("\"$it.key\":$it.value,")
+                                mapBuilder.append("\"${it.key}\":${it.value},")
                             } else {
-                                mapBuilder.append("${ it.value?.let { it1 -> generateObjectJson(it.key as String, it1) } },")
+                                val nestedValue = generateJson(it.key as String, it.value)
+                                if (nestedValue != null) {
+                                    mapBuilder.append(nestedValue)
+                                } else {
+                                    mapBuilder.append("\"${it.key}\":null,")
+                                }
                             }
                         } else {
                             throw UnsupportedOperationException("Names of parameters in a json map can only be strings")
@@ -54,31 +72,16 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
                         mapBuilder.setLength(mapBuilder.length - 1)
                     }
                     mapBuilder.append("}")
-                }
-                is Collection<*> -> {
-                    val arrayBuilder = StringBuilder("[")
-                    value.forEach {
-                        when (it) {
-                            is Number, is Boolean -> arrayBuilder.append("$it,")
-                            is String -> arrayBuilder.append("\"$it\",")
-                            else -> arrayBuilder.append(generateJson(key, value))
-                        }
-                    }
-                    if (value.isNotEmpty()) {
-                        arrayBuilder.setLength(arrayBuilder.length - 1)
-                    }
-                    arrayBuilder.append("]")
-                    return ("\"$key\":$arrayBuilder,")
+                    return "\"$key\":$mapBuilder,"
                 }
                 else -> {
-                    if (value != null) {
-                        return generateObjectJson(key, value)
+                    return if (value != null) {
+                        generateObjectJson(key, value)
                     } else {
-                        return "\"$key\":$value,"
+                        "\"$key\":$value,"
                     }
                 }
             }
-            return null
         }
 
         private fun generateObjectJson(key: String, value: Any): String {
@@ -97,12 +100,12 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
             val jsonBuilder = StringBuilder("{")
 
             entries.forEach { (key, value) ->
-                jsonBuilder.append(value?.let { generateJson(key, it) })
+                jsonBuilder.append(generateJson(key, value))
+            }
+            if (entries.isNotEmpty()) {
+                jsonBuilder.setLength(jsonBuilder.length - 1)
             }
 
-            if (entries.isNotEmpty()) {
-                jsonBuilder.setLength(jsonBuilder.length - 1) // Remove last comma
-            }
             jsonBuilder.append("}")
 
             return ResponseDTO(
