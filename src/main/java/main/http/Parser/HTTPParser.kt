@@ -1,15 +1,17 @@
 package main.java.main.HTTP.Parser
 
+import main.api.method.Method
 import main.java.main.DTO.RequestDTO
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.util.*
 
 
 class HTTPParser {
 
     private lateinit var headers: Map<String, String>
-    private lateinit var method: String
+    private lateinit var method: Method
     private lateinit var path: String
 
     fun parse(inputSteam: InputStream): RequestDTO {
@@ -17,7 +19,7 @@ class HTTPParser {
         var line = reader.readLine()
         try {
             val requestLine = line.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            method = requestLine[0]
+            method = Method.valueOf(requestLine[0].uppercase(Locale.getDefault()))
             path = requestLine[1]
 
             while ((reader.readLine().also { line = it }).isNotEmpty()) {
