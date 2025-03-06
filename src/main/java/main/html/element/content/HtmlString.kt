@@ -10,9 +10,17 @@ typealias Position = MutableMap<Int, InlineElement>
 
 class HtmlString(private val pos: IntRangePosition, private val text: String) {
 
-    constructor(pos: Position, text: String) : this(pos.mapKeys {
-        IntRange(it.key, it.key)
-    } as IntRangePosition, text)
+    companion object {
+        fun fromSinglePositions(pos: Position, text: String): HtmlString {
+            return HtmlString(pos.mapKeys {
+                IntRange(it.key, it.key)
+            }.toMutableMap(), text)
+        }
+
+        fun fromRanges(pos: IntRangePosition, text: String): HtmlString {
+            return HtmlString(pos, text)
+        }
+    }
 
     fun convert(): String {
         val result = StringBuilder(text)

@@ -19,7 +19,7 @@ val divAtt = attribute {
 class HomeRoute: Page() {
 
     override var content: Element = Div(divAtt) {
-        textElement<H1>(HtmlString(mutableMapOf(Pair(5, Br())), "Hello, How are you"))
+        textElement<H1>(HtmlString.fromSinglePositions(mutableMapOf(5 to Br()), "Hello, How are you"))
         selfClosingElement<Br>()
     }
 }
