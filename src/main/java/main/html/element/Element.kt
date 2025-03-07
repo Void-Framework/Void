@@ -1,12 +1,13 @@
 package main.html.element
 
+import main.html.attributes.Attribute
 import main.html.attributes.AttributeNames
 import main.html.element.content.HtmlString
 
 abstract class Element internal constructor(open val name: String) {
 
     open val children: MutableList<Element>? = mutableListOf()
-    val attributes = mutableMapOf<String, String>()
+    val attributes = mutableMapOf<AttributeNames, String>()
     private val globalAttributes = listOf(AttributeNames.ACCESSKEY, AttributeNames.CLASS, AttributeNames.CONTENTEDITABLE, AttributeNames.DATA,
         AttributeNames.DIR, AttributeNames.DRAGGABLE, AttributeNames.ENTERKEYHINT, AttributeNames.HIDDEN, AttributeNames.ID,
         AttributeNames.INERT, AttributeNames.INPUTMODE, AttributeNames.LANG, AttributeNames.POPOVER, AttributeNames.SPELLCHECK,
@@ -19,8 +20,11 @@ abstract class Element internal constructor(open val name: String) {
 
     abstract fun render(): String
 
-    operator fun set(key: String, value: String) {
-        attributes[key] = value
+    fun addAttributes(vararg _attributes: Attribute) {
+        _attributes.forEach {
+            if (isAllowed(it.name) && it.isCorrectValue()) {
+                attributes[it.name] = it.value.toString()
+        } }
     }
 
     inline fun <reified T : ElementWithChildren> element(block: T.() -> Unit): T {
