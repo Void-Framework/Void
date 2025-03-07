@@ -1,10 +1,11 @@
 package main.java.main.Server
 
 import main.java.main.ClientHandler.ClientHandler
+import main.router.Router
 import java.net.ServerSocket
 import java.util.concurrent.Executors
 
-class Server {
+class Server(router: Router) {
 
     private lateinit var socket: ServerSocket
     val executorService = Executors.newCachedThreadPool()

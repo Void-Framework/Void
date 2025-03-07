@@ -12,26 +12,22 @@ import java.net.Socket
 
 class Router {
 
-    companion object {
-        val routes = mutableMapOf<String, Page>()
+    val routes = mutableMapOf<String, Page>()
 
-        //Add a function to add routes without finding the annotations
-        fun addRoute(route: Page) {
+    //Add a function to add routes without finding the annotations
+    fun addRoute(route: Page): Router {
 
-            if (routes.containsKey(route.target)) {
-                throw RouteTargetUsedException(route.target)
+        if (routes.containsKey(route.target)) {
+            throw RouteTargetUsedException(route.target)
+        } else {
+            if (route.target.startsWith("/")) {
+                routes[route.target] = route
             } else {
-                if (route.target.startsWith("/")) {
-                    routes[route.target] = route
-                } else {
-                    throw RouteNoTargetException(route.target)
-                }
+                throw RouteNoTargetException(route.target)
             }
         }
-
+        return this
     }
-
-
 
     fun route(requestDTO: RequestDTO, client: Socket) {
         val target = requestDTO.target
