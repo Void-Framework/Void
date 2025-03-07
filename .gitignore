@@ -32,3 +32,4 @@ bin/
 
 target
 /target/
+/src/main/java/main/test/
