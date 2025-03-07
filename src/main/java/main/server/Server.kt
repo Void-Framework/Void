@@ -5,7 +5,7 @@ import main.router.Router
 import java.net.ServerSocket
 import java.util.concurrent.Executors
 
-class Server(router: Router) {
+class Server(private val router: Router) {
 
     private lateinit var socket: ServerSocket
     val executorService = Executors.newCachedThreadPool()
@@ -18,7 +18,7 @@ class Server(router: Router) {
                     val client = socket.accept()
                     executorService.submit {
                         try {
-                            ClientHandler(client).start()
+                            ClientHandler(client).setRouter(router = this.router).start()
                         } catch (e: Exception) {
                             ClientHandler(client).error(e)
                         }
