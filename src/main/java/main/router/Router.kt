@@ -29,6 +29,13 @@ class Router {
         return this
     }
 
+    fun addRoutes(routes: List<Page>): Router {
+        routes.forEach {
+            addRoute(it)
+        }
+        return this
+    }
+
     fun route(requestDTO: RequestDTO, client: Socket) {
         val target = requestDTO.target
         if (routes.containsKey(target)) {
