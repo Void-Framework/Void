@@ -2,5 +2,9 @@ package main.html.attributes
 
 enum class AttributeTypes {
     NULL,
-    STRING
+    STRING,
+    BOOLEAN,
+    INTEGER,
+    NUMBER,
+    URL
 }
