@@ -16,7 +16,7 @@ class HTTPParser {
 
     fun parse(inputSteam: InputStream): RequestDTO {
         val reader = BufferedReader(InputStreamReader(inputSteam))
-        var line = reader.readLine()
+        var line = reader.readLine() ?: throw IllegalStateException("Empty request received")
         val requestLine = line.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         method = Method.valueOf(requestLine[0].uppercase(Locale.getDefault()))
         path = requestLine[1]
