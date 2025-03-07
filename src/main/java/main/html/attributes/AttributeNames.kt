@@ -68,6 +68,7 @@ enum class AttributeNames(val dataTypes: AttributeTypes) {
     OPEN(AttributeTypes.BOOLEAN),
     OPTIMUM(AttributeTypes.NUMBER),
     PATTERN(AttributeTypes.STRING),
+    PING(AttributeTypes.STRING),
     PLACEHOLDER(AttributeTypes.STRING),
     POPOVER(AttributeTypes.NULL),
     POPOVERTARGET(AttributeTypes.STRING),
