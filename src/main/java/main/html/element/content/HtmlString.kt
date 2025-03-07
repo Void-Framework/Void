@@ -29,25 +29,30 @@ class HtmlString(private val pos: IntRangePosition, private val text: String) {
         pos.forEach { (range, element) ->
             when (element) {
                 is Element -> {
+                    var attrs: String = ""
+                    element.attributes.entries.forEach { (name, value) ->
+                        attrs += "${name.name.lowercase()}=\"$value\" "
+                    }
+                    val spaces = attrs.length + 1
                     if (range.first != range.last) {
                         when (element) {
                             is SelfClosingElement -> {
-                                result.insert(range.first, "<${element.name}/>")
-                                result.insert(range.last + element.name.length + 3, "<${element.name}/>")
+                                result.insert(range.first, "<${element.name} ${attrs}/>")
+                                result.insert(range.last + element.name.length + 3 + spaces, "<${element.name}/>")
                             }
                             else -> {
-                                result.insert(range.first, "<${element.name}>")
-                                result.insert(range.last + element.name.length + 2, "</${element.name}>")
+                                result.insert(range.first, "<${element.name} ${attrs}>")
+                                result.insert(range.last + element.name.length + 2 + spaces, "</${element.name}>")
                             }
                         }
                     } else {
                         when (element) {
                             is SelfClosingElement -> {
-                                result.insert(range.first, "<${element.name}/>")
+                                result.insert(range.first, "<${element.name} ${attrs}/>")
                             }
                             else -> {
-                                result.insert(range.first, "<${element.name}>")
-                                result.insert(range.last + element.name.length + 2, "</${element.name}>")
+                                result.insert(range.first, "<${element.name} ${attrs}>")
+                                result.insert(range.last + element.name.length + 2 + spaces, "</${element.name}>")
                             }
                         }
                     }

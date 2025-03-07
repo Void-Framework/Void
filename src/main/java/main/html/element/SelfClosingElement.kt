@@ -5,7 +5,10 @@ abstract class SelfClosingElement internal constructor(override var name: String
     override val children: MutableList<Element>? = null
 
     override fun render(): String {
-        val attrs = attributes.entries.joinToString(" ") { "${it.key}=\"${it.value}\"" }
+        var attrs: String = ""
+        attributes.entries.forEach { (name, value) ->
+            attrs += "${name.name.lowercase()}=\"$value\" "
+        }
         return "<$name $attrs/>"
     }
 }
