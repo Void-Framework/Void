@@ -6,7 +6,7 @@ import main.html.element.Element
 import main.html.element.content.Div
 import main.html.element.content.HtmlString
 import main.html.element.content.formatting.Br
-import main.html.element.content.h.H1
+import main.html.element.content.H1
 import main.html.page.Page
 
 val divAtt = attribute {

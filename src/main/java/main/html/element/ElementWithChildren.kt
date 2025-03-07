@@ -1,6 +1,6 @@
 package main.html.element
 
-abstract class ElementWithChildren(override val name: String): Element(name) {
+abstract class ElementWithChildren internal constructor(override val name: String): Element(name) {
 
     override fun render(): String {
         val attrs = attributes.entries.joinToString(" ") { "${it.key}=\"${it.value}\"" }

@@ -2,7 +2,7 @@ package main.html.element
 
 import main.html.element.content.HtmlString
 
-abstract class Element(open val name: String) {
+abstract class Element internal constructor(open val name: String) {
 
     open val children: MutableList<Element>? = mutableListOf()
     val attributes = mutableMapOf<String, String>()
