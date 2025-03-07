@@ -25,7 +25,7 @@ class HomeRoute : Page(target = "/") {
             attribute = arrayOf(),
             type = H1(),
             text = HtmlString.fromSinglePositions(
-            mutableMapOf(6 to Br()),
+            mutableMapOf(5 to Br()),
             "Main Title"
         ))
 
@@ -44,10 +44,10 @@ class HomeRoute : Page(target = "/") {
                 type = H2(),
                 text = HtmlString.fromRanges(
                 mutableMapOf(
-                    IntRange(0, 13) to A(
+                    IntRange(0, 14) to A(
                         attribute {
                             name = AttributeNames.HREF
-                            value = URL("https://example.com").toString()
+                            value = URL("https://example.com")
                         },
                         attribute {
                             name = AttributeNames.TARGET

@@ -14,4 +14,3 @@ class Div(vararg attributes: Attribute, function: Element.() -> Unit) : ElementW
         addAttributes(*attributes)
     }
 }
-
