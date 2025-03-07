@@ -90,7 +90,6 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
 
             entries.forEach { (key, value) ->
                 jsonBuilder.append(generateJson(key, value))
-                println(jsonBuilder.toString())
             }
             if (entries.isNotEmpty()) {
                 jsonBuilder.setLength(jsonBuilder.length - 1)

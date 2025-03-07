@@ -10,7 +10,7 @@ import java.util.*
 
 class HTTPParser {
 
-    private lateinit var headers: MutableMap<String, String>
+    private val headers: MutableMap<String, String> = mutableMapOf()
     private lateinit var method: Method
     private lateinit var path: String
 
