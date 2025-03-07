@@ -10,23 +10,20 @@ import java.util.*
 
 class HTTPParser {
 
-    private lateinit var headers: Map<String, String>
+    private lateinit var headers: MutableMap<String, String>
     private lateinit var method: Method
     private lateinit var path: String
 
     fun parse(inputSteam: InputStream): RequestDTO {
         val reader = BufferedReader(InputStreamReader(inputSteam))
         var line = reader.readLine()
-        try {
-            val requestLine = line.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            method = Method.valueOf(requestLine[0].uppercase(Locale.getDefault()))
-            path = requestLine[1]
+        val requestLine = line.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        method = Method.valueOf(requestLine[0].uppercase(Locale.getDefault()))
+        path = requestLine[1]
 
-            while ((reader.readLine().also { line = it }).isNotEmpty()) {
-                val header = line.split(": ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                headers = mapOf(Pair(header[0], header[1]))
-            }
-        } catch (`_`: Exception) {
+        while ((reader.readLine().also { line = it }).isNotEmpty()) {
+            val header = line.split(": ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            headers[header[0]] = header[1]
         }
 
         val body = StringBuilder()
