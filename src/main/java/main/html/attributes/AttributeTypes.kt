@@ -1,6 +1,6 @@
 package main.html.attributes
 
-enum class AtrributeTypes {
+enum class AttributeTypes {
     NULL,
     STRING
 }
