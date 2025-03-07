@@ -2,7 +2,10 @@ package main.html.element
 
 import main.html.attributes.Attribute
 import main.html.attributes.AttributeNames
-import main.html.element.content.HtmlString
+import main.html.attributes.exception.UnsupportedTypeException
+import main.html.element.content.*
+import main.html.element.content.formatting.Br
+import main.html.element.content.formatting.Hr
 
 abstract class Element internal constructor(open val name: String) {
 
@@ -27,22 +30,70 @@ abstract class Element internal constructor(open val name: String) {
         } }
     }
 
-    inline fun <reified T : ElementWithChildren> element(block: T.() -> Unit): T {
-        val instance = T::class.java.getDeclaredConstructor().newInstance()
-        instance.apply(block)
-        children!!.add(instance)  // Add to the parent's children
-        return instance
+
+    fun div(vararg attribute: Attribute, function : Element.() -> Unit): Div {
+        val div = Div(
+            attributes = attribute,
+            function = function)
+        children!!.add(div)
+        return div
     }
 
-    inline fun <reified T : TextElement> textElement(text: HtmlString): T {
-        val instance = T::class.java.getDeclaredConstructor(HtmlString::class.java).newInstance(text)
-        children!!.add(instance)  // Add to the parent's children
-        return instance
+    fun a(vararg attribute: Attribute, function : Element.() -> Unit): A {
+        val a = A(
+            attributes = attribute,
+            function = function)
+        children!!.add(a)
+        return a
     }
 
-    inline fun <reified T : SelfClosingElement> selfClosingElement(): T {
-        val instance = T::class.java.getDeclaredConstructor().newInstance()
-        children!!.add(instance)  // Add to the parent's children
-        return instance
+    inline fun <reified T : HElement> text(vararg attribute: Attribute, text: HtmlString?, type: T): HElement {
+        val text = when (type) {
+            is H1 -> H1(
+                text = text,
+                attributes = attribute
+            )
+            is H2 -> H2(
+                text = text,
+                attributes = attribute
+            )
+            is H3 -> H3(
+                text = text,
+                attributes = attribute
+            )
+            is H4 -> H4(
+                text = text,
+                attributes = attribute
+            )
+            is H5 -> H5(
+                text = text,
+                attributes = attribute
+            )
+            is H6 -> H6(
+                text = text,
+                attributes = attribute
+            )
+            else -> {
+                throw UnsupportedTypeException()
+            }
+        }
+        children!!.add(text)
+        return text
+    }
+
+    inline fun <reified T : SelfClosingElement> selfClosingElement(vararg attribute: Attribute, type: T): SelfClosingElement {
+        val element = when (type) {
+            is Br -> Br(
+                attribute = attribute
+            )
+            is Hr -> Hr(
+                attribute = attribute
+            )
+            else -> {
+                throw UnsupportedTypeException()
+            }
+        }
+        children!!.add(element)
+        return element
     }
 }

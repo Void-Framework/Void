@@ -10,9 +10,8 @@ class Div(vararg attributes: Attribute, function: Element.() -> Unit) : ElementW
     override val allowedAttributes: List<AttributeNames> = listOf()
 
     init {
-        this.apply(function)  // Apply the provided block to initialize the content
+        this.apply(function)
         addAttributes(*attributes)
-
     }
 }
 
