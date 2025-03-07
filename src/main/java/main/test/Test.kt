@@ -5,11 +5,10 @@ import main.router.Router
 import main.test.routes.home.HomeRoute
 import main.test.routes.setter.SetterRoute
 
-fun main() {
-    val server = Server()
+val router = Router().addRoute(HomeRoute())
 
-    Router.addRoute(HomeRoute())
-    Router.addRoute(SetterRoute())
+fun main() {
+    val server = Server(router = router)
 
     server.startServer(8080)
 
