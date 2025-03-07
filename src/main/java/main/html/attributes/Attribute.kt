@@ -6,7 +6,7 @@ import java.net.URL
 class Attribute {
 
     var name: AttributeNames = AttributeNames.EMPTY
-    var type: AttributeTypes = AttributeTypes.NULL
+    private val type: AttributeTypes = name.dataTypes
     var value: Any? = null
 
     fun isCorrectValue(): Boolean {

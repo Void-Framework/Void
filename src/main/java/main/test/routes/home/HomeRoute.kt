@@ -1,6 +1,7 @@
 package main.test.routes.home
 
-import main.html.attributes.AtrributeTypes
+import main.html.attributes.AttributeNames
+import main.html.attributes.AttributeTypes
 import main.html.attributes.attribute
 import main.html.element.Element
 import main.html.element.content.Div
@@ -10,8 +11,8 @@ import main.html.element.content.H1
 import main.html.page.Page
 
 val divAtt = attribute {
-    name = "class"
-    type = AtrributeTypes.STRING
+    name = AttributeNames.CLASS
+    value = "test"
 }
 
 class HomeRoute: Page(

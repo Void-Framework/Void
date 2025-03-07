@@ -1,11 +1,21 @@
 package main.html.element
 
+import main.html.attributes.AttributeNames
 import main.html.element.content.HtmlString
 
 abstract class Element internal constructor(open val name: String) {
 
     open val children: MutableList<Element>? = mutableListOf()
     val attributes = mutableMapOf<String, String>()
+    private val globalAttributes = listOf(AttributeNames.ACCESSKEY, AttributeNames.CLASS, AttributeNames.CONTENTEDITABLE, AttributeNames.DATA,
+        AttributeNames.DIR, AttributeNames.DRAGGABLE, AttributeNames.ENTERKEYHINT, AttributeNames.HIDDEN, AttributeNames.ID,
+        AttributeNames.INERT, AttributeNames.INPUTMODE, AttributeNames.LANG, AttributeNames.POPOVER, AttributeNames.SPELLCHECK,
+        AttributeNames.STYLE, AttributeNames.TABINDEX, AttributeNames.TITLE, AttributeNames.TRANSLATE)
+    abstract val allowedAttributes: List<AttributeNames>
+
+    fun isAllowed(attribute: AttributeNames): Boolean {
+        return allowedAttributes.contains(attribute) || globalAttributes.contains(attribute)
+    }
 
     abstract fun render(): String
 
