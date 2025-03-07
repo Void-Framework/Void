@@ -7,6 +7,7 @@ import main.html.exceptions.ElementException
 typealias IntRangePosition = MutableMap<IntRange, InlineElement>
 typealias Position = MutableMap<Int, InlineElement>
 
+interface InlineElement
 
 class HtmlString(private val pos: IntRangePosition, private val text: String) {
 
@@ -14,7 +15,8 @@ class HtmlString(private val pos: IntRangePosition, private val text: String) {
         fun fromSinglePositions(pos: Position, text: String): HtmlString {
             return HtmlString(pos.mapKeys {
                 IntRange(it.key, it.key)
-            }.toMutableMap(), text)
+            }.toMutableMap()
+                , text)
         }
 
         fun fromRanges(pos: IntRangePosition, text: String): HtmlString {
