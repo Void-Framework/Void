@@ -9,10 +9,11 @@ import main.java.main.HTTP.Builder.HTTPBuilder
 import main.router.exceptions.RouteNoTargetException
 import main.router.exceptions.RouteTargetUsedException
 import java.net.Socket
+import java.util.concurrent.ConcurrentHashMap
 
 class Router {
 
-    val routes = mutableMapOf<String, Page>()
+    private val routes: ConcurrentHashMap<String, Page> = ConcurrentHashMap()
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page): Router {
