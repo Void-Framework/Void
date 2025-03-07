@@ -26,27 +26,33 @@ class HtmlString(private val pos: IntRangePosition, private val text: String) {
 
     fun convert(): String {
         val result = StringBuilder(text)
-        pos.forEach {
-            val instance = it.value::class.java.getDeclaredConstructor().newInstance()
-            if (instance is Element) {
-                if (it.key.first != it.key.last) {
-                    if (instance is SelfClosingElement) {
-                        result.insert(it.key.first, "<${instance.name}/>")
-                        result.insert(it.key.last + instance.name.length + 3, "<${instance.name}/>")
+        pos.forEach { (range, element) ->
+            when (element) {
+                is Element -> {
+                    if (range.first != range.last) {
+                        when (element) {
+                            is SelfClosingElement -> {
+                                result.insert(range.first, "<${element.name}/>")
+                                result.insert(range.last + element.name.length + 3, "<${element.name}/>")
+                            }
+                            else -> {
+                                result.insert(range.first, "<${element.name}>")
+                                result.insert(range.last + element.name.length + 2, "</${element.name}>")
+                            }
+                        }
                     } else {
-                        result.insert(it.key.first, "<${instance.name}/>")
-                        result.insert(it.key.last + instance.name.length + 2, "</${instance.name}>")
-                    }
-                } else {
-                    if (instance is SelfClosingElement) {
-                        result.insert(it.key.first, "<${instance.name}/>")
-                    } else {
-                        result.insert(it.key.first, "<${instance.name}/>")
-                        result.insert(it.key.last + instance.name.length + 2, "</${instance.name}>")
+                        when (element) {
+                            is SelfClosingElement -> {
+                                result.insert(range.first, "<${element.name}/>")
+                            }
+                            else -> {
+                                result.insert(range.first, "<${element.name}>")
+                                result.insert(range.last + element.name.length + 2, "</${element.name}>")
+                            }
+                        }
                     }
                 }
-            } else {
-                throw ElementException("A class in the map is not an Element")
+                else -> throw ElementException("A class in the map is not an Element")
             }
         }
 
