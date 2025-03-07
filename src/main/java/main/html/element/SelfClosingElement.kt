@@ -1,6 +1,6 @@
 package main.html.element
 
-abstract class SelfClosingElement(override var name: String): Element(name) {
+abstract class SelfClosingElement internal constructor(override var name: String): Element(name) {
 
     override val children: MutableList<Element>? = null
 
