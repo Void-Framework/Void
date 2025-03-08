@@ -24,10 +24,8 @@ class HomeRoute : Page(target = "/") {
         text<H1>(
             attribute = arrayOf(),
             type = H1(),
-            text = HtmlString.fromSinglePositions(
-            mutableMapOf(5 to Br()),
-            "Main Title"
-        ))
+            text = "Main${Br()} Title"
+        )
 
         selfClosingElement<Hr>(
             type = Hr()
@@ -42,25 +40,22 @@ class HomeRoute : Page(target = "/") {
             text<H2>(
                 attribute = arrayOf(),
                 type = H2(),
-                text = HtmlString.fromRanges(
-                mutableMapOf(
-                    IntRange(0, 14) to A(
-                        attribute {
-                            name = AttributeNames.HREF
-                            value = URL("https://example.com")
-                        },
-                        attribute {
-                            name = AttributeNames.TARGET
-                            value = "_blank"
-                        },
-                        attribute {
-                            name = AttributeNames.REL
-                            value = "noopener"
-                        }
-                    ) { }
-                ),
-                "Click Me Title"
-            ))
+                text = "${A(
+                    attribute {
+                        name = AttributeNames.HREF
+                        value = URL("https://example.com")
+                    },
+                    attribute {
+                        name = AttributeNames.TARGET
+                        value = "_blank"
+                    },
+                    attribute {
+                        name = AttributeNames.REL
+                        value = "noopener"
+                    },
+                    function = { }
+                )}Click Me Title"
+            )
 
             selfClosingElement<Br>(
                 type = Br()
@@ -69,10 +64,8 @@ class HomeRoute : Page(target = "/") {
             text<H3>(
                 attribute = arrayOf(),
                 type = H3(),
-                text = HtmlString.fromSinglePositions(
-                mutableMapOf(),
-                "Subtitle Here"
-            ))
+                text = "Subtitle Here"
+            )
         }
     }
 }
