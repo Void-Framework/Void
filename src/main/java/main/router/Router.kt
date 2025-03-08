@@ -1,7 +1,7 @@
 package main.router
 
-import main.html.exceptions.ExceptionPage
 import main.api.ApiPage
+import main.html.exceptions.ExceptionPage
 import main.html.page.Page
 import main.java.main.DTO.RequestDTO
 import main.java.main.DTO.ResponseDTO
@@ -9,9 +9,7 @@ import main.java.main.HTTP.Builder.HTTPBuilder
 import main.router.exceptions.RouteNoTargetException
 import main.router.exceptions.RouteTargetUsedException
 import java.net.Socket
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
 
 class Router {
 

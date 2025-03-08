@@ -1,9 +1,6 @@
 package main.java.main.DTO
 
-import java.util.ArrayList
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.internal.impl.builtins.PrimitiveType
-import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType.Primitive
 
 typealias JSON = Map<String, Any?>
 typealias Headers = Map<String, String>
