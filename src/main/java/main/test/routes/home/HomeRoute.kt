@@ -1,7 +1,6 @@
 package main.test.routes.home
 
 import main.html.attributes.AttributeNames
-import main.html.attributes.AttributeTypes
 import main.html.attributes.attribute
 import main.html.element.Element
 import main.html.element.content.*
