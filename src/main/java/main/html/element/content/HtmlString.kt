@@ -4,23 +4,19 @@ import main.html.element.Element
 import main.html.element.SelfClosingElement
 import main.html.exceptions.ElementException
 
-typealias IntRangePosition = MutableMap<IntRange, InlineElement>
-typealias Position = MutableMap<Int, InlineElement>
+data class TagPosition(
+    val range: IntRange,
+    val element: InlineElement,
+    val children: MutableList<TagPosition>
+)
 
 interface InlineElement
 
-class HtmlString(private val pos: IntRangePosition, private val text: String) {
+class HtmlString(private val text: String) {
 
     companion object {
-        fun fromSinglePositions(pos: Position, text: String): HtmlString {
-            return HtmlString(pos.mapKeys {
-                IntRange(it.key, it.key)
-            }.toMutableMap()
-                , text)
-        }
-
-        fun fromRanges(pos: IntRangePosition, text: String): HtmlString {
-            return HtmlString(pos, text)
+        fun create(text: String, builder: HtmlString.() -> Unit): HtmlString {
+            return HtmlString(text).apply(builder)
         }
     }
 
