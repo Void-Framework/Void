@@ -1,18 +1,16 @@
 package main.html.element
 
-import main.html.element.content.HtmlString
-
-abstract class TextElement internal constructor(name: String, private var text: HtmlString?) : Element(name) {
+abstract class TextElement internal constructor(name: String, private var text: String?) : Element(name) {
 
     override fun render(): String {
         var attrs: String = ""
         attributes.entries.forEach { (name, value) ->
             attrs += "${name.name.lowercase()}=\"$value\" "
         }
-        return "<$name $attrs>${text!!.convert()}</$name>"
+        return "<$name $attrs>${text!!}</$name>"
     }
 
-    fun setText(_text: HtmlString) {
+    fun setText(_text: String) {
         text = _text
     }
 }

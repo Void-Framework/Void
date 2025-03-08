@@ -5,7 +5,7 @@ import main.html.attributes.AttributeNames
 import main.html.element.Element
 import main.html.element.ElementWithChildren
 
-class A(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "a"), InlineElement {
+class A(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "a") {
 
     override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.DOWNLOAD, AttributeNames.HREF,
         AttributeNames.HREFLANG, AttributeNames.MEDIA, AttributeNames.PING, AttributeNames.REFERERPOLICY,
