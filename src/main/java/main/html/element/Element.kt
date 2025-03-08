@@ -47,8 +47,8 @@ abstract class Element internal constructor(open val name: String) {
         return a
     }
 
-    inline fun <reified T : HElement> text(vararg attribute: Attribute, text: HtmlString?, type: T): HElement {
-        val text = when (type) {
+    inline fun <reified T : HElement> text(vararg attribute: Attribute, text: String?, type: T): HElement {
+        val _text = when (type) {
             is H1 -> H1(
                 text = text,
                 attributes = attribute
@@ -77,8 +77,8 @@ abstract class Element internal constructor(open val name: String) {
                 throw UnsupportedTypeException()
             }
         }
-        children!!.add(text)
-        return text
+        children!!.add(_text)
+        return _text
     }
 
     inline fun <reified T : SelfClosingElement> selfClosingElement(vararg attribute: Attribute, type: T): SelfClosingElement {
