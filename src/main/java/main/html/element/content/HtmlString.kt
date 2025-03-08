@@ -14,9 +14,29 @@ interface InlineElement
 
 class HtmlString(private val text: String) {
 
+    private val tags = mutableListOf<TagPosition>()
+
     companion object {
         fun create(text: String, builder: HtmlString.() -> Unit): HtmlString {
             return HtmlString(text).apply(builder)
+        }
+    }
+
+    fun addTag(range: IntRange, element: InlineElement) {
+        // Find parent tag if this range is nested
+        val parent = findParentTag(range)
+        val newTag = TagPosition(range, element, mutableListOf())
+
+        if (parent != null) {
+            parent.children.add(newTag)
+        } else {
+            tags.add(newTag)
+        }
+    }
+
+    private fun findParentTag(range: IntRange): TagPosition? {
+        return tags.firstOrNull { parentTag ->
+            range.first > parentTag.range.first && range.last < parentTag.range.last
         }
     }
 
@@ -31,40 +51,37 @@ class HtmlString(private val text: String) {
         return attributesBuilder.toString()
     }
 
-    fun convert(): String {
-        val result = StringBuilder(text)
-        pos.forEach { (range, element) ->
-            when (element) {
-                is Element -> {
+    private fun renderTag(position: TagPosition, textContent: String): String {
+        val element = position.element
+        if (element !is Element) throw ElementException("Invalid element type")
 
-                    /*val spaces = attrs.length + 1
-                    if (range.first != range.last) {
-                        when (element) {
-                            is SelfClosingElement -> {
-                                result.insert(range.first, "<${element.name} ${attrs}/>")
-                                result.insert(range.last + element.name.length + 3 + spaces, "<${element.name}/>")
-                            }
-                            else -> {
-                                result.insert(range.first, "<${element.name} ${attrs}>")
-                                result.insert(range.last + element.name.length + 2 + spaces, "</${element.name}>")
-                            }
-                        }
-                    } else {
-                        when (element) {
-                            is SelfClosingElement -> {
-                                result.insert(range.first, "<${element.name} ${attrs}/>")
-                            }
-                            else -> {
-                                result.insert(range.first, "<${element.name} ${attrs}>")
-                                result.insert(range.last + element.name.length + 2 + spaces, "</${element.name}>")
-                            }
-                        }
-                    }*/
+        val tagName = element.name.lowercase()
+        val attributes = renderAttributes(element)
+
+        return when (element) {
+            is SelfClosingElement -> "<$tagName $attributes/>"
+            else -> {
+                val content = if (position.children.isEmpty()) {
+                    textContent.substring(position.range)
+                } else {
+                    var result = textContent.substring(position.range)
+                    // Process children from innermost to outermost
+                    position.children.sortedByDescending { it.range.first }.forEach { child ->
+                        result = renderTag(child, result)
+                    }
+                    result
                 }
-                else -> throw ElementException("A class in the map is not an Element")
+                "<$tagName $attributes>$content</$tagName>"
             }
         }
+    }
 
-        return result.toString()
+    fun convert(): String {
+        var result = text
+        // Process tags from outermost to innermost
+        tags.sortedBy { it.range.first }.forEach { tag ->
+            result = renderTag(tag, result)
+        }
+        return result
     }
 }
