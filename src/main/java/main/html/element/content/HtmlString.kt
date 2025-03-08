@@ -24,16 +24,24 @@ class HtmlString(private val pos: IntRangePosition, private val text: String) {
         }
     }
 
+    private fun renderAttributes(element: Element): String {
+        val attributesBuilder = StringBuilder("")
+        element.attributes.entries.forEach { (name, value) ->
+            attributesBuilder.append("${name.name.lowercase()}=\"$value\" ")
+        }
+        if (element.attributes.isNotEmpty()) {
+            attributesBuilder.setLength(attributesBuilder.length - 1)
+        }
+        return attributesBuilder.toString()
+    }
+
     fun convert(): String {
         val result = StringBuilder(text)
         pos.forEach { (range, element) ->
             when (element) {
                 is Element -> {
-                    var attrs: String = ""
-                    element.attributes.entries.forEach { (name, value) ->
-                        attrs += "${name.name.lowercase()}=\"$value\" "
-                    }
-                    val spaces = attrs.length + 1
+
+                    /*val spaces = attrs.length + 1
                     if (range.first != range.last) {
                         when (element) {
                             is SelfClosingElement -> {
@@ -55,7 +63,7 @@ class HtmlString(private val pos: IntRangePosition, private val text: String) {
                                 result.insert(range.last + element.name.length + 2 + spaces, "</${element.name}>")
                             }
                         }
-                    }
+                    }*/
                 }
                 else -> throw ElementException("A class in the map is not an Element")
             }
