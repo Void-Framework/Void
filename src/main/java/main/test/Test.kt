@@ -10,6 +10,6 @@ val router = Router().addRoutes(listOf(HomeRoute(), SetterRoute()))
 fun main() {
     val server = Server(router = router)
 
-    server.startServer(8080)
+    server.startHTTPServer(8080)
 
 }
