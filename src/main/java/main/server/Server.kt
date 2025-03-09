@@ -2,15 +2,32 @@ package main.java.main.Server
 
 import main.java.main.ClientHandler.ClientHandler
 import main.router.Router
+import java.io.File
+import java.io.FileInputStream
 import java.net.ServerSocket
+import java.security.KeyStore
+import java.security.SecureRandom
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLServerSocket
+import javax.net.ssl.SSLServerSocketFactory
+import javax.net.ssl.SSLSocket
 
 class Server(private val router: Router) {
 
     private lateinit var socket: ServerSocket
-    val executorService = Executors.newCachedThreadPool()
+    private val executorService: ExecutorService = Executors.newCachedThreadPool()
+    private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
+    private val context: SSLContext = SSLContext.getInstance("TLS")
+    private lateinit var factory: SSLServerSocketFactory
 
-    fun startServer(port: Int) {
+    init {
+        context.init(null, null, SecureRandom())
+        factory = context.serverSocketFactory
+    }
+
+    fun startHTTPServer(port: Int) {
         Thread {
             try {
                 socket = ServerSocket(port)
@@ -30,5 +47,28 @@ class Server(private val router: Router) {
                 socket.close()
             }
         }.start()
+    }
+
+    fun startHTTPSServer(port: Int, password: String, file: File, needsAuth: Boolean) {
+        val paswd = password.toCharArray()
+        val fis: FileInputStream
+        try {
+            fis = FileInputStream(file)
+            keystore.load(fis, paswd)
+            val server = factory.createServerSocket(port) as SSLServerSocket
+            server.needClientAuth = needsAuth
+            while (server.isBound) {
+                val client = server.accept()
+                executorService.submit {
+                    try {
+                        ClientHandler(client).setRouter(router = this.router).start()
+                    } catch (e: Exception) {
+                        ClientHandler(client).error(e)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
