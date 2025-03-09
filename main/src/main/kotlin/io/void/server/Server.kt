@@ -47,8 +47,7 @@ class Server(private val router: Router) {
         val paswd = password.toCharArray()
         val fis: FileInputStream
         try {
-            fis = FileInputStream(file)
-            keystore.load(fis, paswd)
+            FileInputStream(file).use { keystore.load(it, paswd) }
 
             val kmf = KeyManagerFactory.getInstance("SunX509")
             kmf.init(keystore, paswd)

@@ -7,6 +7,7 @@ import java.net.Socket
 class ClientHandler(private val client: Socket) {
 
     private lateinit var router: Router
+    private val parser = HTTPParser()
 
     fun setRouter(router: Router): ClientHandler {
         this.router = router
@@ -15,7 +16,7 @@ class ClientHandler(private val client: Socket) {
 
     fun start() {
         try {
-            val request = HTTPParser().parse(client.getInputStream())
+            val request = parser.parse(client.getInputStream())
             this.router.route(request, client)
         } catch (e: Exception) {
             error(e)
