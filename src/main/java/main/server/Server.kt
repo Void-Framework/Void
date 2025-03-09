@@ -58,7 +58,8 @@ class Server(private val router: Router) {
             val server = factory.createServerSocket(port) as SSLServerSocket
             server.needClientAuth = needsAuth
             while (server.isBound) {
-                val client = server.accept()
+                val client = server.accept() as SSLSocket
+                client.startHandshake()
                 executorService.submit {
                     try {
                         ClientHandler(client).setRouter(router = this.router).start()
