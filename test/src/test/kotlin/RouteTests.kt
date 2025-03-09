@@ -1,15 +1,15 @@
 package test
 
-import main.java.main.Server.Server
-import main.router.Router
+import io.jadiefication.routes.home.HomeRoute
 import org.junit.jupiter.api.*
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.*
-import main.test.routes.home.HomeRoute
-import main.test.routes.setter.SetterRoute
+import io.jadiefication.routes.setter.SetterRoute
+import io.void.router.Router
+import io.void.server.Server
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
