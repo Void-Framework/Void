@@ -19,8 +19,8 @@ class ClientHandler(private val client: Socket) {
         try {
             val request = parser.parse(
                 inputStream = client.getInputStream(),
-                client = client,
-                server = server)
+                client = client
+            )
             this.router.route(request, client)
         } catch (e: Exception) {
             error(e)
