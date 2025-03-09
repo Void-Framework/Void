@@ -1,5 +1,6 @@
 package io.void.server
 
+import com.sun.security.ntlm.Server
 import io.void.clienthandler.ClientHandler
 import io.void.router.Router
 import java.io.File
@@ -13,15 +14,16 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
 import javax.net.ssl.SSLSocket
+import kotlin.properties.Delegates
 
-class Server(private val router: Router) {
+class Server(private val router: Router, val port: Int) {
 
     private lateinit var socket: ServerSocket
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
 
-    fun startHTTPServer(port: Int) {
+    fun startHTTPServer() {
         Thread {
             try {
                 socket = ServerSocket(port)
@@ -43,7 +45,7 @@ class Server(private val router: Router) {
         }.start()
     }
 
-    fun startHTTPSServer(port: Int, password: String, file: File, needsAuth: Boolean) {
+    fun startHTTPSServer(password: String, file: File, needsAuth: Boolean) {
         val paswd = password.toCharArray()
         val fis: FileInputStream
         try {
