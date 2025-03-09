@@ -23,7 +23,7 @@ class HomeRoute : Page(target = "/") {
         text<H1>(
             attribute = arrayOf(),
             type = H1(),
-            text = "Main${Br()} Title"
+            text = "Main${Br().render()} Title"
         )
 
         selfClosingElement<Hr>(
@@ -53,7 +53,7 @@ class HomeRoute : Page(target = "/") {
                         value = "noopener"
                     },
                     function = { }
-                )}Click Me Title"
+                ).render()}Click Me Title"
             )
 
             selfClosingElement<Br>(

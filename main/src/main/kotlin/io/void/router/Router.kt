@@ -49,7 +49,7 @@ class Router {
                     response = ResponseDTO(
                         status = 200,
                         statusText = "All is well",
-                        headers = mapOf(
+                        headers = mutableMapOf(
                             "Content-Type" to "text/html",
                             "Upgrade" to "websocket",
                             "Connection" to "Upgrade"
@@ -63,7 +63,7 @@ class Router {
             builder.build(
                 response = ResponseDTO(status = 404,
                 statusText = "Not Found",
-                headers = mapOf(
+                headers = mutableMapOf(
                     "Content-Type" to "text/html",
                     "Upgrade" to "websocket",
                     "Connection" to "Upgrade"
@@ -77,7 +77,7 @@ class Router {
         builder.build(
             response = ResponseDTO(status = 500,
                 statusText = "Server Error",
-                headers = mapOf(
+                headers = mutableMapOf(
                     "Content-Type" to "text/html",
                     "Connection" to "close"
                 ),
