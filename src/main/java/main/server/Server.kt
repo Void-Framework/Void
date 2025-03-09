@@ -9,6 +9,7 @@ import java.security.KeyStore
 import java.security.SecureRandom
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
 import javax.net.ssl.SSLServerSocketFactory
@@ -20,12 +21,6 @@ class Server(private val router: Router) {
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
-    private lateinit var factory: SSLServerSocketFactory
-
-    init {
-        context.init(null, null, SecureRandom())
-        factory = context.serverSocketFactory
-    }
 
     fun startHTTPServer(port: Int) {
         Thread {
@@ -55,6 +50,13 @@ class Server(private val router: Router) {
         try {
             fis = FileInputStream(file)
             keystore.load(fis, paswd)
+
+            val kmf = KeyManagerFactory.getInstance("SunX509")
+            kmf.init(keystore, paswd)
+
+            context.init(kmf.keyManagers, null, SecureRandom())
+            val factory = context.serverSocketFactory
+
             val server = factory.createServerSocket(port) as SSLServerSocket
             server.needClientAuth = needsAuth
             while (server.isBound) {
