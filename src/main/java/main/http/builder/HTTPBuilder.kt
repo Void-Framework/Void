@@ -16,5 +16,7 @@ class HTTPBuilder {
         }
         writer.println()
         writer.println(response.body)
+
+        writer.flush()
     }
 }
