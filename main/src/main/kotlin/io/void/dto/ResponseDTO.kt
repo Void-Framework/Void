@@ -2,8 +2,8 @@ package io.void.dto
 
 import kotlin.reflect.full.memberProperties
 
-typealias JSON = Map<String, Any?>
-typealias Headers = Map<String, String>
+typealias JSON = MutableMap<String, Any?>
+typealias Headers = MutableMap<String, String>
 
 data class ResponseDTO(var status: Int, var statusText: String, var headers: Headers, var body: String) {
 
@@ -97,7 +97,7 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
             return ResponseDTO(
                 status = statusInt,
                 statusText = statusMessage,
-                headers = mapOf("Content-Type" to "application/json"),
+                headers = mutableMapOf("Content-Type" to "application/json"),
                 body = jsonBuilder.toString(),
             )
         }

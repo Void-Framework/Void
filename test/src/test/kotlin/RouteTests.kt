@@ -26,7 +26,7 @@ class RouteTests {
         server = Server(router = router)
         
         serverJob = scope.launch {
-            server.startServer(port)
+            server.startHTTPServer(port)
         }
         
         // Wait for server to start
