@@ -1,5 +1,9 @@
 name: Route Testing
 
+permissions:
+  checks: write
+  contents: read
+
 on:
   push:
     branches: [ Main, master ]
