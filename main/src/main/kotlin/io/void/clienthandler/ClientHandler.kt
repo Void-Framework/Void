@@ -2,6 +2,7 @@ package io.void.clienthandler
 
 import io.void.http.parser.HTTPParser
 import io.void.router.Router
+import io.void.server.Server
 import java.net.Socket
 
 class ClientHandler(private val client: Socket) {
@@ -14,9 +15,12 @@ class ClientHandler(private val client: Socket) {
         return this
     }
 
-    fun start() {
+    fun start(server: Server) {
         try {
-            val request = parser.parse(client.getInputStream())
+            val request = parser.parse(
+                inputStream = client.getInputStream(),
+                client = client,
+                server = server)
             this.router.route(request, client)
         } catch (e: Exception) {
             error(e)
