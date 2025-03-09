@@ -8,8 +8,11 @@ import io.void.server.Server
 val router = Router().addRoutes(listOf(HomeRoute(), SetterRoute()))
 
 fun main() {
-    val server = Server(router = router)
+    val server = Server(
+        router = router,
+        port = 8080
+    )
 
-    server.startHTTPServer(8080)
+    server.startHTTPServer()
 
 }
