@@ -6,6 +6,7 @@ import io.void.dto.ResponseDTO
 import io.void.http.builder.HTTPBuilder
 import io.void.router.Router
 import io.void.server.Server
+import java.io.BufferedInputStream
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -55,8 +56,8 @@ class HTTPParser {
     }
 
     private fun checkForClientAndServerHTTPS(client: Socket, server: Server): Boolean {
-        val inputStream = client.getInputStream()
-        val sssStream = inputStream.mark(5)
+        val inputStream = BufferedInputStream(client.getInputStream())
+        val sslStream = inputStream.mark(5)
         val firstBytes = ByteArray(5)
 
         inputStream.read(firstBytes)
