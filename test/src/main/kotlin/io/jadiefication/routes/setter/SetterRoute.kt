@@ -34,7 +34,12 @@ class SetterRoute: ApiPage(
                 "emptyMap" to mapOf<String, Any>()
             ), 200, "All is fine")
         } else {
-            throw MalformedMethodException("Incorrect method used in HTTP request")
+            return ResponseDTO(
+                status = 405,
+                statusText = "Method not allowed",
+                headers = mutableMapOf(),
+                body = ""
+                )
         }
     }
 }
