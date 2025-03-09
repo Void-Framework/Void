@@ -43,7 +43,9 @@ class Router {
         if (routes.containsKey(target)) {
             val page = routes[target]
             if (page is ApiPage) {
-                builder.build(page.serverGetter(request = requestDTO), client.getOutputStream())
+                builder.build(page.serverGetter(
+                    request = requestDTO
+                ), client.getOutputStream())
             } else {
                 builder.build(
                     response = ResponseDTO(

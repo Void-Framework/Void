@@ -23,10 +23,13 @@ class RouteTests {
     @BeforeAll
     fun setup() {
         val router = Router().addRoutes(listOf(HomeRoute(), SetterRoute()))
-        server = Server(router = router)
+        server = Server(
+            router = router,
+            port = port
+        )
         
         serverJob = scope.launch {
-            server.startHTTPServer(port)
+            server.startHTTPServer()
         }
         
         // Wait for server to start
