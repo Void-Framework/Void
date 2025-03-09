@@ -11,7 +11,7 @@ The **Void Framework** is a modular web framework designed to be lightweight, fl
 ## Getting Started 🚀
 ### Prerequisites 📋
 - 🖥️ **Java 17+**
-- 📦 **Gradle**
+- 📦 **Maven**
 
 ### Installation 📂
 Since Void Framework is currently not hosted on any public repository, you can clone the project locally and add it as a dependency to your project:
@@ -26,31 +26,26 @@ Here's a quick example to get started in Kotlin:
 package main.java.main.Test
 
 import main.java.main.Server.Server
+import main.router.Router
+
+val router = Router().addRoutes()
 
 fun main() {
-    val server = Server()
+    val server = Server(router = router)
+
     server.startServer(8080)
+
 }
 ```
 
 ### Server Class Overview 📝
 Here's a brief overview of how the `Server` class works:
-- 🔧 **`Server()` constructor**: Initializes the server and creates a `clients.txt` file to store client data.
+- 🔧 **`Server()` constructor**: Initializes the server.
 - 🚀 **`startServer(port: Int)` method**: Starts the server on the specified port and accepts client connections.
-- 📡 **Command Extraction**: The server listens for input commands like `ERROR(message)`, `WARN(message)`, `LOG(message)`, and `ALERT(message)` to handle logs dynamically.
-
-Example command inputs:
-```shell
-> ❌ ERROR(Something went wrong!)
-> ⚠️ WARN(This might be an issue)
-> 📜 LOG(Server started successfully)
-> 🚨 ALERT(Important message!)
-```
 
 ## Roadmap 🛤️
 The following features and submodules are planned for future releases:
 - 🗄️ **ORM (Object-Relational Mapping)**: Simplify database interactions
-- 🌐 **WebSocketServer Enhancements**: Add arguments to customize the WebSocket server
 - 🔐 **Security**: Authentication and authorization mechanisms
 - 🛣️ **Routing**: Handle HTTP requests and responses
 - 🖼️ **Templating**: Dynamic HTML generation
