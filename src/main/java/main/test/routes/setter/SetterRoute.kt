@@ -13,7 +13,7 @@ class SetterRoute: ApiPage(
 
     override fun serverGetter(request: RequestDTO): ResponseDTO {
         if (request.method == method) {
-            return ResponseDTO.json(mapOf(
+            return ResponseDTO.json(mutableMapOf(
                 "name" to "Jade",
                 "age" to 20,
                 "isStudent" to true,
