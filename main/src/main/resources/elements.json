@@ -1,0 +1,448 @@
+{
+  "section": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "nav": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "article": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "aside": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "header": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "footer": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "address": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "main": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "p": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "data", "dfn", "em", "i", "img", "input", "kbd", "label", "mark", "q", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "var"]
+  },
+  "hr": {
+    "contentModel": "void",
+    "attributes": []
+  },
+  "pre": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "blockquote": {
+    "contentModel": "normal",
+    "attributes": ["cite"],
+    "acceptedChildren": []
+  },
+  "ol": {
+    "contentModel": "normal",
+    "attributes": ["reversed", "start", "type"],
+    "acceptedChildren": ["li"]
+  },
+  "ul": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["li"]
+  },
+  "li": {
+    "contentModel": "normal",
+    "attributes": ["value"],
+    "acceptedChildren": []
+  },
+  "dl": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["dt", "dd"]
+  },
+  "dt": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "dd": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "figure": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "figcaption": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "div": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "a": {
+    "contentModel": "normal",
+    "attributes": ["href", "target", "rel", "download", "hreflang", "type"],
+    "acceptedChildren": []
+  },
+  "em": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "strong": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "small": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "s": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "cite": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "q": {
+    "contentModel": "normal",
+    "attributes": ["cite"],
+    "acceptedChildren": []
+  },
+  "dfn": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "abbr": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "data": {
+    "contentModel": "normal",
+    "attributes": ["value"],
+    "acceptedChildren": []
+  },
+  "time": {
+    "contentModel": "normal",
+    "attributes": ["datetime"],
+    "acceptedChildren": []
+  },
+  "code": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "var": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "samp": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "kbd": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "sub": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "sup": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "i": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "b": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "u": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "mark": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "ruby": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "rt": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "rp": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "bdi": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "bdo": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "span": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "br": {
+    "contentModel": "void",
+    "attributes": []
+  },
+  "wbr": {
+    "contentModel": "void",
+    "attributes": []
+  },
+  "ins": {
+    "contentModel": "normal",
+    "attributes": ["cite", "datetime"],
+    "acceptedChildren": []
+  },
+  "del": {
+    "contentModel": "normal",
+    "attributes": ["cite", "datetime"],
+    "acceptedChildren": []
+  },
+  "picture": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["source", "img"]
+  },
+  "iframe": {
+    "contentModel": "normal",
+    "attributes": ["src", "srcdoc", "width", "height", "name", "sandbox"],
+    "acceptedChildren": []
+  },
+  "object": {
+    "contentModel": "normal",
+    "attributes": ["data", "type", "width", "height"],
+    "acceptedChildren": []
+  },
+  "video": {
+    "contentModel": "normal",
+    "attributes": ["src", "width", "height", "poster", "preload", "autoplay", "loop", "muted", "controls"],
+    "acceptedChildren": []
+  },
+  "audio": {
+    "contentModel": "normal",
+    "attributes": ["src", "preload", "autoplay", "loop", "muted", "controls"],
+    "acceptedChildren": []
+  },
+  "track": {
+    "contentModel": "void",
+    "attributes": ["default", "kind", "src", "srclang", "label"]
+  },
+  "map": {
+    "contentModel": "normal",
+    "attributes": ["name"],
+    "acceptedChildren": ["area"]
+  },
+  "area": {
+    "contentModel": "void",
+    "attributes": ["alt", "coords", "shape", "href", "target"]
+  },
+  "table": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["caption", "colgroup", "thead", "tbody", "tfoot", "tr"]
+  },
+  "caption": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "colgroup": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["col"]
+  },
+  "col": {
+    "contentModel": "void",
+    "attributes": ["span"]
+  },
+  "tbody": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["tr"]
+  },
+  "thead": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["tr"]
+  },
+  "tfoot": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["tr"]
+  },
+  "tr": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["th", "td"]
+  },
+  "td": {
+    "contentModel": "normal",
+    "attributes": ["colspan", "rowspan", "headers"],
+    "acceptedChildren": []
+  },
+  "th": {
+    "contentModel": "normal",
+    "attributes": ["colspan", "rowspan", "headers", "scope"],
+    "acceptedChildren": []
+  },
+  "form": {
+    "contentModel": "normal",
+    "attributes": ["action", "method", "enctype", "novalidate", "autocomplete", "target", "name"],
+    "acceptedChildren": []
+  },
+  "fieldset": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "legend": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "label": {
+    "contentModel": "normal",
+    "attributes": ["for"],
+    "acceptedChildren": []
+  },
+  "input": {
+    "contentModel": "void",
+    "attributes": ["type", "name", "value", "placeholder", "required", "disabled", "readonly", "size", "maxlength", "min", "max", "step", "pattern", "autocomplete"]
+  },
+  "button": {
+    "contentModel": "normal",
+    "attributes": ["type", "name", "value", "disabled"],
+    "acceptedChildren": []
+  },
+  "select": {
+    "contentModel": "normal",
+    "attributes": ["name", "required", "disabled", "multiple", "size"],
+    "acceptedChildren": ["option", "optgroup"]
+  },
+  "datalist": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": ["option"]
+  },
+  "optgroup": {
+    "contentModel": "normal",
+    "attributes": ["label", "disabled"],
+    "acceptedChildren": ["option"]
+  },
+  "option": {
+    "contentModel": "normal",
+    "attributes": ["value", "disabled", "selected"],
+    "acceptedChildren": []
+  },
+  "textarea": {
+    "contentModel": "normal",
+    "attributes": ["name", "placeholder", "required", "disabled", "readonly", "rows", "cols", "maxlength"],
+    "acceptedChildren": []
+  },
+  "keygen": {
+    "contentModel": "void",
+    "attributes": ["name", "challenge", "keytype"]
+  },
+  "output": {
+    "contentModel": "normal",
+    "attributes": ["name"],
+    "acceptedChildren": []
+  },
+  "progress": {
+    "contentModel": "normal",
+    "attributes": ["value", "max"],
+    "acceptedChildren": []
+  },
+  "meter": {
+    "contentModel": "normal",
+    "attributes": ["value", "min", "max", "low", "high", "optimum"],
+    "acceptedChildren": []
+  },
+  "details": {
+    "contentModel": "normal",
+    "attributes": ["open"],
+    "acceptedChildren": []
+  },
+  "summary": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  },
+  "menu": {
+    "contentModel": "normal",
+    "attributes": ["type", "label"],
+    "acceptedChildren": ["menuitem"]
+  },
+  "menuitem": {
+    "contentModel": "void",
+    "attributes": ["type", "label", "icon", "checked", "disabled"]
+  },
+  "dialog": {
+    "contentModel": "normal",
+    "attributes": ["open"],
+    "acceptedChildren": []
+  },
+  "template": {
+    "contentModel": "normal",
+    "attributes": [],
+    "acceptedChildren": []
+  }
+}
