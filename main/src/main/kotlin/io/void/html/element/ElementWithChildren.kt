@@ -2,6 +2,8 @@ package io.void.html.element
 
 abstract class ElementWithChildren internal constructor(override val name: String): Element(name) {
 
+    abstract val acceptedChildren: MutableList<Element>
+
     override fun render(): String {
         var attrs: String = ""
         attributes.entries.forEach { (name, value) ->
