@@ -7,6 +7,8 @@ import io.void.html.element.ElementWithChildren
 
 class A(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "a") {
 
+    override val acceptedChildren: MutableList<Element> = mutableListOf()
+
     override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.DOWNLOAD, AttributeNames.HREF,
         AttributeNames.HREFLANG, AttributeNames.MEDIA, AttributeNames.PING, AttributeNames.REFERERPOLICY,
         AttributeNames.REL, AttributeNames.TARGET, AttributeNames.TYPE)
