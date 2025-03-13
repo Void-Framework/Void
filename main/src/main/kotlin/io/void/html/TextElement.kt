@@ -1,4 +1,4 @@
-package io.void.html.element
+package io.void.html
 
 abstract class TextElement internal constructor(name: String, private var text: String?) : Element(name) {
 

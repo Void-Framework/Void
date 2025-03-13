@@ -1,4 +1,4 @@
-package io.void.html.element
+package io.void.html
 
 import io.void.html.exceptions.ChildNotAllowedException
 import kotlin.reflect.KClass
