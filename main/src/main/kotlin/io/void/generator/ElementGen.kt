@@ -1,17 +1,20 @@
 package io.void.generator
 
 import io.void.generator.exception.NoOutputException
-import java.io.BufferedReader
 import java.io.File
 import java.nio.file.Files
 
 fun main(args: Array<String>) {
-    /*val output: File
-    if (args.first() == "--output") {
-        output = File(args[1])
+    if (args.isNotEmpty()) {
+        val output: File
+        if (args.first() == "--output") {
+            output = File(args[1])
+        } else {
+            throw NoOutputException()
+        }
     } else {
         throw NoOutputException()
-    }*/
+    }
     val resourceFile = object {}.javaClass.getResource("/elements.json")
         ?.let { File(it.toURI()) }
         ?: throw IllegalStateException("Could not find elements.json resource file")
@@ -33,7 +36,15 @@ fun main(args: Array<String>) {
         processedLines.add(currentLine)
     }
 
-    processedLines.forEach { line ->
+    val codeFiles = processLinesToCodeFiles(processedLines)
+
+    println(codeFiles)
+}
+
+fun processLinesToCodeFiles(lines: MutableList<String>): MutableList<String> {
+    val codeFiles = mutableListOf<String>()
+
+    lines.forEach { line ->
         val kotlinCode = StringBuilder("package io.void.generated\n\nimport io.void.html.attributes.Attribute\nimport io.void.html.attributes.AttributeNames\nimport io.void.generated.*\nimport kotlin.reflect.KClass\n")
         val startLength = kotlinCode.length
         val attributeBuilder = StringBuilder("")
@@ -81,8 +92,10 @@ fun main(args: Array<String>) {
         kotlinCode.append("    override val allowedAttributes: List<AttributeNames> = listOf($attributeBuilder)\n")
 
         kotlinCode.append("}")
-        println(kotlinCode)
+        codeFiles.add(kotlinCode.toString())
     }
+
+    return codeFiles
 }
 
 fun String.capitalize(): String {
