@@ -34,7 +34,8 @@ fun main(args: Array<String>) {
     }
 
     processedLines.forEach { line ->
-        val kotlinCode = StringBuilder("package io.void.generated\n")
+        val kotlinCode = StringBuilder("package io.void.generated\n\nimport io.void.html.attributes.Attribute\nimport io.void.html.attributes.AttributeNames\n")
+        val startLength = kotlinCode.length
         val attributeBuilder = StringBuilder("")
         val name = line.substringBefore("\":").substringAfter("\"").capitalize()
         val type = line.substringAfter("\"contentModel\": \"").substringBefore("\"").capitalize()
@@ -50,11 +51,17 @@ fun main(args: Array<String>) {
             }
         }
         when (type) {
-            "Normal" -> kotlinCode.append("\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = \"${name.lowercase()}\") {\n")
-            "Void" -> kotlinCode.append("\nclass $name(vararg attribute: Attribute): SelfClosingElement(\"${name.lowercase()}\") {\n")
+            "Normal" -> {
+                kotlinCode.append("\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = \"${name.lowercase()}\") {\n")
+                kotlinCode.insert(startLength, "import io.void.html.element.Element\nimport io.void.html.element.ElementWithChildren\n")
+            }
+            "Void" -> {
+                kotlinCode.append("\nclass $name(vararg attribute: Attribute): SelfClosingElement(\"${name.lowercase()}\") {\n")
+                kotlinCode.insert(startLength, "import io.void.html.element.SelfClosingElement\n")
+            }
             else -> throw UnsupportedOperationException()
         }
-        kotlinCode.append("override val allowedAttributes: List<AttributeNames> = listOf($attributeBuilder)\n")
+        kotlinCode.append("    override val allowedAttributes: List<AttributeNames> = listOf($attributeBuilder)\n")
 
         println(kotlinCode)
     }
