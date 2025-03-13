@@ -1,6 +1,6 @@
 package io.void.html.page
 
-import io.void.html.element.Element
+import io.void.html.Element
 
 abstract class Page(open val target: String) {
 
