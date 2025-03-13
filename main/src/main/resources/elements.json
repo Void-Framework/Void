@@ -273,13 +273,13 @@
   },
   "video": {
     "contentModel": "normal",
-    "attributes": ["src", "width", "height", "poster", "preload", "autoplay", "loop", "muted", "controls"],
-    "acceptedChildren": []
+    "attributes": ["controls", "autoplay", "loop", "muted", "preload", "poster", "width", "height"],
+    "acceptedChildren": ["source", "track"]
   },
   "audio": {
     "contentModel": "normal",
-    "attributes": ["src", "preload", "autoplay", "loop", "muted", "controls"],
-    "acceptedChildren": []
+    "attributes": ["controls", "autoplay", "loop", "muted", "preload", "src"],
+    "acceptedChildren": ["source", "track"]
   },
   "track": {
     "contentModel": "void",
@@ -443,6 +443,21 @@
   "template": {
     "contentModel": "normal",
     "attributes": [],
+    "acceptedChildren": []
+  },
+  "source": {
+    "contentModel": "empty",
+    "attributes": ["src", "type", "media"],
+    "acceptedChildren": []
+  },
+  "param": {
+    "contentModel": "empty",
+    "attributes": ["name", "value"],
+    "acceptedChildren": []
+  },
+  "embed": {
+    "contentModel": "empty",
+    "attributes": ["src", "type", "width", "height"],
     "acceptedChildren": []
   }
 }
