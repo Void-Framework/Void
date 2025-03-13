@@ -9,10 +9,11 @@ import io.void.html.ElementWithChildren
 
 class Dialog(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "dialog") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.OPEN)
 
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.OPEN)
+
 }

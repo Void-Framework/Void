@@ -7,10 +7,11 @@ import kotlin.reflect.KClass
 import io.void.html.SelfClosingElement
 
 class Embed(vararg attribute: Attribute): SelfClosingElement("embed") {
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.SRC, AttributeNames.TYPE, AttributeNames.WIDTH, AttributeNames.HEIGHT)
+
 
     init {
         addAttributes(*attribute)
     }
 
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.SRC, AttributeNames.TYPE, AttributeNames.WIDTH, AttributeNames.HEIGHT)
 }

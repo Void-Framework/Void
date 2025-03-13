@@ -91,17 +91,20 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
                         childrenBuilder.setLength(childrenBuilder.length - 2)
                     }
                 }
-                kotlinCode.append("    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf($childrenBuilder)\n\n")
-                kotlinCode.append("    init {\n        this.apply(function)\n        addAttributes(*attributes)\n    }\n")
+                kotlinCode.append("    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf($childrenBuilder)\n")
             }
             "Void" -> {
                 kotlinCode.append("\nclass $name(vararg attribute: Attribute): SelfClosingElement(\"${name.lowercase()}\") {\n")
                 kotlinCode.insert(startLength, "import io.void.html.SelfClosingElement\n")
-                kotlinCode.append("\n    init {\n        addAttributes(*attribute)\n    }\n\n")
             }
             else -> throw UnsupportedOperationException()
         }
-        kotlinCode.append("    override val allowedAttributes: List<AttributeNames> = listOf($attributeBuilder)\n")
+        kotlinCode.append("    override val allowedAttributes: List<AttributeNames> = listOf($attributeBuilder)\n\n")
+
+        when (type) {
+            "Normal" -> kotlinCode.append("    init {\n        this.apply(function)\n        addAttributes(*attributes)\n    }\n\n")
+            "Void" -> kotlinCode.append("\n    init {\n        addAttributes(*attribute)\n    }\n\n")
+        }
 
         kotlinCode.append("}")
         codeFiles[name] = kotlinCode.toString()

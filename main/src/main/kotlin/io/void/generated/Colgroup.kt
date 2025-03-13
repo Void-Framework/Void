@@ -9,10 +9,11 @@ import io.void.html.ElementWithChildren
 
 class Colgroup(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "colgroup") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(Col::class)
+    override val allowedAttributes: List<AttributeNames> = listOf()
 
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
-    override val allowedAttributes: List<AttributeNames> = listOf()
+
 }

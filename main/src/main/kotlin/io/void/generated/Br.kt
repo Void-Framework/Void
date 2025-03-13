@@ -7,10 +7,11 @@ import kotlin.reflect.KClass
 import io.void.html.SelfClosingElement
 
 class Br(vararg attribute: Attribute): SelfClosingElement("br") {
+    override val allowedAttributes: List<AttributeNames> = listOf()
+
 
     init {
         addAttributes(*attribute)
     }
 
-    override val allowedAttributes: List<AttributeNames> = listOf()
 }

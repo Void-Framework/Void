@@ -7,10 +7,11 @@ import kotlin.reflect.KClass
 import io.void.html.SelfClosingElement
 
 class Col(vararg attribute: Attribute): SelfClosingElement("col") {
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.SPAN)
+
 
     init {
         addAttributes(*attribute)
     }
 
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.SPAN)
 }
