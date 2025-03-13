@@ -1,11 +1,12 @@
 package io.void.html
 
+import io.void.generated.A
+import io.void.generated.Br
+import io.void.generated.Div
+import io.void.generated.Hr
 import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.exception.UnsupportedTypeException
-import io.void.html.element.content.*
-import io.void.html.element.content.formatting.Br
-import io.void.html.element.content.formatting.Hr
 
 abstract class Element internal constructor(open val name: String) {
 
