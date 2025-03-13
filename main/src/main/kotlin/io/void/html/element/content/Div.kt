@@ -7,7 +7,7 @@ import io.void.html.element.ElementWithChildren
 
 class Div(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren("div") {
 
-    override val acceptedChildren: MutableList<Element> = mutableListOf()
+    override val acceptedChildren: MutableList<Element?> = mutableListOf()
 
     override val allowedAttributes: List<AttributeNames> = listOf()
 
