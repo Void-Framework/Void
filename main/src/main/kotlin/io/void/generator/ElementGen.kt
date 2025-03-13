@@ -2,11 +2,12 @@ package io.void.generator
 
 import io.void.generator.exception.NoOutputException
 import java.io.File
+import java.nio.file.FileSystem
 import java.nio.file.Files
 
 fun main(args: Array<String>) {
+    val output: File
     if (args.isNotEmpty()) {
-        val output: File
         if (args.first() == "--output") {
             output = File(args[1])
         } else {
@@ -37,12 +38,22 @@ fun main(args: Array<String>) {
     }
 
     val codeFiles = processLinesToCodeFiles(processedLines)
-
-    println(codeFiles)
+    makeFiles(output, codeFiles)
 }
 
-fun processLinesToCodeFiles(lines: MutableList<String>): MutableList<String> {
-    val codeFiles = mutableListOf<String>()
+fun makeFiles(parent: File, content: MutableMap<String, String>) {
+    if (!File(parent.path).exists()) {
+        File(parent.path).mkdir()
+    }
+    content.forEach { (name, code) ->
+        val newFile = File("${parent.path}${File.separator}$name.kt")
+        Files.createFile(newFile.toPath())
+        Files.write(newFile.toPath(), code.toByteArray())
+    }
+}
+
+fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, String> {
+    val codeFiles = mutableMapOf<String, String>()
 
     lines.forEach { line ->
         val kotlinCode = StringBuilder("package io.void.generated\n\nimport io.void.html.attributes.Attribute\nimport io.void.html.attributes.AttributeNames\nimport io.void.generated.*\nimport kotlin.reflect.KClass\n")
@@ -92,7 +103,7 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableList<String> {
         kotlinCode.append("    override val allowedAttributes: List<AttributeNames> = listOf($attributeBuilder)\n")
 
         kotlinCode.append("}")
-        codeFiles.add(kotlinCode.toString())
+        codeFiles[name] = kotlinCode.toString()
     }
 
     return codeFiles
