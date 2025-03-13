@@ -9,10 +9,11 @@ import io.void.html.ElementWithChildren
 
 class Button(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "button") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.TYPE, AttributeNames.NAME, AttributeNames.VALUE, AttributeNames.DISABLED)
 
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.TYPE, AttributeNames.NAME, AttributeNames.VALUE, AttributeNames.DISABLED)
+
 }

@@ -9,10 +9,11 @@ import io.void.html.ElementWithChildren
 
 class Pre(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "pre") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+    override val allowedAttributes: List<AttributeNames> = listOf()
 
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
-    override val allowedAttributes: List<AttributeNames> = listOf()
+
 }

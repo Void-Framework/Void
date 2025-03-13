@@ -9,10 +9,11 @@ import io.void.html.ElementWithChildren
 
 class Meter(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "meter") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.VALUE, AttributeNames.MIN, AttributeNames.MAX, AttributeNames.LOW, AttributeNames.HIGH, AttributeNames.OPTIMUM)
 
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.VALUE, AttributeNames.MIN, AttributeNames.MAX, AttributeNames.LOW, AttributeNames.HIGH, AttributeNames.OPTIMUM)
+
 }

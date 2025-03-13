@@ -9,10 +9,11 @@ import io.void.html.ElementWithChildren
 
 class Video(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "video") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(Source::class, Track::class)
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.CONTROLS, AttributeNames.AUTOPLAY, AttributeNames.LOOP, AttributeNames.MUTED, AttributeNames.PRELOAD, AttributeNames.POSTER, AttributeNames.WIDTH, AttributeNames.HEIGHT)
 
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.CONTROLS, AttributeNames.AUTOPLAY, AttributeNames.LOOP, AttributeNames.MUTED, AttributeNames.PRELOAD, AttributeNames.POSTER, AttributeNames.WIDTH, AttributeNames.HEIGHT)
+
 }

@@ -9,10 +9,11 @@ import io.void.html.ElementWithChildren
 
 class Ins(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "ins") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.CITE, AttributeNames.DATETIME)
 
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.CITE, AttributeNames.DATETIME)
+
 }

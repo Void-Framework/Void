@@ -9,10 +9,11 @@ import io.void.html.ElementWithChildren
 
 class Optgroup(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "optgroup") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(Option::class)
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.LABEL, AttributeNames.DISABLED)
 
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.LABEL, AttributeNames.DISABLED)
+
 }

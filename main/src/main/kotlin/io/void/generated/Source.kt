@@ -7,10 +7,11 @@ import kotlin.reflect.KClass
 import io.void.html.SelfClosingElement
 
 class Source(vararg attribute: Attribute): SelfClosingElement("source") {
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.SRC, AttributeNames.TYPE, AttributeNames.MEDIA)
+
 
     init {
         addAttributes(*attribute)
     }
 
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.SRC, AttributeNames.TYPE, AttributeNames.MEDIA)
 }

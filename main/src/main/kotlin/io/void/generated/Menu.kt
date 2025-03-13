@@ -9,10 +9,11 @@ import io.void.html.ElementWithChildren
 
 class Menu(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "menu") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(Menuitem::class)
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.TYPE, AttributeNames.LABEL)
 
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.TYPE, AttributeNames.LABEL)
+
 }

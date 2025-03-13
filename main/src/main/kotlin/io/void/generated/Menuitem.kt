@@ -7,10 +7,11 @@ import kotlin.reflect.KClass
 import io.void.html.SelfClosingElement
 
 class Menuitem(vararg attribute: Attribute): SelfClosingElement("menuitem") {
+    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.TYPE, AttributeNames.LABEL, AttributeNames.CHECKED, AttributeNames.DISABLED)
+
 
     init {
         addAttributes(*attribute)
     }
 
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.TYPE, AttributeNames.LABEL, AttributeNames.CHECKED, AttributeNames.DISABLED)
 }
