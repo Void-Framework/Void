@@ -1,4 +1,4 @@
-package io.void.html.element
+package io.void.html
 
 abstract class SelfClosingElement internal constructor(override var name: String): Element(name) {
 
