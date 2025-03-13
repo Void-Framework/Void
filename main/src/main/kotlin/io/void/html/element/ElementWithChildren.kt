@@ -12,12 +12,21 @@ abstract class ElementWithChildren internal constructor(override val name: Strin
         attributes.entries.forEach { (name, value) ->
             attrs += "${name.name.lowercase()}=\"$value\" "
         }
-        children?.forEach { child ->
-            if (!acceptedChildren.contains(child::class)) {
-                throw ChildNotAllowedException(
-                    child = child,
-                    parent = this
+        /**
+         * If the first value in the array is null it means the element can accept any children.
+         *
+         * Else if you added in a child that is not in the accepted list, the ChildNotAllowedException will be thrown
+         *
+         * @throws ChildNotAllowedException
+         */
+        if (acceptedChildren[0] != null) {
+            children?.forEach { child ->
+                if (!acceptedChildren.contains(child::class)) {
+                    throw ChildNotAllowedException(
+                        child = child,
+                        parent = this
                     )
+                }
             }
         }
         val content = children!!.joinToString("") { it.render() }
