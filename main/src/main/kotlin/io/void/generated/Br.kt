@@ -1,14 +1,16 @@
-package io.void.html.element.content.formatting
+package io.void.generated
 
 import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
-import io.void.html.element.SelfClosingElement
+import io.void.generated.*
+import kotlin.reflect.KClass
+import io.void.html.SelfClosingElement
 
 class Br(vararg attribute: Attribute): SelfClosingElement("br") {
-
-    override val allowedAttributes: List<AttributeNames> = listOf()
 
     init {
         addAttributes(*attribute)
     }
+
+    override val allowedAttributes: List<AttributeNames> = listOf()
 }

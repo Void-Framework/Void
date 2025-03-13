@@ -75,7 +75,7 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
         when (type) {
             "Normal" -> {
                 kotlinCode.append("\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = \"${name.lowercase()}\") {\n")
-                kotlinCode.insert(startLength, "import io.void.html.element.Element\nimport io.void.html.element.ElementWithChildren\n")
+                kotlinCode.insert(startLength, "import io.void.html.Element\nimport io.void.html.ElementWithChildren\n")
                 val childrenBuilder = StringBuilder("null")
                 val acceptedChildren = line.substringAfter("\"acceptedChildren\": [").substringBefore("]").split(", ").map { it.replace("\"", "") }.toList()
                 if (acceptedChildren.isNotEmpty()) {
@@ -95,7 +95,7 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
             }
             "Void" -> {
                 kotlinCode.append("\nclass $name(vararg attribute: Attribute): SelfClosingElement(\"${name.lowercase()}\") {\n")
-                kotlinCode.insert(startLength, "import io.void.html.element.SelfClosingElement\n")
+                kotlinCode.insert(startLength, "import io.void.html.SelfClosingElement\n")
                 kotlinCode.append("\n    init {\n        addAttributes(*attribute)\n    }\n\n")
             }
             else -> throw UnsupportedOperationException()
