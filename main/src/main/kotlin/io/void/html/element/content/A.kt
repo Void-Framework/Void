@@ -4,10 +4,11 @@ import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import io.void.html.element.Element
 import io.void.html.element.ElementWithChildren
+import kotlin.reflect.KClass
 
 class A(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "a") {
 
-    override val acceptedChildren: MutableList<Element?> = mutableListOf()
+    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf()
 
     override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.DOWNLOAD, AttributeNames.HREF,
         AttributeNames.HREFLANG, AttributeNames.MEDIA, AttributeNames.PING, AttributeNames.REFERERPOLICY,
