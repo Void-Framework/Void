@@ -34,9 +34,29 @@ fun main(args: Array<String>) {
     }
 
     processedLines.forEach { line ->
+        val kotlinCode = StringBuilder("package io.void.generated\n")
+        val attributeBuilder = StringBuilder("")
         val name = line.substringBefore("\":").substringAfter("\"").capitalize()
         val type = line.substringAfter("\"contentModel\": \"").substringBefore("\"").capitalize()
-        println("$name, it's type is $type")
+        val attributes = line.substringAfter("\"attributes\": [").substringBefore("]").split(", ").map { it.replace("\"", "").uppercase() }.toList()
+        if (attributes.isNotEmpty()) {
+            attributes.forEach { attribute ->
+                if (attribute.isNotBlank()) {
+                    attributeBuilder.append("AttributeNames.$attribute,")
+                }
+            }
+            if (attributeBuilder.isNotEmpty()) {
+                attributeBuilder.setLength(attributeBuilder.length - 1)
+            }
+        }
+        when (type) {
+            "Normal" -> kotlinCode.append("\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = \"${name.lowercase()}\") {\n")
+            "Void" -> kotlinCode.append("\nclass $name(vararg attribute: Attribute): SelfClosingElement(\"${name.lowercase()}\") {\n")
+            else -> throw UnsupportedOperationException()
+        }
+        kotlinCode.append("override val allowedAttributes: List<AttributeNames> = listOf($attributeBuilder)\n")
+
+        println(kotlinCode)
     }
 }
 
