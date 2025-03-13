@@ -92,6 +92,7 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
                     }
                 }
                 kotlinCode.append("    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf($childrenBuilder)\n\n")
+                kotlinCode.append("    init {\n        this.apply(function)\n        addAttributes(*attributes)\n    }\n")
             }
             "Void" -> {
                 kotlinCode.append("\nclass $name(vararg attribute: Attribute): SelfClosingElement(\"${name.lowercase()}\") {\n")
