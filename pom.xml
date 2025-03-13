@@ -78,6 +78,27 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>3.1.2</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>runDataGen</id>
+                            <goals>
+                                <goal>java</goal>
+                            </goals>
+                            <configuration>
+                                <mainClass>io.void.generator.ElementGenKt</mainClass>
+                                <arguments>
+                                    <argument>--output</argument>
+                                    <argument>${project.basedir}/src/main/kotlin/io/void/generated</argument>
+                                </arguments>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
             </plugins>
         </pluginManagement>
     </build>
