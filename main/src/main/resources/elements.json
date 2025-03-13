@@ -273,13 +273,13 @@
   },
   "video": {
     "contentModel": "normal",
-    "attributes": ["src", "width", "height", "poster", "preload", "autoplay", "loop", "muted", "controls"],
-    "acceptedChildren": []
+    "attributes": ["controls", "autoplay", "loop", "muted", "preload", "poster", "width", "height"],
+    "acceptedChildren": ["source", "track"]
   },
   "audio": {
     "contentModel": "normal",
-    "attributes": ["src", "preload", "autoplay", "loop", "muted", "controls"],
-    "acceptedChildren": []
+    "attributes": ["controls", "autoplay", "loop", "muted", "preload", "src"],
+    "acceptedChildren": ["source", "track"]
   },
   "track": {
     "contentModel": "void",
@@ -397,10 +397,6 @@
     "attributes": ["name", "placeholder", "required", "disabled", "readonly", "rows", "cols", "maxlength"],
     "acceptedChildren": []
   },
-  "keygen": {
-    "contentModel": "void",
-    "attributes": ["name", "challenge", "keytype"]
-  },
   "output": {
     "contentModel": "normal",
     "attributes": ["name"],
@@ -433,7 +429,7 @@
   },
   "menuitem": {
     "contentModel": "void",
-    "attributes": ["type", "label", "icon", "checked", "disabled"]
+    "attributes": ["type", "label", "checked", "disabled"]
   },
   "dialog": {
     "contentModel": "normal",
@@ -443,6 +439,26 @@
   "template": {
     "contentModel": "normal",
     "attributes": [],
+    "acceptedChildren": []
+  },
+  "source": {
+    "contentModel": "void",
+    "attributes": ["src", "type", "media"],
+    "acceptedChildren": []
+  },
+  "param": {
+    "contentModel": "void",
+    "attributes": ["name", "value"],
+    "acceptedChildren": []
+  },
+  "embed": {
+    "contentModel": "void",
+    "attributes": ["src", "type", "width", "height"],
+    "acceptedChildren": []
+  },
+  "img": {
+    "contentModel": "void",
+    "attributes": ["alt", "crossorigin", "height", "ismap", "loading", "refererpolicy", "sizes", "src", "srcset", "usemap", "width"],
     "acceptedChildren": []
   }
 }

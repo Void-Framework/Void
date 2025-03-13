@@ -102,6 +102,7 @@ enum class AttributeNames(val dataTypes: AttributeTypes) {
     TITLE(AttributeTypes.STRING),
     TRANSLATE(AttributeTypes.STRING),
     TYPE(AttributeTypes.STRING),
+    USEMAP(AttributeTypes.STRING),
     VALUE(AttributeTypes.STRING),
     WIDTH(AttributeTypes.INTEGER),
     WRAP(AttributeTypes.STRING);
