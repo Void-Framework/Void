@@ -16,7 +16,7 @@ class Rt(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.Rt(vararg attribute: Attribute, _children: Element.() -> Unit): Rt {
+}    fun Element.Rt(vararg attribute: Attribute, _children: Element.() -> Unit): Rt {
         val Rt = Rt(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Rt(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         children!!.add(Rt)
         return Rt
     }
-}

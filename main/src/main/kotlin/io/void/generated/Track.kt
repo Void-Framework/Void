@@ -15,11 +15,10 @@ class Track(vararg attributes: Attribute): SelfClosingElement("track") {
         addAttributes(*attributes)
     }
 
-    fun Element.Track(vararg attribute: Attribute): Track {
+}    fun Element.Track(vararg attribute: Attribute): Track {
         val Track = Track(
             attributes = attribute
         )
         children!!.add(Track)
         return Track
     }
-}

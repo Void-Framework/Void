@@ -16,7 +16,7 @@ class Small(vararg attributes: Attribute, function: Element.() -> Unit): Element
         addAttributes(*attributes)
     }
 
-    fun Element.Small(vararg attribute: Attribute, _children: Element.() -> Unit): Small {
+}    fun Element.Small(vararg attribute: Attribute, _children: Element.() -> Unit): Small {
         val Small = Small(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Small(vararg attributes: Attribute, function: Element.() -> Unit): Element
         children!!.add(Small)
         return Small
     }
-}

@@ -16,7 +16,7 @@ class P(vararg attributes: Attribute, function: Element.() -> Unit): ElementWith
         addAttributes(*attributes)
     }
 
-    fun Element.P(vararg attribute: Attribute, _children: Element.() -> Unit): P {
+}    fun Element.P(vararg attribute: Attribute, _children: Element.() -> Unit): P {
         val P = P(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class P(vararg attributes: Attribute, function: Element.() -> Unit): ElementWith
         children!!.add(P)
         return P
     }
-}

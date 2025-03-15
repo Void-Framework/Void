@@ -16,7 +16,7 @@ class Em(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.Em(vararg attribute: Attribute, _children: Element.() -> Unit): Em {
+}    fun Element.Em(vararg attribute: Attribute, _children: Element.() -> Unit): Em {
         val Em = Em(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Em(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         children!!.add(Em)
         return Em
     }
-}

@@ -16,7 +16,7 @@ class Cite(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.Cite(vararg attribute: Attribute, _children: Element.() -> Unit): Cite {
+}    fun Element.Cite(vararg attribute: Attribute, _children: Element.() -> Unit): Cite {
         val Cite = Cite(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Cite(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         children!!.add(Cite)
         return Cite
     }
-}

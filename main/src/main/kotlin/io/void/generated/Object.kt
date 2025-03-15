@@ -16,7 +16,7 @@ class Object(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.Object(vararg attribute: Attribute, _children: Element.() -> Unit): Object {
+}    fun Element.Object(vararg attribute: Attribute, _children: Element.() -> Unit): Object {
         val Object = Object(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Object(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         children!!.add(Object)
         return Object
     }
-}

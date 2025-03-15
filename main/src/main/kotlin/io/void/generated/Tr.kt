@@ -16,7 +16,7 @@ class Tr(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.Tr(vararg attribute: Attribute, _children: Element.() -> Unit): Tr {
+}    fun Element.Tr(vararg attribute: Attribute, _children: Element.() -> Unit): Tr {
         val Tr = Tr(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Tr(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         children!!.add(Tr)
         return Tr
     }
-}

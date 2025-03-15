@@ -16,7 +16,7 @@ class Iframe(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.Iframe(vararg attribute: Attribute, _children: Element.() -> Unit): Iframe {
+}    fun Element.Iframe(vararg attribute: Attribute, _children: Element.() -> Unit): Iframe {
         val Iframe = Iframe(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Iframe(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         children!!.add(Iframe)
         return Iframe
     }
-}

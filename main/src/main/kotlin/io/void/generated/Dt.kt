@@ -16,7 +16,7 @@ class Dt(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.Dt(vararg attribute: Attribute, _children: Element.() -> Unit): Dt {
+}    fun Element.Dt(vararg attribute: Attribute, _children: Element.() -> Unit): Dt {
         val Dt = Dt(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Dt(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         children!!.add(Dt)
         return Dt
     }
-}

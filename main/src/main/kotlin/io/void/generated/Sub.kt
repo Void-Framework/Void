@@ -16,7 +16,7 @@ class Sub(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.Sub(vararg attribute: Attribute, _children: Element.() -> Unit): Sub {
+}    fun Element.Sub(vararg attribute: Attribute, _children: Element.() -> Unit): Sub {
         val Sub = Sub(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Sub(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         children!!.add(Sub)
         return Sub
     }
-}

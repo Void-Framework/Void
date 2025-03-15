@@ -16,7 +16,7 @@ class Code(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.Code(vararg attribute: Attribute, _children: Element.() -> Unit): Code {
+}    fun Element.Code(vararg attribute: Attribute, _children: Element.() -> Unit): Code {
         val Code = Code(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Code(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         children!!.add(Code)
         return Code
     }
-}

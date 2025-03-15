@@ -15,11 +15,10 @@ class Col(vararg attributes: Attribute): SelfClosingElement("col") {
         addAttributes(*attributes)
     }
 
-    fun Element.Col(vararg attribute: Attribute): Col {
+}    fun Element.Col(vararg attribute: Attribute): Col {
         val Col = Col(
             attributes = attribute
         )
         children!!.add(Col)
         return Col
     }
-}

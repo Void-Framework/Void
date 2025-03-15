@@ -16,7 +16,7 @@ class Summary(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         addAttributes(*attributes)
     }
 
-    fun Element.Summary(vararg attribute: Attribute, _children: Element.() -> Unit): Summary {
+}    fun Element.Summary(vararg attribute: Attribute, _children: Element.() -> Unit): Summary {
         val Summary = Summary(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Summary(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         children!!.add(Summary)
         return Summary
     }
-}

@@ -16,7 +16,7 @@ class Section(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         addAttributes(*attributes)
     }
 
-    fun Element.Section(vararg attribute: Attribute, _children: Element.() -> Unit): Section {
+}    fun Element.Section(vararg attribute: Attribute, _children: Element.() -> Unit): Section {
         val Section = Section(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Section(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         children!!.add(Section)
         return Section
     }
-}

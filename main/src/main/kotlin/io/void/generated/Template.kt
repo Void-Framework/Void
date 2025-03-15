@@ -16,7 +16,7 @@ class Template(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         addAttributes(*attributes)
     }
 
-    fun Element.Template(vararg attribute: Attribute, _children: Element.() -> Unit): Template {
+}    fun Element.Template(vararg attribute: Attribute, _children: Element.() -> Unit): Template {
         val Template = Template(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Template(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         children!!.add(Template)
         return Template
     }
-}

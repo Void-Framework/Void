@@ -16,7 +16,7 @@ class Textarea(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         addAttributes(*attributes)
     }
 
-    fun Element.Textarea(vararg attribute: Attribute, _children: Element.() -> Unit): Textarea {
+}    fun Element.Textarea(vararg attribute: Attribute, _children: Element.() -> Unit): Textarea {
         val Textarea = Textarea(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Textarea(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         children!!.add(Textarea)
         return Textarea
     }
-}

@@ -16,7 +16,7 @@ class Label(vararg attributes: Attribute, function: Element.() -> Unit): Element
         addAttributes(*attributes)
     }
 
-    fun Element.Label(vararg attribute: Attribute, _children: Element.() -> Unit): Label {
+}    fun Element.Label(vararg attribute: Attribute, _children: Element.() -> Unit): Label {
         val Label = Label(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Label(vararg attributes: Attribute, function: Element.() -> Unit): Element
         children!!.add(Label)
         return Label
     }
-}

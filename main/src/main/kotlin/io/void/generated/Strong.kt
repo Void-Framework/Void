@@ -16,7 +16,7 @@ class Strong(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.Strong(vararg attribute: Attribute, _children: Element.() -> Unit): Strong {
+}    fun Element.Strong(vararg attribute: Attribute, _children: Element.() -> Unit): Strong {
         val Strong = Strong(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Strong(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         children!!.add(Strong)
         return Strong
     }
-}

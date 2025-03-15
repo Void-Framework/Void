@@ -16,7 +16,7 @@ class Ul(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.Ul(vararg attribute: Attribute, _children: Element.() -> Unit): Ul {
+}    fun Element.Ul(vararg attribute: Attribute, _children: Element.() -> Unit): Ul {
         val Ul = Ul(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Ul(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         children!!.add(Ul)
         return Ul
     }
-}

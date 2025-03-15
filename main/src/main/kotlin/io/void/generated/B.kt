@@ -16,7 +16,7 @@ class B(vararg attributes: Attribute, function: Element.() -> Unit): ElementWith
         addAttributes(*attributes)
     }
 
-    fun Element.B(vararg attribute: Attribute, _children: Element.() -> Unit): B {
+}    fun Element.B(vararg attribute: Attribute, _children: Element.() -> Unit): B {
         val B = B(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class B(vararg attributes: Attribute, function: Element.() -> Unit): ElementWith
         children!!.add(B)
         return B
     }
-}

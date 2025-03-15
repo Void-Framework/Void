@@ -16,7 +16,7 @@ class Picture(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         addAttributes(*attributes)
     }
 
-    fun Element.Picture(vararg attribute: Attribute, _children: Element.() -> Unit): Picture {
+}    fun Element.Picture(vararg attribute: Attribute, _children: Element.() -> Unit): Picture {
         val Picture = Picture(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Picture(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         children!!.add(Picture)
         return Picture
     }
-}

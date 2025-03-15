@@ -16,7 +16,7 @@ class Figure(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.Figure(vararg attribute: Attribute, _children: Element.() -> Unit): Figure {
+}    fun Element.Figure(vararg attribute: Attribute, _children: Element.() -> Unit): Figure {
         val Figure = Figure(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Figure(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         children!!.add(Figure)
         return Figure
     }
-}

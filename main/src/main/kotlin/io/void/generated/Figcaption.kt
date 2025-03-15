@@ -16,7 +16,7 @@ class Figcaption(vararg attributes: Attribute, function: Element.() -> Unit): El
         addAttributes(*attributes)
     }
 
-    fun Element.Figcaption(vararg attribute: Attribute, _children: Element.() -> Unit): Figcaption {
+}    fun Element.Figcaption(vararg attribute: Attribute, _children: Element.() -> Unit): Figcaption {
         val Figcaption = Figcaption(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Figcaption(vararg attributes: Attribute, function: Element.() -> Unit): El
         children!!.add(Figcaption)
         return Figcaption
     }
-}

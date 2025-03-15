@@ -16,7 +16,7 @@ class Footer(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.Footer(vararg attribute: Attribute, _children: Element.() -> Unit): Footer {
+}    fun Element.Footer(vararg attribute: Attribute, _children: Element.() -> Unit): Footer {
         val Footer = Footer(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Footer(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         children!!.add(Footer)
         return Footer
     }
-}

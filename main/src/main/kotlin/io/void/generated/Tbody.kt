@@ -16,7 +16,7 @@ class Tbody(vararg attributes: Attribute, function: Element.() -> Unit): Element
         addAttributes(*attributes)
     }
 
-    fun Element.Tbody(vararg attribute: Attribute, _children: Element.() -> Unit): Tbody {
+}    fun Element.Tbody(vararg attribute: Attribute, _children: Element.() -> Unit): Tbody {
         val Tbody = Tbody(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Tbody(vararg attributes: Attribute, function: Element.() -> Unit): Element
         children!!.add(Tbody)
         return Tbody
     }
-}

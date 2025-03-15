@@ -16,7 +16,7 @@ class Legend(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.Legend(vararg attribute: Attribute, _children: Element.() -> Unit): Legend {
+}    fun Element.Legend(vararg attribute: Attribute, _children: Element.() -> Unit): Legend {
         val Legend = Legend(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Legend(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         children!!.add(Legend)
         return Legend
     }
-}

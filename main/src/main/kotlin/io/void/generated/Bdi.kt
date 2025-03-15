@@ -16,7 +16,7 @@ class Bdi(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.Bdi(vararg attribute: Attribute, _children: Element.() -> Unit): Bdi {
+}    fun Element.Bdi(vararg attribute: Attribute, _children: Element.() -> Unit): Bdi {
         val Bdi = Bdi(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Bdi(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         children!!.add(Bdi)
         return Bdi
     }
-}

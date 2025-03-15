@@ -16,7 +16,7 @@ class Del(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.Del(vararg attribute: Attribute, _children: Element.() -> Unit): Del {
+}    fun Element.Del(vararg attribute: Attribute, _children: Element.() -> Unit): Del {
         val Del = Del(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Del(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         children!!.add(Del)
         return Del
     }
-}

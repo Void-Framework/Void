@@ -17,7 +17,7 @@ class H6(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.H6(vararg attribute: Attribute, _children: Element.() -> Unit): H6 {
+}    fun Element.H6(vararg attribute: Attribute, _children: Element.() -> Unit): H6 {
         val H6 = H6(
             attributes = attribute,
             function = _children
@@ -25,4 +25,3 @@ class H6(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         children!!.add(H6)
         return H6
     }
-}
