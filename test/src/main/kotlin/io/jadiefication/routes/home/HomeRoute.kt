@@ -20,7 +20,9 @@ class HomeRoute : Page(target = "/") {
         }
     ) {
         H1 {
-            Fragment("Main${Br().render()} Title")
+            Fragment("Main")
+            Br()
+            Fragment("Title")
         }
 
         Hr()
@@ -53,9 +55,9 @@ class HomeRoute : Page(target = "/") {
 
             Br()
 
-           H3 {
-               Fragment("Subtitle Here")
-           }
+            H3 {
+                Fragment("Subtitle Here")
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ abstract class ElementWithChildren internal constructor(override val name: Strin
          */
         if (acceptedChildren[0] != null) {
             children?.forEach { child ->
-                if (!acceptedChildren.contains(child::class)) {
+                if (!isAccepted(child)) {
                     throw ChildNotAllowedException(
                         child = child,
                         parent = this
@@ -33,5 +33,24 @@ abstract class ElementWithChildren internal constructor(override val name: Strin
         }
         val content = children!!.joinToString("") { it.render() }
         return "<$name $attrs>$content</$name>"
+    }
+
+    private fun isAccepted(child: Element): Boolean {
+        if (!acceptedChildren.contains(child::class) || child is Fragment) {
+            if (child is Fragment) {
+                if (child.children?.isNotEmpty() == true) {
+                    child.children!!.forEach { fChild ->
+                        return isAccepted(child)
+                    }
+                } else {
+                    return true
+                }
+            } else {
+                return false
+            }
+        } else {
+            return true
+        }
+        return false
     }
 }
