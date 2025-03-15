@@ -3,7 +3,7 @@ package io.void.html
 import io.void.html.exceptions.ChildNotAllowedException
 import kotlin.reflect.KClass
 
-interface HElement
+internal interface HElement
 
 abstract class ElementWithChildren internal constructor(override val name: String): Element(name) {
 
