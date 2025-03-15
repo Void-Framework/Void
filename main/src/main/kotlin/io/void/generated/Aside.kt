@@ -16,12 +16,12 @@ class Aside(vararg attributes: Attribute, function: Element.() -> Unit): Element
         addAttributes(*attributes)
     }
 
-    fun Element.ASIDE(vararg attribute: Attribute, _children: Element.() -> Unit): Aside {
-        val ASIDE = Aside(
+    fun Element.Aside(vararg attribute: Attribute, _children: Element.() -> Unit): Aside {
+        val Aside = Aside(
             attributes = attribute,
             function = _children
         )
-        children!!.add(ASIDE)
-        return ASIDE
+        children!!.add(Aside)
+        return Aside
     }
 }

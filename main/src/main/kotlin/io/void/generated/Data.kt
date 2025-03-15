@@ -16,12 +16,12 @@ class Data(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.DATA(vararg attribute: Attribute, _children: Element.() -> Unit): Data {
-        val DATA = Data(
+    fun Element.Data(vararg attribute: Attribute, _children: Element.() -> Unit): Data {
+        val Data = Data(
             attributes = attribute,
             function = _children
         )
-        children!!.add(DATA)
-        return DATA
+        children!!.add(Data)
+        return Data
     }
 }

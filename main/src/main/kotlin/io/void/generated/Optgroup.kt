@@ -16,12 +16,12 @@ class Optgroup(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         addAttributes(*attributes)
     }
 
-    fun Element.OPTGROUP(vararg attribute: Attribute, _children: Element.() -> Unit): Optgroup {
-        val OPTGROUP = Optgroup(
+    fun Element.Optgroup(vararg attribute: Attribute, _children: Element.() -> Unit): Optgroup {
+        val Optgroup = Optgroup(
             attributes = attribute,
             function = _children
         )
-        children!!.add(OPTGROUP)
-        return OPTGROUP
+        children!!.add(Optgroup)
+        return Optgroup
     }
 }

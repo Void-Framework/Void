@@ -15,11 +15,11 @@ class Embed(vararg attributes: Attribute): SelfClosingElement("embed") {
         addAttributes(*attributes)
     }
 
-    fun Element.EMBED(vararg attribute: Attribute): Embed {
-        val EMBED = Embed(
+    fun Element.Embed(vararg attribute: Attribute): Embed {
+        val Embed = Embed(
             attributes = attribute
         )
-        children!!.add(EMBED)
-        return EMBED
+        children!!.add(Embed)
+        return Embed
     }
 }

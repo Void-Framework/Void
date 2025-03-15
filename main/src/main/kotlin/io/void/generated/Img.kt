@@ -15,11 +15,11 @@ class Img(vararg attributes: Attribute): SelfClosingElement("img") {
         addAttributes(*attributes)
     }
 
-    fun Element.IMG(vararg attribute: Attribute): Img {
-        val IMG = Img(
+    fun Element.Img(vararg attribute: Attribute): Img {
+        val Img = Img(
             attributes = attribute
         )
-        children!!.add(IMG)
-        return IMG
+        children!!.add(Img)
+        return Img
     }
 }

@@ -16,12 +16,12 @@ class Video(vararg attributes: Attribute, function: Element.() -> Unit): Element
         addAttributes(*attributes)
     }
 
-    fun Element.VIDEO(vararg attribute: Attribute, _children: Element.() -> Unit): Video {
-        val VIDEO = Video(
+    fun Element.Video(vararg attribute: Attribute, _children: Element.() -> Unit): Video {
+        val Video = Video(
             attributes = attribute,
             function = _children
         )
-        children!!.add(VIDEO)
-        return VIDEO
+        children!!.add(Video)
+        return Video
     }
 }

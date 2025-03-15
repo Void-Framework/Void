@@ -16,12 +16,12 @@ class Map(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.MAP(vararg attribute: Attribute, _children: Element.() -> Unit): Map {
-        val MAP = Map(
+    fun Element.Map(vararg attribute: Attribute, _children: Element.() -> Unit): Map {
+        val Map = Map(
             attributes = attribute,
             function = _children
         )
-        children!!.add(MAP)
-        return MAP
+        children!!.add(Map)
+        return Map
     }
 }

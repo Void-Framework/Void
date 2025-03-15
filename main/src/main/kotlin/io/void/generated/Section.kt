@@ -16,12 +16,12 @@ class Section(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         addAttributes(*attributes)
     }
 
-    fun Element.SECTION(vararg attribute: Attribute, _children: Element.() -> Unit): Section {
-        val SECTION = Section(
+    fun Element.Section(vararg attribute: Attribute, _children: Element.() -> Unit): Section {
+        val Section = Section(
             attributes = attribute,
             function = _children
         )
-        children!!.add(SECTION)
-        return SECTION
+        children!!.add(Section)
+        return Section
     }
 }

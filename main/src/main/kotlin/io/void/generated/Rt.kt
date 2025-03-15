@@ -16,12 +16,12 @@ class Rt(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.RT(vararg attribute: Attribute, _children: Element.() -> Unit): Rt {
-        val RT = Rt(
+    fun Element.Rt(vararg attribute: Attribute, _children: Element.() -> Unit): Rt {
+        val Rt = Rt(
             attributes = attribute,
             function = _children
         )
-        children!!.add(RT)
-        return RT
+        children!!.add(Rt)
+        return Rt
     }
 }

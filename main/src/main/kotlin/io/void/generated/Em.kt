@@ -16,12 +16,12 @@ class Em(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.EM(vararg attribute: Attribute, _children: Element.() -> Unit): Em {
-        val EM = Em(
+    fun Element.Em(vararg attribute: Attribute, _children: Element.() -> Unit): Em {
+        val Em = Em(
             attributes = attribute,
             function = _children
         )
-        children!!.add(EM)
-        return EM
+        children!!.add(Em)
+        return Em
     }
 }

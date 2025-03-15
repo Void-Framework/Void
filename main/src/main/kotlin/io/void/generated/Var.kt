@@ -16,12 +16,12 @@ class Var(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.VAR(vararg attribute: Attribute, _children: Element.() -> Unit): Var {
-        val VAR = Var(
+    fun Element.Var(vararg attribute: Attribute, _children: Element.() -> Unit): Var {
+        val Var = Var(
             attributes = attribute,
             function = _children
         )
-        children!!.add(VAR)
-        return VAR
+        children!!.add(Var)
+        return Var
     }
 }

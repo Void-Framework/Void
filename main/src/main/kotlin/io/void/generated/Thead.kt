@@ -16,12 +16,12 @@ class Thead(vararg attributes: Attribute, function: Element.() -> Unit): Element
         addAttributes(*attributes)
     }
 
-    fun Element.THEAD(vararg attribute: Attribute, _children: Element.() -> Unit): Thead {
-        val THEAD = Thead(
+    fun Element.Thead(vararg attribute: Attribute, _children: Element.() -> Unit): Thead {
+        val Thead = Thead(
             attributes = attribute,
             function = _children
         )
-        children!!.add(THEAD)
-        return THEAD
+        children!!.add(Thead)
+        return Thead
     }
 }

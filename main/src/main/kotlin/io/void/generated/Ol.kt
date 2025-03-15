@@ -16,12 +16,12 @@ class Ol(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.OL(vararg attribute: Attribute, _children: Element.() -> Unit): Ol {
-        val OL = Ol(
+    fun Element.Ol(vararg attribute: Attribute, _children: Element.() -> Unit): Ol {
+        val Ol = Ol(
             attributes = attribute,
             function = _children
         )
-        children!!.add(OL)
-        return OL
+        children!!.add(Ol)
+        return Ol
     }
 }

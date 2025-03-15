@@ -16,12 +16,12 @@ class Datalist(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         addAttributes(*attributes)
     }
 
-    fun Element.DATALIST(vararg attribute: Attribute, _children: Element.() -> Unit): Datalist {
-        val DATALIST = Datalist(
+    fun Element.Datalist(vararg attribute: Attribute, _children: Element.() -> Unit): Datalist {
+        val Datalist = Datalist(
             attributes = attribute,
             function = _children
         )
-        children!!.add(DATALIST)
-        return DATALIST
+        children!!.add(Datalist)
+        return Datalist
     }
 }

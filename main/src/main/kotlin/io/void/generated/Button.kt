@@ -16,12 +16,12 @@ class Button(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.BUTTON(vararg attribute: Attribute, _children: Element.() -> Unit): Button {
-        val BUTTON = Button(
+    fun Element.Button(vararg attribute: Attribute, _children: Element.() -> Unit): Button {
+        val Button = Button(
             attributes = attribute,
             function = _children
         )
-        children!!.add(BUTTON)
-        return BUTTON
+        children!!.add(Button)
+        return Button
     }
 }

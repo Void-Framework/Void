@@ -16,12 +16,12 @@ class Header(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.HEADER(vararg attribute: Attribute, _children: Element.() -> Unit): Header {
-        val HEADER = Header(
+    fun Element.Header(vararg attribute: Attribute, _children: Element.() -> Unit): Header {
+        val Header = Header(
             attributes = attribute,
             function = _children
         )
-        children!!.add(HEADER)
-        return HEADER
+        children!!.add(Header)
+        return Header
     }
 }

@@ -16,12 +16,12 @@ class Del(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.DEL(vararg attribute: Attribute, _children: Element.() -> Unit): Del {
-        val DEL = Del(
+    fun Element.Del(vararg attribute: Attribute, _children: Element.() -> Unit): Del {
+        val Del = Del(
             attributes = attribute,
             function = _children
         )
-        children!!.add(DEL)
-        return DEL
+        children!!.add(Del)
+        return Del
     }
 }

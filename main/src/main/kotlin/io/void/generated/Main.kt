@@ -16,12 +16,12 @@ class Main(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.MAIN(vararg attribute: Attribute, _children: Element.() -> Unit): Main {
-        val MAIN = Main(
+    fun Element.Main(vararg attribute: Attribute, _children: Element.() -> Unit): Main {
+        val Main = Main(
             attributes = attribute,
             function = _children
         )
-        children!!.add(MAIN)
-        return MAIN
+        children!!.add(Main)
+        return Main
     }
 }

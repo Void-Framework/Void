@@ -16,12 +16,12 @@ class Caption(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         addAttributes(*attributes)
     }
 
-    fun Element.CAPTION(vararg attribute: Attribute, _children: Element.() -> Unit): Caption {
-        val CAPTION = Caption(
+    fun Element.Caption(vararg attribute: Attribute, _children: Element.() -> Unit): Caption {
+        val Caption = Caption(
             attributes = attribute,
             function = _children
         )
-        children!!.add(CAPTION)
-        return CAPTION
+        children!!.add(Caption)
+        return Caption
     }
 }

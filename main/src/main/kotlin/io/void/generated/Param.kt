@@ -15,11 +15,11 @@ class Param(vararg attributes: Attribute): SelfClosingElement("param") {
         addAttributes(*attributes)
     }
 
-    fun Element.PARAM(vararg attribute: Attribute): Param {
-        val PARAM = Param(
+    fun Element.Param(vararg attribute: Attribute): Param {
+        val Param = Param(
             attributes = attribute
         )
-        children!!.add(PARAM)
-        return PARAM
+        children!!.add(Param)
+        return Param
     }
 }

@@ -16,12 +16,12 @@ class Ins(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.INS(vararg attribute: Attribute, _children: Element.() -> Unit): Ins {
-        val INS = Ins(
+    fun Element.Ins(vararg attribute: Attribute, _children: Element.() -> Unit): Ins {
+        val Ins = Ins(
             attributes = attribute,
             function = _children
         )
-        children!!.add(INS)
-        return INS
+        children!!.add(Ins)
+        return Ins
     }
 }

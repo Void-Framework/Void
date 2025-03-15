@@ -16,12 +16,12 @@ class Address(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         addAttributes(*attributes)
     }
 
-    fun Element.ADDRESS(vararg attribute: Attribute, _children: Element.() -> Unit): Address {
-        val ADDRESS = Address(
+    fun Element.Address(vararg attribute: Attribute, _children: Element.() -> Unit): Address {
+        val Address = Address(
             attributes = attribute,
             function = _children
         )
-        children!!.add(ADDRESS)
-        return ADDRESS
+        children!!.add(Address)
+        return Address
     }
 }

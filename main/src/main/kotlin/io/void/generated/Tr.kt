@@ -16,12 +16,12 @@ class Tr(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.TR(vararg attribute: Attribute, _children: Element.() -> Unit): Tr {
-        val TR = Tr(
+    fun Element.Tr(vararg attribute: Attribute, _children: Element.() -> Unit): Tr {
+        val Tr = Tr(
             attributes = attribute,
             function = _children
         )
-        children!!.add(TR)
-        return TR
+        children!!.add(Tr)
+        return Tr
     }
 }

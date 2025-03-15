@@ -16,12 +16,12 @@ class Meter(vararg attributes: Attribute, function: Element.() -> Unit): Element
         addAttributes(*attributes)
     }
 
-    fun Element.METER(vararg attribute: Attribute, _children: Element.() -> Unit): Meter {
-        val METER = Meter(
+    fun Element.Meter(vararg attribute: Attribute, _children: Element.() -> Unit): Meter {
+        val Meter = Meter(
             attributes = attribute,
             function = _children
         )
-        children!!.add(METER)
-        return METER
+        children!!.add(Meter)
+        return Meter
     }
 }

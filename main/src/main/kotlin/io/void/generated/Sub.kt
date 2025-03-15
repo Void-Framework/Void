@@ -16,12 +16,12 @@ class Sub(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.SUB(vararg attribute: Attribute, _children: Element.() -> Unit): Sub {
-        val SUB = Sub(
+    fun Element.Sub(vararg attribute: Attribute, _children: Element.() -> Unit): Sub {
+        val Sub = Sub(
             attributes = attribute,
             function = _children
         )
-        children!!.add(SUB)
-        return SUB
+        children!!.add(Sub)
+        return Sub
     }
 }

@@ -16,12 +16,12 @@ class Template(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         addAttributes(*attributes)
     }
 
-    fun Element.TEMPLATE(vararg attribute: Attribute, _children: Element.() -> Unit): Template {
-        val TEMPLATE = Template(
+    fun Element.Template(vararg attribute: Attribute, _children: Element.() -> Unit): Template {
+        val Template = Template(
             attributes = attribute,
             function = _children
         )
-        children!!.add(TEMPLATE)
-        return TEMPLATE
+        children!!.add(Template)
+        return Template
     }
 }

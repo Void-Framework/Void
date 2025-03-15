@@ -16,12 +16,12 @@ class Textarea(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         addAttributes(*attributes)
     }
 
-    fun Element.TEXTAREA(vararg attribute: Attribute, _children: Element.() -> Unit): Textarea {
-        val TEXTAREA = Textarea(
+    fun Element.Textarea(vararg attribute: Attribute, _children: Element.() -> Unit): Textarea {
+        val Textarea = Textarea(
             attributes = attribute,
             function = _children
         )
-        children!!.add(TEXTAREA)
-        return TEXTAREA
+        children!!.add(Textarea)
+        return Textarea
     }
 }

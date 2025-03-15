@@ -16,12 +16,12 @@ class Menu(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.MENU(vararg attribute: Attribute, _children: Element.() -> Unit): Menu {
-        val MENU = Menu(
+    fun Element.Menu(vararg attribute: Attribute, _children: Element.() -> Unit): Menu {
+        val Menu = Menu(
             attributes = attribute,
             function = _children
         )
-        children!!.add(MENU)
-        return MENU
+        children!!.add(Menu)
+        return Menu
     }
 }

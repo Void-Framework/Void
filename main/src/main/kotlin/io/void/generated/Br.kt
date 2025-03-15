@@ -15,11 +15,11 @@ class Br(vararg attributes: Attribute): SelfClosingElement("br") {
         addAttributes(*attributes)
     }
 
-    fun Element.BR(vararg attribute: Attribute): Br {
-        val BR = Br(
+    fun Element.Br(vararg attribute: Attribute): Br {
+        val Br = Br(
             attributes = attribute
         )
-        children!!.add(BR)
-        return BR
+        children!!.add(Br)
+        return Br
     }
 }

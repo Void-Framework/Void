@@ -16,12 +16,12 @@ class Rp(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.RP(vararg attribute: Attribute, _children: Element.() -> Unit): Rp {
-        val RP = Rp(
+    fun Element.Rp(vararg attribute: Attribute, _children: Element.() -> Unit): Rp {
+        val Rp = Rp(
             attributes = attribute,
             function = _children
         )
-        children!!.add(RP)
-        return RP
+        children!!.add(Rp)
+        return Rp
     }
 }

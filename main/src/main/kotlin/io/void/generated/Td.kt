@@ -16,12 +16,12 @@ class Td(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.TD(vararg attribute: Attribute, _children: Element.() -> Unit): Td {
-        val TD = Td(
+    fun Element.Td(vararg attribute: Attribute, _children: Element.() -> Unit): Td {
+        val Td = Td(
             attributes = attribute,
             function = _children
         )
-        children!!.add(TD)
-        return TD
+        children!!.add(Td)
+        return Td
     }
 }

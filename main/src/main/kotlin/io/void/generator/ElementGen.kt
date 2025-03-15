@@ -115,15 +115,15 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
         when (type) {
             "Normal" -> {
                 kotlinCode.append("    init {\n        this.apply(function)\n        addAttributes(*attributes)\n    }\n\n")
-                kotlinCode.append("    fun Element.${name.uppercase()}(vararg attribute: Attribute, _children: Element.() -> Unit): ${name.capitalize()} {\n" +
-                                  "        val ${name.uppercase()} = ${name.capitalize()}(\n            attributes = attribute,\n            function = _children\n        )\n" +
-                                  "        children!!.add(${name.uppercase()})\n        return ${name.uppercase()}\n    }\n")
+                kotlinCode.append("    fun Element.${name.capitalize()}(vararg attribute: Attribute, _children: Element.() -> Unit): ${name.capitalize()} {\n" +
+                                  "        val ${name.capitalize()} = ${name.capitalize()}(\n            attributes = attribute,\n            function = _children\n        )\n" +
+                                  "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n")
             }
             "Void" -> {
                 kotlinCode.append("\n    init {\n        addAttributes(*attributes)\n    }\n\n")
-                kotlinCode.append("    fun Element.${name.uppercase()}(vararg attribute: Attribute): ${name.capitalize()} {\n" +
-                        "        val ${name.uppercase()} = ${name.capitalize()}(\n            attributes = attribute\n        )\n" +
-                        "        children!!.add(${name.uppercase()})\n        return ${name.uppercase()}\n    }\n")
+                kotlinCode.append("    fun Element.${name.capitalize()}(vararg attribute: Attribute): ${name.capitalize()} {\n" +
+                        "        val ${name.capitalize()} = ${name.capitalize()}(\n            attributes = attribute\n        )\n" +
+                        "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n")
             }
         }
 
