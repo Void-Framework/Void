@@ -460,5 +460,35 @@
     "contentModel": "void",
     "attributes": ["alt", "crossorigin", "height", "ismap", "loading", "refererpolicy", "sizes", "src", "srcset", "usemap", "width"],
     "acceptedChildren": []
+  },
+  "h1": {
+    "contentModel": "normal",
+    "attributes": ["id", "class", "style", "dir", "lang", "title"],
+    "acceptedChildren": ["a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "data", "dfn", "em", "i", "img", "kbd", "mark", "q", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "wbr"]
+  },
+  "h2": {
+    "contentModel": "normal",
+    "attributes": ["id", "class", "style", "dir", "lang", "title"],
+    "acceptedChildren": ["a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "data", "dfn", "em", "i", "img", "kbd", "mark", "q", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "wbr"]
+  },
+  "h3": {
+    "contentModel": "normal",
+    "attributes": ["id", "class", "style", "dir", "lang", "title"],
+    "acceptedChildren": ["a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "data", "dfn", "em", "i", "img", "kbd", "mark", "q", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "wbr"]
+  },
+  "h4": {
+    "contentModel": "normal",
+    "attributes": ["id", "class", "style", "dir", "lang", "title"],
+    "acceptedChildren": ["a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "data", "dfn", "em", "i", "img", "kbd", "mark", "q", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "wbr"]
+  },
+  "h5": {
+    "contentModel": "normal",
+    "attributes": ["id", "class", "style", "dir", "lang", "title"],
+    "acceptedChildren": ["a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "data", "dfn", "em", "i", "img", "kbd", "mark", "q", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "wbr"]
+  },
+  "h6": {
+    "contentModel": "normal",
+    "attributes": ["id", "class", "style", "dir", "lang", "title"],
+    "acceptedChildren": ["a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "data", "dfn", "em", "i", "img", "kbd", "mark", "q", "ruby", "s", "samp", "small", "span", "strong", "sub", "sup", "time", "u", "var", "wbr"]
   }
 }
