@@ -16,12 +16,12 @@ class Th(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.TH(vararg attribute: Attribute, _children: Element.() -> Unit): Th {
-        val TH = Th(
+    fun Element.Th(vararg attribute: Attribute, _children: Element.() -> Unit): Th {
+        val Th = Th(
             attributes = attribute,
             function = _children
         )
-        children!!.add(TH)
-        return TH
+        children!!.add(Th)
+        return Th
     }
 }

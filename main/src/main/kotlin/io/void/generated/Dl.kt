@@ -16,12 +16,12 @@ class Dl(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.DL(vararg attribute: Attribute, _children: Element.() -> Unit): Dl {
-        val DL = Dl(
+    fun Element.Dl(vararg attribute: Attribute, _children: Element.() -> Unit): Dl {
+        val Dl = Dl(
             attributes = attribute,
             function = _children
         )
-        children!!.add(DL)
-        return DL
+        children!!.add(Dl)
+        return Dl
     }
 }

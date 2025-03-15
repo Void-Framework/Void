@@ -16,12 +16,12 @@ class Dialog(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.DIALOG(vararg attribute: Attribute, _children: Element.() -> Unit): Dialog {
-        val DIALOG = Dialog(
+    fun Element.Dialog(vararg attribute: Attribute, _children: Element.() -> Unit): Dialog {
+        val Dialog = Dialog(
             attributes = attribute,
             function = _children
         )
-        children!!.add(DIALOG)
-        return DIALOG
+        children!!.add(Dialog)
+        return Dialog
     }
 }

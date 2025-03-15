@@ -16,12 +16,12 @@ class Mark(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.MARK(vararg attribute: Attribute, _children: Element.() -> Unit): Mark {
-        val MARK = Mark(
+    fun Element.Mark(vararg attribute: Attribute, _children: Element.() -> Unit): Mark {
+        val Mark = Mark(
             attributes = attribute,
             function = _children
         )
-        children!!.add(MARK)
-        return MARK
+        children!!.add(Mark)
+        return Mark
     }
 }

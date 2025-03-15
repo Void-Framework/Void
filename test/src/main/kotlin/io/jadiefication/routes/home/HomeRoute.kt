@@ -5,9 +5,6 @@ import io.void.generated.Br
 import io.void.generated.Div
 import io.void.generated.Hr
 import io.void.html.Element
-import io.void.html.H1
-import io.void.html.H2
-import io.void.html.H3
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
 import io.void.html.page.Page
@@ -61,9 +58,11 @@ class HomeRoute : Page(target = "/") {
                 ).render()}Click Me Title"
             )
 
-            selfClosingElement<Br>(
+            br(
                 type = Br()
             )
+
+            this.
 
             text<H3>(
                 attribute = arrayOf(),

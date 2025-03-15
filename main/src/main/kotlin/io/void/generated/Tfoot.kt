@@ -16,12 +16,12 @@ class Tfoot(vararg attributes: Attribute, function: Element.() -> Unit): Element
         addAttributes(*attributes)
     }
 
-    fun Element.TFOOT(vararg attribute: Attribute, _children: Element.() -> Unit): Tfoot {
-        val TFOOT = Tfoot(
+    fun Element.Tfoot(vararg attribute: Attribute, _children: Element.() -> Unit): Tfoot {
+        val Tfoot = Tfoot(
             attributes = attribute,
             function = _children
         )
-        children!!.add(TFOOT)
-        return TFOOT
+        children!!.add(Tfoot)
+        return Tfoot
     }
 }

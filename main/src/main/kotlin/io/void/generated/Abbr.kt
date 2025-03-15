@@ -16,12 +16,12 @@ class Abbr(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.ABBR(vararg attribute: Attribute, _children: Element.() -> Unit): Abbr {
-        val ABBR = Abbr(
+    fun Element.Abbr(vararg attribute: Attribute, _children: Element.() -> Unit): Abbr {
+        val Abbr = Abbr(
             attributes = attribute,
             function = _children
         )
-        children!!.add(ABBR)
-        return ABBR
+        children!!.add(Abbr)
+        return Abbr
     }
 }

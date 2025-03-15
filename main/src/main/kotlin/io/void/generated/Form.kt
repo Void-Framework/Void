@@ -16,12 +16,12 @@ class Form(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.FORM(vararg attribute: Attribute, _children: Element.() -> Unit): Form {
-        val FORM = Form(
+    fun Element.Form(vararg attribute: Attribute, _children: Element.() -> Unit): Form {
+        val Form = Form(
             attributes = attribute,
             function = _children
         )
-        children!!.add(FORM)
-        return FORM
+        children!!.add(Form)
+        return Form
     }
 }

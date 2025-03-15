@@ -16,12 +16,12 @@ class Sup(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.SUP(vararg attribute: Attribute, _children: Element.() -> Unit): Sup {
-        val SUP = Sup(
+    fun Element.Sup(vararg attribute: Attribute, _children: Element.() -> Unit): Sup {
+        val Sup = Sup(
             attributes = attribute,
             function = _children
         )
-        children!!.add(SUP)
-        return SUP
+        children!!.add(Sup)
+        return Sup
     }
 }

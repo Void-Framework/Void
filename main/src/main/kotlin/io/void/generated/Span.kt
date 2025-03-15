@@ -16,12 +16,12 @@ class Span(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.SPAN(vararg attribute: Attribute, _children: Element.() -> Unit): Span {
-        val SPAN = Span(
+    fun Element.Span(vararg attribute: Attribute, _children: Element.() -> Unit): Span {
+        val Span = Span(
             attributes = attribute,
             function = _children
         )
-        children!!.add(SPAN)
-        return SPAN
+        children!!.add(Span)
+        return Span
     }
 }

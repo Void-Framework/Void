@@ -16,12 +16,12 @@ class Samp(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.SAMP(vararg attribute: Attribute, _children: Element.() -> Unit): Samp {
-        val SAMP = Samp(
+    fun Element.Samp(vararg attribute: Attribute, _children: Element.() -> Unit): Samp {
+        val Samp = Samp(
             attributes = attribute,
             function = _children
         )
-        children!!.add(SAMP)
-        return SAMP
+        children!!.add(Samp)
+        return Samp
     }
 }

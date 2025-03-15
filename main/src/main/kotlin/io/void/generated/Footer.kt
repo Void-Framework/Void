@@ -16,12 +16,12 @@ class Footer(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.FOOTER(vararg attribute: Attribute, _children: Element.() -> Unit): Footer {
-        val FOOTER = Footer(
+    fun Element.Footer(vararg attribute: Attribute, _children: Element.() -> Unit): Footer {
+        val Footer = Footer(
             attributes = attribute,
             function = _children
         )
-        children!!.add(FOOTER)
-        return FOOTER
+        children!!.add(Footer)
+        return Footer
     }
 }

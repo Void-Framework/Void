@@ -15,11 +15,11 @@ class Input(vararg attributes: Attribute): SelfClosingElement("input") {
         addAttributes(*attributes)
     }
 
-    fun Element.INPUT(vararg attribute: Attribute): Input {
-        val INPUT = Input(
+    fun Element.Input(vararg attribute: Attribute): Input {
+        val Input = Input(
             attributes = attribute
         )
-        children!!.add(INPUT)
-        return INPUT
+        children!!.add(Input)
+        return Input
     }
 }

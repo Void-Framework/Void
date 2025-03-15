@@ -16,12 +16,12 @@ class Article(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         addAttributes(*attributes)
     }
 
-    fun Element.ARTICLE(vararg attribute: Attribute, _children: Element.() -> Unit): Article {
-        val ARTICLE = Article(
+    fun Element.Article(vararg attribute: Attribute, _children: Element.() -> Unit): Article {
+        val Article = Article(
             attributes = attribute,
             function = _children
         )
-        children!!.add(ARTICLE)
-        return ARTICLE
+        children!!.add(Article)
+        return Article
     }
 }

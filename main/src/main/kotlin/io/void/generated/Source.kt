@@ -15,11 +15,11 @@ class Source(vararg attributes: Attribute): SelfClosingElement("source") {
         addAttributes(*attributes)
     }
 
-    fun Element.SOURCE(vararg attribute: Attribute): Source {
-        val SOURCE = Source(
+    fun Element.Source(vararg attribute: Attribute): Source {
+        val Source = Source(
             attributes = attribute
         )
-        children!!.add(SOURCE)
-        return SOURCE
+        children!!.add(Source)
+        return Source
     }
 }

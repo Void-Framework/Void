@@ -16,12 +16,12 @@ class Select(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.SELECT(vararg attribute: Attribute, _children: Element.() -> Unit): Select {
-        val SELECT = Select(
+    fun Element.Select(vararg attribute: Attribute, _children: Element.() -> Unit): Select {
+        val Select = Select(
             attributes = attribute,
             function = _children
         )
-        children!!.add(SELECT)
-        return SELECT
+        children!!.add(Select)
+        return Select
     }
 }

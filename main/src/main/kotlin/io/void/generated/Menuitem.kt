@@ -15,11 +15,11 @@ class Menuitem(vararg attributes: Attribute): SelfClosingElement("menuitem") {
         addAttributes(*attributes)
     }
 
-    fun Element.MENUITEM(vararg attribute: Attribute): Menuitem {
-        val MENUITEM = Menuitem(
+    fun Element.Menuitem(vararg attribute: Attribute): Menuitem {
+        val Menuitem = Menuitem(
             attributes = attribute
         )
-        children!!.add(MENUITEM)
-        return MENUITEM
+        children!!.add(Menuitem)
+        return Menuitem
     }
 }

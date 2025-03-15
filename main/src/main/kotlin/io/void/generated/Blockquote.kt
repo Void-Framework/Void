@@ -16,12 +16,12 @@ class Blockquote(vararg attributes: Attribute, function: Element.() -> Unit): El
         addAttributes(*attributes)
     }
 
-    fun Element.BLOCKQUOTE(vararg attribute: Attribute, _children: Element.() -> Unit): Blockquote {
-        val BLOCKQUOTE = Blockquote(
+    fun Element.Blockquote(vararg attribute: Attribute, _children: Element.() -> Unit): Blockquote {
+        val Blockquote = Blockquote(
             attributes = attribute,
             function = _children
         )
-        children!!.add(BLOCKQUOTE)
-        return BLOCKQUOTE
+        children!!.add(Blockquote)
+        return Blockquote
     }
 }

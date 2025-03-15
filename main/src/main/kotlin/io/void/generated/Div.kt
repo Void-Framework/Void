@@ -16,12 +16,12 @@ class Div(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.DIV(vararg attribute: Attribute, _children: Element.() -> Unit): Div {
-        val DIV = Div(
+    fun Element.Div(vararg attribute: Attribute, _children: Element.() -> Unit): Div {
+        val Div = Div(
             attributes = attribute,
             function = _children
         )
-        children!!.add(DIV)
-        return DIV
+        children!!.add(Div)
+        return Div
     }
 }

@@ -16,12 +16,12 @@ class Summary(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         addAttributes(*attributes)
     }
 
-    fun Element.SUMMARY(vararg attribute: Attribute, _children: Element.() -> Unit): Summary {
-        val SUMMARY = Summary(
+    fun Element.Summary(vararg attribute: Attribute, _children: Element.() -> Unit): Summary {
+        val Summary = Summary(
             attributes = attribute,
             function = _children
         )
-        children!!.add(SUMMARY)
-        return SUMMARY
+        children!!.add(Summary)
+        return Summary
     }
 }

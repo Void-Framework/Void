@@ -16,12 +16,12 @@ class Cite(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.CITE(vararg attribute: Attribute, _children: Element.() -> Unit): Cite {
-        val CITE = Cite(
+    fun Element.Cite(vararg attribute: Attribute, _children: Element.() -> Unit): Cite {
+        val Cite = Cite(
             attributes = attribute,
             function = _children
         )
-        children!!.add(CITE)
-        return CITE
+        children!!.add(Cite)
+        return Cite
     }
 }

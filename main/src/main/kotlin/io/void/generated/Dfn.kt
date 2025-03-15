@@ -16,12 +16,12 @@ class Dfn(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.DFN(vararg attribute: Attribute, _children: Element.() -> Unit): Dfn {
-        val DFN = Dfn(
+    fun Element.Dfn(vararg attribute: Attribute, _children: Element.() -> Unit): Dfn {
+        val Dfn = Dfn(
             attributes = attribute,
             function = _children
         )
-        children!!.add(DFN)
-        return DFN
+        children!!.add(Dfn)
+        return Dfn
     }
 }

@@ -16,12 +16,12 @@ class Figure(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.FIGURE(vararg attribute: Attribute, _children: Element.() -> Unit): Figure {
-        val FIGURE = Figure(
+    fun Element.Figure(vararg attribute: Attribute, _children: Element.() -> Unit): Figure {
+        val Figure = Figure(
             attributes = attribute,
             function = _children
         )
-        children!!.add(FIGURE)
-        return FIGURE
+        children!!.add(Figure)
+        return Figure
     }
 }

@@ -16,12 +16,12 @@ class Table(vararg attributes: Attribute, function: Element.() -> Unit): Element
         addAttributes(*attributes)
     }
 
-    fun Element.TABLE(vararg attribute: Attribute, _children: Element.() -> Unit): Table {
-        val TABLE = Table(
+    fun Element.Table(vararg attribute: Attribute, _children: Element.() -> Unit): Table {
+        val Table = Table(
             attributes = attribute,
             function = _children
         )
-        children!!.add(TABLE)
-        return TABLE
+        children!!.add(Table)
+        return Table
     }
 }

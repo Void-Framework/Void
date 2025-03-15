@@ -15,11 +15,11 @@ class Hr(vararg attributes: Attribute): SelfClosingElement("hr") {
         addAttributes(*attributes)
     }
 
-    fun Element.HR(vararg attribute: Attribute): Hr {
-        val HR = Hr(
+    fun Element.Hr(vararg attribute: Attribute): Hr {
+        val Hr = Hr(
             attributes = attribute
         )
-        children!!.add(HR)
-        return HR
+        children!!.add(Hr)
+        return Hr
     }
 }
