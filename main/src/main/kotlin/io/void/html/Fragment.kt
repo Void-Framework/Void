@@ -14,11 +14,11 @@ class Fragment(): ElementWithChildren(name = "") {
         return text
     }
 
-    constructor(text: String) : this() {
+    internal constructor(text: String) : this() {
         this.text = text
     }
 
-    constructor(children: Element.() -> Unit) : this() {
+    internal constructor(children: Element.() -> Unit) : this() {
         this.text = this.apply(children).render()
     }
 }
