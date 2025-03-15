@@ -105,16 +105,26 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
                 kotlinCode.append("    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf($childrenBuilder)\n")
             }
             "Void" -> {
-                kotlinCode.append("\nclass $name(vararg attribute: Attribute): SelfClosingElement(\"${name.lowercase()}\") {\n")
-                kotlinCode.insert(startLength, "import io.void.html.SelfClosingElement\n")
+                kotlinCode.append("\nclass $name(vararg attributes: Attribute): SelfClosingElement(\"${name.lowercase()}\") {\n")
+                kotlinCode.insert(startLength, "import io.void.html.SelfClosingElement\nimport io.void.html.Element\n")
             }
             else -> throw UnsupportedOperationException()
         }
         kotlinCode.append("    override val allowedAttributes: List<AttributeNames> = listOf($attributeBuilder)\n\n")
 
         when (type) {
-            "Normal" -> kotlinCode.append("    init {\n        this.apply(function)\n        addAttributes(*attributes)\n    }\n\n")
-            "Void" -> kotlinCode.append("\n    init {\n        addAttributes(*attribute)\n    }\n\n")
+            "Normal" -> {
+                kotlinCode.append("    init {\n        this.apply(function)\n        addAttributes(*attributes)\n    }\n\n")
+                kotlinCode.append("    fun Element.${name.uppercase()}(vararg attribute: Attribute, _children: Element.() -> Unit): ${name.capitalize()} {\n" +
+                                  "        val ${name.uppercase()} = ${name.capitalize()}(\n            attributes = attribute,\n            function = _children\n        )\n" +
+                                  "        children!!.add(${name.uppercase()})\n        return ${name.uppercase()}\n    }\n")
+            }
+            "Void" -> {
+                kotlinCode.append("\n    init {\n        addAttributes(*attributes)\n    }\n\n")
+                kotlinCode.append("    fun Element.${name.uppercase()}(vararg attribute: Attribute): ${name.capitalize()} {\n" +
+                        "        val ${name.uppercase()} = ${name.capitalize()}(\n            attributes = attribute\n        )\n" +
+                        "        children!!.add(${name.uppercase()})\n        return ${name.uppercase()}\n    }\n")
+            }
         }
 
         kotlinCode.append("}")
