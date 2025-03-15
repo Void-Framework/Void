@@ -2,11 +2,7 @@ package io.void.http.parser
 
 import io.void.api.method.Method
 import io.void.dto.RequestDTO
-import io.void.dto.ResponseDTO
-import io.void.http.builder.HTTPBuilder
 import io.void.router.Router
-import io.void.server.Server
-import java.io.BufferedInputStream
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader

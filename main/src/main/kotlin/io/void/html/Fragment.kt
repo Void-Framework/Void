@@ -1,7 +1,6 @@
 package io.void.html
 
 import io.void.html.attributes.AttributeNames
-import io.void.html.exceptions.ChildNotAllowedException
 import kotlin.reflect.KClass
 
 class Fragment(): ElementWithChildren(name = "") {

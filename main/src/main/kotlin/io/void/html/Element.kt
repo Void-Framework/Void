@@ -2,7 +2,6 @@ package io.void.html
 
 import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
-import io.void.html.attributes.exception.UnsupportedTypeException
 
 abstract class Element internal constructor(open val name: String) {
 

@@ -1,7 +1,6 @@
 package io.jadiefication.routes.setter
 
 import io.void.api.ApiPage
-import io.void.api.exception.MalformedMethodException
 import io.void.api.method.Method
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
