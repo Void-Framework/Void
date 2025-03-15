@@ -16,7 +16,7 @@ class U(vararg attributes: Attribute, function: Element.() -> Unit): ElementWith
         addAttributes(*attributes)
     }
 
-    fun Element.U(vararg attribute: Attribute, _children: Element.() -> Unit): U {
+}    fun Element.U(vararg attribute: Attribute, _children: Element.() -> Unit): U {
         val U = U(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class U(vararg attributes: Attribute, function: Element.() -> Unit): ElementWith
         children!!.add(U)
         return U
     }
-}

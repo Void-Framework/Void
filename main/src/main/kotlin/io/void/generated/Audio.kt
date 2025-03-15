@@ -16,7 +16,7 @@ class Audio(vararg attributes: Attribute, function: Element.() -> Unit): Element
         addAttributes(*attributes)
     }
 
-    fun Element.Audio(vararg attribute: Attribute, _children: Element.() -> Unit): Audio {
+}    fun Element.Audio(vararg attribute: Attribute, _children: Element.() -> Unit): Audio {
         val Audio = Audio(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Audio(vararg attributes: Attribute, function: Element.() -> Unit): Element
         children!!.add(Audio)
         return Audio
     }
-}

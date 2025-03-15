@@ -16,7 +16,7 @@ class Dfn(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.Dfn(vararg attribute: Attribute, _children: Element.() -> Unit): Dfn {
+}    fun Element.Dfn(vararg attribute: Attribute, _children: Element.() -> Unit): Dfn {
         val Dfn = Dfn(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Dfn(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         children!!.add(Dfn)
         return Dfn
     }
-}

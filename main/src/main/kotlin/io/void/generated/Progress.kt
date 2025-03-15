@@ -16,7 +16,7 @@ class Progress(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         addAttributes(*attributes)
     }
 
-    fun Element.Progress(vararg attribute: Attribute, _children: Element.() -> Unit): Progress {
+}    fun Element.Progress(vararg attribute: Attribute, _children: Element.() -> Unit): Progress {
         val Progress = Progress(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Progress(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         children!!.add(Progress)
         return Progress
     }
-}

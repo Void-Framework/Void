@@ -16,7 +16,7 @@ class Details(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         addAttributes(*attributes)
     }
 
-    fun Element.Details(vararg attribute: Attribute, _children: Element.() -> Unit): Details {
+}    fun Element.Details(vararg attribute: Attribute, _children: Element.() -> Unit): Details {
         val Details = Details(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Details(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         children!!.add(Details)
         return Details
     }
-}

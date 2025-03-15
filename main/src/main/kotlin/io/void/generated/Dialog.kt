@@ -16,7 +16,7 @@ class Dialog(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.Dialog(vararg attribute: Attribute, _children: Element.() -> Unit): Dialog {
+}    fun Element.Dialog(vararg attribute: Attribute, _children: Element.() -> Unit): Dialog {
         val Dialog = Dialog(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Dialog(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         children!!.add(Dialog)
         return Dialog
     }
-}

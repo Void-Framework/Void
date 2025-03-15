@@ -16,7 +16,7 @@ class Colgroup(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         addAttributes(*attributes)
     }
 
-    fun Element.Colgroup(vararg attribute: Attribute, _children: Element.() -> Unit): Colgroup {
+}    fun Element.Colgroup(vararg attribute: Attribute, _children: Element.() -> Unit): Colgroup {
         val Colgroup = Colgroup(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Colgroup(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         children!!.add(Colgroup)
         return Colgroup
     }
-}

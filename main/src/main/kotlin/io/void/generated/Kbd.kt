@@ -16,7 +16,7 @@ class Kbd(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.Kbd(vararg attribute: Attribute, _children: Element.() -> Unit): Kbd {
+}    fun Element.Kbd(vararg attribute: Attribute, _children: Element.() -> Unit): Kbd {
         val Kbd = Kbd(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Kbd(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         children!!.add(Kbd)
         return Kbd
     }
-}

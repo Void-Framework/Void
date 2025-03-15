@@ -16,7 +16,7 @@ class Optgroup(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         addAttributes(*attributes)
     }
 
-    fun Element.Optgroup(vararg attribute: Attribute, _children: Element.() -> Unit): Optgroup {
+}    fun Element.Optgroup(vararg attribute: Attribute, _children: Element.() -> Unit): Optgroup {
         val Optgroup = Optgroup(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Optgroup(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         children!!.add(Optgroup)
         return Optgroup
     }
-}

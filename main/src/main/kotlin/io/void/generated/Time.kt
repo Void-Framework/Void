@@ -16,7 +16,7 @@ class Time(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.Time(vararg attribute: Attribute, _children: Element.() -> Unit): Time {
+}    fun Element.Time(vararg attribute: Attribute, _children: Element.() -> Unit): Time {
         val Time = Time(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Time(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         children!!.add(Time)
         return Time
     }
-}

@@ -16,7 +16,7 @@ class Ruby(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.Ruby(vararg attribute: Attribute, _children: Element.() -> Unit): Ruby {
+}    fun Element.Ruby(vararg attribute: Attribute, _children: Element.() -> Unit): Ruby {
         val Ruby = Ruby(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Ruby(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         children!!.add(Ruby)
         return Ruby
     }
-}

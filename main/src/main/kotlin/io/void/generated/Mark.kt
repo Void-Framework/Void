@@ -16,7 +16,7 @@ class Mark(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         addAttributes(*attributes)
     }
 
-    fun Element.Mark(vararg attribute: Attribute, _children: Element.() -> Unit): Mark {
+}    fun Element.Mark(vararg attribute: Attribute, _children: Element.() -> Unit): Mark {
         val Mark = Mark(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Mark(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         children!!.add(Mark)
         return Mark
     }
-}

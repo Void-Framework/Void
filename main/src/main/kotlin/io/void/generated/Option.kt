@@ -16,7 +16,7 @@ class Option(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.Option(vararg attribute: Attribute, _children: Element.() -> Unit): Option {
+}    fun Element.Option(vararg attribute: Attribute, _children: Element.() -> Unit): Option {
         val Option = Option(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Option(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         children!!.add(Option)
         return Option
     }
-}

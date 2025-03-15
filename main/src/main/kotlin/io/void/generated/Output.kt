@@ -16,7 +16,7 @@ class Output(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.Output(vararg attribute: Attribute, _children: Element.() -> Unit): Output {
+}    fun Element.Output(vararg attribute: Attribute, _children: Element.() -> Unit): Output {
         val Output = Output(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Output(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         children!!.add(Output)
         return Output
     }
-}

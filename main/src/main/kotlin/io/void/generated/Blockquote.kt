@@ -16,7 +16,7 @@ class Blockquote(vararg attributes: Attribute, function: Element.() -> Unit): El
         addAttributes(*attributes)
     }
 
-    fun Element.Blockquote(vararg attribute: Attribute, _children: Element.() -> Unit): Blockquote {
+}    fun Element.Blockquote(vararg attribute: Attribute, _children: Element.() -> Unit): Blockquote {
         val Blockquote = Blockquote(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Blockquote(vararg attributes: Attribute, function: Element.() -> Unit): El
         children!!.add(Blockquote)
         return Blockquote
     }
-}

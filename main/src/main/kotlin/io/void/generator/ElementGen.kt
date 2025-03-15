@@ -112,22 +112,24 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
         }
         kotlinCode.append("    override val allowedAttributes: List<AttributeNames> = listOf($attributeBuilder)\n\n")
 
+        var extension: String = ""
         when (type) {
             "Normal" -> {
                 kotlinCode.append("    init {\n        this.apply(function)\n        addAttributes(*attributes)\n    }\n\n")
-                kotlinCode.append("    fun Element.${name.capitalize()}(vararg attribute: Attribute, _children: Element.() -> Unit): ${name.capitalize()} {\n" +
+                extension = "    fun Element.${name.capitalize()}(vararg attribute: Attribute, _children: Element.() -> Unit): ${name.capitalize()} {\n" +
                                   "        val ${name.capitalize()} = ${name.capitalize()}(\n            attributes = attribute,\n            function = _children\n        )\n" +
-                                  "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n")
+                                  "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n"
             }
             "Void" -> {
                 kotlinCode.append("\n    init {\n        addAttributes(*attributes)\n    }\n\n")
-                kotlinCode.append("    fun Element.${name.capitalize()}(vararg attribute: Attribute): ${name.capitalize()} {\n" +
+                extension = "    fun Element.${name.capitalize()}(vararg attribute: Attribute): ${name.capitalize()} {\n" +
                         "        val ${name.capitalize()} = ${name.capitalize()}(\n            attributes = attribute\n        )\n" +
-                        "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n")
+                        "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n"
             }
         }
 
         kotlinCode.append("}")
+        kotlinCode.append(extension)
         codeFiles[name] = kotlinCode.toString()
     }
 

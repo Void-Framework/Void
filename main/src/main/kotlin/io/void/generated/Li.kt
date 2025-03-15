@@ -16,7 +16,7 @@ class Li(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.Li(vararg attribute: Attribute, _children: Element.() -> Unit): Li {
+}    fun Element.Li(vararg attribute: Attribute, _children: Element.() -> Unit): Li {
         val Li = Li(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Li(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         children!!.add(Li)
         return Li
     }
-}

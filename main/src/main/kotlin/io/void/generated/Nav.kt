@@ -16,7 +16,7 @@ class Nav(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.Nav(vararg attribute: Attribute, _children: Element.() -> Unit): Nav {
+}    fun Element.Nav(vararg attribute: Attribute, _children: Element.() -> Unit): Nav {
         val Nav = Nav(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Nav(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         children!!.add(Nav)
         return Nav
     }
-}

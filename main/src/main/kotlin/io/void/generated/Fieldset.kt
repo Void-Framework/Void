@@ -16,7 +16,7 @@ class Fieldset(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         addAttributes(*attributes)
     }
 
-    fun Element.Fieldset(vararg attribute: Attribute, _children: Element.() -> Unit): Fieldset {
+}    fun Element.Fieldset(vararg attribute: Attribute, _children: Element.() -> Unit): Fieldset {
         val Fieldset = Fieldset(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Fieldset(vararg attributes: Attribute, function: Element.() -> Unit): Elem
         children!!.add(Fieldset)
         return Fieldset
     }
-}

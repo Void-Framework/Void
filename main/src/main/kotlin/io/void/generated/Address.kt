@@ -16,7 +16,7 @@ class Address(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         addAttributes(*attributes)
     }
 
-    fun Element.Address(vararg attribute: Attribute, _children: Element.() -> Unit): Address {
+}    fun Element.Address(vararg attribute: Attribute, _children: Element.() -> Unit): Address {
         val Address = Address(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Address(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         children!!.add(Address)
         return Address
     }
-}

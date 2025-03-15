@@ -15,11 +15,10 @@ class Area(vararg attributes: Attribute): SelfClosingElement("area") {
         addAttributes(*attributes)
     }
 
-    fun Element.Area(vararg attribute: Attribute): Area {
+}    fun Element.Area(vararg attribute: Attribute): Area {
         val Area = Area(
             attributes = attribute
         )
         children!!.add(Area)
         return Area
     }
-}

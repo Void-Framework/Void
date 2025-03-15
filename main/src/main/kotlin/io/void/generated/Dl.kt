@@ -16,7 +16,7 @@ class Dl(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.Dl(vararg attribute: Attribute, _children: Element.() -> Unit): Dl {
+}    fun Element.Dl(vararg attribute: Attribute, _children: Element.() -> Unit): Dl {
         val Dl = Dl(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Dl(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         children!!.add(Dl)
         return Dl
     }
-}

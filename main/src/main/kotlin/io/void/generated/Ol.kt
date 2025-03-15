@@ -16,7 +16,7 @@ class Ol(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         addAttributes(*attributes)
     }
 
-    fun Element.Ol(vararg attribute: Attribute, _children: Element.() -> Unit): Ol {
+}    fun Element.Ol(vararg attribute: Attribute, _children: Element.() -> Unit): Ol {
         val Ol = Ol(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Ol(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         children!!.add(Ol)
         return Ol
     }
-}

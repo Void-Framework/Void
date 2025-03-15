@@ -16,7 +16,7 @@ class Pre(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.Pre(vararg attribute: Attribute, _children: Element.() -> Unit): Pre {
+}    fun Element.Pre(vararg attribute: Attribute, _children: Element.() -> Unit): Pre {
         val Pre = Pre(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Pre(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         children!!.add(Pre)
         return Pre
     }
-}

@@ -16,7 +16,7 @@ class Bdo(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         addAttributes(*attributes)
     }
 
-    fun Element.Bdo(vararg attribute: Attribute, _children: Element.() -> Unit): Bdo {
+}    fun Element.Bdo(vararg attribute: Attribute, _children: Element.() -> Unit): Bdo {
         val Bdo = Bdo(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Bdo(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         children!!.add(Bdo)
         return Bdo
     }
-}

@@ -15,11 +15,10 @@ class Wbr(vararg attributes: Attribute): SelfClosingElement("wbr") {
         addAttributes(*attributes)
     }
 
-    fun Element.Wbr(vararg attribute: Attribute): Wbr {
+}    fun Element.Wbr(vararg attribute: Attribute): Wbr {
         val Wbr = Wbr(
             attributes = attribute
         )
         children!!.add(Wbr)
         return Wbr
     }
-}

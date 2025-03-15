@@ -16,7 +16,7 @@ class Select(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         addAttributes(*attributes)
     }
 
-    fun Element.Select(vararg attribute: Attribute, _children: Element.() -> Unit): Select {
+}    fun Element.Select(vararg attribute: Attribute, _children: Element.() -> Unit): Select {
         val Select = Select(
             attributes = attribute,
             function = _children
@@ -24,4 +24,3 @@ class Select(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         children!!.add(Select)
         return Select
     }
-}
