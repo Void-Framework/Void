@@ -74,8 +74,19 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
         }
         when (type) {
             "Normal" -> {
-                kotlinCode.append("\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = \"${name.lowercase()}\") {\n")
-                kotlinCode.insert(startLength, "import io.void.html.Element\nimport io.void.html.ElementWithChildren\n")
+                val HElement = name.startsWith("h", true) && name[name.length - 1].digitToIntOrNull() != null
+                kotlinCode.append("\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = \"${name.lowercase()}\")${if (HElement) {
+                    ", HElement"
+                } else {
+                    ""
+                }
+                } {\n")
+                kotlinCode.insert(startLength, "import io.void.html.Element\nimport io.void.html.ElementWithChildren\n${if (HElement) {
+                    "import io.void.html.HElement\n"
+                } else {
+                    ""
+                }
+                }")
                 val childrenBuilder = StringBuilder("null")
                 val acceptedChildren = line.substringAfter("\"acceptedChildren\": [").substringBefore("]").split(", ").map { it.replace("\"", "") }.toList()
                 if (acceptedChildren.isNotEmpty()) {
