@@ -1,17 +1,20 @@
 package test
 
 import io.jadiefication.routes.home.HomeRoute
-import org.junit.jupiter.api.*
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlinx.coroutines.*
 import io.jadiefication.routes.setter.SetterRoute
 import io.void.router.Router
 import io.void.server.Server
+import kotlinx.coroutines.*
 import org.json.JSONObject
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RouteTests {

@@ -2,7 +2,6 @@ package io.void.generator
 
 import io.void.generator.exception.NoOutputException
 import java.io.File
-import java.nio.file.FileSystem
 import java.nio.file.Files
 
 fun main(args: Array<String>) {
