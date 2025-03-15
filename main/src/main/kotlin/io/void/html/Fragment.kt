@@ -9,6 +9,7 @@ class Fragment(): ElementWithChildren(name = "") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
     private lateinit var text: String
+    var storedChildren: MutableList<Element> = mutableListOf()
 
     override fun render(): String {
         return text
@@ -19,7 +20,11 @@ class Fragment(): ElementWithChildren(name = "") {
     }
 
     internal constructor(children: Element.() -> Unit) : this() {
-        this.text = this.apply(children).render()
+        val element = this.apply(children)
+        this.text = element.render()
+        element.children!!.forEach {
+            storedChildren.add(it)
+        }
     }
 }
 
