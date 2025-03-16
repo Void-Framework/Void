@@ -16,14 +16,12 @@ import javax.net.ssl.SSLSocket
 
 class Server(private val router: Router, val port: Int) {
 
-    var isHTTP: Boolean = false
     private lateinit var socket: ServerSocket
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
 
     fun startHTTPServer() {
-        isHTTP = true;
         Thread {
             try {
                 socket = ServerSocket(port)
@@ -31,7 +29,7 @@ class Server(private val router: Router, val port: Int) {
                     val client = socket.accept()
                     executorService.submit {
                         try {
-                            ClientHandler(client).setRouter(router = this.router).start(server = this)
+                            ClientHandler(client).setRouter(router = this.router).start()
                         } catch (e: Exception) {
                             ClientHandler(client).error(e)
                         }
@@ -46,9 +44,7 @@ class Server(private val router: Router, val port: Int) {
     }
 
     fun startHTTPSServer(password: String, file: File, needsAuth: Boolean) {
-        isHTTP = false;
         val paswd = password.toCharArray()
-        val fis: FileInputStream
         try {
             FileInputStream(file).use { keystore.load(it, paswd) }
 
@@ -65,7 +61,7 @@ class Server(private val router: Router, val port: Int) {
                 client.startHandshake()
                 executorService.submit {
                     try {
-                        ClientHandler(client).setRouter(router = this.router).start(server = this)
+                        ClientHandler(client).setRouter(router = this.router).start()
                     } catch (e: Exception) {
                         ClientHandler(client).error(e)
                     }
