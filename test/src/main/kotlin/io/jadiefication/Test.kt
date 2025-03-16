@@ -9,10 +9,12 @@ val router = Router().addRoutes(listOf(HomeRoute(), SetterRoute()))
 
 fun main() {
     val server = Server(
-        router = router,
-        port = 8080
+        router = router
     )
 
-    server.startHTTPServer()
+    server.startHTTPServer(
+        port = 8080,
+        routeToHTTPS = false
+    )
 
 }
