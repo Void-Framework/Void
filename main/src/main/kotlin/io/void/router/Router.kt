@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap
 class Router {
 
     private val routes: ConcurrentHashMap<String, Page> = ConcurrentHashMap()
+    private val cache: ConcurrentHashMap<Page, String> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
 
     //Add a function to add routes without finding the annotations
@@ -23,11 +24,17 @@ class Router {
             throw RouteTargetUsedException(route.target)
         } else {
             if (route.target.startsWith("/")) {
+                if (route !is ApiPage) {
+                    cache[route] = route.content!!.render()
+                }
                 routes[route.target] = route
             } else {
                 throw RouteNoTargetException(route.target)
             }
         }
+
+
+
         return this
     }
 
@@ -56,7 +63,11 @@ class Router {
                             "Upgrade" to "websocket",
                             "Connection" to "Upgrade"
                         ),
-                        body = "<html><body>${page!!.content!!.render()}</body></html>"
+                        body = "<html><body>${if (cache.containsKey(page)) {
+                            cache[page]
+                        } else {
+                            page!!.content!!.render()
+                        }}</body></html>"
                     ),
                     outputStream = client.getOutputStream()
                 )
