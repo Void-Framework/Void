@@ -1,13 +1,14 @@
 package io.void.html
 
 import io.void.html.attributes.AttributeNames
+import org.w3c.dom.Node
 import kotlin.reflect.KClass
 
 class Fragment(): ElementWithChildren(name = "") {
 
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
-    private lateinit var text: String
+    lateinit var text: String
     var storedChildren: MutableList<Element> = mutableListOf()
 
     override fun render(): String {
