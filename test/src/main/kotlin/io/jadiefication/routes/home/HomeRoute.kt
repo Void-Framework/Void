@@ -56,9 +56,9 @@ class HomeRoute : Page(target = "/") {
 
             Br()
 
-            Button {
+            H1 {
                 DataHolder(
-                    value = 0
+                    _value = "test"
                 )
             }
 
