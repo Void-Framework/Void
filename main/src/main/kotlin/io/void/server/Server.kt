@@ -2,7 +2,6 @@ package io.void.server
 
 import io.void.clienthandler.ClientHandler
 import io.void.router.Router
-import io.void.ws.WSClient
 import io.void.ws.WSServer
 import java.io.File
 import java.io.FileInputStream
@@ -29,6 +28,7 @@ class Server(private val router: Router, val port: Int) {
         wsServer = WSServer(
             port = port + 1
         )
+        wsServer.start()
     }
 
     fun startHTTPServer() {
@@ -42,12 +42,12 @@ class Server(private val router: Router, val port: Int) {
                         try {
                             ClientHandler(
                                 client = client,
-                                wsServer = wsServer
+                                server = this
                             ).setRouter(router = this.router).start(server = this)
                         } catch (e: Exception) {
                             ClientHandler(
                                 client = client,
-                                wsServer = wsServer
+                                server = this
                             ).error(e)
                         }
                     }
@@ -90,12 +90,12 @@ class Server(private val router: Router, val port: Int) {
                     try {
                         ClientHandler(
                             client = client,
-                            wsServer = wsServer
+                            server = this
                         ).setRouter(router = this.router).start(server = this)
                     } catch (e: Exception) {
                         ClientHandler(
                             client = client,
-                            wsServer = wsServer
+                            server = this
                         ).error(e)
                     }
                 }
