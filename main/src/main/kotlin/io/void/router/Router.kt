@@ -1,6 +1,7 @@
 package io.void.router
 
 import io.void.api.ApiPage
+import io.void.clienthandler.ClientHandler
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
 import io.void.html.exceptions.ExceptionPage
@@ -38,10 +39,12 @@ class Router {
         return this
     }
 
-    fun route(requestDTO: RequestDTO, client: Socket) {
+    fun route(requestDTO: RequestDTO, clientHandler: ClientHandler) {
         val target = requestDTO.target
+        val client = clientHandler.client
         if (routes.containsKey(target)) {
             val page = routes[target]
+            page!!.client = clientHandler.wsClient
             if (page is ApiPage) {
                 builder.build(page.serverGetter(
                     request = requestDTO
@@ -56,7 +59,7 @@ class Router {
                             "Upgrade" to "websocket",
                             "Connection" to "Upgrade"
                         ),
-                        body = "<html><body>${page!!.content!!.render()}</body></html>"
+                        body = "<html><body>${page.content!!.render()}</body></html>"
                     ),
                     outputStream = client.getOutputStream()
                 )
