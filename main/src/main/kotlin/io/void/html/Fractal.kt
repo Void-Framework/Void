@@ -3,7 +3,7 @@ package io.void.html
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class Fractal(): ElementWithChildren(name = "") {
+open class Fractal(): ElementWithChildren(name = "") {
 
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
