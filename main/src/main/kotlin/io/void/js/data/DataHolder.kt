@@ -17,8 +17,8 @@ class DataHolder<T>(private var value: T?, val client: WSClient): Fractal() {
 
     fun set(newValue: T): T? {
         value = newValue
-        DataHandler.singleton.send(
-            data = this
+        DataHandler.singleton.update(
+            newData = this
         )
         return value
     }

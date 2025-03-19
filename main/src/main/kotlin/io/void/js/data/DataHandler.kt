@@ -1,5 +1,7 @@
 package io.void.js.data
 
+import io.void.html.Element
+import io.void.js.EventDispatcher
 import io.void.ws.WSClient
 
 class DataHandler private constructor() : IDataHandler {
@@ -19,10 +21,12 @@ class DataHandler private constructor() : IDataHandler {
         data.client.send(data.render())
     }
 
-    override fun <T> onUpdate(newData: DataHolder<T>) {
+    override fun <T> update(newData: DataHolder<T>) {
         send(
             data = newData
         )
+        EventDispatcher.callEvent(DataHolder::class.java, newData)
     }
+
 
 }
