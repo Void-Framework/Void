@@ -8,7 +8,7 @@ import io.void.ws.WSServer
 import java.net.Socket
 import java.net.URI
 
-class ClientHandler(private val client: Socket, wsServer: WSServer) {
+class ClientHandler(val client: Socket, wsServer: WSServer) {
 
     private lateinit var router: Router
     private val parser = HTTPParser()
@@ -30,7 +30,10 @@ class ClientHandler(private val client: Socket, wsServer: WSServer) {
                 inputStream = client.getInputStream(),
                 client = client
             )
-            this.router.route(request, client)
+            this.router.route(
+                requestDTO = request,
+                clientHandler = this
+            )
         } catch (e: Exception) {
             error(e)
         } finally {
