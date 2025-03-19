@@ -40,9 +40,15 @@ class Server(private val router: Router, val port: Int) {
                     val client = socket.accept()
                     executorService.submit {
                         try {
-                            ClientHandler(client).setRouter(router = this.router).start(server = this)
+                            ClientHandler(
+                                client = client,
+                                wsServer = wsServer
+                            ).setRouter(router = this.router).start(server = this)
                         } catch (e: Exception) {
-                            ClientHandler(client).error(e)
+                            ClientHandler(
+                                client = client,
+                                wsServer = wsServer
+                            ).error(e)
                         }
                     }
                 }
@@ -82,9 +88,15 @@ class Server(private val router: Router, val port: Int) {
                 client.startHandshake()
                 executorService.submit {
                     try {
-                        ClientHandler(client).setRouter(router = this.router).start(server = this)
+                        ClientHandler(
+                            client = client,
+                            wsServer = wsServer
+                        ).setRouter(router = this.router).start(server = this)
                     } catch (e: Exception) {
-                        ClientHandler(client).error(e)
+                        ClientHandler(
+                            client = client,
+                            wsServer = wsServer
+                        ).error(e)
                     }
                 }
             }
