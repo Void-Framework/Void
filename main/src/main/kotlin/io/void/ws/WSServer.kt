@@ -1,11 +1,11 @@
-package main.java.main.WebSocket
+package io.void.ws
 
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import java.net.InetSocketAddress
 
-class WebSocketServer: WebSocketServer(InetSocketAddress(8081)) {
+class WSServer(port: Int): WebSocketServer(InetSocketAddress(port)) {
 
     override fun onStart() {
         println("Started")
