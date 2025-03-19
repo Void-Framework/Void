@@ -26,7 +26,7 @@ abstract class ElementWithChildren internal constructor(override val name: Strin
         if (acceptedChildren[0] != null) {
             children?.forEach { child ->
                 if (!isAccepted(child)) {
-                    if (child is Fragment) {
+                    if (child is Fractal) {
                         throw FragmentChildNotAllowedException(
                             parent = this
                         )
@@ -44,8 +44,8 @@ abstract class ElementWithChildren internal constructor(override val name: Strin
     }
 
     private fun isAccepted(child: Element): Boolean {
-        if (!acceptedChildren.contains(child::class) || child is Fragment) {
-            if (child is Fragment) {
+        if (!acceptedChildren.contains(child::class) || child is Fractal) {
+            if (child is Fractal) {
                 if (child.children?.isNotEmpty() == true) {
                     child.children!!.forEach { fChild ->
                         return isAccepted(child)

@@ -1,10 +1,9 @@
 package io.void.html
 
 import io.void.html.attributes.AttributeNames
-import org.w3c.dom.Node
 import kotlin.reflect.KClass
 
-class Fragment(): ElementWithChildren(name = "") {
+class Fractal(): ElementWithChildren(name = "") {
 
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
@@ -28,18 +27,18 @@ class Fragment(): ElementWithChildren(name = "") {
     }
 }
 
-fun Element.Fragment(_text: String): Fragment {
-    val fragment = Fragment(
+fun Element.Fragment(_text: String): Fractal {
+    val fractal = Fractal(
         text = _text
     )
-    children!!.add(fragment)
-    return fragment
+    children!!.add(fractal)
+    return fractal
 }
 
-fun Element.Fragment(_children: Element.() -> Unit): Fragment {
-    val fragment = Fragment(
+fun Element.Fragment(_children: Element.() -> Unit): Fractal {
+    val fractal = Fractal(
         children = _children
     )
-    children!!.add(fragment)
-    return fragment
+    children!!.add(fractal)
+    return fractal
 }

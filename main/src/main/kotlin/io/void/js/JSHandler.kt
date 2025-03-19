@@ -1,8 +1,7 @@
 package io.void.js
 
-import com.sun.org.apache.xerces.internal.dom.NodeImpl
 import io.void.html.Element
-import io.void.html.Fragment
+import io.void.html.Fractal
 import kotlinx.html.dom.document
 import org.w3c.dom.Node
 
@@ -14,7 +13,7 @@ interface JSHandler {
         }
 
     fun addElement(element: Element): Node? {
-        if (element is Fragment) {
+        if (element is Fractal) {
             val children = element.children
             if (children != null) {
                 val parent = document.createElement("div")
