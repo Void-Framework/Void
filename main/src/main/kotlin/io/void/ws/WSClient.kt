@@ -4,7 +4,7 @@ import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
 
-class WSClient: WebSocketClient(URI("ws://localhost:8081/")) {
+class WSClient(uri: URI): WebSocketClient(uri) {
 
     override fun onOpen(p0: ServerHandshake?) {
         println("Connected to server")

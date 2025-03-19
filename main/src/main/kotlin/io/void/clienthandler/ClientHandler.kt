@@ -3,12 +3,21 @@ package io.void.clienthandler
 import io.void.http.parser.HTTPParser
 import io.void.router.Router
 import io.void.server.Server
+import io.void.ws.WSClient
+import io.void.ws.WSServer
 import java.net.Socket
+import java.net.URI
 
-class ClientHandler(private val client: Socket) {
+class ClientHandler(private val client: Socket, wsServer: WSServer) {
 
     private lateinit var router: Router
     private val parser = HTTPParser()
+    var wsClient: WSClient
+
+    init {
+        wsClient = WSClient(URI.create("ws://${wsServer.address}/"))
+        wsClient.connect()
+    }
 
     fun setRouter(router: Router): ClientHandler {
         this.router = router
