@@ -27,7 +27,7 @@ open class Fractal(): ElementWithChildren(name = "") {
     }
 }
 
-fun Element.Fragment(_text: String): Fractal {
+fun Element.Fractal(_text: String): Fractal {
     val fractal = Fractal(
         text = _text
     )
@@ -35,7 +35,7 @@ fun Element.Fragment(_text: String): Fractal {
     return fractal
 }
 
-fun Element.Fragment(_children: Element.() -> Unit): Fractal {
+fun Element.Fractal(_children: Element.() -> Unit): Fractal {
     val fractal = Fractal(
         children = _children
     )
