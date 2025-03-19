@@ -23,7 +23,7 @@ class DataHolder<T>(private var value: T?, var client: WSClient? = null): Fracta
         return value
     }
 
-    fun setClient(_client: WSClient) {
+    fun setNewClient(_client: WSClient) {
         client = _client
         value?.let { set(it) }
     }

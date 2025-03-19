@@ -18,7 +18,7 @@ class DataHandler private constructor() : IDataHandler {
     }
 
     override fun <T> send(data: DataHolder<T>) {
-        data.client.send(data.render())
+        data.client?.send(data.render())
     }
 
     override fun <T> update(newData: DataHolder<T>) {
