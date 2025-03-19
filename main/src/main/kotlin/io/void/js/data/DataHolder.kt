@@ -6,7 +6,7 @@ import io.void.html.attributes.AttributeNames
 import io.void.ws.WSClient
 import kotlin.reflect.KClass
 
-class DataHolder<T>(private var value: T?, val client: WSClient): Fractal() {
+class DataHolder<T>(private var value: T?, var client: WSClient? = null): Fractal() {
 
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf()
     override val allowedAttributes: List<AttributeNames> = listOf()
@@ -21,6 +21,11 @@ class DataHolder<T>(private var value: T?, val client: WSClient): Fractal() {
             newData = this
         )
         return value
+    }
+
+    fun setClient(_client: WSClient) {
+        client = _client
+        value?.let { set(it) }
     }
 
     fun get(): T? {

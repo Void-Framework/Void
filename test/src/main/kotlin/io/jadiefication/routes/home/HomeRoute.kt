@@ -2,10 +2,11 @@ package io.jadiefication.routes.home
 
 import io.void.generated.*
 import io.void.html.Element
-import io.void.html.Fragment
+import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
 import io.void.html.page.Page
+import io.void.js.data.DataHolder
 import java.net.URL
 
 class HomeRoute : Page(target = "/") {
@@ -20,9 +21,9 @@ class HomeRoute : Page(target = "/") {
         }
     ) {
         H1 {
-            Fragment("Main")
+            Fractal("Main")
             Br()
-            Fragment("Title")
+            Fractal("Title")
         }
 
         Hr()
@@ -49,14 +50,20 @@ class HomeRoute : Page(target = "/") {
                             value = "noopener"
                         }),
                 ) {
-                    Fragment(_text = "Click Me Title")
+                    Fractal(_text = "Click Me Title")
                 }
             }
 
             Br()
 
+            Button {
+                DataHolder(
+                    value = 0
+                )
+            }
+
             H3 {
-                Fragment("Subtitle Here")
+                Fractal("Subtitle Here")
             }
         }
     }
