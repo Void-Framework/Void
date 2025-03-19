@@ -2,7 +2,6 @@ package io.void.server
 
 import io.void.clienthandler.ClientHandler
 import io.void.router.Router
-import io.void.ws.WSServer
 import java.io.File
 import java.io.FileInputStream
 import java.net.ServerSocket
@@ -22,14 +21,6 @@ class Server(private val router: Router, val port: Int) {
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
-    private var wsServer: WSServer
-
-    init {
-        wsServer = WSServer(
-            port = port + 1
-        )
-        wsServer.start()
-    }
 
     fun startHTTPServer() {
         isHTTP = true;
@@ -56,16 +47,8 @@ class Server(private val router: Router, val port: Int) {
                 e.printStackTrace()
             } finally {
                 socket.close()
-                closeWsClients()
             }
         }.start()
-    }
-
-    private fun closeWsClients() {
-        wsServer.connections.forEach {
-            it.close()
-        }
-        wsServer.stop()
     }
 
     fun startHTTPSServer(password: String, file: File, needsAuth: Boolean) {
@@ -104,7 +87,6 @@ class Server(private val router: Router, val port: Int) {
             e.printStackTrace()
         } finally {
             socket.close()
-            closeWsClients()
         }
     }
 }
