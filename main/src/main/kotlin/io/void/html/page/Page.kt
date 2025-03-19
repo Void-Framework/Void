@@ -19,7 +19,7 @@ abstract class Page(open val target: String) {
         if (element == null) return
 
         if (element is DataHolder<*>) {
-            element.setClient(client!!)
+            element.setNewClient(client!!)
         }
 
         element.children?.forEach { child ->
