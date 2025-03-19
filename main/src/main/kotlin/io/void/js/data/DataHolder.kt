@@ -32,3 +32,11 @@ class DataHolder<T>(private var value: T?, var client: WSClient? = null): Fracta
         return value
     }
 }
+
+inline fun<reified T> Element.DataHolder(_value: T?): DataHolder<T> {
+    val holder = DataHolder(
+        value = _value
+    )
+    children!!.add(holder)
+    return holder
+}
