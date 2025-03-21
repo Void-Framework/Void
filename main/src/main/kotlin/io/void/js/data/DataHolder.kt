@@ -5,7 +5,7 @@ import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class DataHolder<T>(private var value: T?): Fractal() {
+class DataHolder<T> internal constructor(private var value: T?): Fractal() {
 
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf()
     override val allowedAttributes: List<AttributeNames> = listOf()
@@ -25,12 +25,4 @@ class DataHolder<T>(private var value: T?): Fractal() {
     fun get(): T? {
         return value
     }
-}
-
-inline fun<reified T> Element.DataHolder(_value: T?): DataHolder<T> {
-    val holder = DataHolder(
-        value = _value
-    )
-    children!!.add(holder)
-    return holder
 }

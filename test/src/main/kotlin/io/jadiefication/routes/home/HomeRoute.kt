@@ -6,10 +6,14 @@ import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
 import io.void.html.page.Page
+import io.void.js.data.DataHandler
 import io.void.js.data.DataHolder
 import java.net.URL
 
 class HomeRoute : Page(target = "/") {
+
+    val data = DataHandler.singleton.create("Hello")
+
     override var content: Element? = Div(
         attribute {
             name = AttributeNames.CLASS
@@ -57,9 +61,7 @@ class HomeRoute : Page(target = "/") {
             Br()
 
             H1 {
-                DataHolder(
-                    _value = "test"
-                )
+                data.get()?.let { Fractal(_text = it) }
             }
 
             H3 {
