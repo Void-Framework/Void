@@ -2,16 +2,10 @@
 
 The **Void Framework** is a modular web framework designed to be lightweight, flexible, and easy to extend. Inspired by frameworks like Spring, Void aims to provide a solid foundation for building web applications, while offering optional submodules to extend its functionality.
 
-## Features ✨
-- 🖥️ **Core Framework:** A lightweight core to build web applications
-- 📦 **Modular Design:** Add or remove submodules as needed
-- 🛠️ **Customizable:** Easily extend the framework to fit your needs
-- ⚙️ **Planned Submodules:** ORM, security, routing, and more
-
-## Getting Started 🚀
+## Contribution/Use 🚀
 ### Prerequisites 📋
 - 🖥️ **Java 17+**
-- 📦 **Maven**
+- 📦 **A build tool of your choice**
 
 ### Installation 📂
 Since Void Framework is currently not hosted on any public repository, you can clone the project locally and add it as a dependency to your project:
@@ -28,7 +22,7 @@ package main.java.main.Test
 import main.java.main.Server.Server
 import main.router.Router
 
-val router = Router().addRoutes()
+val router = Router().addRoutes(HomeRoute())
 
 fun main() {
     val server = Server(router = router)
@@ -37,19 +31,6 @@ fun main() {
 
 }
 ```
-
-### Server Class Overview 📝
-Here's a brief overview of how the `Server` class works:
-- 🔧 **`Server()` constructor**: Initializes the server.
-- 🚀 **`startServer(port: Int)` method**: Starts the server on the specified port and accepts client connections.
-
-## Roadmap 🛤️
-The following features and submodules are planned for future releases:
-- 🗄️ **ORM (Object-Relational Mapping)**: Simplify database interactions
-- 🔐 **Security**: Authentication and authorization mechanisms
-- 🛣️ **Routing**: Handle HTTP requests and responses
-- 🖼️ **Templating**: Dynamic HTML generation
-- 📦 **Dependency Injection**: Manage components and services
 
 ## Contributing 🤝
 Contributions are welcome! Feel free to fork the repository and submit a pull request.
