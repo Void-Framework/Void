@@ -5,8 +5,8 @@ import kotlin.reflect.KClass
 
 abstract class CustomElement: ElementWithChildren(name = "") {
 
-    abstract override val allowedAttributes: List<AttributeNames>
-    abstract override val acceptedChildren: MutableList<KClass<out Element>?>
+    override val allowedAttributes: List<AttributeNames> = listOf()
+    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf()
     abstract val element: Element
 
     override fun render(): String {
