@@ -43,7 +43,7 @@ abstract class ElementWithChildren internal constructor(override val name: Strin
         return "<$name $attrs>$content</$name>"
     }
 
-    private fun isAccepted(child: Element): Boolean {
+    internal fun isAccepted(child: Element): Boolean {
         if (!acceptedChildren.contains(child::class) || child is Fragment) {
             if (child is Fragment) {
                 if (child.children?.isNotEmpty() == true) {
