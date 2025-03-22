@@ -16,14 +16,16 @@ class HTTPParser {
     private lateinit var method: Method
     private lateinit var path: String
 
-    fun parse(inputStream: InputStream, client: Socket): RequestDTO {
+    fun parse(inputStream: InputStream, client: Socket? = null): RequestDTO {
         val reader = BufferedReader(InputStreamReader(inputStream))
         val line = reader.readLine()?.split(" ") ?: throw IllegalStateException("Empty request received")
         try {
             if (line.size < 2) throw IllegalArgumentException("Invalid request line")
             method = Method.valueOf(line[0].uppercase(Locale.getDefault()))
         } catch (e: Exception) {
-            Router().error(client, e)
+            if (client != null) {
+                Router().error(client, e)
+            }
             return RequestDTO(Method.GET, "/", headers, "") // Provide a default request
         }
         path = line[1]
