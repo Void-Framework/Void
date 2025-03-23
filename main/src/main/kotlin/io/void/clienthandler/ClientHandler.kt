@@ -15,7 +15,7 @@ class ClientHandler(private val client: Socket) {
         return this
     }
 
-    fun start(server: Server) {
+    fun start() {
         try {
             val request = parser.parse(
                 inputStream = client.getInputStream(),
