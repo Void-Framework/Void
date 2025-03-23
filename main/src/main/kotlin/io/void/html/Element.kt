@@ -26,3 +26,13 @@ abstract class Element internal constructor(open val name: String) {
         } }
     }
 }
+
+fun Element.loop(range: IntRange, element: Element.() -> Unit): Fragment {
+    val fragment = Fragment {
+        for (i in range) {
+            Fragment(element)
+        }
+    }
+    children!!.add(fragment)
+    return fragment
+}
