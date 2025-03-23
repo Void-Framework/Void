@@ -6,6 +6,9 @@ import io.void.dto.ResponseDTO
 import io.void.html.Element
 import io.void.html.page.Page
 
+@Deprecated(message = "This class will be removed in future commits based on the rework of the Page class",
+    replaceWith = ReplaceWith("Page", "Page"), DeprecationLevel.WARNING
+)
 abstract class ApiPage(override val target: String, val method: Method): Page(target = target) {
 
     override var content: Element? = null
