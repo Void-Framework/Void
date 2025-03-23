@@ -7,6 +7,18 @@ import kotlin.reflect.KClass
 
 sealed class ContentType {
 
-    data class htmlElements(val element: Element): ContentType()
-    data class response(val responseDTO: ResponseDTO): ContentType()
+    class htmlElements internal constructor(): ContentType() {
+        lateinit var htmlElement: Element
+
+        constructor(element: Element): this() {
+            htmlElement = element
+        }
+    }
+    class response internal constructor(): ContentType() {
+        lateinit var response: ResponseDTO
+
+        constructor(responseDTO: ResponseDTO): this() {
+            response = responseDTO
+        }
+    }
 }

@@ -8,9 +8,13 @@ import io.void.html.attributes.attribute
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import java.net.URL
+import kotlin.reflect.KClass
 
-class HomeRoute : Page(target = "/") {
-    override fun content(): ContentType {
+class HomeRoute : Page<ContentType.htmlElements>(target = "/") {
+
+    override val contentType: KClass<ContentType.htmlElements> = ContentType.htmlElements::class
+
+    override fun content(): ContentType.htmlElements {
         return ContentType.htmlElements(
             Div(
             attribute {
