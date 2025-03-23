@@ -49,37 +49,27 @@ class Router {
         val target = requestDTO.target
         if (routes.containsKey(target)) {
             val page = routes[target]
-            if (page is ApiPage) {
-                builder.build(page.serverGetter(
-                    request = requestDTO
-                ), client.getOutputStream())
-            } else {
-                builder.build(
-                    response = ResponseDTO(
-                        status = 200,
-                        statusText = "All is well",
-                        headers = mutableMapOf(
-                            "Content-Type" to "text/html",
-                            "Upgrade" to "websocket",
-                            "Connection" to "Upgrade"
-                        ),
-                        body = "<html><body>${if (cache.containsKey(page)) {
-                            cache[page]
-                        } else {
-                            page!!.content!!.render()
-                        }}</body></html>"
+            builder.build(
+                response = ResponseDTO(
+                    status = 200,
+                    statusText = "All is well",
+                    headers = mutableMapOf(
+                        "Content-Type" to "text/html",
                     ),
-                    outputStream = client.getOutputStream()
-                )
-            }
+                    body = "<html><body>${if (cache.containsKey(page)) {
+                        cache[page]
+                    } else {
+                        page!!.content!!.render()
+                    }}</body></html>"
+                ),
+                outputStream = client.getOutputStream()
+            )
         } else {
             builder.build(
                 response = ResponseDTO(status = 404,
                 statusText = "Not Found",
                 headers = mutableMapOf(
                     "Content-Type" to "text/html",
-                    "Upgrade" to "websocket",
-                    "Connection" to "Upgrade"
                 ),
                 body = "<html><body><h1>No Route Found!</h1></body></html>"),
                 outputStream = client.getOutputStream())
