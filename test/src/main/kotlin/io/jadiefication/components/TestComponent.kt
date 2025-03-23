@@ -53,7 +53,7 @@ class TestComponent: CustomElement() {
 
         loop(0..3) {
             H1 {
-                Fragment("HELP")
+                Fragment("HELP $it")
             }
             Br()
         }
