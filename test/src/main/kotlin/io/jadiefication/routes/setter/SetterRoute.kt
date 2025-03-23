@@ -5,14 +5,16 @@ import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
+import kotlin.reflect.KClass
 
-class SetterRoute: Page(
-    target = "/setter",
+class SetterRoute : Page<ContentType.response>(
+    target = "/setter"
 ) {
 
     private val method = Method.GET
+    override val contentType: KClass<ContentType.response> = ContentType.response::class
 
-    override fun content(): ContentType {
+    override fun content(): ContentType.response {
         return ContentType.response(responseDTO = if (request.method == method) {
             ResponseDTO.json(mutableMapOf(
                 "name" to "Jade",
