@@ -6,58 +6,63 @@ import io.void.html.Fragment
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
 import io.void.html.page.Page
+import io.void.html.page.content.ContentType
 import java.net.URL
 
 class HomeRoute : Page(target = "/") {
-    override var content: Element? = Div(
-        attribute {
-            name = AttributeNames.CLASS
-            value = "main-container"
-        },
-        attribute {
-            name = AttributeNames.ID
-            value = "content"
-        }
-    ) {
-        H1 {
-            Fragment("Main")
-            Br()
-            Fragment("Title")
-        }
-
-        Hr()
-
-        Div(
-            attribute = arrayOf(attribute {
+    override fun content(): ContentType {
+        return ContentType.htmlElements(
+            Div(
+            attribute {
                 name = AttributeNames.CLASS
-                value = "section"
-            }),
+                value = "main-container"
+            },
+            attribute {
+                name = AttributeNames.ID
+                value = "content"
+            }
         ) {
-            H2 {
-                A(
-                    attribute = arrayOf(
-                        attribute {
-                            name = AttributeNames.HREF
-                            value = URL("https://example.com")
-                        },
-                        attribute {
-                            name = AttributeNames.TARGET
-                            value = "_blank"
-                        },
-                        attribute {
-                            name = AttributeNames.REL
-                            value = "noopener"
-                        }),
-                ) {
-                    Fragment(_text = "Click Me Title")
+            H1 {
+                Fragment("Main")
+                Br()
+                Fragment("Title")
+            }
+
+            Hr()
+
+            Div(
+                attribute = arrayOf(attribute {
+                    name = AttributeNames.CLASS
+                    value = "section"
+                }),
+            ) {
+                H2 {
+                    A(
+                        attribute = arrayOf(
+                            attribute {
+                                name = AttributeNames.HREF
+                                value = URL("https://example.com")
+                            },
+                            attribute {
+                                name = AttributeNames.TARGET
+                                value = "_blank"
+                            },
+                            attribute {
+                                name = AttributeNames.REL
+                                value = "noopener"
+                            }),
+                    ) {
+                        Fragment(_text = "Click Me Title")
+                    }
+                }
+
+                Br()
+
+                H3 {
+                    Fragment("Subtitle Here")
                 }
             }
-
-            Br()
-
-            H3 {
-                Fragment("Subtitle Here")
-            }
-        }
+        })
     }
+
 }
