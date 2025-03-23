@@ -33,6 +33,5 @@ fun Element.loop(range: IntRange, element: Element.(Int) -> Unit): Fragment {
             element(i)
         }
     }
-    children!!.add(fragment)
     return fragment
 }
