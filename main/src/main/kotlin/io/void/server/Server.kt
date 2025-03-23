@@ -26,7 +26,7 @@ class Server(private val router: Router) {
     private var isHTTPSOn = false
     private val builder: HTTPBuilder = HTTPBuilder()
 
-    fun startHTTPServer(port: Int, routeToHTTPS: Boolean) {
+    fun startHTTPServer(port: Int, routeToHTTPS: Boolean = false) {
         Thread {
             try {
                 socket = ServerSocket(port)
