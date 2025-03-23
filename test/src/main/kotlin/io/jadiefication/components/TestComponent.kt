@@ -4,7 +4,6 @@ import io.void.generated.*
 import io.void.html.CustomElement
 import io.void.html.Element
 import io.void.html.Fragment
-import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
 import io.void.html.loop
