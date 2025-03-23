@@ -1,8 +1,8 @@
 package io.void.router
 
 import io.void.api.ApiPage
-import io.void.dto.RequestDTO
-import io.void.dto.ResponseDTO
+import io.void.dto.http.RequestDTO
+import io.void.dto.http.ResponseDTO
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.page.Page
 import io.void.http.builder.HTTPBuilder
