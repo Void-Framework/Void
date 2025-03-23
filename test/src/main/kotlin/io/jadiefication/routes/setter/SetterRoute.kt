@@ -1,18 +1,20 @@
 package io.jadiefication.routes.setter
 
-import io.void.api.ApiPage
 import io.void.api.method.Method
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
+import io.void.html.page.Page
+import io.void.html.page.content.ContentType
 
-class SetterRoute: ApiPage(
+class SetterRoute: Page(
     target = "/setter",
-    method = Method.GET
 ) {
 
-    override fun serverGetter(request: RequestDTO): ResponseDTO {
-        if (request.method == method) {
-            return ResponseDTO.json(mutableMapOf(
+    private val method = Method.GET
+
+    override fun content(): ContentType {
+        return ContentType.response(responseDTO = if (request.method == method) {
+            ResponseDTO.json(mutableMapOf(
                 "name" to "Jade",
                 "age" to 20,
                 "isStudent" to true,
@@ -33,12 +35,12 @@ class SetterRoute: ApiPage(
                 "emptyMap" to mapOf<String, Any>()
             ), 200, "All is fine")
         } else {
-            return ResponseDTO(
+            ResponseDTO(
                 status = 405,
                 statusText = "Method not allowed",
                 headers = mutableMapOf(),
                 body = ""
-                )
-        }
+            )
+        })
     }
 }
