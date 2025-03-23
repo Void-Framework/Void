@@ -2,8 +2,8 @@ package io.jadiefication.routes.setter
 
 import io.void.api.ApiPage
 import io.void.api.method.Method
-import io.void.dto.RequestDTO
-import io.void.dto.ResponseDTO
+import io.void.dto.http.RequestDTO
+import io.void.dto.http.ResponseDTO
 
 class SetterRoute: ApiPage(
     target = "/setter",
