@@ -28,11 +28,12 @@ class RouteTests {
         val router = Router().addRoutes(listOf(HomeRoute(), SetterRoute()))
         server = Server(
             router = router,
-            port = port
         )
         
         serverJob = scope.launch {
-            server.startHTTPServer()
+            server.startHTTPServer(
+                port = port
+            )
         }
         
         // Wait for server to start
