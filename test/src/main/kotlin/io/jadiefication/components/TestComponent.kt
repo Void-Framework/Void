@@ -7,6 +7,7 @@ import io.void.html.Fragment
 import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
+import io.void.html.loop
 import java.net.URL
 
 class TestComponent: CustomElement() {
@@ -41,6 +42,20 @@ class TestComponent: CustomElement() {
 
         H3 {
             Fragment("Subtitle Here")
+        }
+
+        listOf("test", "test").forEach {
+            H1 {
+                Fragment(it)
+            }
+            Br()
+        }
+
+        loop(0..3) {
+            H1 {
+                Fragment("HELP")
+            }
+            Br()
         }
     }
 }
