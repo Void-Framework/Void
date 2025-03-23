@@ -31,7 +31,7 @@ class Server(private val router: Router, val port: Int) {
                     val client = socket.accept()
                     executorService.submit {
                         try {
-                            ClientHandler(client).setRouter(router = this.router).start(server = this)
+                            ClientHandler(client).setRouter(router = this.router).start()
                         } catch (e: Exception) {
                             ClientHandler(client).error(e)
                         }
@@ -65,7 +65,7 @@ class Server(private val router: Router, val port: Int) {
                 client.startHandshake()
                 executorService.submit {
                     try {
-                        ClientHandler(client).setRouter(router = this.router).start(server = this)
+                        ClientHandler(client).setRouter(router = this.router).start()
                     } catch (e: Exception) {
                         ClientHandler(client).error(e)
                     }

@@ -13,7 +13,7 @@ abstract class Element internal constructor(open val name: String) {
         AttributeNames.STYLE, AttributeNames.TABINDEX, AttributeNames.TITLE, AttributeNames.TRANSLATE)
     abstract val allowedAttributes: List<AttributeNames>
 
-    fun isAllowed(attribute: AttributeNames): Boolean {
+    private fun isAllowed(attribute: AttributeNames): Boolean {
         return allowedAttributes.contains(attribute) || globalAttributes.contains(attribute)
     }
 
