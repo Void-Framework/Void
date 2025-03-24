@@ -1,5 +1,7 @@
 package io.void.router
 
+import io.void.cache.Cacheable
+import io.void.cache.Processor
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
 import io.void.html.exceptions.ExceptionPage
@@ -14,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
 class Router {
 
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
-    private val cache: ConcurrentHashMap<Page<*>, String> = ConcurrentHashMap()
+    private val cache: ConcurrentHashMap<String, ResponseDTO> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
 
     //Add a function to add routes without finding the annotations
@@ -23,9 +25,6 @@ class Router {
             throw RouteTargetUsedException(route.target)
         } else {
             if (route.target.startsWith("/")) {
-                if (route.contentType != ContentType.Response::class) {
-                    cache[route] = (route.content() as ContentType.HtmlElements).htmlElement.render()
-                }
                 routes[route.target] = route
             } else {
                 throw RouteNoTargetException(route.target)
@@ -35,7 +34,31 @@ class Router {
         return this
     }
 
+    internal fun cacheRoute(routes: Map<Page<*>, Int>): Router {
+        routes.forEach { (route, duration) ->
+            if (route.contentType != ContentType.Response::class) {
+                try {
+                    cache[route.target] = ResponseDTO(
+                        status = 200,
+                        statusText = "All is well",
+                        headers = mutableMapOf(
+                            "Content-Type" to "text/html",
+                        ),
+                        body = "<html><body>${route.content()}</body></html>"
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            } else {
+                cache[route.target] = (route.content() as ContentType.Response).response
+            }
+        }
+
+        return this
+    }
+
     fun addRoutes(routes: List<Page<*>>): Router {
+        Processor.annotationProcessor(routes, this)
         routes.forEach {
             addRoute(it)
         }
@@ -50,21 +73,35 @@ class Router {
             if (page.content() is ContentType.Response) {
                 builder.build((page.content() as ContentType.Response).response, client.getOutputStream())
             } else {
-                builder.build(
-                    response = ResponseDTO(
+                if (cache.containsKey(target)) {
+                    cache[target]
+                } else {
+                    ResponseDTO(
                         status = 200,
                         statusText = "All is well",
                         headers = mutableMapOf(
                             "Content-Type" to "text/html",
                         ),
-                        body = "<html><body>${if (cache.containsKey(page)) {
-                            cache[page]
-                        } else {
-                            (page.content() as ContentType.HtmlElements).htmlElement.render()
-                        }}</body></html>"
-                    ),
-                    outputStream = client.getOutputStream()
-                )
+                        body = "<html><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+                    )
+                }?.let {
+                    builder.build(
+                        response = it,
+                        /*response = ResponseDTO(
+                                        status = 200,
+                                        statusText = "All is well",
+                                        headers = mutableMapOf(
+                                            "Content-Type" to "text/html",
+                                        ),
+                                        body = "<html><body>${if (cache.containsKey(page)) {
+                                            cache[page]
+                                        } else {
+                                            (page.content() as ContentType.HtmlElements).htmlElement.render()
+                                        }}</body></html>"
+                                    ),*/
+                        outputStream = client.getOutputStream()
+                    )
+                }
             }
         } else {
             builder.build(

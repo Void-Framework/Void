@@ -1,5 +1,6 @@
 package io.jadiefication.routes.home
 
+import io.void.cache.Cacheable
 import io.void.generated.*
 import io.void.html.Fragment
 import io.void.html.attributes.AttributeNames
@@ -13,6 +14,7 @@ class HomeRoute : Page<ContentType.HtmlElements>(target = "/") {
 
     override val contentType: KClass<ContentType.HtmlElements> = ContentType.HtmlElements::class
 
+    @Cacheable(invalidationDurationInMillies = 0)
     override fun content(): ContentType.HtmlElements {
         return ContentType.HtmlElements(
             Div(

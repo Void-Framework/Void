@@ -12,16 +12,24 @@ import kotlin.reflect.full.functions
 @Retention(AnnotationRetention.SOURCE)
 annotation class Cacheable(val invalidationDurationInMillies: Int)
 
-fun annotationProcessor(pages: List<Page<*>>, router: Router) {
-    pages.forEach { page ->
-        val cacheable = pages::class.findAnnotations<Cacheable>()
-        if (cacheable.isNotEmpty()) {
-            val function = pages::class.functions.find { it.visibility != null && it.visibility!! == KVisibility.PUBLIC &&  it.findAnnotation<Cacheable>() != null && it.name == "content" }
-            val value = pages::class.declaredMemberProperties.find { it.visibility != null && it.visibility!! == KVisibility.PUBLIC && it.findAnnotation<Cacheable>() != null }
+internal abstract class Processor {
 
-            if (function != null) {
-                router.addRoute(page)
+    companion object {
+
+        fun annotationProcessor(pages: List<Page<*>>, router: Router) {
+            val cacheRoutes = mutableMapOf<Page<*>, Int>()
+            pages.forEach { page ->
+                val cacheable = pages::class.findAnnotations<Cacheable>()
+                if (cacheable.isNotEmpty()) {
+                    val function = pages::class.functions.find { it.visibility != null && it.visibility!! == KVisibility.PUBLIC &&  it.findAnnotation<Cacheable>() != null && it.name == "content" }
+                    val value = pages::class.declaredMemberProperties.find { it.visibility != null && it.visibility!! == KVisibility.PUBLIC && it.findAnnotation<Cacheable>() != null }
+
+                    if (function != null) {
+                        cacheRoutes[page] = function.findAnnotation<Cacheable>()!!.invalidationDurationInMillies
+                    }
+                }
             }
+            router.cacheRoute(cacheRoutes)
         }
     }
 }
