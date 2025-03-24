@@ -1,10 +1,12 @@
 package io.void.cache
 
+import io.void.cache.exception.CacheException
 import io.void.dto.ResponseDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.router.Router
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 
 internal class Cache private constructor() {
 
@@ -13,24 +15,46 @@ internal class Cache private constructor() {
     }
 
     val cache: ConcurrentHashMap<String, ResponseDTO> = ConcurrentHashMap()
+    private val pool = Executors.newCachedThreadPool()
 
     internal fun cacheRoute(routes: Map<Page<*>, Int>) {
         routes.forEach { (route, duration) ->
-            if (route.contentType != ContentType.Response::class) {
-                try {
-                    cache[route.target] = ResponseDTO(
-                        status = 200,
-                        statusText = "All is well",
-                        headers = mutableMapOf(
-                            "Content-Type" to "text/html",
-                        ),
-                        body = "<html><body>${(route.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
+            try {
+                putInCache(route to duration)
+            } catch (e: Exception) {
+                throw CacheException(e)
+            }
+        }
+    }
+
+    private fun putInCache(route: Pair<Page<*>, Int>) {
+        val (page, duration) = route
+        if (page.contentType != ContentType.Response::class) {
+            cache[page.target] = ResponseDTO(
+                status = 200,
+                statusText = "All is well",
+                headers = mutableMapOf(
+                    "Content-Type" to "text/html"
+                ),
+                body = "<html><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+            )
+        } else {
+            cache[page.target] = (page.content() as ContentType.Response).response
+        }
+    }
+
+    private fun handleCache(route: Pair<Page<*>, Int>) {
+        val (page, duration) = route
+        if (duration <= 0) return
+        pool.execute {
+            try {
+                while (!Thread.currentThread().isInterrupted) {
+                    Thread.sleep(duration.toLong())
+                    putInCache(route)
                 }
-            } else {
-                cache[route.target] = (route.content() as ContentType.Response).response
+            } catch (e: Exception) {
+                Thread.currentThread().interrupt()
+                throw CacheException(e)
             }
         }
     }
