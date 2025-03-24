@@ -1,5 +1,6 @@
 package io.void.router
 
+import io.void.cache.Cache
 import io.void.cache.Cacheable
 import io.void.cache.Processor
 import io.void.dto.RequestDTO
@@ -16,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap
 class Router {
 
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
-    private val cache: ConcurrentHashMap<String, ResponseDTO> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
 
     //Add a function to add routes without finding the annotations
@@ -29,29 +29,6 @@ class Router {
                 routes[route.target] = route
             } else {
                 throw RouteNoTargetException(route.target)
-            }
-        }
-
-        return this
-    }
-
-    internal fun cacheRoute(routes: Map<Page<*>, Int>): Router {
-        routes.forEach { (route, duration) ->
-            if (route.contentType != ContentType.Response::class) {
-                try {
-                    cache[route.target] = ResponseDTO(
-                        status = 200,
-                        statusText = "All is well",
-                        headers = mutableMapOf(
-                            "Content-Type" to "text/html",
-                        ),
-                        body = "<html><body>${(route.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            } else {
-                cache[route.target] = (route.content() as ContentType.Response).response
             }
         }
 
@@ -73,8 +50,8 @@ class Router {
             if (page.content() is ContentType.Response) {
                 builder.build((page.content() as ContentType.Response).response, client.getOutputStream())
             } else {
-                val response = if (cache.containsKey(target)) {
-                    cache[target]!!
+                val response = if (Cache.singleton.cache.containsKey(target)) {
+                    Cache.singleton.cache[target]!!
                 } else {
                     ResponseDTO(
                         status = 200,
