@@ -1,7 +1,6 @@
 package io.jadiefication.routes.home
 
 import io.void.generated.*
-import io.void.html.Element
 import io.void.html.Fragment
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
@@ -10,12 +9,12 @@ import io.void.html.page.content.ContentType
 import java.net.URL
 import kotlin.reflect.KClass
 
-class HomeRoute : Page<ContentType.htmlElements>(target = "/") {
+class HomeRoute : Page<ContentType.HtmlElements>(target = "/") {
 
-    override val contentType: KClass<ContentType.htmlElements> = ContentType.htmlElements::class
+    override val contentType: KClass<ContentType.HtmlElements> = ContentType.HtmlElements::class
 
-    override fun content(): ContentType.htmlElements {
-        return ContentType.htmlElements(
+    override fun content(): ContentType.HtmlElements {
+        return ContentType.HtmlElements(
             Div(
             attribute {
                 name = AttributeNames.CLASS

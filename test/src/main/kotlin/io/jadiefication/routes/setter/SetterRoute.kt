@@ -1,21 +1,20 @@
 package io.jadiefication.routes.setter
 
 import io.void.api.method.Method
-import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import kotlin.reflect.KClass
 
-class SetterRoute : Page<ContentType.response>(
+class SetterRoute : Page<ContentType.Response>(
     target = "/setter"
 ) {
 
     private val method = Method.GET
-    override val contentType: KClass<ContentType.response> = ContentType.response::class
+    override val contentType: KClass<ContentType.Response> = ContentType.Response::class
 
-    override fun content(): ContentType.response {
-        return ContentType.response(responseDTO = if (request.method == method) {
+    override fun content(): ContentType.Response {
+        return ContentType.Response(responseDTO = if (request.method == method) {
             ResponseDTO.json(mutableMapOf(
                 "name" to "Jade",
                 "age" to 20,

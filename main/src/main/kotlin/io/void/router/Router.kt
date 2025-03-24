@@ -10,7 +10,6 @@ import io.void.router.exceptions.RouteNoTargetException
 import io.void.router.exceptions.RouteTargetUsedException
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.reflect.KClass
 
 class Router {
 
@@ -24,8 +23,8 @@ class Router {
             throw RouteTargetUsedException(route.target)
         } else {
             if (route.target.startsWith("/")) {
-                if (route.contentType != ContentType.response::class) {
-                    cache[route] = (route.content() as ContentType.htmlElements).htmlElement.render()
+                if (route.contentType != ContentType.Response::class) {
+                    cache[route] = (route.content() as ContentType.HtmlElements).htmlElement.render()
                 }
                 routes[route.target] = route
             } else {
@@ -48,8 +47,8 @@ class Router {
         if (routes.containsKey(target)) {
             val page = routes[target]
             page!!.request = requestDTO
-            if (page.content() is ContentType.response) {
-                builder.build((page.content() as ContentType.response).response, client.getOutputStream())
+            if (page.content() is ContentType.Response) {
+                builder.build((page.content() as ContentType.Response).response, client.getOutputStream())
             } else {
                 builder.build(
                     response = ResponseDTO(
@@ -61,7 +60,7 @@ class Router {
                         body = "<html><body>${if (cache.containsKey(page)) {
                             cache[page]
                         } else {
-                            (page.content() as ContentType.htmlElements).htmlElement.render()
+                            (page.content() as ContentType.HtmlElements).htmlElement.render()
                         }}</body></html>"
                     ),
                     outputStream = client.getOutputStream()
