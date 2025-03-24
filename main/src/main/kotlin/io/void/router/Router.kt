@@ -21,6 +21,7 @@ class Router {
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
+        Processor.annotationProcessor(listOf(route), this)
         if (routes.containsKey(route.target)) {
             throw RouteTargetUsedException(route.target)
         } else {
@@ -44,7 +45,7 @@ class Router {
                         headers = mutableMapOf(
                             "Content-Type" to "text/html",
                         ),
-                        body = "<html><body>${route.content()}</body></html>"
+                        body = "<html><body>${(route.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -58,7 +59,6 @@ class Router {
     }
 
     fun addRoutes(routes: List<Page<*>>): Router {
-        Processor.annotationProcessor(routes, this)
         routes.forEach {
             addRoute(it)
         }
@@ -73,8 +73,8 @@ class Router {
             if (page.content() is ContentType.Response) {
                 builder.build((page.content() as ContentType.Response).response, client.getOutputStream())
             } else {
-                if (cache.containsKey(target)) {
-                    cache[target]
+                val response = if (cache.containsKey(target)) {
+                    cache[target]!!
                 } else {
                     ResponseDTO(
                         status = 200,
@@ -84,24 +84,12 @@ class Router {
                         ),
                         body = "<html><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
                     )
-                }?.let {
-                    builder.build(
-                        response = it,
-                        /*response = ResponseDTO(
-                                        status = 200,
-                                        statusText = "All is well",
-                                        headers = mutableMapOf(
-                                            "Content-Type" to "text/html",
-                                        ),
-                                        body = "<html><body>${if (cache.containsKey(page)) {
-                                            cache[page]
-                                        } else {
-                                            (page.content() as ContentType.HtmlElements).htmlElement.render()
-                                        }}</body></html>"
-                                    ),*/
-                        outputStream = client.getOutputStream()
-                    )
                 }
+
+                builder.build(
+                    response = response,
+                    outputStream = client.getOutputStream()
+                )
             }
         } else {
             builder.build(
