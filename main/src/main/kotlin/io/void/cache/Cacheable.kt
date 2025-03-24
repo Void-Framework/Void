@@ -27,7 +27,7 @@ internal abstract class Processor {
                     cacheRoutes[page] = cacheable.invalidationDurationInMillies
                 }
             }
-            router.cacheRoute(cacheRoutes)
+            Cache.singleton.cacheRoute(cacheRoutes)
         }
     }
 }
