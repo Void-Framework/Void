@@ -4,7 +4,6 @@ import io.void.cache.exception.CacheException
 import io.void.dto.ResponseDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
-import io.void.router.Router
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 
