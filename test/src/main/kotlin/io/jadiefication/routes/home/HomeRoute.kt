@@ -10,11 +10,11 @@ import io.void.html.page.content.ContentType
 import java.net.URL
 import kotlin.reflect.KClass
 
+@Cacheable(invalidationDurationInMillies = 0)
 class HomeRoute : Page<ContentType.HtmlElements>(target = "/") {
 
     override val contentType: KClass<ContentType.HtmlElements> = ContentType.HtmlElements::class
 
-    @Cacheable(invalidationDurationInMillies = 0)
     override fun content(): ContentType.HtmlElements {
         return ContentType.HtmlElements(
             Div(
