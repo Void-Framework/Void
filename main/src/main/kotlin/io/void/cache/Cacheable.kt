@@ -16,7 +16,7 @@ internal abstract class Processor {
 
     companion object {
 
-        fun annotationProcessor(pages: List<Page<*>>, router: Router) {
+        fun annotationProcessor(pages: List<Page<*>>) {
             val cacheRoutes = mutableMapOf<Page<*>, Int>()
             pages.forEach { page ->
                 val cacheable = page::class.findAnnotation<Cacheable>()

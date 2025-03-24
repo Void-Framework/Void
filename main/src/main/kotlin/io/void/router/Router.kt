@@ -21,7 +21,7 @@ class Router {
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
-        Processor.annotationProcessor(listOf(route), this)
+        Processor.annotationProcessor(pages = listOf(route))
         if (routes.containsKey(route.target)) {
             throw RouteTargetUsedException(route.target)
         } else {
