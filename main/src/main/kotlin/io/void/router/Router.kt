@@ -1,6 +1,7 @@
 package io.void.router
 
 import io.void.api.ApiPage
+import io.void.api.CssPage
 import io.void.clienthandler.ClientHandler
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
@@ -11,16 +12,20 @@ import io.void.http.builder.HTTPBuilder
 import io.void.router.exceptions.RouteNoTargetException
 import io.void.router.exceptions.RouteTargetUsedException
 import java.net.Socket
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class Router {
 
     private val routes: ConcurrentHashMap<String, Page> = ConcurrentHashMap()
+    val styles: ConcurrentHashMap<String, Pair<UUID, String>> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page): Router {
-        TailwindGen.processTailwind(listOf(route))
+        if (route::class != CssPage::class) {
+            TailwindGen.processTailwind(route, this)
+        }
         if (routes.containsKey(route.target)) {
             throw RouteTargetUsedException(route.target)
         } else {
@@ -59,7 +64,13 @@ class Router {
                             "Upgrade" to "websocket",
                             "Connection" to "Upgrade"
                         ),
-                        body = "<html><body>${page!!.content!!.render()}</body></html>"
+                        body = "<html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">${
+                            if (styles.containsKey(target)) {
+                                "<link rel=\"stylesheet\" href=\"/css/${styles[target]!!.first}/styles.css\">"
+                            } else {
+                                ""
+                            }
+                            }</head><body>${page!!.content!!.render()}</body></html>"
                     ),
                     outputStream = client.getOutputStream()
                 )
