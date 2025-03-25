@@ -65,13 +65,16 @@ class TailwindGen {
             }
 
             val newProcessedLines = processedLines.filter { line ->
-                list.any { page ->
+                attributes.any { attribute ->
+                    line.substringBefore("{").trim() == attribute
+                }
+                /*list.any { page ->
                     page.classAttributes.any { (_, names) ->
                         names.any { name ->
                             line.substringBefore(" {").trim() == name
                         }
                     }
-                }
+                }*/
             }
 
             newProcessedLines.forEach {
