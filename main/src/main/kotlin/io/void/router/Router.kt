@@ -4,6 +4,7 @@ import io.void.api.ApiPage
 import io.void.clienthandler.ClientHandler
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
+import io.void.generator.TailwindGen
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.page.Page
 import io.void.http.builder.HTTPBuilder
@@ -19,7 +20,7 @@ class Router {
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page): Router {
-
+        TailwindGen.processTailwind(listOf(route))
         if (routes.containsKey(route.target)) {
             throw RouteTargetUsedException(route.target)
         } else {
