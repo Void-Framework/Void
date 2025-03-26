@@ -1,8 +1,12 @@
-# Void Framework 🌌
+<div align="center">
+    <h1>Void Framework 🌌</h1><br>
+  <img src=".github/image.png" alt="Centered Image">
+    <hr>
+</div>
 
 The **Void Framework** is a modular web framework designed to be lightweight, flexible, and easy to extend. Inspired by frameworks like Spring, Void aims to provide a solid foundation for building web applications, while offering optional submodules to extend its functionality.
 
-## Contribution/Use 🚀
+## Use 🚀
 ### Prerequisites 📋
 - 🖥️ **Java 17+**
 - 📦 **A build tool of your choice**
@@ -10,7 +14,7 @@ The **Void Framework** is a modular web framework designed to be lightweight, fl
 ### Installation 📂
 Since Void Framework is currently not hosted on any public repository, you can clone the project locally and add it as a dependency to your project:
 ```bash
-git clone https://github.com/Jadiefication/void-framework.git
+https://github.com/Jadiefication/Void.git
 ```
 Then, add the local path to your build tool configuration.
 
