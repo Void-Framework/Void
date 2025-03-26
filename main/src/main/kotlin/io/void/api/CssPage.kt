@@ -3,12 +3,9 @@ package io.void.api
 import io.void.api.method.Method
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
-import io.void.html.Element
-import io.void.html.page.Page
-import io.void.http.builder.HTTPBuilder
-import java.util.UUID
+import java.util.*
 
-class CssPage(uuid: UUID, val body: String) : ApiPage(
+internal class CssPage(uuid: UUID, private val body: String) : ApiPage(
     target = "/css/$uuid/styles.css",
     method = Method.GET
 ) {
