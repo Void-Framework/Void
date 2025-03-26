@@ -72,11 +72,18 @@ class TailwindGen {
                         line.substringBefore("{").trim() == attribute
                     }
                 }
+            }.map {
+                if (it.contains("@media")) {
+                    return@map "$it}"
+                } else {
+                    return@map it
+                }
             }
 
             val uuid = UUID.randomUUID()
-            router.addRoute(CssPage(uuid, newProcessedLines.toString()))
-            router.styles[page.target] = uuid to newProcessedLines.toString()
+            val css = newProcessedLines.joinToString().filter { it != ',' }
+            router.addRoute(CssPage(uuid, css))
+            router.styles[page.target] = uuid to css
         }
     }
 }
