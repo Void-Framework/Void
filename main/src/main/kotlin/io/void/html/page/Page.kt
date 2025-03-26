@@ -1,7 +1,6 @@
 package io.void.html.page
 
 import io.void.html.Element
-import io.void.html.attributes.AttributeNames
 import io.void.js.EventDispatcher
 import io.void.js.data.DataHolder
 

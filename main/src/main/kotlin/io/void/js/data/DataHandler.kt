@@ -1,6 +1,5 @@
 package io.void.js.data
 
-import io.void.html.Element
 import io.void.js.EventDispatcher
 
 class DataHandler private constructor() : IDataHandler {

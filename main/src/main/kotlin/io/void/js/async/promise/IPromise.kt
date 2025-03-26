@@ -3,7 +3,6 @@ package io.void.js.async.promise
 import io.void.dto.RequestDTO
 import io.void.js.IJSFacade
 import java.io.InputStream
-import kotlin.Exception
 
 interface IPromise {
 

@@ -3,9 +3,7 @@ package io.void.clienthandler
 import io.void.http.parser.HTTPParser
 import io.void.router.Router
 import io.void.server.Server
-import java.net.InetAddress
 import java.net.Socket
-import java.net.URI
 
 class ClientHandler(val client: Socket, server: Server) {
 
