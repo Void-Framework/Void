@@ -23,7 +23,7 @@ class Server(private val router: Router) {
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
-    private var isHTTPSOn = false
+    var isHTTPSOn = false
     private val builder: HTTPBuilder = HTTPBuilder()
 
     fun startHTTPServer(port: Int, routeToHTTPS: Boolean = false) {
