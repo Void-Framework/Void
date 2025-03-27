@@ -12,27 +12,24 @@ class BaseJSImplementation private constructor(): IJSFacade {
         val singleton = BaseJSImplementation()
     }
 
+    external fun redirect0(url: URL, reload: Boolean, jsonData: String?)
+    external fun popup0(message: String, type: PopupType)
+    external fun prompt0(message: String, defaultValue: String): String
+    external fun fetch0(url: URL, request: RequestDTO): Promise
+
     override fun redirect(url: URL, reload: Boolean, jsonData: String?) {
-        js.append("${
-            if (reload) {
-                "window.location.href = \"${url.path}\""
-            } else {
-                "history.pushState({ ${
-                    if (jsonData == null) {
-                        ""
-                    } else {
-                        "$jsonData"
-                    }
-                }, \"${url.path}\")"
-            }
-        };")
+        redirect0(url, reload, jsonData)
     }
 
-    override fun popup(message: String, type: PopupType): String? {
-        TODO("Not yet implemented")
+    override fun popup(message: String, type: PopupType) {
+        popup0(message, type)
+    }
+
+    fun prompt(message: String, defaultValue: String): String {
+        return prompt0(message, defaultValue)
     }
 
     override fun fetch(url: URL, request: RequestDTO): Promise {
-        TODO("Not yet implemented")
+        return fetch0(url, request)
     }
 }
