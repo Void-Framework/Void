@@ -27,7 +27,11 @@ class Metadata internal constructor(page: Page<*>) {
     fun render(): String {
         return "<title>$title</title>" +
                 meta("description", description) +
-                favicon?.let { "<link rel=\"icon\" href=\"${favicon!!.first}\" type=\"${favicon!!.second}\">" } +
+                if (favicon != null) {
+                    "<link rel=\"icon\" href=\"${favicon!!.first}\" type=\"${favicon!!.second}\">"
+                } else {
+                    ""
+                } +
                 meta("keywords", keywords.joinToString()) +
                 "<meta charset=\"$charset\">" +
                 meta("author", copyright.first) +
@@ -36,24 +40,31 @@ class Metadata internal constructor(page: Page<*>) {
                 metaOG("description", og.first.second) +
                 metaOG("image", og.first.third.toString()) +
                 metaOG("url", og.second.toString()) +
-                siteVerification?.let { meta("google-site-verification", siteVerification!!) } +
+                if (siteVerification != null) {
+                    meta("google-site-verification", siteVerification!!)
+                } else {
+                    ""
+                } +
                 "<link rel=\"canonical\" href=\"$canonical\">" +
                 meta("theme-color", themeColor) +
                 meta("robots", robotRules) +
-                externalCss?.let {
+                if (externalCss != null) {
                     var css = ""
                     externalCss!!.forEach { link ->
-                        css += "<link rel=\"stylesheet\" href=\"$it\">\n"
+                        css += "<link rel=\"stylesheet\" href=\"$link\">\n"
                     }
-                    return@let css
+                    css
+                } else {
+                    ""
                 } +
-                externalJS?.let {
+                if (externalJS != null) {
                     var js = ""
                     externalJS!!.forEach { (link, deferer) ->
                         js += "<script src=\"$link\" ${if (deferer) "defer" else ""}></script>"
-
                     }
-                    return@let js
+                    js
+                } else {
+                    ""
                 }
     }
 
