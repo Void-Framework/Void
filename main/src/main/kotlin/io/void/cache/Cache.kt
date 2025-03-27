@@ -29,17 +29,19 @@ internal class Cache private constructor() {
     private fun putInCache(route: Pair<Page<*>, Int>) {
         val (page, duration) = route
         if (page.contentType != ContentType.Response::class) {
+            val metadata = page.metadata
             cache[page.target] = ResponseDTO(
                 status = 200,
                 statusText = "All is well",
                 headers = mutableMapOf(
                     "Content-Type" to "text/html"
                 ),
-                body = "<html><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+                body = "<html><head>${metadata?.render()}</head><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
             )
         } else {
             cache[page.target] = (page.content() as ContentType.Response).response
         }
+        handleCache(route)
     }
 
     private fun handleCache(route: Pair<Page<*>, Int>) {
