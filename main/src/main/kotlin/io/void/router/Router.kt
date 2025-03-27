@@ -50,6 +50,7 @@ class Router {
             if (page.content() is ContentType.Response) {
                 builder.build((page.content() as ContentType.Response).response, client.getOutputStream())
             } else {
+                val metadata = page.metadata
                 val response = if (Cache.singleton.cache.containsKey(target)) {
                     Cache.singleton.cache[target]!!
                 } else {
@@ -59,7 +60,7 @@ class Router {
                         headers = mutableMapOf(
                             "Content-Type" to "text/html",
                         ),
-                        body = "<html><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+                        body = "<html><head>${metadata?.render()}</head><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
                     )
                 }
 

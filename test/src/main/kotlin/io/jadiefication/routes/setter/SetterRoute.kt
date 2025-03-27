@@ -4,11 +4,14 @@ import io.void.api.method.Method
 import io.void.dto.ResponseDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
+import io.void.html.page.metadata.Metadata
 import kotlin.reflect.KClass
 
 class SetterRoute : Page<ContentType.Response>(
     target = "/setter"
 ) {
+
+    override val metadata: Metadata? = null
 
     private val method = Method.GET
     override val contentType: KClass<ContentType.Response> = ContentType.Response::class
