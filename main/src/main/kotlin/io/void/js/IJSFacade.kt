@@ -7,6 +7,6 @@ import java.net.URL
 interface IJSFacade {
 
     fun redirect(url: URL, reload: Boolean = true, jsonData: String? = null)
-    fun popup(message: String, type: PopupType): String?
+    fun popup(message: String, type: PopupType)
     fun fetch(url: URL, request: RequestDTO): Promise
 }
