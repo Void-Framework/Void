@@ -6,6 +6,8 @@ import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
 import io.void.html.page.Page
+import io.void.js.BaseJSImplementation
+import io.void.js.PopupType
 import io.void.js.data.DataHandler
 import java.net.URL
 
@@ -19,6 +21,10 @@ class HomeRoute : Page(target = "/") {
     private val linkClasses = "text-blue-500 hover:text-blue-700 transition-colors duration-300"
     private val cardClasses = "bg-gray-50 p-4 rounded-lg border border-gray-200"
     private val buttonClasses = "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-300"
+
+    override val browserCode: BaseJSImplementation.() -> Unit = {
+        popup("HI", PopupType.ALERT)
+    }
 
     override var content: Element? = Main(
         attribute {

@@ -38,6 +38,11 @@
             <artifactId>kotlin-stdlib-js</artifactId>
             <version>1.9.22</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-compiler-embeddable</artifactId>
+            <version>2.1.0</version>
+        </dependency>
 
         <!-- kotlinx.browser support (optional) -->
         <dependency>

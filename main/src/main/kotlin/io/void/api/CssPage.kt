@@ -3,12 +3,16 @@ package io.void.api
 import io.void.api.method.Method
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
+import io.void.js.BaseJSImplementation
 import java.util.*
 
 internal class CssPage(uuid: UUID, private val body: String) : ApiPage(
     target = "/css/$uuid/styles.css",
     method = Method.GET
 ) {
+
+    override val browserCode: BaseJSImplementation.() -> Unit
+        get() = super.browserCode
 
     override fun serverGetter(request: RequestDTO): ResponseDTO {
         return if (request.method == method) {
