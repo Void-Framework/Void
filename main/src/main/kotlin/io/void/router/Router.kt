@@ -8,6 +8,7 @@ import io.void.dto.ResponseDTO
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
+import io.void.html.page.dynamic.DynamicPage
 import io.void.http.builder.HTTPBuilder
 import io.void.router.exceptions.RouteNoTargetException
 import io.void.router.exceptions.RouteTargetUsedException
@@ -42,32 +43,47 @@ class Router {
         return this
     }
 
+    private fun handleDynamic(page: DynamicPage<*>, requestDTO: RequestDTO) {
+
+    }
+
+    private fun handleResponse(page: Page<ContentType.Response>, client: Socket) {
+        builder.build(page.content().response, client.getOutputStream())
+    }
+
+    private fun handleCasual(page: Page<ContentType.HtmlElements>, client: Socket, target: String) {
+        val metadata = page.metadata
+        val response = if (Cache.singleton.cache.containsKey(target)) {
+            Cache.singleton.cache[target]!!
+        } else {
+            ResponseDTO(
+                status = 200,
+                statusText = "All is well",
+                headers = mutableMapOf(
+                    "Content-Type" to "text/html",
+                ),
+                body = "<html><head>${metadata?.render()}</head><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+            )
+        }
+
+        builder.build(
+            response = response,
+            outputStream = client.getOutputStream()
+        )
+    }
+
     fun route(requestDTO: RequestDTO, client: Socket) {
         val target = requestDTO.target
         if (routes.containsKey(target)) {
             val page = routes[target]
             page!!.request = requestDTO
+            if (page is DynamicPage && page.check(requestDTO) != null) {
+                handleDynamic(page, requestDTO)
+            }
             if (page.content() is ContentType.Response) {
-                builder.build((page.content() as ContentType.Response).response, client.getOutputStream())
+                handleResponse(page as Page<ContentType.Response>, client)
             } else {
-                val metadata = page.metadata
-                val response = if (Cache.singleton.cache.containsKey(target)) {
-                    Cache.singleton.cache[target]!!
-                } else {
-                    ResponseDTO(
-                        status = 200,
-                        statusText = "All is well",
-                        headers = mutableMapOf(
-                            "Content-Type" to "text/html",
-                        ),
-                        body = "<html><head>${metadata?.render()}</head><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
-                    )
-                }
-
-                builder.build(
-                    response = response,
-                    outputStream = client.getOutputStream()
-                )
+                handleCasual(page as Page<ContentType.HtmlElements>, client, target)
             }
         } else {
             builder.build(
