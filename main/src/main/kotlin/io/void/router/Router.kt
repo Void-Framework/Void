@@ -85,7 +85,7 @@ class Router {
                             status = 200,
                             statusText = "All is well",
                             headers = mutableMapOf("Content-Type" to "text/html"),
-                            body = "<html><head>${route.metadata?.render()}</head><body>${content.htmlElement.render()}</body></html>"
+                            body = "<!doctype html><html><head>${route.metadata?.render()}</head><body>${content.htmlElement.render()}</body></html>"
                         )
                     }
                 }
@@ -109,7 +109,7 @@ class Router {
                 headers = mutableMapOf(
                     "Content-Type" to "text/html",
                 ),
-                body = "<html><head>${metadata?.render()}</head><body>${page.content().htmlElement.render()}</body></html>"
+                body = "<!doctype html><html><head>${metadata?.render()}</head><body>${page.content().htmlElement.render()}</body></html>"
             )
         }
 
@@ -137,7 +137,7 @@ class Router {
                     headers = mutableMapOf(
                         "Content-Type" to "text/html",
                     ),
-                    body = "<html><body><h1>No Route Found!</h1></body></html>"
+                    body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>"
                 )
             builder.build(
                 response = response,
