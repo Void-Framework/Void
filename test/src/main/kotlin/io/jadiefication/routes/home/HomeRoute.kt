@@ -23,7 +23,7 @@ class HomeRoute : Page(target = "/") {
     private val buttonClasses = "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-300"
 
     override val browserCode: BaseJSImplementation.() -> Unit = {
-        popup("HI", PopupType.ALERT)
+        BaseJSImplementation.popup("HI", PopupType.ALERT)
     }
 
     override var content: Element? = Main(

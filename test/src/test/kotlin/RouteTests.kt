@@ -35,21 +35,33 @@ class RouteTests {
             server.startHTTPServer()
         }
         
-        // Wait for server to start
-        TimeUnit.SECONDS.sleep(2)
+        // Wait for server to start and be ready
+        TimeUnit.SECONDS.sleep(3)
     }
 
     @AfterAll
     fun tearDown() {
-        serverJob?.cancel()
-        scope.cancel()
+        runBlocking {
+            serverJob?.cancelAndJoin()
+            scope.cancel()
+        }
+    }
+
+    private fun createConnection(path: String, method: String = "GET"): HttpURLConnection {
+        val connection = URL("http://localhost:$port$path").openConnection() as HttpURLConnection
+        connection.requestMethod = method
+        connection.connectTimeout = 5000
+        connection.readTimeout = 5000
+        connection.doOutput = true
+        connection.setRequestProperty("Accept", "*/*")
+        return connection
     }
 
     @Test
     fun `test home route returns 200 and valid HTML`() {
-        val connection = URL("http://localhost:$port/").openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
-        
+        val connection = createConnection("/")
+        connection.connect()
+
         assertEquals(200, connection.responseCode)
         assertTrue(connection.contentType.contains("text/html"))
         
@@ -60,8 +72,8 @@ class RouteTests {
 
     @Test
     fun `test setter route returns valid JSON`() {
-        val connection = URL("http://localhost:$port/setter").openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
+        val connection = createConnection("/setter")
+        connection.connect()
         
         assertEquals(200, connection.responseCode)
         assertTrue(connection.contentType.contains("application/json"))
@@ -69,12 +81,10 @@ class RouteTests {
         val response = connection.inputStream.bufferedReader().use { it.readText() }
         val json = JSONObject(response)
         
-        // Validate JSON structure
         assertEquals("Jade", json.getString("name"))
         assertEquals(20, json.getInt("age"))
         assertTrue(json.getBoolean("isStudent"))
         
-        // Test nested structures
         val meta = json.getJSONObject("meta")
         assertTrue(meta.getBoolean("registered"))
         
@@ -84,16 +94,16 @@ class RouteTests {
 
     @Test
     fun `test invalid route returns 404`() {
-        val connection = URL("http://localhost:$port/nonexistent").openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
+        val connection = createConnection("/nonexistent")
+        connection.connect()
         
         assertEquals(404, connection.responseCode)
     }
 
     @Test
     fun `test setter route with wrong method returns 405`() {
-        val connection = URL("http://localhost:$port/setter").openConnection() as HttpURLConnection
-        connection.requestMethod = "POST"
+        val connection = createConnection("/setter", "POST")
+        connection.connect()
         
         assertEquals(405, connection.responseCode)
     }

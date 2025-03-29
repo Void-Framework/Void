@@ -4,7 +4,6 @@ import io.void.html.Element
 import io.void.js.BaseJSImplementation
 import io.void.js.EventDispatcher
 import io.void.js.data.DataHolder
-import io.void.js.parser.KotlinParser
 
 abstract class Page(open val target: String) {
 
