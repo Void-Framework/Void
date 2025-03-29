@@ -13,6 +13,7 @@ import io.void.html.page.dynamic.DynamicPage
 import io.void.http.builder.HTTPBuilder
 import io.void.router.exceptions.RouteNoTargetException
 import io.void.router.exceptions.RouteTargetUsedException
+import io.void.router.page.INullRoutePage
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
 
@@ -22,6 +23,7 @@ class Router {
     private val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
     private var exceptionPage = ExceptionPage(e = Exception())
+    private var nullPage: Page<*>? = null
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
@@ -29,6 +31,9 @@ class Router {
         handleTargetChecking(route)
         if (route is IExceptionPage) {
             exceptionPage = ExceptionPage(page = route)
+        }
+        if (route is INullRoutePage) {
+            nullPage = route
         }
         if (route is DynamicPage<*>) {
             val target = route.target.split("/").toMutableList()
@@ -145,14 +150,28 @@ class Router {
             }
         } else {
             val response = handleDynamic(requestDTO)
-                ?: ResponseDTO(
-                    status = 404,
-                    statusText = "Not Found",
-                    headers = mutableMapOf(
-                        "Content-Type" to "text/html",
-                    ),
-                    body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>"
-                )
+                ?: if (nullPage != null) {
+                    val response = ContentType.Response::class
+                    val page = nullPage as INullRoutePage
+                    when (nullPage!!.contentType) {
+                        response -> (nullPage!!.content() as ContentType.Response).response
+                        else -> ResponseDTO(
+                            status = 404,
+                            statusText = page.statusText,
+                            headers = page.headers,
+                            body = "<!doctype html><html><head>${nullPage!!.metadata?.render()}</head><body>${(nullPage!!.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+                        )
+                    }
+                } else {
+                    ResponseDTO(
+                        status = 404,
+                        statusText = "Not Found",
+                        headers = mutableMapOf(
+                            "Content-Type" to "text/html",
+                        ),
+                        body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>"
+                    )
+                }
             builder.build(
                 response = response,
                 outputStream = client.getOutputStream()
