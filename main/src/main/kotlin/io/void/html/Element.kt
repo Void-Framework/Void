@@ -13,15 +13,15 @@ abstract class Element internal constructor(open val name: String) {
         AttributeNames.STYLE, AttributeNames.TABINDEX, AttributeNames.TITLE, AttributeNames.TRANSLATE)
     abstract val allowedAttributes: List<AttributeNames>
 
-    fun isAllowed(attribute: AttributeNames): Boolean {
-        return allowedAttributes.contains(attribute) || globalAttributes.contains(attribute)
+    private fun isAllowed(attribute: AttributeNames): Boolean {
+        return allowedAttributes.contains(element = attribute) || globalAttributes.contains(element = attribute)
     }
 
     abstract fun render(): String
 
     fun addAttributes(vararg _attributes: Attribute) {
         _attributes.forEach {
-            if (isAllowed(it.name) && it.isCorrectValue()) {
+            if (isAllowed(attribute = it.name) && it.isCorrectValue()) {
                 attributes[it.name] = it.value.toString()
         } }
     }

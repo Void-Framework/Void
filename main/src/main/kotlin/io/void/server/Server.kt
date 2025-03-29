@@ -49,9 +49,9 @@ class Server(private val router: Router) {
                     } else {
                         executorService.submit {
                             try {
-                                ClientHandler(client).setRouter(router = this.router).start()
+                                ClientHandler(client = client).setRouter(router = this.router).start()
                             } catch (e: Exception) {
-                                ClientHandler(client).error(e)
+                                ClientHandler(client = client).error(e = e)
                             }
                         }
                     }
@@ -83,9 +83,9 @@ class Server(private val router: Router) {
                 client.startHandshake()
                 executorService.submit {
                     try {
-                        ClientHandler(client).setRouter(router = this.router).start()
+                        ClientHandler(client = client).setRouter(router = this.router).start()
                     } catch (e: Exception) {
-                        ClientHandler(client).error(e)
+                        ClientHandler(client = client).error(e = e)
                     }
                 }
             }

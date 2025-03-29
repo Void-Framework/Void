@@ -21,14 +21,14 @@ class Router {
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
     private val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
-    private var exceptionPage = ExceptionPage(Exception())
+    private var exceptionPage = ExceptionPage(e = Exception())
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
-        Processor.annotationProcessor(pages = listOf(route))
+        Processor.annotationProcessor(page = route)
         handleTargetChecking(route)
         if (route is IExceptionPage) {
-            exceptionPage = ExceptionPage(route)
+            exceptionPage = ExceptionPage(page = route)
         }
         if (route is DynamicPage<*>) {
             val target = route.target.split("/").toMutableList()
@@ -46,19 +46,19 @@ class Router {
 
     private fun handleTargetChecking(route: Page<*>) {
         if (routes.containsKey(route.target)) {
-            throw RouteTargetUsedException(route.target)
+            throw RouteTargetUsedException(target = route.target)
         } else {
             if (route.target.startsWith("/")) {
                 routes[route.target] = route
             } else {
-                throw RouteNoTargetException(route.target)
+                throw RouteNoTargetException(target = route.target)
             }
         }
     }
 
     fun addRoutes(routes: List<Page<*>>): Router {
         routes.forEach {
-            addRoute(it)
+            addRoute(route = it)
         }
         return this
     }
@@ -87,7 +87,7 @@ class Router {
                 return route.content().let { content ->
                     when (content) {
                         is ContentType.Response -> content.response
-                        is ContentType.HtmlElements -> constructClassicResponse(route)
+                        is ContentType.HtmlElements -> constructClassicResponse(page = route)
                     }
                 }
             }
@@ -105,14 +105,19 @@ class Router {
     }
 
     private fun handleResponse(page: Page<ContentType.Response>, client: Socket) {
-        builder.build(page.content().response, client.getOutputStream())
+        builder.build(
+            response = page.content().response,
+            outputStream = client.getOutputStream()
+        )
     }
 
     private fun handleCasual(page: Page<ContentType.HtmlElements>, client: Socket, target: String) {
         val response = if (Cache.singleton.cache.containsKey(target)) {
             Cache.singleton.cache[target]!!
         } else {
-            constructClassicResponse(page)
+            constructClassicResponse(
+                page = page
+            )
         }
 
         builder.build(
@@ -127,9 +132,16 @@ class Router {
             val page = routes[target]
             page!!.request = requestDTO
             if (page.content() is ContentType.Response) {
-                handleResponse(page as Page<ContentType.Response>, client)
+                handleResponse(
+                    page = page as Page<ContentType.Response>,
+                    client = client
+                )
             } else {
-                handleCasual(page as Page<ContentType.HtmlElements>, client, target)
+                handleCasual(
+                    page = page as Page<ContentType.HtmlElements>,
+                    client = client,
+                    target = target
+                )
             }
         } else {
             val response = handleDynamic(requestDTO)
@@ -151,7 +163,7 @@ class Router {
     fun error(client: Socket, e: Exception) {
         exceptionPage.e = e
         var statusCode: Int? = null
-        var log: Boolean = true
+        var log = true
         var statusMessage: String? = null
         var headers: Headers? = null
         try {
