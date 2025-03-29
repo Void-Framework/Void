@@ -70,6 +70,48 @@
                     <target>11</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <!-- JVM compilation -->
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals><goal>compile</goal></goals>
+                        <configuration>
+                            <sourceDirs>
+                                <source>src/main/kotlin</source>
+                            </sourceDirs>
+                        </configuration>
+                    </execution>
+                    <!-- JS compilation -->
+                    <execution>
+                        <id>js</id>
+                        <phase>process-sources</phase> <!-- Before resource processing -->
+                        <goals>
+                            <goal>js</goal>
+                        </goals>
+                        <configuration>
+                            <moduleKind>umd</moduleKind>
+                            <!-- Compile sources from a dedicated JS source set -->
+                            <sourceDirs>
+                                <source>src/main/kotlin-js</source>
+                            </sourceDirs>
+                            <!-- Output directly to static resources -->
+                            <outputFile>${project.build.outputDirectory}/static/js/UserProject.js</outputFile>
+                            <!-- OR output per-file if needed/possible -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Ensure resources are processed -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
         </plugins>
     </build>
 </project>
