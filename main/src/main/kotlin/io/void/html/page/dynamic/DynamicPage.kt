@@ -3,7 +3,6 @@ package io.void.html.page.dynamic
 import io.void.dto.http.RequestDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
-import io.void.html.page.metadata.Metadata
 
 /**
  * Dynamic targets are initialized using this {a}
