@@ -1,8 +1,21 @@
 package io.void.html.exceptions
 
-data class ExceptionPage(val e: Exception) {
+import io.void.html.page.Page
+import io.void.html.page.content.ContentType
 
-    val page = "<html>" +
+data class ExceptionPage(var e: Exception) {
+
+    internal constructor(page: IExceptionPage): this(Exception()) {
+        newPage = page
+        val response = ContentType.Response::class
+        when ((page as Page<*>).contentType) {
+            response -> this.page = (page.content() as ContentType.Response).response.body
+            else -> this.page = (page.content() as ContentType.HtmlElements).htmlElement.render()
+        }
+    }
+
+    lateinit var newPage: IExceptionPage
+    var page = "<!doctype html><html>" +
             "<head>" +
             "  <style>" +
             "#__next-dev-overlay {\n" +
