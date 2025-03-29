@@ -10,8 +10,10 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -22,13 +24,17 @@ class RouteTests {
     private val port = 8081  // Different port for testing
     private val scope = CoroutineScope(Dispatchers.IO)
     private var serverJob: Job? = null
+    private val client = HttpClient.newBuilder()
+        .version(HttpClient.Version.HTTP_1_1) // Forces HTTP/2
+        .build()
 
     @BeforeAll
     fun setup() {
         val router = Router().addRoutes(listOf(HomeRoute(), SetterRoute()))
         server = Server(
             router = router,
-            port = port
+            port = port,
+            httpVersion = 1.1
         )
         
         serverJob = scope.launch {
@@ -47,38 +53,44 @@ class RouteTests {
         }
     }
 
-    private fun createConnection(path: String, method: String = "GET"): HttpURLConnection {
-        val connection = URL("http://localhost:$port$path").openConnection() as HttpURLConnection
-        connection.requestMethod = method
-        connection.connectTimeout = 5000
-        connection.readTimeout = 5000
-        connection.doOutput = true
-        connection.setRequestProperty("Accept", "*/*")
+    private fun createConnectionGET(path: String): HttpRequest {
+        val connection = HttpRequest.newBuilder()
+            .uri(URI.create("http://localhost:$port$path"))
+            .GET()
+            .build()
+        return connection
+    }
+
+    private fun createConnectionPOST(path: String): HttpRequest {
+        val connection = HttpRequest.newBuilder()
+            .uri(URI.create("http://localhost:$port$path"))
+            .POST(HttpRequest.BodyPublishers.ofString(""))
+            .build()
         return connection
     }
 
     @Test
     fun `test home route returns 200 and valid HTML`() {
-        val connection = createConnection("/")
-        connection.connect()
+        val connection = createConnectionGET("/")
+        val cResponse = client.send(connection, HttpResponse.BodyHandlers.ofString())
 
-        assertEquals(200, connection.responseCode)
-        assertTrue(connection.contentType.contains("text/html"))
+        assertEquals(200, cResponse.statusCode())
+        assertTrue(cResponse.headers().allValues("Content-Type").contains("text/html"))
         
-        val response = connection.inputStream.bufferedReader().use { it.readText() }
+        val response = cResponse.body()
         assertTrue(response.contains("<html"))
         assertTrue(response.contains("</html>"))
     }
 
     @Test
     fun `test setter route returns valid JSON`() {
-        val connection = createConnection("/setter")
-        connection.connect()
+        val connection = createConnectionGET("/setter")
+        val cResponse = client.send(connection, HttpResponse.BodyHandlers.ofString())
         
-        assertEquals(200, connection.responseCode)
-        assertTrue(connection.contentType.contains("application/json"))
+        assertEquals(200, cResponse.statusCode())
+        assertTrue(cResponse.headers().allValues("Content-Type").contains("application/json"))
         
-        val response = connection.inputStream.bufferedReader().use { it.readText() }
+        val response = cResponse.body()
         val json = JSONObject(response)
         
         assertEquals("Jade", json.getString("name"))
@@ -94,17 +106,17 @@ class RouteTests {
 
     @Test
     fun `test invalid route returns 404`() {
-        val connection = createConnection("/nonexistent")
-        connection.connect()
+        val connection = createConnectionGET("/nonexistent")
+        val cResponse = client.send(connection, HttpResponse.BodyHandlers.ofString())
         
-        assertEquals(404, connection.responseCode)
+        assertEquals(404, cResponse.statusCode())
     }
 
     @Test
     fun `test setter route with wrong method returns 405`() {
-        val connection = createConnection("/setter", "POST")
-        connection.connect()
+        val connection = createConnectionPOST("/setter")
+        val cResponse = client.send(connection, HttpResponse.BodyHandlers.ofString())
         
-        assertEquals(405, connection.responseCode)
+        assertEquals(405, cResponse.statusCode())
     }
 }

@@ -4,13 +4,15 @@ import io.void.dto.ResponseDTO
 import java.io.OutputStream
 import java.io.PrintWriter
 
-
-
 class HTTPBuilder {
+
+    companion object {
+        var version: Number = 3
+    }
 
     fun build(response: ResponseDTO, outputStream: OutputStream)  {
         val writer = PrintWriter(outputStream, true)
-        writer.println("HTTP/3 ${response.status} ${response.statusText}")
+        writer.println("HTTP/$version ${response.status} ${response.statusText}")
 
         val responseBody = response.body ?: ""
         if (!response.headers.containsKey("Content-Length")) {

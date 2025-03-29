@@ -1,6 +1,7 @@
 package io.void.server
 
 import io.void.clienthandler.ClientHandler
+import io.void.http.builder.HTTPBuilder
 import io.void.router.Router
 import java.io.File
 import java.io.FileInputStream
@@ -14,13 +15,17 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
 import javax.net.ssl.SSLSocket
 
-class Server(private val router: Router, val port: Int) {
+class Server(private val router: Router, val port: Int, val httpVersion: Number = 3) {
 
     var isHTTP: Boolean = false
     private lateinit var socket: ServerSocket
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
+
+    init {
+        HTTPBuilder.version = httpVersion
+    }
 
     fun startHTTPServer() {
         isHTTP = true;
