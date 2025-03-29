@@ -1,6 +1,6 @@
 package io.void.html.exceptions
 
-import io.void.dto.Headers
+import io.void.dto.http.Headers
 
 interface IExceptionPage {
 

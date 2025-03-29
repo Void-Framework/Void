@@ -1,7 +1,6 @@
 package io.void.html.page.dynamic
 
-import io.void.dto.RequestDTO
-import io.void.generated.S
+import io.void.dto.http.RequestDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata

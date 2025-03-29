@@ -1,7 +1,6 @@
 package io.void.html.page
 
-import io.void.dto.RequestDTO
-import io.void.html.Element
+import io.void.dto.http.RequestDTO
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import kotlin.reflect.KClass

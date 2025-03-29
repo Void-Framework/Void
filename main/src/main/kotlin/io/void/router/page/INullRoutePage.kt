@@ -1,7 +1,7 @@
 package io.void.router.page
 
-import io.void.dto.Headers
-import io.void.dto.RequestDTO
+import io.void.dto.http.Headers
+import io.void.dto.http.RequestDTO
 
 interface INullRoutePage {
 
