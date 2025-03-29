@@ -1,7 +1,6 @@
 package io.void.router
 
 import io.void.cache.Cache
-import io.void.cache.Cacheable
 import io.void.cache.Processor
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
@@ -18,11 +17,28 @@ import java.util.concurrent.ConcurrentHashMap
 class Router {
 
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
+    private val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
         Processor.annotationProcessor(pages = listOf(route))
+        handleTargetChecking(route)
+        if (route is DynamicPage<*>) {
+            val target = route.target.split("").toMutableList()
+            val newDynamic = "{}"
+            target.forEachIndexed { i, text ->
+                if (text.startsWith("{")) {
+                    target[i] = newDynamic
+                }
+            }
+            dynamicRoutes[target] = route
+        }
+
+        return this
+    }
+
+    private fun handleTargetChecking(route: Page<*>) {
         if (routes.containsKey(route.target)) {
             throw RouteTargetUsedException(route.target)
         } else {
@@ -32,8 +48,6 @@ class Router {
                 throw RouteNoTargetException(route.target)
             }
         }
-
-        return this
     }
 
     fun addRoutes(routes: List<Page<*>>): Router {
@@ -43,8 +57,36 @@ class Router {
         return this
     }
 
-    private fun handleDynamic(page: DynamicPage<*>, requestDTO: RequestDTO) {
+    private fun handleDynamic(requestDTO: RequestDTO): ResponseDTO? {
+        val target = requestDTO.target
+        val url = target.split('/')
+        dynamicRoutes.forEach { (target, route) ->
+            var matches = true
+            target.forEachIndexed { i, pTarget ->
+                if (url[i] != pTarget) {
+                    if (pTarget != "{}") {
+                        matches = false
+                        return@forEachIndexed
+                    }
+                }
+            }
 
+            if (matches) {
+                route.request = requestDTO
+                return route.content().let { content ->
+                    when (content) {
+                        is ContentType.Response -> content.response
+                        is ContentType.HtmlElements -> ResponseDTO(
+                            status = 200,
+                            statusText = "All is well",
+                            headers = mutableMapOf("Content-Type" to "text/html"),
+                            body = "<html><head>${route.metadata?.render()}</head><body>${content.htmlElement.render()}</body></html>"
+                        )
+                    }
+                }
+            }
+        }
+        return null
     }
 
     private fun handleResponse(page: Page<ContentType.Response>, client: Socket) {
@@ -62,7 +104,7 @@ class Router {
                 headers = mutableMapOf(
                     "Content-Type" to "text/html",
                 ),
-                body = "<html><head>${metadata?.render()}</head><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+                body = "<html><head>${metadata?.render()}</head><body>${page.content().htmlElement.render()}</body></html>"
             )
         }
 
@@ -77,23 +119,25 @@ class Router {
         if (routes.containsKey(target)) {
             val page = routes[target]
             page!!.request = requestDTO
-            if (page is DynamicPage && page.check(requestDTO) != null) {
-                handleDynamic(page, requestDTO)
-            }
             if (page.content() is ContentType.Response) {
                 handleResponse(page as Page<ContentType.Response>, client)
             } else {
                 handleCasual(page as Page<ContentType.HtmlElements>, client, target)
             }
         } else {
+            val response = handleDynamic(requestDTO)
+                ?: ResponseDTO(
+                    status = 404,
+                    statusText = "Not Found",
+                    headers = mutableMapOf(
+                        "Content-Type" to "text/html",
+                    ),
+                    body = "<html><body><h1>No Route Found!</h1></body></html>"
+                )
             builder.build(
-                response = ResponseDTO(status = 404,
-                statusText = "Not Found",
-                headers = mutableMapOf(
-                    "Content-Type" to "text/html",
-                ),
-                body = "<html><body><h1>No Route Found!</h1></body></html>"),
-                outputStream = client.getOutputStream())
+                response = response,
+                outputStream = client.getOutputStream()
+            )
         }
     }
 
