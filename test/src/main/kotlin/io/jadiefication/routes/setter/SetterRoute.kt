@@ -1,7 +1,7 @@
 package io.jadiefication.routes.setter
 
 import io.void.api.method.Method
-import io.void.dto.ResponseDTO
+import io.void.dto.http.ResponseDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
