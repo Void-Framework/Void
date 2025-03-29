@@ -14,7 +14,7 @@ abstract class Element internal constructor(open val name: String) {
     abstract val allowedAttributes: List<AttributeNames>
 
     private fun isAllowed(attribute: AttributeNames): Boolean {
-        return allowedAttributes.contains(attribute) || globalAttributes.contains(attribute)
+        return allowedAttributes.contains(element = attribute) || globalAttributes.contains(element = attribute)
     }
 
     abstract fun render(): String
