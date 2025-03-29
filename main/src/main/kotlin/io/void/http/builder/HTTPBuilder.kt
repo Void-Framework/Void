@@ -1,6 +1,6 @@
 package io.void.http.builder
 
-import io.void.dto.ResponseDTO
+import io.void.dto.http.ResponseDTO
 import java.io.OutputStream
 import java.io.PrintWriter
 

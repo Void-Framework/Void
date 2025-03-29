@@ -2,9 +2,9 @@ package io.void.router
 
 import io.void.cache.Cache
 import io.void.cache.Processor
-import io.void.dto.Headers
-import io.void.dto.RequestDTO
-import io.void.dto.ResponseDTO
+import io.void.dto.http.Headers
+import io.void.dto.http.RequestDTO
+import io.void.dto.http.ResponseDTO
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.exceptions.IExceptionPage
 import io.void.html.page.Page

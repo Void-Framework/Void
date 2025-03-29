@@ -1,11 +1,11 @@
 package io.void.server
 
 import io.void.clienthandler.ClientHandler
-import io.void.dto.ResponseDTO
-import io.void.http.builder.HTTPBuilder
+import io.void.dto.http.ResponseDTO
 import io.void.router.Router
 import io.void.server.exception.HTTPSNotOnException
 import java.io.File
+import io.void.http.builder.HTTPBuilder
 import java.io.FileInputStream
 import java.net.ServerSocket
 import java.security.KeyStore

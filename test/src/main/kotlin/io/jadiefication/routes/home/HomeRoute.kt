@@ -1,5 +1,6 @@
 package io.jadiefication.routes.home
 
+import io.jadiefication.components.testComponent
 import io.void.cache.Cacheable
 import io.void.generated.*
 import io.void.html.Fragment
@@ -42,40 +43,7 @@ class HomeRoute : Page<ContentType.HtmlElements>(target = "/") {
             }
 
             Hr()
-
-            Div(
-                attribute = arrayOf(attribute {
-                    name = AttributeNames.CLASS
-                    value = "section"
-                }),
-            ) {
-                H2 {
-                    A(
-                        attribute = arrayOf(
-                            attribute {
-                                name = AttributeNames.HREF
-                                value = URL("https://example.com")
-                            },
-                            attribute {
-                                name = AttributeNames.TARGET
-                                value = "_blank"
-                            },
-                            attribute {
-                                name = AttributeNames.REL
-                                value = "noopener"
-                            }),
-                    ) {
-                        Fragment(_text = "Click Me Title")
-                    }
-                }
-
-                Br()
-
-                H3 {
-                    Fragment("Subtitle Here")
-                }
-            }
+            testComponent()
         })
     }
-
 }
