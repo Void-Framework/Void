@@ -2,9 +2,11 @@ package io.void.router
 
 import io.void.cache.Cache
 import io.void.cache.Processor
+import io.void.dto.Headers
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
 import io.void.html.exceptions.ExceptionPage
+import io.void.html.exceptions.IExceptionPage
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
@@ -19,11 +21,15 @@ class Router {
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
     private val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
+    private var exceptionPage = ExceptionPage(Exception())
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
         Processor.annotationProcessor(pages = listOf(route))
         handleTargetChecking(route)
+        if (route is IExceptionPage) {
+            exceptionPage = ExceptionPage(route)
+        }
         if (route is DynamicPage<*>) {
             val target = route.target.split("/").toMutableList()
             val newDynamic = "{}"
@@ -81,12 +87,7 @@ class Router {
                 return route.content().let { content ->
                     when (content) {
                         is ContentType.Response -> content.response
-                        is ContentType.HtmlElements -> ResponseDTO(
-                            status = 200,
-                            statusText = "All is well",
-                            headers = mutableMapOf("Content-Type" to "text/html"),
-                            body = "<!doctype html><html><head>${route.metadata?.render()}</head><body>${content.htmlElement.render()}</body></html>"
-                        )
+                        is ContentType.HtmlElements -> constructClassicResponse(route)
                     }
                 }
             }
@@ -94,23 +95,24 @@ class Router {
         return null
     }
 
+    private fun<T : Page<*>> constructClassicResponse(page: T): ResponseDTO {
+        return ResponseDTO(
+            status = 200,
+            statusText = "All is well",
+            headers = mutableMapOf("Content-Type" to "text/html"),
+            body = "<!doctype html><html><head>${page.metadata?.render()}</head><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+        )
+    }
+
     private fun handleResponse(page: Page<ContentType.Response>, client: Socket) {
         builder.build(page.content().response, client.getOutputStream())
     }
 
     private fun handleCasual(page: Page<ContentType.HtmlElements>, client: Socket, target: String) {
-        val metadata = page.metadata
         val response = if (Cache.singleton.cache.containsKey(target)) {
             Cache.singleton.cache[target]!!
         } else {
-            ResponseDTO(
-                status = 200,
-                statusText = "All is well",
-                headers = mutableMapOf(
-                    "Content-Type" to "text/html",
-                ),
-                body = "<!doctype html><html><head>${metadata?.render()}</head><body>${page.content().htmlElement.render()}</body></html>"
-            )
+            constructClassicResponse(page)
         }
 
         builder.build(
@@ -147,14 +149,31 @@ class Router {
     }
 
     fun error(client: Socket, e: Exception) {
+        exceptionPage.e = e
+        var statusCode: Int? = null
+        var log: Boolean = true
+        var statusMessage: String? = null
+        var headers: Headers? = null
+        try {
+            statusCode = exceptionPage.newPage.statusCode
+            log = exceptionPage.newPage.logException
+            statusMessage = exceptionPage.newPage.statusMessage
+            headers = exceptionPage.newPage.headers
+        } catch (_: Exception) {
+
+        }
         builder.build(
-            response = ResponseDTO(status = 500,
-                statusText = "Server Error",
-                headers = mutableMapOf(
+            response = ResponseDTO(status = statusCode ?: 500,
+                statusText = statusMessage ?: "Server Error",
+                headers = headers ?: mutableMapOf(
                     "Content-Type" to "text/html",
                     "Connection" to "close"
                 ),
-                body = ExceptionPage(e).page),
+                body = exceptionPage.page),
             outputStream = client.getOutputStream())
+
+        if (log) {
+            e.printStackTrace()
+        }
     }
 }
