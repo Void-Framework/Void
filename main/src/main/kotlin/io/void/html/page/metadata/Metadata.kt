@@ -1,9 +1,7 @@
 package io.void.html.page.metadata
 
 import io.void.html.page.Page
-import io.void.server.Server
 import java.net.InetAddress
-import java.net.Socket
 import java.net.URL
 import java.nio.charset.Charset
 
