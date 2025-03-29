@@ -5,16 +5,9 @@ import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
 import io.void.html.Element
 import io.void.html.page.Page
-import io.void.js.BaseJSImplementation
 
 abstract class ApiPage(override val target: String, val method: Method): Page(target = target) {
 
     override var content: Element? = null
     abstract fun serverGetter(request: RequestDTO): ResponseDTO
-    override val browserCode: BaseJSImplementation.() -> Unit
-        get() {
-            return {
-
-            }
-        }
 }
