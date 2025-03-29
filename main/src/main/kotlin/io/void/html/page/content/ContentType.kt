@@ -1,6 +1,6 @@
 package io.void.html.page.content
 
-import io.void.dto.ResponseDTO
+import io.void.dto.http.ResponseDTO
 import io.void.html.Element
 
 sealed class ContentType {
