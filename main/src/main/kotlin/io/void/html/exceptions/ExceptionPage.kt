@@ -2,7 +2,7 @@ package io.void.html.exceptions
 
 data class ExceptionPage(val e: Exception) {
 
-    val page = "<html>" +
+    val page = "<!doctype html><html>" +
             "<head>" +
             "  <style>" +
             "#__next-dev-overlay {\n" +
