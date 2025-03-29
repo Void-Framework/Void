@@ -16,17 +16,13 @@ internal abstract class Processor {
 
     companion object {
 
-        fun annotationProcessor(pages: List<Page<*>>) {
+        fun annotationProcessor(page: Page<*>) {
             val cacheRoutes = mutableMapOf<Page<*>, Int>()
-            pages.forEach { page ->
-                val cacheable = page::class.findAnnotation<Cacheable>()
-                if (cacheable != null) {
-                    //val function = pages::class.functions.find { it.visibility != null && it.visibility!! == KVisibility.PUBLIC &&  it.findAnnotation<Cacheable>() != null && it.name == "content" }
-                    //val value = pages::class.declaredMemberProperties.find { it.visibility != null && it.visibility!! == KVisibility.PUBLIC && it.findAnnotation<Cacheable>() != null }
-
-                    cacheRoutes[page] = cacheable.invalidationDurationInMillies
-                }
+            val cacheable = page::class.findAnnotation<Cacheable>()
+            if (cacheable != null) {
+                cacheRoutes[page] = cacheable.invalidationDurationInMillies
             }
+
             Cache.singleton.cacheRoute(cacheRoutes)
         }
     }

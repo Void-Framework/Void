@@ -24,7 +24,12 @@ class HTTPParser {
             method = Method.valueOf(line[0].uppercase(Locale.getDefault()))
         } catch (e: Exception) {
             Router().error(client, e)
-            return RequestDTO(Method.GET, "/", headers, "") // Provide a default request
+            return RequestDTO(
+                method = Method.GET,
+                target = "/",
+                headers = headers,
+                body = ""
+            ) // Provide a default request
         }
         path = line[1]
 
@@ -42,7 +47,12 @@ class HTTPParser {
             body.append(charArray)
         }
 
-        val requestDTO = RequestDTO(method, path, headers, body.toString())
+        val requestDTO = RequestDTO(
+            method = method,
+            target = path,
+            headers = headers,
+            body = body.toString()
+        )
 
         return requestDTO
     }
