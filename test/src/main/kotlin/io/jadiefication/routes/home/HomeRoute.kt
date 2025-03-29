@@ -17,12 +17,7 @@ import kotlin.reflect.KClass
 class HomeRoute : Page<ContentType.HtmlElements>(target = "/") {
 
     override val contentType: KClass<ContentType.HtmlElements> = ContentType.HtmlElements::class
-    override val metadata: Metadata = MetadataHandler.create(
-        page = this,
-        builder = {
-
-        }
-    )
+    override val metadata: Metadata? = null
 
     override fun content(): ContentType.HtmlElements {
         return ContentType.HtmlElements(
