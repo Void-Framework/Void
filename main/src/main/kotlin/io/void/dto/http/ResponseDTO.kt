@@ -1,4 +1,4 @@
-package io.void.dto
+package io.void.dto.http
 
 import kotlin.reflect.full.memberProperties
 

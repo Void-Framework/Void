@@ -21,8 +21,17 @@ abstract class Element internal constructor(open val name: String) {
 
     fun addAttributes(vararg _attributes: Attribute) {
         _attributes.forEach {
-            if (isAllowed(attribute = it.name) && it.isCorrectValue()) {
+            if (isAllowed(it.name) && it.isCorrectValue()) {
                 attributes[it.name] = it.value.toString()
         } }
     }
+}
+
+fun Element.loop(range: IntRange, element: Element.(Int) -> Unit): Fragment {
+    val fragment = Fragment {
+        for (i in range) {
+            element(i)
+        }
+    }
+    return fragment
 }

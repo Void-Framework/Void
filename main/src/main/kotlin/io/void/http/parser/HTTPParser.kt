@@ -1,7 +1,7 @@
 package io.void.http.parser
 
 import io.void.api.method.Method
-import io.void.dto.RequestDTO
+import io.void.dto.http.RequestDTO
 import io.void.router.Router
 import java.io.BufferedReader
 import java.io.InputStream

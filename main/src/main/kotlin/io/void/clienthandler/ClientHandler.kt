@@ -2,7 +2,6 @@ package io.void.clienthandler
 
 import io.void.http.parser.HTTPParser
 import io.void.router.Router
-import io.void.server.Server
 import java.net.Socket
 
 class ClientHandler(private val client: Socket) {
