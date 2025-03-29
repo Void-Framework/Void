@@ -60,6 +60,7 @@ class Router {
     private fun handleDynamic(requestDTO: RequestDTO): ResponseDTO? {
         val target = requestDTO.target
         val url = target.split('/')
+        if (url.contains("favicon.ico")) return null
         dynamicRoutes.forEach { (target, route) ->
             var matches = true
             target.forEachIndexed { i, pTarget ->
