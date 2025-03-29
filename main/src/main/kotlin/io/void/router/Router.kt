@@ -25,7 +25,7 @@ class Router {
         Processor.annotationProcessor(pages = listOf(route))
         handleTargetChecking(route)
         if (route is DynamicPage<*>) {
-            val target = route.target.split("").toMutableList()
+            val target = route.target.split("/").toMutableList()
             val newDynamic = "{}"
             target.forEachIndexed { i, text ->
                 if (text.startsWith("{")) {
@@ -63,6 +63,7 @@ class Router {
         dynamicRoutes.forEach { (target, route) ->
             var matches = true
             target.forEachIndexed { i, pTarget ->
+                println("$i at $url: $target")
                 if (url[i] != pTarget) {
                     if (pTarget != "{}") {
                         matches = false
