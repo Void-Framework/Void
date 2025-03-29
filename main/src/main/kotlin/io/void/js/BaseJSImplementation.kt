@@ -4,25 +4,23 @@ import io.void.dto.RequestDTO
 import io.void.js.async.promise.Promise
 import java.net.URL
 
-class BaseJSImplementation private constructor(): IJSFacade {
+abstract class BaseJSImplementation {
 
     companion object {
-        val singleton = BaseJSImplementation()
-    }
+        fun redirect(url: URL, reload: Boolean, jsonData: String?) {
 
-    override fun redirect(url: URL, reload: Boolean, jsonData: String?) {
+        }
 
-    }
+        fun popup(message: String, type: PopupType) {
 
-    override fun popup(message: String, type: PopupType) {
+        }
 
-    }
+        fun prompt(message: String, defaultValue: String): String {
+            return ""
+        }
 
-    fun prompt(message: String, defaultValue: String): String {
-        return ""
-    }
-
-    override fun fetch(url: URL, request: RequestDTO): Promise {
-        return Promise()
+        fun fetch(url: URL, request: RequestDTO): Promise {
+            return Promise()
+        }
     }
 }

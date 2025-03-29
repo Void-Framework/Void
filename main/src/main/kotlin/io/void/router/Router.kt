@@ -9,7 +9,6 @@ import io.void.generator.TailwindGen
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.page.Page
 import io.void.http.builder.HTTPBuilder
-import io.void.js.parser.KotlinParser
 import io.void.router.exceptions.RouteNoTargetException
 import io.void.router.exceptions.RouteTargetUsedException
 import java.net.Socket
@@ -26,7 +25,6 @@ class Router {
     fun addRoute(route: Page): Router {
         if (route::class != CssPage::class) {
             TailwindGen.processTailwind(route, this)
-            KotlinParser.singleton.getAST(route.browserCode)
         }
         if (routes.containsKey(route.target)) {
             throw RouteTargetUsedException(route.target)

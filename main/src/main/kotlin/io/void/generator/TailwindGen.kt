@@ -5,7 +5,10 @@ import io.void.html.Element
 import io.void.html.attributes.AttributeNames
 import io.void.html.page.Page
 import io.void.router.Router
+import java.io.BufferedReader
 import java.io.File
+import java.io.InputStreamReader
+import java.io.Reader
 import java.nio.file.Files
 import java.util.*
 
@@ -43,22 +46,26 @@ class TailwindGen {
                 }
             }
 
-            val resourceFile = object {}.javaClass.getResource("/input.css")
-                ?.let { File(it.toURI()) }
-                ?: throw IllegalStateException("Could not find elements.json resource file")
+            val resourceFile = object {}.javaClass.getResourceAsStream("/input.css")
 
-            val fContent = Files.readAllLines(resourceFile.toPath())
             var currentLine = ""
             val processedLines = mutableListOf<String>()
 
-            fContent.forEach { line ->
-                if (!line.endsWith("}")) {
-                    currentLine += line
-                } else {
-                    processedLines.add("$currentLine    }")
-                    currentLine = ""  // Reset currentLine after processing
+            BufferedReader(InputStreamReader(resourceFile)).use { reader ->
+                reader.lines().forEach { line ->
+                    if (!line.endsWith("}")) {
+                        currentLine += line
+                    } else {
+                        processedLines.add("$currentLine    }")
+                        currentLine = ""  // Reset currentLine after processing
+                    }
+                }
+                // Don't forget to add the last line if it doesn't end with "}":
+                if (currentLine.isNotEmpty()) {
+                    processedLines.add(currentLine)
                 }
             }
+
             // Don't forget to add the last line if it doesn't end with "},":
             if (currentLine.isNotEmpty()) {
                 processedLines.add(currentLine)
