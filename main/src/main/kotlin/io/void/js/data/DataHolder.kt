@@ -3,9 +3,10 @@ package io.void.js.data
 import io.void.html.Element
 import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
+import io.void.js.keywords.Keyword
 import kotlin.reflect.KClass
 
-class DataHolder<T> internal constructor(private var value: T?): Fractal() {
+class DataHolder<T> internal constructor(private var value: T?): Fractal(), Keyword {
 
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf()
     override val allowedAttributes: List<AttributeNames> = listOf()
