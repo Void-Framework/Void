@@ -11,13 +11,14 @@ import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.http.builder.HTTPBuilder
+import io.void.middleware.Middleware
 import io.void.router.exceptions.RouteNoTargetException
 import io.void.router.exceptions.RouteTargetUsedException
 import io.void.router.page.INullRoutePage
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
 
-class Router {
+class Router(val middleware: Middleware? = null) {
 
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
     private val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
@@ -132,6 +133,16 @@ class Router {
     }
 
     fun route(requestDTO: RequestDTO, client: Socket) {
+        middleware?.let {
+            val response = middleware.process(requestDTO)
+            if (response != null) {
+                builder.build(
+                    response = response,
+                    outputStream = client.getOutputStream()
+                )
+                return
+            }
+        }
         val target = requestDTO.target
         if (routes.containsKey(target)) {
             val page = routes[target]
