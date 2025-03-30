@@ -2,7 +2,7 @@ package io.void.js
 
 import io.void.js.keywords.Keyword
 
-class JavaScript(val code: JavaScript.() -> Unit) {
+class JavaScript(val runBeforeLoad: Boolean = false, val code: JavaScript.() -> Unit) {
 
     val children = mutableListOf<Keyword>()
 
