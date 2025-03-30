@@ -70,7 +70,12 @@ class Router {
                             } else {
                                 ""
                             }
-                            }</head><body>${page!!.content!!.render()}</body></html>"
+                            }${if (page!!.javascript != null) {
+                                "<script>\"use strict\";${page.javascript!!.render()}</script>"
+                            } else {
+                                ""
+                        }
+                        }</head><body>${page.content!!.render()}</body></html>"
                     ),
                     outputStream = client.getOutputStream()
                 )
