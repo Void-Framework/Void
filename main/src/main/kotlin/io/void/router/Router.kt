@@ -15,16 +15,44 @@ import io.void.middleware.Middleware
 import io.void.router.exceptions.RouteNoTargetException
 import io.void.router.exceptions.RouteTargetUsedException
 import io.void.router.page.INullRoutePage
+import io.void.router.util.MiddlewareTime
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
 
-class Router(val middleware: Middleware? = null) {
+class Router(private var middleware: List<Middleware>? = null) {
+
+    init {
+        middleware = middleware?.sortedByDescending { it.priority }
+    }
 
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
     private val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
     private var exceptionPage = ExceptionPage(e = Exception())
     private var nullPage: Page<*>? = null
+
+    private fun middlewareProcess(requestDTO: RequestDTO, type: MiddlewareTime): ResponseDTO? {
+        middleware?.forEach {
+            val newResponse = when (type) {
+                MiddlewareTime.BEFORE -> it.processBefore(requestDTO)
+                MiddlewareTime.AFTER -> it.processAfter(requestDTO)
+            }
+            if (newResponse != null) {
+                return newResponse
+            }
+        }
+        return null
+    }
+
+    fun middlewareHandleError(e: Exception): ResponseDTO? {
+        middleware?.forEach {
+            val newResponse = it.handleError(e)
+            if (newResponse != null) {
+                return newResponse
+            }
+        }
+        return null
+    }
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
@@ -134,7 +162,7 @@ class Router(val middleware: Middleware? = null) {
 
     fun route(requestDTO: RequestDTO, client: Socket) {
         middleware?.let {
-            val response = middleware.processBefore(requestDTO)
+            val response = middlewareProcess(requestDTO, MiddlewareTime.BEFORE)
             if (response != null) {
                 builder.build(
                     response = response,
@@ -187,6 +215,16 @@ class Router(val middleware: Middleware? = null) {
                 response = response,
                 outputStream = client.getOutputStream()
             )
+            val lateResponse = middlewareProcess(
+                requestDTO = requestDTO,
+                type = MiddlewareTime.AFTER
+            )
+            if (lateResponse != null) {
+                builder.build(
+                    response = lateResponse,
+                    outputStream = client.getOutputStream()
+                )
+            }
         }
     }
 
