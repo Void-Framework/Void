@@ -134,7 +134,7 @@ class Router(val middleware: Middleware? = null) {
 
     fun route(requestDTO: RequestDTO, client: Socket) {
         middleware?.let {
-            val response = middleware.process(requestDTO)
+            val response = middleware.processBefore(requestDTO)
             if (response != null) {
                 builder.build(
                     response = response,
