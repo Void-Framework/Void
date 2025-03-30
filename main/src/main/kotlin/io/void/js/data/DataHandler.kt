@@ -13,12 +13,14 @@ class DataHandler private constructor() : IDataHandler {
         val singleton = DataHandler()
     }
 
-    override fun <T> create(value: T, js: JavaScript): Pair<DataHolder<T>, Function> {
+    override fun <T> create(value: T, js: JavaScript): DataHolder<T> {
         return DataHolder(
             value = value,
-        ) to js.function(randomString(5), listOf("newValue")) {
-            Return(_value = "newValue")
-        }
+            function = js.function(randomString(5), listOf("newValue")) {
+                Return(_value = "newValue")
+            },
+            js = js
+        )
     }
 
     override fun <T> update(newData: DataHolder<T>) {
