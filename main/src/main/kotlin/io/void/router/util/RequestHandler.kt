@@ -52,7 +52,10 @@ internal interface RequestHandler {
             status = 200,
             statusText = "All is well",
             headers = mutableMapOf("Content-Type" to "text/html"),
-            body = "<!doctype html><html><head>${page.metadata?.render()}</head><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+            body = """<!doctype html><html>
+                <head>${page.metadata?.render() ?: ""}</head>
+                <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
+                </html>""".trimIndent()
         )
     }
 

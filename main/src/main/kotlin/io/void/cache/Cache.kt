@@ -36,7 +36,10 @@ internal class Cache private constructor() {
                 headers = mutableMapOf(
                     "Content-Type" to "text/html"
                 ),
-                body = "<!doctype html><html><head>${metadata?.render()}</head><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+                body = """<!doctype html><html>
+                <head>${metadata?.render() ?: ""}</head>
+                <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
+                </html>""".trimIndent()
             )
         } else {
             cache[page.target] = (page.content() as ContentType.Response).response
