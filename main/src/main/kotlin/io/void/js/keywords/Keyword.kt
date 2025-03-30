@@ -1,6 +1,6 @@
 package io.void.js.keywords
 
-abstract class Keyword(val name: String) {
+interface Keyword {
 
-    abstract fun render(): String
+    fun render(): String
 }
