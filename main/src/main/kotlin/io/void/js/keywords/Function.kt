@@ -9,7 +9,7 @@ data class Function(
 ): Keyword {
 
     override fun render(): String {
-        return "function $name(${arguments.joinToString(", ")}) {${JavaScript(body).render()}}"
+        return "function $name(${arguments.joinToString(", ")}) {${JavaScript(code = body).render()}}"
     }
 
     fun run(arguments: List<String>): String {

@@ -8,6 +8,7 @@ import io.void.html.attributes.attribute
 import io.void.html.page.Page
 import io.void.js.JavaScript
 import io.void.js.data.DataHandler
+import io.void.js.keywords.id
 import java.net.URL
 
 class HomeRoute : Page(target = "/") {
@@ -20,7 +21,10 @@ class HomeRoute : Page(target = "/") {
     private val cardClasses = "bg-gray-50 p-4 rounded-lg border border-gray-200"
     private val buttonClasses = "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-300"
 
-    override val javascript: JavaScript = JavaScript {
+    override val javascript: JavaScript = JavaScript(false) {
+        id("features").html(Div {
+            Fractal("Test")
+        })
     }
 
     val data = DataHandler.singleton.create("Welcome to Void Framework", javascript)
@@ -38,7 +42,7 @@ class HomeRoute : Page(target = "/") {
             }
         ) {
             H1 {
-                data.first.get()?.let { Fractal(_text = it) }
+                data.get()?.let { Fractal(_text = it) }
             }
             Nav(
                 attribute {
