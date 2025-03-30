@@ -5,5 +5,9 @@ import io.void.dto.http.ResponseDTO
 
 interface Middleware {
 
-    fun process(requestDTO: RequestDTO): ResponseDTO?
+    val priority: Int
+
+    fun processBefore(requestDTO: RequestDTO): ResponseDTO?
+    fun processAfter(requestDTO: RequestDTO): ResponseDTO?
+    fun handleError(e: Exception): ResponseDTO?
 }
