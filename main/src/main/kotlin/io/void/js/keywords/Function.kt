@@ -11,6 +11,10 @@ data class Function(
     override fun render(): String {
         return "function $name(${arguments.joinToString(", ")}) {${JavaScript(body).render()}}"
     }
+
+    fun run(arguments: List<String>): String {
+        return "$name(${arguments.joinToString(", ")});"
+    }
 }
 
 fun JavaScript.function(name: String, arguments: List<String>, body: JavaScript.() -> Unit): Function {
