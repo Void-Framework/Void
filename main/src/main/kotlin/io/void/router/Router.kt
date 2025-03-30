@@ -16,18 +16,20 @@ import io.void.router.exceptions.RouteNoTargetException
 import io.void.router.exceptions.RouteTargetUsedException
 import io.void.router.page.INullRoutePage
 import io.void.router.util.MiddlewareTime
+import io.void.router.util.RequestHandler
+import io.void.router.util.RouteCheck
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
 
-class Router(private var middleware: List<Middleware>? = null) {
+class Router(private var middleware: List<Middleware>? = null): RouteCheck, RequestHandler {
 
     init {
         middleware = middleware?.sortedByDescending { it.priority }
     }
 
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
-    private val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
-    private val builder = HTTPBuilder()
+    override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
+    override val builder = HTTPBuilder()
     private var exceptionPage = ExceptionPage(e = Exception())
     private var nullPage: Page<*>? = null
 
@@ -57,7 +59,7 @@ class Router(private var middleware: List<Middleware>? = null) {
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
         Processor.annotationProcessor(page = route)
-        handleTargetChecking(route)
+        handleTargetChecking(route, routes)
         if (route is IExceptionPage) {
             exceptionPage = ExceptionPage(page = route)
         }
@@ -78,18 +80,6 @@ class Router(private var middleware: List<Middleware>? = null) {
         return this
     }
 
-    private fun handleTargetChecking(route: Page<*>) {
-        if (routes.containsKey(route.target)) {
-            throw RouteTargetUsedException(target = route.target)
-        } else {
-            if (route.target.startsWith("/")) {
-                routes[route.target] = route
-            } else {
-                throw RouteNoTargetException(target = route.target)
-            }
-        }
-    }
-
     fun addRoutes(routes: List<Page<*>>): Router {
         routes.forEach {
             addRoute(route = it)
@@ -97,68 +87,6 @@ class Router(private var middleware: List<Middleware>? = null) {
         return this
     }
 
-    private fun handleDynamic(requestDTO: RequestDTO): ResponseDTO? {
-        val target = requestDTO.target
-        val url = target.split('/')
-        if (url.contains("favicon.ico")) return null
-        dynamicRoutes.forEach { (target, route) ->
-            var matches = true
-            target.forEachIndexed { i, pTarget ->
-                try {
-                    if (url[i] != pTarget) {
-                        if (pTarget != "{}") {
-                            matches = false
-                            return@forEachIndexed
-                        }
-                    }
-                } catch (_: Exception) {
-                    return@forEachIndexed
-                }
-            }
-
-            if (matches) {
-                route.request = requestDTO
-                return route.content().let { content ->
-                    when (content) {
-                        is ContentType.Response -> content.response
-                        is ContentType.HtmlElements -> constructClassicResponse(page = route)
-                    }
-                }
-            }
-        }
-        return null
-    }
-
-    private fun<T : Page<*>> constructClassicResponse(page: T): ResponseDTO {
-        return ResponseDTO(
-            status = 200,
-            statusText = "All is well",
-            headers = mutableMapOf("Content-Type" to "text/html"),
-            body = "<!doctype html><html><head>${page.metadata?.render()}</head><body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
-        )
-    }
-
-    private fun handleResponse(page: Page<ContentType.Response>, client: Socket) {
-        builder.build(
-            response = page.content().response,
-            outputStream = client.getOutputStream()
-        )
-    }
-
-    private fun handleCasual(page: Page<ContentType.HtmlElements>, client: Socket, target: String) {
-        val response = if (Cache.singleton.cache.containsKey(target)) {
-            Cache.singleton.cache[target]!!
-        } else {
-            constructClassicResponse(
-                page = page
-            )
-        }
-
-        builder.build(
-            response = response,
-            outputStream = client.getOutputStream()
-        )
-    }
 
     fun route(requestDTO: RequestDTO, client: Socket) {
         middleware?.let {
