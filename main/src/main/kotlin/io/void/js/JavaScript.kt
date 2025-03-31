@@ -15,6 +15,11 @@ class JavaScript(val runBeforeLoad: Boolean = false, val code: JavaScript.() -> 
             return ""
         }
 
-        return children.joinToString("\n") { it.render() }
+        val js = children.joinToString("\n") {
+            val rendered = it.render()
+            if (!rendered.endsWith(";") && !(rendered.contains("function") || rendered.contains("class"))) "$rendered;" else rendered
+        }
+        println(js)
+        return js
     }
 }
