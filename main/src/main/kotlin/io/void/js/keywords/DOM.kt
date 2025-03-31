@@ -22,7 +22,7 @@ class DOM: Keyword {
     }
 
     override fun render(): String {
-        return "$jsReturn;"
+        return jsReturn
     }
 
     inner class HTMLElement {
