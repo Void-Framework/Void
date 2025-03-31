@@ -12,9 +12,9 @@ class DOM: Keyword {
         return HTMLElement()
     }
 
-    fun querySelectorAll(identifier: String): List<HTMLElement> {
+    fun querySelectorAll(identifier: String): io.void.js.keywords.datastructures.List<HTMLElement> {
         jsReturn += ".querySelectorAll(\"[$identifier]\")"
-        return listOf(HTMLElement())
+        return io.void.js.keywords.datastructures.List(listOf(HTMLElement()))
     }
 
     override fun render(): String {
@@ -39,7 +39,7 @@ fun JavaScript.id(id: String): DOM.HTMLElement {
     return dom.getElementById(id = id)
 }
 
-fun JavaScript.selectAll(identifier: String): List<DOM.HTMLElement> {
+fun JavaScript.selectAll(identifier: String): io.void.js.keywords.datastructures.List<DOM.HTMLElement> {
     val dom = DOM()
     children.add(dom)
     return dom.querySelectorAll(identifier = identifier)
