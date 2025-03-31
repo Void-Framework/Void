@@ -8,7 +8,11 @@ import io.void.html.attributes.attribute
 import io.void.html.page.Page
 import io.void.js.JavaScript
 import io.void.js.data.DataHandler
-import io.void.js.keywords.id
+import io.void.js.data.DataHolder
+import io.void.js.data.setData
+import io.void.js.keywords.*
+import io.void.js.keywords.Function
+import io.void.js.keywords.datastructures.forEach
 import java.net.URL
 
 class HomeRoute : Page(target = "/") {
@@ -20,14 +24,20 @@ class HomeRoute : Page(target = "/") {
     private val linkClasses = "text-blue-500 hover:text-blue-700 transition-colors duration-300"
     private val cardClasses = "bg-gray-50 p-4 rounded-lg border border-gray-200"
     private val buttonClasses = "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-300"
+    private lateinit var data: DataHolder<String>
 
     override val javascript: JavaScript = JavaScript(false) {
+        data = setData("Welcome to Void Framework")
+        val function = Function("test", listOf("element")) {
+            it.children.add(Call<DOM>("element", {
+                this.HTMLElement().text("HELP")
+            }, DOM()))
+        }
         id("features").html(Div {
             Fractal("Test")
         })
+        forEach(selectAll("class"), function)
     }
-
-    val data = DataHandler.singleton.create("Welcome to Void Framework", javascript)
 
     override var content: Element? = Main(
         attribute {
