@@ -9,6 +9,7 @@ data class Function(
 ): Keyword {
 
     val children = mutableListOf<Keyword>()
+    override var jsReturn: String = ""
 
     override fun render(): String {
         return "function $name(${arguments.joinToString(", ")}) {${children.map { it.render() }.joinToString(";")}}"

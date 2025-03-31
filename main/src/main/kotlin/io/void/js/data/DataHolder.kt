@@ -8,6 +8,8 @@ import io.void.js.keywords.function
 
 class DataHolder<T> internal constructor(private var value: T?, val function: Function, private val js: JavaScript): Keyword {
 
+    override var jsReturn: String = ""
+
     override fun render(): String {
         val value = when (value) {
             is String -> value?.toString()?.let { "\"$it\"" } ?: "null"
@@ -32,6 +34,8 @@ class DataHolder<T> internal constructor(private var value: T?, val function: Fu
     }
 
     internal inner class FunctionRunner(val function: Function, val args: List<String>): Keyword {
+
+        override var jsReturn: String = ""
 
         override fun render(): String {
             return function.run(args)
