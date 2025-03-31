@@ -7,13 +7,20 @@ import io.void.js.keywords.Return
 import io.void.js.keywords.function
 import java.util.UUID
 
-class DataHandler private constructor() : IDataHandler {
+class DataHandler private constructor() {
 
     companion object {
         val singleton = DataHandler()
+
+        fun randomString(length: Int): String {
+            val chars = ('a'..'z') + ('A'..'Z')
+            return (1..length)
+                .map { chars.random() }
+                .joinToString("")
+        }
     }
 
-    override fun <T> create(value: T, js: JavaScript): DataHolder<T> {
+     internal fun <T> create(value: T, js: JavaScript): DataHolder<T> {
         return DataHolder(
             value = value,
             function = js.function(randomString(5), listOf("newValue")) {
@@ -22,15 +29,10 @@ class DataHandler private constructor() : IDataHandler {
             js = js
         )
     }
+}
 
-    override fun <T> update(newData: DataHolder<T>) {
-        EventDispatcher.callEvent(DataHolder::class.java, newData)
-    }
-
-    private fun randomString(length: Int): String {
-        val chars = ('a'..'z') + ('A'..'Z')
-        return (1..length)
-            .map { chars.random() }
-            .joinToString("")
-    }
+fun <T> JavaScript.setData(value: T): DataHolder<T> {
+    val dataHolder = DataHandler.singleton.create(value = value, js = this)
+    children.add(dataHolder)
+    return dataHolder
 }
