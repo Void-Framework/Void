@@ -6,7 +6,12 @@ data class Call<T: Keyword>(val variableName: String, val callableMethod: T.() -
         clazz.callableMethod()
     }
 
-    override var jsReturn: String = "$variableName.${clazz.jsReturn}"
+    override var jsReturn: String = "$variableName${if (clazz.jsReturn.startsWith(".")){
+        ""
+    } else {
+        "."
+    }
+    }${clazz.jsReturn}"
 
     override fun render(): String {
         return jsReturn

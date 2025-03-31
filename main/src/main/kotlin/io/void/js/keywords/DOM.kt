@@ -9,15 +9,15 @@ class DOM: Keyword {
         val element = DOM().HTMLElement()
     }
 
-    override var jsReturn = "document"
+    override var jsReturn = ""
 
     fun getElementById(id: String): HTMLElement {
-        jsReturn += ".getElementById(\"$id\")"
+        jsReturn = "document.getElementById(\"$id\")"
         return HTMLElement()
     }
 
     fun querySelectorAll(identifier: String): io.void.js.keywords.datastructures.JsList<HTMLElement> {
-        jsReturn += ".querySelectorAll(\"[$identifier]\")"
+        jsReturn = "document.querySelectorAll(\"[$identifier]\")"
         return io.void.js.keywords.datastructures.JsList(listOf(HTMLElement()))
     }
 

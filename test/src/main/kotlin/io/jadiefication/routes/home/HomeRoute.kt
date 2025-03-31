@@ -28,8 +28,8 @@ class HomeRoute : Page(target = "/") {
 
     override val javascript: JavaScript = JavaScript(false) {
         data = setData("Welcome to Void Framework")
-        val function = Function("test", listOf("element")) {
-            it.children.add(Call<DOM>("element", {
+        val function = function("test", listOf("element")) {
+            it.children.add(Call("element", {
                 this.HTMLElement().text("HELP")
             }, DOM()))
         }
