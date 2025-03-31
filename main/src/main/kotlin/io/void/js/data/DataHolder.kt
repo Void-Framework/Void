@@ -1,5 +1,6 @@
 package io.void.js.data
 
+import io.void.js.EventDispatcher
 import io.void.js.JavaScript
 import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
@@ -8,14 +9,21 @@ import io.void.js.keywords.function
 class DataHolder<T> internal constructor(private var value: T?, val function: Function, private val js: JavaScript): Keyword {
 
     override fun render(): String {
-        return "let ${DataHandler.randomString(6)} = $value;${function.render()}"
+        val value = when (value) {
+            is String -> value?.toString()?.let { "\"$it\"" } ?: "null"
+            else -> value?.toString() ?: "null"
+        }
+        // Remove the semicolon here since JavaScript.render() will handle it
+        return "let ${DataHandler.randomString(6)} = $value;"
     }
 
     fun set(newValue: T): T? {
+        value = newValue
         js.children.add(FunctionRunner(
             function = function,
             args = listOf(newValue as String)
         ))
+        EventDispatcher.callEvent(DataHolder::class.java, this)
         return value
     }
 

@@ -21,13 +21,18 @@ class DataHandler private constructor() {
     }
 
      internal fun <T> create(value: T, js: JavaScript): DataHolder<T> {
-        return DataHolder(
-            value = value,
-            function = js.function(randomString(5), listOf("newValue")) {
-                Return(_value = "newValue")
-            },
-            js = js
-        )
+         val funcName = randomString(5)
+         // Create the function first
+         val function = js.function(funcName, listOf("newValue")) {
+             val Return = Return(_value = "newValue")
+             it.children.add(Return)
+         }
+
+         return DataHolder(
+             value = value,
+             function = function,
+             js = js
+         )
     }
 }
 
