@@ -32,7 +32,6 @@ class JavaScript(val runBeforeLoad: Boolean = false, val code: JavaScript.() -> 
                 }
             } else rendered
         }.joinToString("\n")
-        println(js)
         return js
     }
 }
