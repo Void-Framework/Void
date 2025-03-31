@@ -4,6 +4,8 @@ import io.void.js.JavaScript
 
 data class Return<T>(val value: T?): Keyword {
 
+    override var jsReturn: String = ""
+
     override fun render(): String {
         return "return $value;"
     }
