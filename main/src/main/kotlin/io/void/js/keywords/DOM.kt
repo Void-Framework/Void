@@ -12,14 +12,23 @@ class DOM: Keyword {
         return HTMLElement()
     }
 
+    fun querySelectorAll(identifier: String): List<HTMLElement> {
+        jsReturn += ".querySelectorAll(\"[$identifier]\")"
+        return listOf(HTMLElement())
+    }
+
     override fun render(): String {
-        return jsReturn
+        return "$jsReturn;"
     }
 
     inner class HTMLElement {
 
         fun html(element: Element) {
-            jsReturn += ".innerHTML = \"${element.render()}\";"
+            jsReturn += ".innerHTML = \"${element.render()}\""
+        }
+
+        fun text(newValue: String) {
+            jsReturn += ".textContent = \"$newValue\""
         }
     }
 }
@@ -27,5 +36,11 @@ class DOM: Keyword {
 fun JavaScript.id(id: String): DOM.HTMLElement {
     val dom = DOM()
     children.add(dom)
-    return dom.getElementById(id)
+    return dom.getElementById(id = id)
+}
+
+fun JavaScript.selectAll(identifier: String): List<DOM.HTMLElement> {
+    val dom = DOM()
+    children.add(dom)
+    return dom.querySelectorAll(identifier = identifier)
 }
