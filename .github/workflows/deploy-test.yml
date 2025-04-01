@@ -22,6 +22,6 @@ jobs:
 
       - name: Run a multi-line script
         run: |
-          mvn clean package,
+          mvn clean package
           cd target/
           java -jar void-framework-0.5.jar
