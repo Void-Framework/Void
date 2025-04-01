@@ -9,6 +9,7 @@ import io.void.html.page.Page
 import io.void.js.JavaScript
 import io.void.js.data.DataHandler
 import io.void.js.data.DataHolder
+import io.void.js.data.get
 import io.void.js.data.setData
 import io.void.js.keywords.*
 import io.void.js.keywords.Function
@@ -28,7 +29,7 @@ class HomeRoute : Page(target = "/") {
 
     override val javascript: JavaScript = JavaScript(false) {
         data = setData("Welcome to Void Framework")
-        val function = function("test", listOf("element")) {
+        /*val function = function("test", listOf("element")) {
             it.children.add(Call("element", {
                 this.HTMLElement().text("HELP")
             }, DOM()))
@@ -36,7 +37,7 @@ class HomeRoute : Page(target = "/") {
         id("features").html(Div {
             Fractal("Test")
         })
-        forEach(selectAll("class"), function)
+        forEach(selectAll("class"), function)*/
     }
 
     override var content: Element? = Main(
@@ -52,7 +53,7 @@ class HomeRoute : Page(target = "/") {
             }
         ) {
             H1 {
-                data.get()?.let { Fractal(_text = it) }
+                this.get(data)
             }
             Nav(
                 attribute {
