@@ -19,7 +19,6 @@ data class EventFunction(val _body: JavaScript.(Function) -> Unit, val stopReloa
     }
 
     override fun render(): String {
-        println("${children.joinToString(";") { it.render() }}\n\n")
         return "function(event) {${children.joinToString(";") { it.render() }}}"
     }
 }
