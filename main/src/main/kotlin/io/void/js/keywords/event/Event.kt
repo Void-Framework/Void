@@ -5,19 +5,21 @@ import io.void.js.keywords.Call
 import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
 
-data class EventFunction(val _body: JavaScript.(Function) -> Unit, val stopReload: Boolean = false): Function(
+data class EventFunction(val _body: JavaScript.(Function) -> Unit, val stopReload: Boolean = false, val js: JavaScript): Function(
     name = "",
     arguments = listOf("event"),
-    body = _body
+    body = _body,
 ) {
 
     init {
+        body(js, this)
         if (stopReload) {
             children.addFirst(Call<Function>("event", "preventDefault()"))
         }
     }
 
     override fun render(): String {
+        println("${children.joinToString(";") { it.render() }}\n\n")
         return "function(event) {${children.joinToString(";") { it.render() }}}"
     }
 }
@@ -25,25 +27,14 @@ data class EventFunction(val _body: JavaScript.(Function) -> Unit, val stopReloa
 fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boolean = false): EventFunction {
     val function = EventFunction(
         _body = body,
-        stopReload = stopReload
+        stopReload = stopReload,
+        js = this
     )
-    body(function)
     children.add(function)
     return function
 }
 
-data class Event private constructor(private val nothing: Any?): Keyword {
-    lateinit var eventType: Events
-    lateinit var function: EventFunction
-
-    companion object {
-        val singleton = Event("")
-    }
-
-    constructor(eventType: Events, function: EventFunction): this("") {
-        this.eventType = eventType
-        this.function = function
-    }
+data class Event(val eventType: Events, val function: EventFunction): Keyword {
 
     override var jsReturn: String = ".addEventListener(\"${eventType.name.lowercase()}\", ${function.render()})"
 
