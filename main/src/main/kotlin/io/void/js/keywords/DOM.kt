@@ -17,7 +17,7 @@ class DOM: Keyword {
     }
 
     fun querySelectorAll(identifier: String): io.void.js.keywords.datastructures.JsList<HTMLElement> {
-        jsReturn = "document.querySelectorAll(\"[$identifier]\")"
+        jsReturn = "document.querySelectorAll(\"$identifier\")"
         return io.void.js.keywords.datastructures.JsList(listOf(HTMLElement()))
     }
 
