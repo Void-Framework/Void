@@ -2,7 +2,7 @@ package io.void.js.keywords
 
 import io.void.js.JavaScript
 
-data class Function(
+open class Function(
     val name: String,
     val arguments: List<String> = emptyList(),
     val body: JavaScript.(Function) -> Unit
@@ -12,7 +12,7 @@ data class Function(
     override var jsReturn: String = ""
 
     override fun render(): String {
-        return "function $name(${arguments.joinToString(", ")}) {${children.map { it.render() }.joinToString(";")}}"
+        return "function $name(${arguments.joinToString(", ")}) {${children.joinToString(";") { it.render() }}}"
     }
 
     fun run(arguments: List<String>): String {

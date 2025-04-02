@@ -3,7 +3,6 @@ package io.void.js.data
 import io.void.html.Element
 import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
-import io.void.js.EventDispatcher
 import io.void.js.JavaScript
 import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
@@ -29,7 +28,6 @@ class DataHolder<T> internal constructor(private var value: T?, val function: Fu
             function = function,
             args = listOf(newValue as String)
         ))
-        EventDispatcher.callEvent(DataHolder::class.java, this)
         return value
     }
 
