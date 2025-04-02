@@ -31,7 +31,18 @@ fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit): EventFunction {
     return function
 }
 
-data class Event(val eventType: Events, val function: EventFunction): Keyword {
+data class Event private constructor(private val nothing: Any?): Keyword {
+    lateinit var eventType: Events
+    lateinit var function: EventFunction
+
+    companion object {
+        val singleton = Event("")
+    }
+
+    constructor(eventType: Events, function: EventFunction): this("") {
+        this.eventType = eventType
+        this.function = function
+    }
 
     override var jsReturn: String = ".addEventListener(\"${eventType.name.lowercase()}\", ${function.render()})"
 
