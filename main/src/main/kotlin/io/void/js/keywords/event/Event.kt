@@ -22,9 +22,10 @@ data class EventFunction(val _body: JavaScript.(Function) -> Unit, val stopReloa
     }
 }
 
-fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit): EventFunction {
+fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boolean = false): EventFunction {
     val function = EventFunction(
-        _body = body
+        _body = body,
+        stopReload = stopReload
     )
     body(function)
     children.add(function)
