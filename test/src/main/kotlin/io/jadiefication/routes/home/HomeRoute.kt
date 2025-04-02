@@ -14,6 +14,7 @@ import io.void.js.data.setData
 import io.void.js.keywords.*
 import io.void.js.keywords.Function
 import io.void.js.keywords.datastructures.forEach
+import io.void.js.keywords.event.*
 import java.net.URL
 
 class HomeRoute : Page(target = "/") {
@@ -34,10 +35,24 @@ class HomeRoute : Page(target = "/") {
                 this.HTMLElement().text("HELP")
             }, DOM()))
         }
+        val eFunction = EventFunction(
+            stopReload = true,
+            _body = { eIt ->
+                eIt.children.add(Call<Function>("console", "log(0);"))
+            },
+            js = this
+        )
+        val event = Event(Events.CLICK, eFunction)
         id("features").html(Div {
             Fractal("Test")
         })
-        forEach(selectAll("v_datahold"), function)
+        forEach(selectAll("[v_datahold]")).run(function)
+        forEach(selectAll("button")).run(function("te_st", listOf("element"), {
+            it.children.add(Call("element", {
+                this.render()
+                //listen(event.eventType, event.function)
+            }, event))
+        }))
     }
 
     override var content: Element? = Main(

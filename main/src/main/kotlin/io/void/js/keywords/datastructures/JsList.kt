@@ -21,14 +21,22 @@ data class JsList<T>(val arguments: List<T>): Keyword {
 
     inner class Actions {
 
-        fun forEach(function: Function) {
+        fun forEach(): Runnable {
+            jsReturn += ".forEach("
+            return Runnable()
+        }
+    }
+
+    inner class Runnable {
+        fun run(function: Function) {
             val random = DataHandler.randomString(5)
-            jsReturn += ".forEach($random => ${function.run(listOf(random))})"
+            jsReturn += "$random => ${function.run(listOf(random))})"
         }
     }
 }
 
-inline fun <reified T> JavaScript.forEach(list: JsList<T>, function: Function) {
-    list.Actions().forEach(function)
+inline fun <reified T> JavaScript.forEach(list: JsList<T>): JsList<T>.Runnable {
+    val runnable = list.Actions().forEach()
     children.add(list)
+    return runnable
 }
