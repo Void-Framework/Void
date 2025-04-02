@@ -1,6 +1,5 @@
 package io.void.js.data
 
-import io.void.js.EventDispatcher
 import io.void.js.JavaScript
 import io.void.js.keywords.Function
 import io.void.js.keywords.Return

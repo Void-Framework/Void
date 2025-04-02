@@ -29,7 +29,7 @@ class HomeRoute : Page(target = "/") {
 
     override val javascript: JavaScript = JavaScript(false) {
         data = setData("Welcome to Void Framework")
-        /*val function = function("test", listOf("element")) {
+        val function = function("test", listOf("element")) {
             it.children.add(Call("element", {
                 this.HTMLElement().text("HELP")
             }, DOM()))
@@ -37,7 +37,7 @@ class HomeRoute : Page(target = "/") {
         id("features").html(Div {
             Fractal("Test")
         })
-        forEach(selectAll("class"), function)*/
+        forEach(selectAll("v_datahold"), function)
     }
 
     override var content: Element? = Main(
