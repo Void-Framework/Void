@@ -3,7 +3,7 @@ package io.void.js.keywords
 data class Call<T: Keyword> internal constructor(val variableName: String): Keyword {
 
     constructor(variableName: String, callableFunction: String): this(variableName) {
-        jsReturn = "$variableName.$callableFunction;"
+        jsReturn = "$variableName.$callableFunction"
     }
 
     constructor(variableName: String, callableMethod: T.() -> Any, clazz: T): this(variableName) {
