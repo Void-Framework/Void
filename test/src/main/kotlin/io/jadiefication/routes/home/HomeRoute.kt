@@ -32,14 +32,14 @@ class HomeRoute : Page(target = "/") {
         data = setData("Welcome to Void Framework")
         val customEvent = customEvent("test")
         val function = function("test", listOf("element")) {
-            it.children.add(Call("element", {
+            it.put(Call("element", {
                 this.HTMLElement().text("HELP")
             }, DOM()))
         }
         val eFunction = EventFunction(
             stopReload = true,
-            _body = { eIt ->
-                eIt.children.add(Call<Function>("console", "log(0);"))
+            _body = {
+                it.put(Call<Function>("console", "log(0);"))
             },
             js = this
         )
@@ -48,11 +48,11 @@ class HomeRoute : Page(target = "/") {
             Fractal("Test")
         })
         forEach(selectAll("[v_datahold]")).run(function)
-        forEach(selectAll("button")).run(function("te_st", listOf("element"), {
-            it.children.add(Call("element", {
+        forEach(selectAll("button")).run(function("te_st", listOf("element")) {
+            it.put(Call("element", {
                 this.render()
             }, event))
-        }))
+        })
     }
 
     override var content: Element? = Main(
