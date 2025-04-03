@@ -18,6 +18,10 @@ open class Function(
     fun run(arguments: List<String>): String {
         return "$name(${arguments.joinToString(", ")})"
     }
+
+    fun put(keyword: Keyword) {
+        this.children.add(keyword)
+    }
 }
 
 fun JavaScript.function(name: String, arguments: List<String>, body: JavaScript.(Function) -> Unit): Function {
