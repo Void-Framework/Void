@@ -24,3 +24,9 @@ data class CustomEvent(val eventName: String): Keyword {
         return "$jsReturn;"
     }
 }
+
+fun JavaScript.customEvent(name: String): CustomEvent {
+    val event = CustomEvent(name)
+    children.add(event)
+    return event
+}
