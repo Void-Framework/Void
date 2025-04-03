@@ -30,6 +30,7 @@ class HomeRoute : Page(target = "/") {
 
     override val javascript: JavaScript = JavaScript(false) {
         data = setData("Welcome to Void Framework")
+        val customEvent = CustomEvent("test")
         val function = function("test", listOf("element")) {
             it.children.add(Call("element", {
                 this.HTMLElement().text("HELP")
@@ -42,7 +43,7 @@ class HomeRoute : Page(target = "/") {
             },
             js = this
         )
-        val event = Event(Events.CLICK, eFunction)
+        val event = Event(CustomEvent.getEvent(Events.CLICK), eFunction)
         id("features").html(Div {
             Fractal("Test")
         })
@@ -50,7 +51,6 @@ class HomeRoute : Page(target = "/") {
         forEach(selectAll("button")).run(function("te_st", listOf("element"), {
             it.children.add(Call("element", {
                 this.render()
-                //listen(event.eventType, event.function)
             }, event))
         }))
     }

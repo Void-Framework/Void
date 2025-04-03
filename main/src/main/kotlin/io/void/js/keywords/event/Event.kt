@@ -33,16 +33,16 @@ fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boole
     return function
 }
 
-data class Event(val eventType: Events, val function: EventFunction): Keyword {
+data class Event(val eventType: CustomEvent, val function: EventFunction): Keyword {
 
-    override var jsReturn: String = ".addEventListener(\"${eventType.name.lowercase()}\", ${function.render()})"
+    override var jsReturn: String = ".addEventListener(\"${eventType.eventName.lowercase()}\", ${function.render()})"
 
     override fun render(): String {
         return jsReturn
     }
 }
 
-fun JavaScript.listen(_eventType: Events, _function: EventFunction): Event {
+fun JavaScript.listen(_eventType: CustomEvent, _function: EventFunction): Event {
     val event = Event(
         eventType = _eventType,
         function = _function
