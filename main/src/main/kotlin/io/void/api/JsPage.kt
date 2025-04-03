@@ -19,7 +19,7 @@ internal class JsPage(uuid: UUID, private val body: String) : ApiPage(
                 status = 200,
                 statusText = "All is Well",
                 headers = mutableMapOf(
-                    "Content-Type" to "text/js",
+                    "Content-Type" to "application/javascript",
                 ),
                 body = body
             )
