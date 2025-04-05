@@ -22,20 +22,20 @@ class DataHolder<T> internal constructor(private var value: T?, val function: Fu
         return "let ${DataHandler.randomString(6)} = $value;"
     }
 
-    fun set(newValue: T): T? {
-        value = newValue
-        js.children.add(FunctionRunner(
+    fun set(newValue: T): FunctionRunner {
+        val runner = FunctionRunner(
             function = function,
             args = listOf(newValue as String)
-        ))
-        return value
+        )
+        js.children.add(runner)
+        return runner
     }
 
     internal fun get(): T? {
         return value
     }
 
-    internal inner class FunctionRunner(val function: Function, val args: List<String>): Keyword {
+    inner class FunctionRunner(val function: Function, val args: List<String>): Keyword {
 
         override var jsReturn: String = ""
 

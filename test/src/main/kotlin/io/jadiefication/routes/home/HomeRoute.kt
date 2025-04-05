@@ -29,29 +29,76 @@ class HomeRoute : Page(target = "/") {
     private lateinit var data: DataHolder<String>
 
     override val javascript: JavaScript = JavaScript(false) {
+        // Test data binding
         data = setData("Welcome to Void Framework")
-        val customEvent = customEvent("test")
-        val function = function("test", listOf("element")) {
-            it.put(Call("element", {
-                this.HTMLElement().text("HELP")
-            }, DOM()))
-        }
-        val eFunction = EventFunction(
-            stopReload = true,
-            _body = {
-                it.put(Call<Function>("console", "log(0);"))
-            },
-            js = this
-        )
-        val event = Event(CustomEvent.getEvent(Events.CLICK), eFunction)
+
+        // Test DOM manipulation and events
         id("features").html(Div {
-            Fractal("Test")
+            H3 { Fractal("Dynamic Content") }
+            P { Fractal("This content was added via JavaScript") }
         })
-        forEach(selectAll("[v_datahold]")).run(function)
-        forEach(selectAll("button")).run(function("te_st", listOf("element")) {
-            it.put(Call("element", {
+
+        // Test event handling on all buttons
+        forEach(selectAll("button")).run(function("handleButtonClick", listOf("button")) {
+            it.put(Call("button", {
                 this.render()
-            }, event))
+            }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
+                stopReload = true,
+                _body = { js ->
+                    js.put(Call<Function>("console", "log('Button clicked!')"))
+                    js.put(Call<DOM>("button", {
+                        HTMLElement().text("Clicked!")
+                    }, DOM()))
+                },
+                js = this,
+                eventValueName = ""
+            ))))
+        })
+
+        // Test dynamic class toggling
+        forEach(selectAll("article")).run(function("handleArticleHover", listOf("article")) {
+            it.put(Call("article", {
+                this.render()
+            }, Event(CustomEvent.getEvent(Events.MOUSEOVER), EventFunction(
+                stopReload = true,
+                _body = { js ->
+                    js.put(Call<Function>("console", "log('Article hovered!')"))
+                    js.put(Call<DOM>("article", {
+                        HTMLElement().text("Hover effect active")
+                    }, DOM()))
+                },
+                js = this,
+                eventValueName = ""
+            ))))
+        })
+
+        // Test data updates
+        val updateTitleFunction = function("updateTitle", listOf()) {
+            it.put(Call<Function>("console", "log('Updating title...')"))
+            it.put(data.set("\"Title Updated!\""))
+        }
+
+        // Add click event to footer to update title
+        id("footer").html(Button(
+            attribute {
+                name = AttributeNames.CLASS
+                value = buttonClasses
+            }
+        ) {
+            Fractal("Update Title")
+        })
+
+        forEach(selectAll("#footer button")).run(function("footerButton", listOf("button")) {
+            it.put(Call("button", {
+                this.render()
+            }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
+                stopReload = true,
+                _body = { js ->
+                    js.put(updateTitleFunction.run())
+                },
+                js = this,
+                eventValueName = ""
+            ))))
         })
     }
 
@@ -218,6 +265,10 @@ class HomeRoute : Page(target = "/") {
         }
 
         Footer(
+            attribute {
+                name = AttributeNames.ID
+                value = "footer"
+            },
             attribute {
                 name = AttributeNames.CLASS
                 value = "text-center mt-12 text-gray-600"

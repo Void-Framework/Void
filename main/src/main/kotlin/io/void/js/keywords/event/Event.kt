@@ -19,7 +19,9 @@ data class EventFunction(
     init {
         body(js, this)
         if (stopReload) {
-            children.addFirst(Call<Function>("event", "preventDefault()"))
+            if (eventValueName.isNotBlank()) {
+                children.addFirst(Call<Function>(eventValueName, "preventDefault()"))
+            }
         }
     }
 
