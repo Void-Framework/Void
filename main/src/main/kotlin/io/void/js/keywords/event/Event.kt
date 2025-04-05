@@ -5,9 +5,14 @@ import io.void.js.keywords.Call
 import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
 
-data class EventFunction(val _body: JavaScript.(Function) -> Unit, val stopReload: Boolean = false, val js: JavaScript): Function(
+data class EventFunction(
+    val _body: JavaScript.(Function) -> Unit,
+    val stopReload: Boolean = false,
+    val js: JavaScript,
+    val eventValueName: String
+): Function(
     name = "",
-    arguments = listOf("event"),
+    arguments = listOf(eventValueName),
     body = _body,
 ) {
 
@@ -19,15 +24,16 @@ data class EventFunction(val _body: JavaScript.(Function) -> Unit, val stopReloa
     }
 
     override fun render(): String {
-        return "function(event) {${children.joinToString(";") { it.render() }}}"
+        return "($eventValueName) => {${children.joinToString(";") { it.render() }}}"
     }
 }
 
-fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boolean = false): EventFunction {
+fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boolean = false, eventValueName: String): EventFunction {
     val function = EventFunction(
         _body = body,
         stopReload = stopReload,
-        js = this
+        js = this,
+        eventValueName = eventValueName
     )
     children.add(function)
     return function
