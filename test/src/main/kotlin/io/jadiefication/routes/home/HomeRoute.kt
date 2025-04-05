@@ -94,7 +94,7 @@ class HomeRoute : Page(target = "/") {
             }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
                 stopReload = true,
                 _body = { js ->
-                    js.put(updateTitleFunction.run())
+                    js.put(run(updateTitleFunction, emptyList()))
                 },
                 js = this,
                 eventValueName = ""
