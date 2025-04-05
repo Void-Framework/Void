@@ -28,7 +28,7 @@ class DOM: Keyword {
     inner class HTMLElement {
 
         fun html(element: Element) {
-            jsReturn += ".innerHTML = \"${element.render()}\""
+            jsReturn += ".innerHTML = '${element.render()}'"
         }
 
         fun text(newValue: String) {
