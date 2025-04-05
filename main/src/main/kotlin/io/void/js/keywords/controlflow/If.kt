@@ -2,9 +2,8 @@ package io.void.js.keywords.controlflow
 
 import io.void.js.JavaScript
 import io.void.js.keywords.Function
-import io.void.js.keywords.Keyword
 
-data class Conditionals(val condition: String, val _body: JavaScript.(Function) -> Unit, val js: JavaScript): Function(
+data class If(val condition: String, val _body: JavaScript.(Function) -> Unit, val js: JavaScript): Function(
     name = "",
     arguments = emptyList(),
     body = _body
@@ -20,7 +19,7 @@ data class Conditionals(val condition: String, val _body: JavaScript.(Function) 
         return jsReturn
     }
 
-    fun elseIf(condition: String, body: JavaScript.(Function) -> Unit): Conditionals {
+    fun ElseIf(condition: String, body: JavaScript.(Function) -> Unit): If {
         body(js, this)
         jsReturn += "else if ($condition) {${children.joinToString(";") { it.render() }}}"
         return this
@@ -32,8 +31,8 @@ data class Conditionals(val condition: String, val _body: JavaScript.(Function) 
     }
 }
 
-fun JavaScript.condition(condition: String, body: JavaScript.(Function) -> Unit): Conditionals {
-    val conditional = Conditionals(
+fun JavaScript.If(condition: String, body: JavaScript.(Function) -> Unit): If {
+    val conditional = If(
         condition = condition,
         _body = body,
         js = this
