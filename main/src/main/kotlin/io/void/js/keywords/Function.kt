@@ -34,3 +34,22 @@ fun JavaScript.function(name: String, arguments: List<String>, body: JavaScript.
     children.add(function)
     return function
 }
+
+data class FunctionRunner(val function: Function, val args: List<String>): Keyword {
+
+    override var jsReturn: String = "${function.name}(${args.joinToString(", ")})"
+
+    override fun render(): String {
+        return jsReturn
+    }
+
+}
+
+fun JavaScript.run(function: Function, arguments: List<String>): FunctionRunner {
+    val run = FunctionRunner(
+        function = function,
+        args = arguments
+    )
+    children.add(run)
+    return run
+}

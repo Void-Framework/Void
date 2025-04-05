@@ -5,6 +5,7 @@ import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
 import io.void.js.JavaScript
 import io.void.js.keywords.Function
+import io.void.js.keywords.FunctionRunner
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.function
 import java.util.UUID
@@ -33,16 +34,6 @@ class DataHolder<T> internal constructor(private var value: T?, val function: Fu
 
     internal fun get(): T? {
         return value
-    }
-
-    inner class FunctionRunner(val function: Function, val args: List<String>): Keyword {
-
-        override var jsReturn: String = ""
-
-        override fun render(): String {
-            return function.run(args)
-        }
-
     }
 }
 
