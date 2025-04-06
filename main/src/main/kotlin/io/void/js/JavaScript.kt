@@ -3,6 +3,7 @@ package io.void.js
 import io.void.js.keywords.Const
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.Let
+import io.void.js.keywords.datastructures.JsDatastructure
 
 class JavaScript(val runBeforeLoad: Boolean = false, val code: JavaScript.() -> Unit) {
 
@@ -38,18 +39,23 @@ class JavaScript(val runBeforeLoad: Boolean = false, val code: JavaScript.() -> 
     }
 
     fun <T> declare(constant: Boolean = false, name: String, value: T): Variable {
+        val newValue = if (value is JsDatastructure) {
+            value.render()
+        } else {
+            value
+        }
         val variable = if (constant) {
             Variable.Constant(
                 Const(
                     name = name,
-                    value = value
+                    value = newValue
                 )
             )
         } else {
             Variable.NonConstant(
                 Let(
                     name = name,
-                    value = value
+                    value = newValue
                 )
             )
         }
