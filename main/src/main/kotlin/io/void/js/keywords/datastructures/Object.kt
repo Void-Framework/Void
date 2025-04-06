@@ -3,7 +3,7 @@ package io.void.js.keywords.datastructures
 import io.void.js.JavaScript
 import io.void.js.keywords.Keyword
 
-data class Object(val values: Map<String, Any?>): Keyword {
+data class Object(val values: Map<String, Any?>): JsDatastructure {
 
     override var jsReturn: String = ""
     private var inside = StringBuilder("")
@@ -21,7 +21,7 @@ data class Object(val values: Map<String, Any?>): Keyword {
         return jsReturn
     }
 
-    fun initialize(): Object {
+    override fun initialize(): JsDatastructure {
         jsReturn = "{$inside}"
         return this
     }
@@ -68,7 +68,7 @@ fun JavaScript.jsObject(values: Map<String, Any?>): Object {
         values = values
     ).initialize()
     children.add(Object)
-    return Object
+    return Object as Object
 }
 
 fun JavaScript.objectMethod(objectName: String): ObjectsMethods {

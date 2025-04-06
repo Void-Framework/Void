@@ -6,16 +6,26 @@ import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
 import kotlin.collections.List
 
-data class JsList<T>(val arguments: List<T>): Keyword {
+data class JsList<T>(val arguments: List<T>): JsDatastructure {
 
     override var jsReturn = ""
+    private var inside = StringBuilder("")
+
+    init {
+        arguments.forEach {
+            inside.append("$it,")
+        }
+        if (arguments.isNotEmpty()) {
+            inside.setLength(inside.length - 1)
+        }
+    }
 
     override fun render(): String {
         return jsReturn
     }
 
-    fun initialize(): JsList<T> {
-        jsReturn = "[${arguments.joinToString(", ")}]"
+    override fun initialize(): JsDatastructure {
+        jsReturn = "[$inside]"
         return JsList(arguments)
     }
 
@@ -77,23 +87,8 @@ data class JsList<T>(val arguments: List<T>): Keyword {
     }
 }
 
-inline fun <reified T> JavaScript.forEach(list: JsList<T>): JsList<T>.Runnable {
-    val runnable = list.Actions().forEach()
-    children.add(list)
-    return runnable
-}
-inline fun <reified T> JavaScript.map(list: JsList<T>): JsList<T>.Runnable {
-    val runnable = list.Actions().map()
-    children.add(list)
-    return runnable
-}
-inline fun <reified T> JavaScript.filter(list: JsList<T>): JsList<T>.Runnable {
-    val runnable = list.Actions().filter()
-    children.add(list)
-    return runnable
-}
 inline fun <reified T> JavaScript.jsList(arguments: List<T>): JsList<T> {
-    val list = JsList(arguments = arguments).initialize()
+    val list = JsList(arguments = arguments)
     children.add(list)
-    return list
+    return list.initialize() as JsList<T>
 }
