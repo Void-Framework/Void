@@ -17,20 +17,25 @@ data class JsSet<T>(val baseList: JsList<T>): Keyword {
     }
 
     inner class Actions {
-        fun add(value: T) {
+        fun add(value: T): JsSet<T> {
             jsReturn += ".add($value)"
+            return this@JsSet
         }
-        fun has(value: T) {
+        fun has(value: T): JsSet<T> {
             jsReturn += ".has($value)"
+            return this@JsSet
         }
-        fun delete(value: T) {
+        fun delete(value: T): JsSet<T> {
             jsReturn += ".delete($value)"
+            return this@JsSet
         }
-        fun clear() {
+        fun clear(): JsSet<T> {
             jsReturn += ".clear()"
+            return this@JsSet
         }
-        fun size() {
+        fun size(): JsSet<T> {
             jsReturn += ".size"
+            return this@JsSet
         }
     }
 }

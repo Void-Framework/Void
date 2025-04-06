@@ -27,11 +27,13 @@ data class Object(val values: Map<String, Any?>): Keyword {
     }
 
     inner class Actions {
-        fun getValue(key: String) {
+        fun getValue(key: String): Object {
             jsReturn += ".$key"
+            return this@Object
         }
-        fun setValue(key: String, value: Any?) {
+        fun setValue(key: String, value: Any?): Object {
             jsReturn += ".$key = $value"
+            return this@Object
         }
     }
 }
@@ -43,8 +45,9 @@ data class ObjectsMethods(private val objectName: String): Keyword {
         return jsReturn
     }
 
-    fun delete(key: String) {
+    fun delete(key: String): ObjectsMethods {
         jsReturn = "delete $objectName.$key"
+        return this
     }
     fun keys(): JsList<String> {
         jsReturn += ".keys($objectName)"

@@ -27,23 +27,33 @@ data class JsMap<K, V>(val baseMap: Map<K, V>): Keyword {
     }
 
     inner class Actions {
-        fun set(key: K, value: V) {
+        fun set(key: K, value: V): JsMap<K, V> {
             jsReturn += ".set($key, $value)"
+            return this@JsMap
         }
-        fun get(key: K) {
+        fun get(key: K): JsMap<K, V> {
             jsReturn += ".get($key)"
+            return this@JsMap
         }
-        fun has(key: K) {
+        fun has(key: K): JsMap<K, V> {
             jsReturn += ".has($key)"
+            return this@JsMap
         }
-        fun delete(key: K) {
+        fun delete(key: K): JsMap<K, V> {
             jsReturn += ".delete($key)"
+            return this@JsMap
         }
-        fun clear() {
+        fun clear(): JsMap<K, V> {
             jsReturn += ".clear()"
+            return this@JsMap
         }
-        fun size() {
+        fun size(): JsMap<K, V> {
             jsReturn += ".size"
+            return this@JsMap
+        }
+        fun entries(): JsList<JsList<Any?>> {
+            jsReturn += ".entries()"
+            return JsList(listOf(JsList(listOf())))
         }
     }
 }
