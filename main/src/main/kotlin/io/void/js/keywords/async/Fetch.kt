@@ -2,7 +2,6 @@ package io.void.js.keywords.async
 
 import io.void.dto.ResponseDTO
 import io.void.js.JavaScript
-import io.void.js.exception.JsSyntaxException
 import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
 import java.net.URL
@@ -25,7 +24,6 @@ data class FetchFunction(
 data class Fetch(
     val data: ResponseDTO?,
     val url: URL,
-    val inAsyncFunction: Boolean = false
 ): Keyword {
 
     private var headers: String = ""
@@ -51,22 +49,19 @@ data class Fetch(
     }
 
     fun then(function: FetchFunction): Fetch {
-        if (inAsyncFunction) throw JsSyntaxException(this)
         jsReturn += ".then(${function.render()})"
         return this
     }
 
     fun catch(function: FetchFunction) {
-        if (inAsyncFunction) throw JsSyntaxException(this)
         jsReturn += ".catch(${function.render()})"
     }
 }
 
-fun JavaScript.fetch(data: ResponseDTO?, url: URL, inAsyncFunction: Boolean = false): Fetch {
+fun JavaScript.fetch(data: ResponseDTO?, url: URL): Fetch {
     val fetch = Fetch(
         data= data,
         url = url,
-        inAsyncFunction = inAsyncFunction
     )
     children.add(fetch)
     return fetch
