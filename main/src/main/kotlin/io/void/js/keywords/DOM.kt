@@ -2,6 +2,7 @@ package io.void.js.keywords
 
 import io.void.html.Element
 import io.void.js.JavaScript
+import io.void.js.keywords.datastructures.JsList
 
 class DOM: Keyword {
 
@@ -16,9 +17,9 @@ class DOM: Keyword {
         return HTMLElement()
     }
 
-    fun querySelectorAll(identifier: String): io.void.js.keywords.datastructures.JsList<HTMLElement> {
+    fun querySelectorAll(identifier: String): JsList<HTMLElement> {
         jsReturn = "document.querySelectorAll(\"$identifier\")"
-        return io.void.js.keywords.datastructures.JsList(listOf(HTMLElement()))
+        return JsList(listOf(HTMLElement()))
     }
 
     override fun render(): String {
@@ -43,7 +44,7 @@ fun JavaScript.id(id: String): DOM.HTMLElement {
     return dom.getElementById(id = id)
 }
 
-fun JavaScript.selectAll(identifier: String): io.void.js.keywords.datastructures.JsList<DOM.HTMLElement> {
+fun JavaScript.selectAll(identifier: String): JsList<DOM.HTMLElement> {
     val dom = DOM()
     children.add(dom)
     return dom.querySelectorAll(identifier = identifier)
