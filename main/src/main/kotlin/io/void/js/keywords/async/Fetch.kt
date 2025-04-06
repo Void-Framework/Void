@@ -28,7 +28,7 @@ data class Fetch(
 
     private var headers: String = ""
 
-    override var jsReturn: String = "fetch($url${if (data != null) {
+    override var jsReturn: String = "fetch(\"$url\"${if (data != null) {
         ", {method: '${data.statusText}', headers: {$headers}, body: ${data.body}"
     } else {
         ""
