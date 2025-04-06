@@ -6,14 +6,14 @@ import io.void.js.keywords.Keyword
 data class JsMap<K, V>(val baseMap: Map<K, V>): Keyword {
 
     override var jsReturn: String = ""
-    private var inside = ""
+    private var inside = StringBuilder("")
 
     init {
         baseMap.forEach { (key, value) ->
-            inside += "[$key, $value],"
+            inside.append("[$key, $value],")
         }
         if (baseMap.isNotEmpty()) {
-            inside.replaceAfterLast(",", "")
+            inside.setLength(inside.length - 1)
         }
     }
 
@@ -59,7 +59,7 @@ data class JsMap<K, V>(val baseMap: Map<K, V>): Keyword {
 }
 
 inline fun <reified K, reified V> JavaScript.map(baseMap: Map<K, V>): JsMap<K, V> {
-    val map = JsMap(baseMap = baseMap)
+    val map = JsMap(baseMap = baseMap).initialize()
     children.add(map)
     return map
 }

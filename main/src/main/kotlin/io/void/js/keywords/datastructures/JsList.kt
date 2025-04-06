@@ -92,3 +92,8 @@ inline fun <reified T> JavaScript.filter(list: JsList<T>): JsList<T>.Runnable {
     children.add(list)
     return runnable
 }
+inline fun <reified T> JavaScript.jsList(arguments: List<T>): JsList<T> {
+    val list = JsList(arguments = arguments).initialize()
+    children.add(list)
+    return list
+}

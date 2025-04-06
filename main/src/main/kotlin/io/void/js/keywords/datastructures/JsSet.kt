@@ -41,7 +41,7 @@ data class JsSet<T>(val baseList: JsList<T>): Keyword {
 }
 
 inline fun <reified T> JavaScript.set(baseList: JsList<T>): JsSet<T> {
-    val set = JsSet(baseList = baseList)
+    val set = JsSet(baseList = baseList).initialize()
     children.add(set)
     return set
 }
