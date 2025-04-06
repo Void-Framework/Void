@@ -11,7 +11,7 @@ data class JsList<T>(val arguments: List<T>): Keyword {
     override var jsReturn = ""
 
     override fun render(): String {
-        return "$jsReturn;"
+        return jsReturn
     }
 
     fun initialize(): JsList<T> {
