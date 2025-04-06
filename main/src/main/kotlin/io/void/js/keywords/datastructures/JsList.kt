@@ -26,7 +26,7 @@ data class JsList<T>(val arguments: List<T>): JsDatastructure {
 
     override fun initialize(): JsDatastructure {
         jsReturn = "[$inside]"
-        return JsList(arguments)
+        return this
     }
 
     inner class Actions {
