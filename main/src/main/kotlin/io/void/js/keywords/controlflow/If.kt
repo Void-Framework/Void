@@ -25,9 +25,10 @@ data class If(val condition: String, val _body: JavaScript.(Function) -> Unit, v
         return this
     }
 
-    fun Else(body: JavaScript.(Function) -> Unit) {
+    fun Else(body: JavaScript.(Function) -> Unit): If {
         body(js, this)
         jsReturn += "else {${children.joinToString(";") { it.render() }}}"
+        return this
     }
 }
 
