@@ -3,7 +3,7 @@ package io.void.js.keywords.datastructures
 import io.void.js.JavaScript
 import io.void.js.keywords.Keyword
 
-data class JsMap<K, V>(val baseMap: Map<K, V>): Keyword {
+data class JsMap<K, V>(val baseMap: Map<K, V>): JsDatastructure {
 
     override var jsReturn: String = ""
     private var inside = StringBuilder("")
@@ -21,7 +21,7 @@ data class JsMap<K, V>(val baseMap: Map<K, V>): Keyword {
         return jsReturn
     }
 
-    fun initialize(): JsMap<K, V> {
+    override fun initialize(): JsDatastructure {
         jsReturn = "new Map([$inside])"
         return this
     }
@@ -61,5 +61,5 @@ data class JsMap<K, V>(val baseMap: Map<K, V>): Keyword {
 inline fun <reified K, reified V> JavaScript.map(baseMap: Map<K, V>): JsMap<K, V> {
     val map = JsMap(baseMap = baseMap).initialize()
     children.add(map)
-    return map
+    return map as JsMap<K, V>
 }

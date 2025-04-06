@@ -3,7 +3,7 @@ package io.void.js.keywords.datastructures
 import io.void.js.JavaScript
 import io.void.js.keywords.Keyword
 
-data class JsSet<T>(val baseList: JsList<T>): Keyword {
+data class JsSet<T>(val baseList: JsList<T>): JsDatastructure {
 
     override var jsReturn: String = ""
 
@@ -11,7 +11,7 @@ data class JsSet<T>(val baseList: JsList<T>): Keyword {
         return jsReturn
     }
 
-    fun initialize(): JsSet<T> {
+    override fun initialize(): JsDatastructure {
         jsReturn = "new Set(${baseList.render()})"
         return this
     }
@@ -43,5 +43,5 @@ data class JsSet<T>(val baseList: JsList<T>): Keyword {
 inline fun <reified T> JavaScript.set(baseList: JsList<T>): JsSet<T> {
     val set = JsSet(baseList = baseList).initialize()
     children.add(set)
-    return set
+    return set as JsSet<T>
 }
