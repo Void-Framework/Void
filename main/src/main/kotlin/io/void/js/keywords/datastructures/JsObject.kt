@@ -26,15 +26,13 @@ data class JsObject(val values: Map<String, Any?>): JsDatastructure {
         return this
     }
 
-    inner class Actions {
-        fun getValue(key: String): JsObject {
-            jsReturn += ".$key"
-            return this@JsObject
-        }
-        fun setValue(key: String, value: Any?): JsObject {
-            jsReturn += ".$key = $value"
-            return this@JsObject
-        }
+    fun getValue(key: String): JsObject {
+        jsReturn += ".$key"
+        return this@JsObject
+    }
+    fun setValue(key: String, value: Any?): JsObject {
+        jsReturn += ".$key = $value"
+        return this@JsObject
     }
 }
 

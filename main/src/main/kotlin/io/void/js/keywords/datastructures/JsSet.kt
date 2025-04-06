@@ -16,27 +16,25 @@ data class JsSet<T>(val baseList: JsList<T>): JsDatastructure {
         return this
     }
 
-    inner class Actions {
-        fun add(value: T): JsSet<T> {
-            jsReturn += ".add($value)"
-            return this@JsSet
-        }
-        fun has(value: T): JsSet<T> {
-            jsReturn += ".has($value)"
-            return this@JsSet
-        }
-        fun delete(value: T): JsSet<T> {
-            jsReturn += ".delete($value)"
-            return this@JsSet
-        }
-        fun clear(): JsSet<T> {
-            jsReturn += ".clear()"
-            return this@JsSet
-        }
-        fun size(): JsSet<T> {
-            jsReturn += ".size"
-            return this@JsSet
-        }
+    fun add(value: T): JsSet<T> {
+        jsReturn += ".add($value)"
+        return this@JsSet
+    }
+    fun has(value: T): JsSet<T> {
+        jsReturn += ".has($value)"
+        return this@JsSet
+    }
+    fun delete(value: T): JsSet<T> {
+        jsReturn += ".delete($value)"
+        return this@JsSet
+    }
+    fun clear(): JsSet<T> {
+        jsReturn += ".clear()"
+        return this@JsSet
+    }
+    fun size(): JsSet<T> {
+        jsReturn += ".size"
+        return this@JsSet
     }
 }
 

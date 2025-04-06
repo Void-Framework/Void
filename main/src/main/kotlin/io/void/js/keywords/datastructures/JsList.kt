@@ -29,54 +29,51 @@ data class JsList<T>(val arguments: List<T>): JsDatastructure {
         return this
     }
 
-    inner class Actions {
-
-        fun forEach(): Runnable {
-            jsReturn += ".forEach("
-            return Runnable()
+    fun forEach(): Runnable {
+        jsReturn += ".forEach("
+        return Runnable()
+    }
+    fun push(item: String): JsList<T> {
+        jsReturn += ".push($item)"
+        return this@JsList
+    }
+    fun pop(): JsList<T> {
+        jsReturn += ".pop()"
+        return this@JsList
+    }
+    fun shift(): JsList<T> {
+        jsReturn += ".shift()"
+        return this@JsList
+    }
+    fun unshift(item: String): JsList<T> {
+        jsReturn += ".unshift($item)"
+        return this@JsList
+    }
+    fun splice(index: Int, count: Int? = null, item: List<String>?): JsList<T> {
+        jsReturn += ".splice($index${if (count != null) {
+            ", $count"
+        } else {
+            ""
         }
-        fun push(item: String): JsList<T> {
-            jsReturn += ".push($item)"
-            return this@JsList
+        }${if (item != null) {
+            ", ${item.joinToString(", ")}"
+        } else {
+            ""
         }
-        fun pop(): JsList<T> {
-            jsReturn += ".pop()"
-            return this@JsList
-        }
-        fun shift(): JsList<T> {
-            jsReturn += ".shift()"
-            return this@JsList
-        }
-        fun unshift(item: String): JsList<T> {
-            jsReturn += ".unshift($item)"
-            return this@JsList
-        }
-        fun splice(index: Int, count: Int? = null, item: List<String>?): JsList<T> {
-            jsReturn += ".splice($index${if (count != null) {
-                ", $count"
-            } else {
-                ""
-            }
-            }${if (item != null) {
-                ", ${item.joinToString(", ")}"
-            } else {
-                ""
-            }
-            })"
-            return this@JsList
-        }
-        fun map(): Runnable {
-            jsReturn += ".map("
-            return Runnable()
-        }
-        fun filter(): Runnable {
-            jsReturn += ".filter("
-            return Runnable()
-        }
-        fun includes(item: String): JsList<T> {
-            jsReturn += ".includes($item)"
-            return this@JsList
-        }
+        })"
+        return this@JsList
+    }
+    fun map(): Runnable {
+        jsReturn += ".map("
+        return Runnable()
+    }
+    fun filter(): Runnable {
+        jsReturn += ".filter("
+        return Runnable()
+    }
+    fun includes(item: String): JsList<T> {
+        jsReturn += ".includes($item)"
+        return this@JsList
     }
 
     inner class Runnable {
