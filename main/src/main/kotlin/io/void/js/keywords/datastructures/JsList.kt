@@ -25,19 +25,23 @@ data class JsList<T>(val arguments: List<T>): Keyword {
             jsReturn += ".forEach("
             return Runnable()
         }
-        fun push(item: String) {
+        fun push(item: String): JsList<T> {
             jsReturn += ".push($item)"
+            return this@JsList
         }
-        fun pop() {
+        fun pop(): JsList<T> {
             jsReturn += ".pop()"
+            return this@JsList
         }
-        fun shift() {
+        fun shift(): JsList<T> {
             jsReturn += ".shift()"
+            return this@JsList
         }
-        fun unshift(item: String) {
+        fun unshift(item: String): JsList<T> {
             jsReturn += ".unshift($item)"
+            return this@JsList
         }
-        fun splice(index: Int, count: Int? = null, item: List<String>?) {
+        fun splice(index: Int, count: Int? = null, item: List<String>?): JsList<T> {
             jsReturn += ".splice($index${if (count != null) {
                 ", $count"
             } else {
@@ -49,6 +53,7 @@ data class JsList<T>(val arguments: List<T>): Keyword {
                 ""
             }
             })"
+            return this@JsList
         }
         fun map(): Runnable {
             jsReturn += ".map("
@@ -58,8 +63,9 @@ data class JsList<T>(val arguments: List<T>): Keyword {
             jsReturn += ".filter("
             return Runnable()
         }
-        fun includes(item: String) {
+        fun includes(item: String): JsList<T> {
             jsReturn += ".includes($item)"
+            return this@JsList
         }
     }
 
