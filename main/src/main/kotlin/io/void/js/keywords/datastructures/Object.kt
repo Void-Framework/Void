@@ -6,14 +6,14 @@ import io.void.js.keywords.Keyword
 data class Object(val values: Map<String, Any?>): Keyword {
 
     override var jsReturn: String = ""
-    private var inside = ""
+    private var inside = StringBuilder("")
 
     init {
         values.forEach { (name, key) ->
-            inside += "$name: $key,"
+            inside.append("$name: $key,")
         }
         if (values.isNotEmpty()) {
-            inside.replaceAfterLast(",", "")
+            inside.setLength(inside.length - 1)
         }
     }
 
@@ -66,7 +66,7 @@ data class ObjectsMethods(private val objectName: String): Keyword {
 fun JavaScript.jsObject(values: Map<String, Any?>): Object {
     val Object = Object(
         values = values
-    )
+    ).initialize()
     children.add(Object)
     return Object
 }
