@@ -13,7 +13,11 @@ import io.void.js.data.get
 import io.void.js.data.setData
 import io.void.js.keywords.*
 import io.void.js.keywords.Function
-import io.void.js.keywords.datastructures.forEach
+import io.void.js.keywords.async.FetchFunction
+import io.void.js.keywords.async.fetch
+import io.void.js.keywords.controlflow.If
+import io.void.js.keywords.controlflow.While
+import io.void.js.keywords.datastructures.*
 import io.void.js.keywords.event.*
 import java.net.URL
 
@@ -39,7 +43,7 @@ class HomeRoute : Page(target = "/") {
         })
 
         // Test event handling on all buttons
-        forEach(selectAll("button")).run(function("handleButtonClick", listOf("button")) {
+        selectAll("button").forEach().run(function("handleButtonClick", listOf("button")) {
             it.put(Call("button", {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
@@ -56,7 +60,7 @@ class HomeRoute : Page(target = "/") {
         })
 
         // Test dynamic class toggling
-        forEach(selectAll("article")).run(function("handleArticleHover", listOf("article")) {
+        selectAll("article").forEach().run(function("handleArticleHover", listOf("article")) {
             it.put(Call("article", {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.MOUSEOVER), EventFunction(
@@ -88,13 +92,145 @@ class HomeRoute : Page(target = "/") {
             Fractal("Update Title")
         })
 
-        forEach(selectAll("#footer button")).run(function("footerButton", listOf("button")) {
+        selectAll("#footer button").forEach().run(function("footerButton", listOf("button")) {
             it.put(Call("button", {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
                 stopReload = true,
                 _body = { js ->
                     js.put(run(updateTitleFunction, emptyList()))
+                },
+                js = this,
+                eventValueName = ""
+            ))))
+        })
+
+        // Test data structures
+        val userList = declare(
+            constant = true,
+            name = "userList",
+            value = JsList(listOf("\"John\"", "\"Jane\"", "\"Bob\"")).initialize()
+        ) as JavaScript.Variable.Constant
+        val userMap = declare(
+            constant = true,
+            name = "userMap",
+            value = JsMap(mapOf(
+                "\"admin\"" to "\"John\"",
+                "\"moderator\"" to "\"Jane\"",
+                "\"user\"" to "\"Bob\""
+            )).initialize()
+        ) as JavaScript.Variable.Constant
+        val userObject = declare(
+            constant = true,
+            name = "userObject",
+            value = JsObject(mapOf(
+                "name" to "\"John\"",
+                "age" to 30,
+                "roles" to listOf("\"admin\"", "\"user\"")
+            )).initialize()
+        ) as JavaScript.Variable.Constant
+
+        // Test control flow with data structures
+        call("userList", {
+            forEach().run(function("displayUser", listOf("user")) {
+                it.put(If("user === 'John'", _body = { body ->
+                    body.put(Call<Function>("console", "log('Found admin: ' + user)"))
+                }, js = this).ElseIf("user === 'Jane'") { body ->
+                    body.put(Call<Function>("console", "log('Found moderator: ' + user)"))
+                }.Else { body ->
+                    body.put(Call<Function>("console", "log('Found user: ' + user)"))
+                })
+            })
+        }, JsList<String>(listOf()))
+
+        // Test DOM manipulation with data structures
+        /*id("user-list").html(Div {
+            H3 { Fractal("User List") }
+            Ul {
+                call("userList", {
+                    forEach().run(function("createUserItem", listOf("user")) {
+                        it.put(Call("user", {
+                            this.HTMLElement().html(Li { Fractal("\${user}") })
+                        }, DOM()))
+                    })
+                }, JsList<String>(listOf()))
+            }
+        })*/
+
+        // Test fetch with data handling
+        fetch(null, URL("https://api.example.com/users"))
+            .then(FetchFunction({ js ->
+                js.put(Call<Function>("console", "log('Fetched users')"))
+                // Process response
+                js.put(Call<DOM>("response", {
+                    this.HTMLElement().text("Data fetched successfully")
+                }, DOM()))
+            }, "response"))
+            .catch(FetchFunction({ js ->
+                js.put(Call<Function>("console", "log('Error fetching users')"))
+                // Handle error
+                js.put(Call<DOM>("error", {
+                    this.HTMLElement().text("Error fetching data")
+                }, DOM()))
+            }, "error"))
+
+        // Test loops with map
+        declare(
+            constant = false,
+            name = "i",
+            value = 0
+            )
+        While("i < 5") {
+            it.put(Call<Function>("console", "log('Processing users...')"))
+            it.put(Call("userMap", {
+                entries().forEach().run(function("processEntry", listOf("entry")) { function ->
+                    function.put(Call("entry", {
+                        this.HTMLElement().text("Role: \${entry[0]}, User: \${entry[1]}")
+                    }, DOM()))
+                })
+            }, JsMap<String, String>(mapOf())))
+            it.put(InlineCall("i++"))
+        }
+
+        // Test object manipulation
+        objectMethod("userObject").keys().forEach().run(function("displayKey", listOf("key")) {
+            it.put(Call("key", {
+                this.HTMLElement().text("User property: \$key")
+            }, DOM()))
+        })
+
+        // Add interactive test button
+        id("test-button").html(Button(
+            attribute {
+                name = AttributeNames.CLASS
+                value = "bg-blue-500 text-white px-4 py-2 rounded"
+            }
+        ) {
+            Fractal("Run Data Structure Tests")
+        })
+
+        // Add event listener for test button
+        selectAll("#test-button button").forEach().run(function("buttonHandler", listOf("button")) {
+            it.put(Call("button", {
+                this.render()
+            }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
+                stopReload = true,
+                _body = { js ->
+                    // Test map operations
+                    js.put(Call("userMap", {
+                        set("newRole", "Alice")
+                    }, JsMap<String, String>(mapOf())))
+                    js.put(Call<Function>("console", "log('Added new user to map')"))
+
+                    // Test list operations
+                    js.put(Call("userMap", {
+                        push("Alice")
+                    }, JsList<String>(listOf())))
+                    js.put(Call<Function>("console", "log('Added new user to list')"))
+
+                    // Test object operations
+                    js.put(ObjectsMethods("userObject").delete("age"))
+                    js.put(Call<Function>("console", "log('Deleted age from user object')"))
                 },
                 js = this,
                 eventValueName = ""
