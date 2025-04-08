@@ -26,13 +26,13 @@ data class JsObject(val values: Map<String, Any?>): JsDatastructure {
         return this
     }
 
-    fun getValue(key: String): JsObject {
+    fun getValue(key: String): Void {
         jsReturn += ".$key"
-        return this@JsObject
+        return Void()
     }
-    fun setValue(key: String, value: Any?): JsObject {
+    fun setValue(key: String, value: Any?): Void {
         jsReturn += ".$key = $value"
-        return this@JsObject
+        return Void()
     }
 }
 
@@ -43,9 +43,9 @@ data class ObjectsMethods(private val objectName: String): Keyword {
         return jsReturn
     }
 
-    fun delete(key: String): ObjectsMethods {
+    fun delete(key: String): Void {
         jsReturn = "delete $objectName.$key"
-        return this
+        return Void()
     }
     fun keys(): JsList<String> {
         jsReturn += ".keys($objectName)"
