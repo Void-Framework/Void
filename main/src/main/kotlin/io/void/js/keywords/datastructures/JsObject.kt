@@ -36,7 +36,7 @@ data class JsObject(val values: Map<String, Any?>): JsDatastructure {
     }
 }
 
-data class ObjectsMethods(private val objectName: String, val js: JavaScript): Keyword {
+data class ObjectsMethods(private val objectName: String): Keyword {
     override var jsReturn: String = "Object"
 
     override fun render(): String {
@@ -47,22 +47,19 @@ data class ObjectsMethods(private val objectName: String, val js: JavaScript): K
         jsReturn = "delete $objectName.$key"
         return Void()
     }
-    fun keys(): JsList<String> {
+    fun keys(): JsDatastructure {
         jsReturn += ".keys($objectName)"
         val list = JsList<String>(listOf())
-        js.children.add(list)
         return list
     }
     fun values(): JsList<Any> {
         jsReturn += ".values($objectName)"
         val list = JsList<Any>(listOf())
-        js.children.add(list)
         return list
     }
     fun entries(): JsList<JsList<Any>> {
         jsReturn += ".entries($objectName)"
         val list = JsList<JsList<Any>>(listOf())
-        js.children.add(list)
         return list
     }
 }
@@ -77,8 +74,7 @@ fun JavaScript.jsObject(values: Map<String, Any?>): JsObject {
 
 fun JavaScript.objectMethod(objectName: String): ObjectsMethods {
     val methods = ObjectsMethods(
-        objectName = objectName,
-        js = this
+        objectName = objectName
     )
     children.add(methods)
     return methods

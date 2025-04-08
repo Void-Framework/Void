@@ -28,11 +28,6 @@ data class JsList<T>(val arguments: List<T>): JsDatastructure {
         jsReturn = "[$inside]"
         return this
     }
-
-    fun forEach(): Runnable {
-        jsReturn += ".forEach("
-        return Runnable()
-    }
     fun push(item: String): Void {
         jsReturn += ".push($item)"
         return Void()
@@ -65,23 +60,15 @@ data class JsList<T>(val arguments: List<T>): JsDatastructure {
     }
     fun map(): Runnable {
         jsReturn += ".map("
-        return Runnable()
+        return Runnable(this)
     }
     fun filter(): Runnable {
         jsReturn += ".filter("
-        return Runnable()
+        return Runnable(this)
     }
     fun includes(item: String): Void {
         jsReturn += ".includes($item)"
         return Void()
-    }
-
-    inner class Runnable {
-        fun run(function: Function): Void {
-            val random = DataHandler.randomString(5)
-            jsReturn += "$random => ${function.run(listOf(random))})"
-            return Void()
-        }
     }
 }
 
