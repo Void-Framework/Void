@@ -33,7 +33,12 @@ class DOM: Keyword {
         }
 
         fun text(newValue: String) {
-            jsReturn += ".textContent = \"$newValue\""
+            jsReturn += ".textContent = ${if (!newValue.contains("(?<!\\\\)\\\$\\{[^}]".toRegex())){
+                "\"$newValue\""
+            } else {
+                "`$newValue`"
+            }
+            }"
         }
     }
 }
