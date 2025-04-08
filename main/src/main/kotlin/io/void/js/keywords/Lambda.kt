@@ -20,3 +20,13 @@ data class Lambda(
         return "(${_arguments.joinToString(", ")} => {${children.joinToString(";") { it.render() }}})"
     }
 }
+
+fun JavaScript.Lambda(body: JavaScript.(Function) -> Unit, arguments: List<String>): Lambda {
+    val lambda = Lambda(
+        _body = body,
+        _arguments = arguments,
+        js = this
+    )
+    children.add(lambda)
+    return lambda
+}
