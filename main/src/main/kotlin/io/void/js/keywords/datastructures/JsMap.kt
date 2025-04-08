@@ -1,9 +1,10 @@
 package io.void.js.keywords.datastructures
 
 import io.void.js.JavaScript
+import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
 
-data class JsMap<K, V>(val baseMap: Map<K, V>, val js: JavaScript): JsDatastructure {
+data class JsMap<K, V>(val baseMap: Map<K, V>): JsDatastructure {
 
     override var jsReturn: String = ""
     private var inside = StringBuilder("")
@@ -50,18 +51,15 @@ data class JsMap<K, V>(val baseMap: Map<K, V>, val js: JavaScript): JsDatastruct
         jsReturn += ".size"
         return Void()
     }
-    fun entries(): JsList<JsList<Any?>> {
+    fun entries(): JsMap<K, V> {
         jsReturn += ".entries()"
-        val list = JsList<JsList<Any?>>(listOf())
-        js.children.add(list)
-        return list
+        return this
     }
 }
 
 inline fun <reified K, reified V> JavaScript.map(baseMap: Map<K, V>): JsMap<K, V> {
     val map = JsMap(
         baseMap = baseMap,
-        js = this
     ).initialize()
     children.add(map)
     return map as JsMap<K, V>

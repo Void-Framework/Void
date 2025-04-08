@@ -118,7 +118,7 @@ class HomeRoute : Page(target = "/") {
                 "\"admin\"" to "\"John\"",
                 "\"moderator\"" to "\"Jane\"",
                 "\"user\"" to "\"Bob\""
-            ), js = this).initialize()
+            )).initialize()
         ) as JavaScript.Variable.Constant
         val userObject = declare(
             constant = true,
@@ -188,14 +188,14 @@ class HomeRoute : Page(target = "/") {
                         this.HTMLElement().text("Role: \${entry[0]}, User: \${entry[1]}")
                     }, DOM()))
                 })
-            }, JsMap<String, String>(mapOf(), this@JavaScript)))
+            }, JsMap<String, String>(mapOf())))
             it.put(InlineCall(operation = "i++"))
         }
 
         // Test object manipulation
         objectMethod("userObject").keys().forEach().run(function("displayKey", listOf("key")) {
             it.put(Call("key", {
-                this.HTMLElement().text("User property: \$key")
+                this.HTMLElement().text("User property: \${key}")
             }, DOM()))
         })
 
@@ -219,7 +219,7 @@ class HomeRoute : Page(target = "/") {
                     // Test map operations
                     js.put(Call("userMap", {
                         set("newRole", "Alice")
-                    }, JsMap<String, String>(mapOf(), this@JavaScript)))
+                    }, JsMap<String, String>(mapOf())))
                     js.put(Call<Function>("console", "log('Added new user to map')"))
 
                     // Test list operations
@@ -229,7 +229,7 @@ class HomeRoute : Page(target = "/") {
                     js.put(Call<Function>("console", "log('Added new user to list')"))
 
                     // Test object operations
-                    js.put(ObjectsMethods("userObject", this@JavaScript).delete("age"))
+                    js.put(ObjectsMethods("userObject").delete("age"))
                     js.put(Call<Function>("console", "log('Deleted age from user object')"))
                 },
                 js = this,
