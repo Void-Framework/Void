@@ -3,6 +3,7 @@ package io.void.js.keywords
 import io.void.html.Element
 import io.void.js.JavaScript
 import io.void.js.keywords.datastructures.JsList
+import io.void.js.keywords.string.TemplateString
 
 class DOM: Keyword {
 
@@ -33,7 +34,7 @@ class DOM: Keyword {
         }
 
         fun text(newValue: String) {
-            jsReturn += ".textContent = ${if (!newValue.contains("(?<!\\\\)\\\$\\{[^}]".toRegex())){
+            jsReturn += ".textContent = ${if (!TemplateString.isTemplateString(newValue)) {
                 "\"$newValue\""
             } else {
                 "`$newValue`"
