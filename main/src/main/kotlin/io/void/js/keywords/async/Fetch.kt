@@ -8,12 +8,18 @@ import java.net.URL
 
 data class FetchFunction(
     val _body: JavaScript.(Function) -> Unit,
-    val responseArgName: String
+    val responseArgName: String,
+    val js: JavaScript
 ): Function(
     name = "",
     arguments = listOf(responseArgName),
     body = _body
 ) {
+
+    init {
+        body(js, this)
+    }
+
     override var jsReturn: String = "$responseArgName => {${children.joinToString(";") { it.render() }}}"
 
     override fun render(): String {

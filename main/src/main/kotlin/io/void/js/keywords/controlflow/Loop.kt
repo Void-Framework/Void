@@ -13,14 +13,14 @@ data class While(
     body = _body
 ) {
 
-    override var jsReturn: String = "while($condition) {${children.joinToString(";") { it.render() }}}"
-
     init {
-        _body(js, this)
+        body(js, this)
     }
 
+    override var jsReturn: String = "while($condition) {"
+
     override fun render(): String {
-        return jsReturn
+        return "$jsReturn${children.joinToString(";") { it.render() }}}"
     }
 }
 
@@ -34,11 +34,11 @@ data class For(
     body = _body
 ) {
 
-    override var jsReturn: String = "for($condition) {${children.joinToString(";") { it.render() }}}"
-
     init {
-        _body(js, this)
+        body(js, this)
     }
+
+    override var jsReturn: String = "for($condition) {${children.joinToString(";") { it.render() }}}"
 
     override fun render(): String {
         return jsReturn
