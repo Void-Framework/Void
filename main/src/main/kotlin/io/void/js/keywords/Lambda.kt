@@ -1,0 +1,22 @@
+package io.void.js.keywords
+
+import io.void.js.JavaScript
+
+data class Lambda(
+    val _arguments: List<String>,
+    val _body: JavaScript.(Function) -> Unit,
+    val js: JavaScript
+): Function(
+    name = "",
+    body = _body,
+    arguments = _arguments
+) {
+
+    init {
+        body(js, this)
+    }
+
+    override fun render(): String {
+        return "(${_arguments.joinToString(", ")} => {${children.joinToString(";") { it.render() }}})"
+    }
+}
