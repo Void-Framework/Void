@@ -33,21 +33,21 @@ data class JsList<T>(val arguments: List<T>): JsDatastructure {
         jsReturn += ".forEach("
         return Runnable()
     }
-    fun push(item: String): JsList<T> {
+    fun push(item: String): Void {
         jsReturn += ".push($item)"
-        return this@JsList
+        return Void()
     }
-    fun pop(): JsList<T> {
+    fun pop(): Void {
         jsReturn += ".pop()"
-        return this@JsList
+        return Void()
     }
-    fun shift(): JsList<T> {
+    fun shift(): Void {
         jsReturn += ".shift()"
-        return this@JsList
+        return Void()
     }
-    fun unshift(item: String): JsList<T> {
+    fun unshift(item: String): Void {
         jsReturn += ".unshift($item)"
-        return this@JsList
+        return Void()
     }
     fun splice(index: Int, count: Int? = null, item: List<String>?): JsList<T> {
         jsReturn += ".splice($index${if (count != null) {
@@ -71,15 +71,16 @@ data class JsList<T>(val arguments: List<T>): JsDatastructure {
         jsReturn += ".filter("
         return Runnable()
     }
-    fun includes(item: String): JsList<T> {
+    fun includes(item: String): Void {
         jsReturn += ".includes($item)"
-        return this@JsList
+        return Void()
     }
 
     inner class Runnable {
-        fun run(function: Function) {
+        fun run(function: Function): Void {
             val random = DataHandler.randomString(5)
             jsReturn += "$random => ${function.run(listOf(random))})"
+            return Void()
         }
     }
 }

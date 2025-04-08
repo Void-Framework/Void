@@ -30,25 +30,25 @@ data class JsMap<K, V>(val baseMap: Map<K, V>): JsDatastructure {
         jsReturn += ".set($key, $value)"
         return this@JsMap
     }
-    fun get(key: K): JsMap<K, V> {
+    fun get(key: K): Void {
         jsReturn += ".get($key)"
-        return this@JsMap
+        return Void()
     }
-    fun has(key: K): JsMap<K, V> {
+    fun has(key: K): Void {
         jsReturn += ".has($key)"
-        return this@JsMap
+        return Void()
     }
-    fun delete(key: K): JsMap<K, V> {
+    fun delete(key: K): Void {
         jsReturn += ".delete($key)"
-        return this@JsMap
+        return Void()
     }
-    fun clear(): JsMap<K, V> {
+    fun clear(): Void {
         jsReturn += ".clear()"
-        return this@JsMap
+        return Void()
     }
-    fun size(): JsMap<K, V> {
+    fun size(): Void {
         jsReturn += ".size"
-        return this@JsMap
+        return Void()
     }
     fun entries(): JsList<JsList<Any?>> {
         jsReturn += ".entries()"
