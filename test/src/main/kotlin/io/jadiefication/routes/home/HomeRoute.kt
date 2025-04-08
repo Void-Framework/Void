@@ -118,7 +118,7 @@ class HomeRoute : Page(target = "/") {
                 "\"admin\"" to "\"John\"",
                 "\"moderator\"" to "\"Jane\"",
                 "\"user\"" to "\"Bob\""
-            )).initialize()
+            ), js = this).initialize()
         ) as JavaScript.Variable.Constant
         val userObject = declare(
             constant = true,
@@ -165,14 +165,14 @@ class HomeRoute : Page(target = "/") {
                 js.put(Call<DOM>("response", {
                     this.HTMLElement().text("Data fetched successfully")
                 }, DOM()))
-            }, "response"))
+            }, "response", this))
             .catch(FetchFunction({ js ->
                 js.put(Call<Function>("console", "log('Error fetching users')"))
                 // Handle error
                 js.put(Call<DOM>("error", {
                     this.HTMLElement().text("Error fetching data")
                 }, DOM()))
-            }, "error"))
+            }, "error", this))
 
         // Test loops with map
         declare(
@@ -188,8 +188,8 @@ class HomeRoute : Page(target = "/") {
                         this.HTMLElement().text("Role: \${entry[0]}, User: \${entry[1]}")
                     }, DOM()))
                 })
-            }, JsMap<String, String>(mapOf())))
-            it.put(InlineCall("i++"))
+            }, JsMap<String, String>(mapOf(), this@JavaScript)))
+            it.put(InlineCall(operation = "i++"))
         }
 
         // Test object manipulation
@@ -219,7 +219,7 @@ class HomeRoute : Page(target = "/") {
                     // Test map operations
                     js.put(Call("userMap", {
                         set("newRole", "Alice")
-                    }, JsMap<String, String>(mapOf())))
+                    }, JsMap<String, String>(mapOf(), this@JavaScript)))
                     js.put(Call<Function>("console", "log('Added new user to map')"))
 
                     // Test list operations
@@ -229,7 +229,7 @@ class HomeRoute : Page(target = "/") {
                     js.put(Call<Function>("console", "log('Added new user to list')"))
 
                     // Test object operations
-                    js.put(ObjectsMethods("userObject").delete("age"))
+                    js.put(ObjectsMethods("userObject", this@JavaScript).delete("age"))
                     js.put(Call<Function>("console", "log('Deleted age from user object')"))
                 },
                 js = this,
