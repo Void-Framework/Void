@@ -47,5 +47,7 @@ fun JavaScript.id(id: String): DOM.HTMLElement {
 fun JavaScript.selectAll(identifier: String): JsList<DOM.HTMLElement> {
     val dom = DOM()
     children.add(dom)
-    return dom.querySelectorAll(identifier = identifier)
+    val list = dom.querySelectorAll(identifier = identifier)
+    children.add(list)
+    return list
 }
