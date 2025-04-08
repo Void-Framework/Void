@@ -59,8 +59,14 @@ data class Fetch(
         return this
     }
 
-    fun catch(function: FetchFunction) {
+    fun catch(function: FetchFunction): Fetch {
         jsReturn += ".catch(${function.render()})"
+        return this
+    }
+
+    fun finally(function: FetchFunction): Fetch {
+        jsReturn += ".finally(${function.render()})"
+        return this
     }
 }
 
