@@ -3,6 +3,7 @@ package io.void.js.keywords
 import io.void.js.JavaScript
 import io.void.js.keywords.datastructures.JsList
 import io.void.js.keywords.datastructures.Void
+import io.void.js.keywords.string.TemplateString
 
 class Console: Keyword {
 
@@ -12,15 +13,30 @@ class Console: Keyword {
         return jsReturn
     }
     fun error(message: String): Void {
-        jsReturn += ".error(\"$message\")"
+        jsReturn += ".error(${if (TemplateString.isTemplateString(message)) {
+            TemplateString.turnToTemplateString(message)
+        } else {
+            "\"$message\""
+        }
+        })"
         return Void()
     }
     fun info(message: String): Void {
-        jsReturn += ".info(\"$message\")"
+        jsReturn += ".info(${if (TemplateString.isTemplateString(message)) {
+            TemplateString.turnToTemplateString(message)
+        } else {
+            "\"$message\""
+        }
+        })"
         return Void()
     }
     fun log(message: String): Void {
-        jsReturn += ".log(\"$message\")"
+        jsReturn += ".log(${if (TemplateString.isTemplateString(message)) {
+            TemplateString.turnToTemplateString(message)
+        } else {
+            "\"$message\""
+        }
+        })"
         return Void()
     }
     fun table(list: JsList<*>): Void {
@@ -28,7 +44,12 @@ class Console: Keyword {
         return Void()
     }
     fun warn(message: String): Void {
-        jsReturn += ".warn(\"$message\")"
+        jsReturn += ".warn(${if (TemplateString.isTemplateString(message)) {
+            TemplateString.turnToTemplateString(message)
+        } else {
+            "\"$message\""
+        }
+        })"
         return Void()
     }
 }

@@ -3,6 +3,7 @@ package io.void.js.keywords.async
 import io.void.js.JavaScript
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.datastructures.Void
+import io.void.js.keywords.string.TemplateString
 import java.net.URL
 
 class Window: Keyword {
@@ -14,7 +15,17 @@ class Window: Keyword {
     }
 
     fun alert(message: String?): Void {
-        jsReturn += ".alert(\"${message ?: ""}\")"
+        jsReturn += ".alert(${
+            if (message != null) {
+                if (TemplateString.isTemplateString(message)) {
+                    TemplateString.turnToTemplateString(message)
+                } else {
+                    "\"$message\""
+                }
+            } else {
+                "\"\""
+            }
+        })"
         return Void()
     }
     fun open(url: URL? = null, name: String? = null, specs: List<String>? = null): Window {
@@ -22,7 +33,12 @@ class Window: Keyword {
         return Window()
     }
     fun confirm(message: String): Void {
-        jsReturn += ".confirm(\"$message\")"
+        jsReturn += ".confirm(${if (TemplateString.isTemplateString(message)) {
+            TemplateString.turnToTemplateString(message)
+        } else {
+            "\"$message\""
+        }
+        })"
         return Void()
     }
     fun history(): History {
@@ -30,16 +46,41 @@ class Window: Keyword {
         return History()
     }
     fun href(url: URL?): Void {
-        jsReturn += ".location.href${if (url != null) {
-            " = \"$url\""
-        } else {
-            ""
-        }
+        jsReturn += ".location.href${
+            if (url != null) {
+                if (TemplateString.isTemplateString(url.toString())) {
+                    TemplateString.turnToTemplateString(url.toString())
+                } else {
+                    "\"$url\""
+                }
+            } else {
+                "\"\""
+            }
         }"
         return Void()
     }
     fun prompt(message: String? = null, defaultText: String? = null): Void {
-        jsReturn += ".prompt(\"${message ?: ""}\", \"${defaultText ?: ""}\")"
+        jsReturn += ".prompt(${
+            if (message != null) {
+                if (TemplateString.isTemplateString(message)) {
+                    TemplateString.turnToTemplateString(message)
+                } else {
+                    "\"$message\""
+                }
+            } else {
+                "\"\""
+            }
+        }, ${
+            if (message != null) {
+                if (TemplateString.isTemplateString(message)) {
+                    TemplateString.turnToTemplateString(message)
+                } else {
+                    "\"$message\""
+                }
+            } else {
+                "\"\""
+            }
+        })"
         return Void()
     }
     fun scrollBy(x: Int, y: Int): Void {
