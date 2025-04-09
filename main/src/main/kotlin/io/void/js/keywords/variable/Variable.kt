@@ -4,5 +4,5 @@ import io.void.js.keywords.Keyword
 
 interface Variable<T>: Keyword {
     val name: String
-    val value: T
+    val value: T?
 }
