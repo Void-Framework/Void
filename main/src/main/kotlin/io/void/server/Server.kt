@@ -67,32 +67,34 @@ class Server(private val router: Router) {
     }
 
     fun startHTTPSServer(port: Int, password: String, file: File, needsAuth: Boolean) {
-        val paswd = password.toCharArray()
-        try {
-            FileInputStream(file).use { keystore.load(it, paswd) }
+        Thread {
+            val paswd = password.toCharArray()
+            try {
+                FileInputStream(file).use { keystore.load(it, paswd) }
 
-            val kmf = KeyManagerFactory.getInstance("SunX509")
-            kmf.init(keystore, paswd)
+                val kmf = KeyManagerFactory.getInstance("SunX509")
+                kmf.init(keystore, paswd)
 
-            context.init(kmf.keyManagers, null, SecureRandom())
-            val factory = context.serverSocketFactory
+                context.init(kmf.keyManagers, null, SecureRandom())
+                val factory = context.serverSocketFactory
 
-            val server = factory.createServerSocket(port) as SSLServerSocket
-            isHTTPSOn = true
-            server.needClientAuth = needsAuth
-            while (server.isBound) {
-                val client = server.accept() as SSLSocket
-                client.startHandshake()
-                scope.launch {
-                    try {
-                        ClientHandler(client = client).setRouter(router = router).start()
-                    } catch (e: Exception) {
-                        ClientHandler(client = client).error(e = e)
+                val server = factory.createServerSocket(port) as SSLServerSocket
+                isHTTPSOn = true
+                server.needClientAuth = needsAuth
+                while (server.isBound) {
+                    val client = server.accept() as SSLSocket
+                    client.startHandshake()
+                    scope.launch {
+                        try {
+                            ClientHandler(client = client).setRouter(router = router).start()
+                        } catch (e: Exception) {
+                            ClientHandler(client = client).error(e = e)
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        }.start()
     }
 }
