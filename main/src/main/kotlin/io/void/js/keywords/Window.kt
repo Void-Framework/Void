@@ -1,14 +1,14 @@
-package io.void.js.keywords.async
+package io.void.js.keywords
 
 import io.void.js.JavaScript
-import io.void.js.keywords.Keyword
 import io.void.js.keywords.datastructures.Void
 import io.void.js.keywords.string.TemplateString
+import io.void.js.keywords.variable.Variable
 import java.net.URL
 
-class Window: Keyword {
+class Window(val window: Variable<Window>? = null): Keyword {
 
-    override var jsReturn: String = "window"
+    override var jsReturn: String = window?.name ?: "window"
 
     override fun render(): String {
         return jsReturn
