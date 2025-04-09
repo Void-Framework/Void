@@ -19,6 +19,8 @@ import io.void.js.keywords.controlflow.If
 import io.void.js.keywords.controlflow.While
 import io.void.js.keywords.datastructures.*
 import io.void.js.keywords.event.*
+import io.void.js.keywords.variable.const
+import io.void.js.keywords.variable.let
 import java.net.URL
 
 class HomeRoute : Page(target = "/") {
@@ -106,29 +108,26 @@ class HomeRoute : Page(target = "/") {
         })
 
         // Test data structures
-        val userList = declare(
-            constant = true,
+        val userList = const(
             name = "userList",
             value = JsList(listOf("\"John\"", "\"Jane\"", "\"Bob\"")).initialize()
-        ) as JavaScript.Variable.Constant
-        val userMap = declare(
-            constant = true,
+        )
+        val userMap = const(
             name = "userMap",
             value = JsMap(mapOf(
                 "\"admin\"" to "\"John\"",
                 "\"moderator\"" to "\"Jane\"",
                 "\"user\"" to "\"Bob\""
             )).initialize()
-        ) as JavaScript.Variable.Constant
-        val userObject = declare(
-            constant = true,
+        )
+        val userObject = const(
             name = "userObject",
             value = JsObject(mapOf(
                 "name" to "\"John\"",
                 "age" to 30,
                 "roles" to listOf("\"admin\"", "\"user\"")
             )).initialize()
-        ) as JavaScript.Variable.Constant
+        )
 
         // Test control flow with data structures
         call("userList", {
@@ -175,8 +174,7 @@ class HomeRoute : Page(target = "/") {
             }, "error", this))
 
         // Test loops with map
-        declare(
-            constant = false,
+        let(
             name = "i",
             value = 0
             )
