@@ -3,7 +3,7 @@ package io.void.js.keywords.variable
 import io.void.js.JavaScript
 import io.void.js.keywords.Keyword
 
-data class Let<T>(val value: T, val name: String): Variable {
+data class Let<T>(override val value: T, override val name: String): Variable<T> {
 
     override var jsReturn: String = "let $name = $value"
 
