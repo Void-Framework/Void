@@ -2,7 +2,6 @@ package io.void.server
 
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.ResponseDTO
-import io.void.http.builder.HTTPBuilder
 import io.void.router.Router
 import io.void.server.exception.HTTPSNotOnException
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +27,6 @@ class Server(private val router: Router) {
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
     var isHTTPSOn = false
-    private val builder: HTTPBuilder = HTTPBuilder()
 
     fun startHTTPServer(port: Int, routeToHTTPS: Boolean = false) {
         Thread {
@@ -38,7 +36,7 @@ class Server(private val router: Router) {
                     val client = socket.accept()
                     if (routeToHTTPS) {
                         if (isHTTPSOn) {
-                            builder.build(
+                            ResponseDTO.build(
                                 response = ResponseDTO(
                                     status = 301,
                                     statusText = "Moved Permanently",

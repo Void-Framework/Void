@@ -10,7 +10,6 @@ import io.void.html.exceptions.IExceptionPage
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
-import io.void.http.builder.HTTPBuilder
 import io.void.middleware.Middleware
 import io.void.router.exceptions.RouteNoTargetException
 import io.void.router.exceptions.RouteTargetUsedException
@@ -29,7 +28,6 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
 
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
-    override val builder = HTTPBuilder()
     private var exceptionPage = ExceptionPage(e = Exception())
     private var nullPage: Page<*>? = null
 
@@ -92,7 +90,7 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
         middleware?.let {
             val response = middlewareProcess(requestDTO, MiddlewareTime.BEFORE)
             if (response != null) {
-                builder.build(
+                ResponseDTO.build(
                     response = response,
                     outputStream = client.getOutputStream()
                 )
@@ -139,7 +137,7 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
                         body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>"
                     )
                 }
-            builder.build(
+            ResponseDTO.build(
                 response = response,
                 outputStream = client.getOutputStream()
             )
@@ -148,7 +146,7 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
                 type = MiddlewareTime.AFTER
             )
             if (lateResponse != null) {
-                builder.build(
+                ResponseDTO.build(
                     response = lateResponse,
                     outputStream = client.getOutputStream()
                 )
@@ -170,7 +168,7 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
         } catch (_: Exception) {
 
         }
-        builder.build(
+        ResponseDTO.build(
             response = ResponseDTO(status = statusCode ?: 500,
                 statusText = statusMessage ?: "Server Error",
                 headers = headers ?: mutableMapOf(
