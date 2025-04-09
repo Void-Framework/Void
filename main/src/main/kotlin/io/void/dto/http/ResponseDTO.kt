@@ -1,5 +1,7 @@
 package io.void.dto.http
 
+import java.io.OutputStream
+import java.io.PrintWriter
 import kotlin.reflect.full.memberProperties
 
 typealias JSON = MutableMap<String, Any?>
@@ -12,6 +14,24 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
             keyAndValue.forEach {
                 generateJson(it.key, it.value)
             }
+        }
+
+        fun build(response: ResponseDTO, outputStream: OutputStream)  {
+            val writer = PrintWriter(outputStream, true)
+            writer.println("HTTP/1.1 ${response.status} ${response.statusText}")
+
+            val responseBody = response.body
+            if (!response.headers.containsKey("Content-Length")) {
+                response.headers["Content-Length"] = responseBody.toByteArray().size.toString()
+            }
+
+            for ((key, value) in response.headers.entries) {
+                writer.println("$key: $value")
+            }
+            writer.println()
+            writer.println(response.body)
+
+            writer.flush()
         }
 
         private fun generateJson(key: String, value: Any?): String? {

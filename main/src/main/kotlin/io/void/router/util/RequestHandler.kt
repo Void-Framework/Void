@@ -6,13 +6,10 @@ import io.void.dto.http.ResponseDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
-import io.void.http.builder.HTTPBuilder
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
 
 internal interface RequestHandler {
-
-    val builder: HTTPBuilder
     val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>>
 
     fun handleDynamic(requestDTO: RequestDTO): ResponseDTO? {
@@ -60,7 +57,7 @@ internal interface RequestHandler {
     }
 
     fun handleResponse(page: Page<ContentType.Response>, client: Socket) {
-        builder.build(
+        ResponseDTO.build(
             response = page.content().response,
             outputStream = client.getOutputStream()
         )
@@ -75,7 +72,7 @@ internal interface RequestHandler {
             )
         }
 
-        builder.build(
+        ResponseDTO.build(
             response = response,
             outputStream = client.getOutputStream()
         )
