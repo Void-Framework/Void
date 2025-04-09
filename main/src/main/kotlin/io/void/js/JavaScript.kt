@@ -1,8 +1,6 @@
 package io.void.js
 
-import io.void.js.keywords.Const
 import io.void.js.keywords.Keyword
-import io.void.js.keywords.Let
 import io.void.js.keywords.datastructures.JsDatastructure
 
 class JavaScript(val runBeforeLoad: Boolean = false, val code: JavaScript.() -> Unit) {
@@ -36,38 +34,5 @@ class JavaScript(val runBeforeLoad: Boolean = false, val code: JavaScript.() -> 
             } else rendered
         }.joinToString("\n")
         return js
-    }
-
-    fun <T> declare(constant: Boolean = false, name: String, value: T): Variable {
-        val newValue = if (value is JsDatastructure) {
-            value.render()
-        } else {
-            value
-        }
-        val variable = if (constant) {
-            Variable.Constant(
-                Const(
-                    name = name,
-                    value = newValue
-                )
-            )
-        } else {
-            Variable.NonConstant(
-                Let(
-                    name = name,
-                    value = newValue
-                )
-            )
-        }
-        when (variable) {
-            is Variable.Constant -> children.add(variable.variable)
-            is Variable.NonConstant -> children.add(variable.variable)
-        }
-        return variable
-    }
-
-    sealed class Variable {
-        class Constant(val variable: Const<*>): Variable()
-        class NonConstant(val variable: Let<*>): Variable()
     }
 }
