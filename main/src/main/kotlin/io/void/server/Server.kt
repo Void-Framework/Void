@@ -5,6 +5,10 @@ import io.void.dto.http.ResponseDTO
 import io.void.http.builder.HTTPBuilder
 import io.void.router.Router
 import io.void.server.exception.HTTPSNotOnException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.net.ServerSocket
@@ -20,7 +24,7 @@ import javax.net.ssl.SSLSocket
 class Server(private val router: Router) {
 
     private lateinit var socket: ServerSocket
-    private val executorService: ExecutorService = Executors.newCachedThreadPool()
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
     var isHTTPSOn = false
@@ -47,9 +51,9 @@ class Server(private val router: Router) {
                             throw HTTPSNotOnException()
                         }
                     } else {
-                        executorService.submit {
+                        scope.launch {
                             try {
-                                ClientHandler(client = client).setRouter(router = this.router).start()
+                                ClientHandler(client = client).setRouter(router = router).start()
                             } catch (e: Exception) {
                                 ClientHandler(client = client).error(e = e)
                             }
@@ -81,9 +85,9 @@ class Server(private val router: Router) {
             while (server.isBound) {
                 val client = server.accept() as SSLSocket
                 client.startHandshake()
-                executorService.submit {
+                scope.launch {
                     try {
-                        ClientHandler(client = client).setRouter(router = this.router).start()
+                        ClientHandler(client = client).setRouter(router = router).start()
                     } catch (e: Exception) {
                         ClientHandler(client = client).error(e = e)
                     }

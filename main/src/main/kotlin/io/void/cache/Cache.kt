@@ -4,8 +4,8 @@ import io.void.cache.exception.CacheException
 import io.void.dto.http.ResponseDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
+import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
 
 internal class Cache private constructor() {
 
@@ -14,7 +14,7 @@ internal class Cache private constructor() {
     }
 
     val cache: ConcurrentHashMap<String, ResponseDTO> = ConcurrentHashMap()
-    private val pool = Executors.newCachedThreadPool()
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     internal fun cacheRoute(routes: Map<Page<*>, Int>) {
         routes.forEach { (route, duration) ->
@@ -50,15 +50,14 @@ internal class Cache private constructor() {
     private fun handleCache(route: Pair<Page<*>, Int>) {
         val (page, duration) = route
         if (duration <= 0) return
-        pool.execute {
-            try {
-                while (!Thread.currentThread().isInterrupted) {
-                    Thread.sleep(duration.toLong())
+        scope.launch {
+            while (isActive) {
+                delay(duration.toLong())
+                try {
                     putInCache(route)
+                } catch (e: Exception) {
+                    throw CacheException(e)
                 }
-            } catch (e: Exception) {
-                Thread.currentThread().interrupt()
-                throw CacheException(e)
             }
         }
     }
