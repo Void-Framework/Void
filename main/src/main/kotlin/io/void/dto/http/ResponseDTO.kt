@@ -102,6 +102,7 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
             return objectBuilder.toString()
         }
 
+        @Deprecated("Builder is broken", ReplaceWith("JSONDTO"), DeprecationLevel.WARNING)
         fun json(entries: JSON, statusInt: Int, statusMessage: String): ResponseDTO {
             val jsonBuilder = StringBuilder("{")
 
