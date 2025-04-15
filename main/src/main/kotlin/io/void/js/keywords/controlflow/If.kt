@@ -3,7 +3,11 @@ package io.void.js.keywords.controlflow
 import io.void.js.JavaScript
 import io.void.js.keywords.Function
 
-data class If(val condition: String, val _body: JavaScript.(Function) -> Unit, val js: JavaScript): Function(
+data class If(
+    val condition: String,
+    val _body: JavaScript.(Function) -> Unit,
+    val js: JavaScript
+): Function(
     name = "",
     arguments = emptyList(),
     body = _body
@@ -14,6 +18,10 @@ data class If(val condition: String, val _body: JavaScript.(Function) -> Unit, v
     }
 
     override var jsReturn: String = "if($condition) {${children.joinToString(";") { it.render() }}}"
+
+    override fun render(): String {
+        return jsReturn
+    }
 
     fun ElseIf(condition: String, body: JavaScript.(Function) -> Unit): If {
         body(js, this)
