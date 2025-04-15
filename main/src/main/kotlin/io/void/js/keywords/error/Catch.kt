@@ -16,9 +16,7 @@ data class CatchFunction(
         body(js, this)
     }
 
-    override fun render(): String {
-        return children.joinToString(";") { it.render() }
-    }
+    override var jsReturn: String = children.joinToString(";") { it.render() }
 }
 
 data class Catch(

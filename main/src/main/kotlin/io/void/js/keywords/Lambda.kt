@@ -16,9 +16,7 @@ data class Lambda(
         body(js, this)
     }
 
-    override fun render(): String {
-        return "(${_arguments.joinToString(", ")} => {${children.joinToString(";") { it.render() }}})"
-    }
+    override var jsReturn: String = "(${_arguments.joinToString(", ")} => {${children.joinToString(";") { it.render() }}})"
 }
 
 fun JavaScript.Lambda(body: JavaScript.(Function) -> Unit, arguments: List<String>): Lambda {

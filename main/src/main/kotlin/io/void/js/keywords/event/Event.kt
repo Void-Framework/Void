@@ -25,9 +25,7 @@ data class EventFunction(
         }
     }
 
-    override fun render(): String {
-        return "($eventValueName) => {${children.joinToString(";") { it.render() }}}"
-    }
+    override var jsReturn: String = "($eventValueName) => {${children.joinToString(";") { it.render() }}}"
 }
 
 fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boolean = false, eventValueName: String): EventFunction {

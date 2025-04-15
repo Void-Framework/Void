@@ -17,10 +17,10 @@ data class While(
         body(js, this)
     }
 
-    override var jsReturn: String = "while($condition) {"
+    override var jsReturn: String = "while($condition) {${children.joinToString(";") { it.render() }}}"
 
     override fun render(): String {
-        return "$jsReturn${children.joinToString(";") { it.render() }}}"
+        return jsReturn
     }
 }
 
@@ -39,10 +39,6 @@ data class For(
     }
 
     override var jsReturn: String = "for($condition) {${children.joinToString(";") { it.render() }}}"
-
-    override fun render(): String {
-        return jsReturn
-    }
 }
 
 fun JavaScript.While(condition: String, body: JavaScript.(Function) -> Unit): While {

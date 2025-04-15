@@ -4,7 +4,7 @@ class Void: JsDatastructure {
     override var jsReturn: String = ""
 
     override fun render(): String {
-        return ""
+        return jsReturn
     }
     override fun initialize(): JsDatastructure {
         return this

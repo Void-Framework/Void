@@ -21,10 +21,6 @@ data class FetchFunction(
     }
 
     override var jsReturn: String = "$responseArgName => {${children.joinToString(";") { it.render() }}}"
-
-    override fun render(): String {
-        return jsReturn
-    }
 }
 
 data class Fetch(

@@ -4,22 +4,23 @@ import io.void.html.Element
 import io.void.js.JavaScript
 import io.void.js.keywords.datastructures.JsList
 import io.void.js.keywords.string.TemplateString
+import io.void.js.keywords.variable.Variable
 
-class DOM: Keyword {
+class DOM(document: Variable<DOM>? = null): Keyword {
 
     companion object {
         val element = DOM().HTMLElement()
     }
 
-    override var jsReturn = ""
+    override var jsReturn = document?.name ?: "document"
 
     fun getElementById(id: String): HTMLElement {
-        jsReturn = "document.getElementById(\"$id\")"
+        jsReturn = ".getElementById(\"$id\")"
         return HTMLElement()
     }
 
     fun querySelectorAll(identifier: String): JsList<HTMLElement> {
-        jsReturn = "document.querySelectorAll(\"$identifier\")"
+        jsReturn = ".querySelectorAll(\"$identifier\")"
         return JsList(listOf(HTMLElement()))
     }
 
