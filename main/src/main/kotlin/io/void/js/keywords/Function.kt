@@ -22,6 +22,11 @@ open class Function(
     fun put(keyword: Keyword) {
         this.children.add(keyword)
     }
+
+    fun async(): Function {
+        jsReturn = "async $jsReturn"
+        return this
+    }
 }
 
 fun JavaScript.function(name: String, arguments: List<String>, body: JavaScript.(Function) -> Unit): Function {
