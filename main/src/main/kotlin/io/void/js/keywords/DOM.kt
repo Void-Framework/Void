@@ -15,12 +15,12 @@ class DOM(document: Variable<DOM>? = null): Keyword {
     override var jsReturn = document?.name ?: "document"
 
     fun getElementById(id: String): HTMLElement {
-        jsReturn = ".getElementById(\"$id\")"
+        jsReturn += ".getElementById(\"$id\")"
         return HTMLElement()
     }
 
     fun querySelectorAll(identifier: String): JsList<HTMLElement> {
-        jsReturn = ".querySelectorAll(\"$identifier\")"
+        jsReturn += ".querySelectorAll(\"$identifier\")"
         return JsList(listOf(HTMLElement()))
     }
 
@@ -28,7 +28,13 @@ class DOM(document: Variable<DOM>? = null): Keyword {
         return jsReturn
     }
 
-    inner class HTMLElement {
+    inner class HTMLElement: Keyword {
+
+        override var jsReturn: String = ""
+
+        override fun render(): String {
+            return jsReturn
+        }
 
         fun html(element: Element) {
             jsReturn += ".innerHTML = '${element.render()}'"

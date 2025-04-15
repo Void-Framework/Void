@@ -162,14 +162,14 @@ class HomeRoute : Page(target = "/") {
                 js.put(Call<Function>("console", "log('Fetched users')"))
                 // Process response
                 js.put(Call<DOM>("response", {
-                    this.HTMLElement().text("Data fetched successfully")
+                    //this.HTMLElement().text("Data fetched successfully")
                 }, DOM()))
             }, "response", this))
             .catch(FetchFunction({ js ->
                 js.put(Call<Function>("console", "log('Error fetching users')"))
                 // Handle error
                 js.put(Call<DOM>("error", {
-                    this.HTMLElement().text("Error fetching data")
+                    //this.HTMLElement().text("Error fetching data")
                 }, DOM()))
             }, "error", this))
 
