@@ -22,6 +22,10 @@ data class Try(
         jsReturn += catchClause.render()
         return Void()
     }
+
+    override fun render(): String {
+        return jsReturn
+    }
 }
 
 fun JavaScript.Try(body: JavaScript.(Function) -> Unit): Try {
