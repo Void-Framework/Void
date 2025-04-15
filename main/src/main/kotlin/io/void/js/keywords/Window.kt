@@ -71,11 +71,11 @@ class Window(val window: Variable<Window>? = null): Keyword {
                 "\"\""
             }
         }, ${
-            if (message != null) {
-                if (TemplateString.isTemplateString(message)) {
-                    TemplateString.turnToTemplateString(message)
+            if (defaultText != null) {
+                if (TemplateString.isTemplateString(defaultText)) {
+                    TemplateString.turnToTemplateString(defaultText)
                 } else {
-                    "\"$message\""
+                    "\"$defaultText\""
                 }
             } else {
                 "\"\""
