@@ -9,10 +9,10 @@ open class Function(
 ): Keyword {
 
     val children = mutableListOf<Keyword>()
-    override var jsReturn: String = ""
+    override var jsReturn: String = "function $name(${arguments.joinToString(", ")}) {${children.joinToString(";") { it.render() }}}"
 
     override fun render(): String {
-        return "function $name(${arguments.joinToString(", ")}) {${children.joinToString(";") { it.render() }}}"
+        return jsReturn
     }
 
     fun run(arguments: List<String>): String {

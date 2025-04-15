@@ -4,10 +4,11 @@ import io.void.js.JavaScript
 import io.void.js.keywords.datastructures.JsList
 import io.void.js.keywords.datastructures.Void
 import io.void.js.keywords.string.TemplateString
+import io.void.js.keywords.variable.Variable
 
-class Console: Keyword {
+class Console(val console: Variable<Console>? = null): Keyword {
 
-    override var jsReturn: String = "console"
+    override var jsReturn: String = console?.name ?: "console"
 
     override fun render(): String {
         return jsReturn

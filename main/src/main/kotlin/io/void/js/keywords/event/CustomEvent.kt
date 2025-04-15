@@ -21,7 +21,7 @@ data class CustomEvent(val eventName: String): Keyword {
     }
 
     override fun render(): String {
-        return "$jsReturn;"
+        return jsReturn
     }
 }
 

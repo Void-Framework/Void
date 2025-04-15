@@ -5,6 +5,8 @@ import io.void.js.keywords.variable.Variable
 
 data class Call<T: Keyword> internal constructor(val variableName: String): Keyword {
 
+    override var jsReturn = ""
+
     constructor(variableName: String, callableFunction: String): this(variableName) {
         jsReturn = "$variableName.$callableFunction"
     }
@@ -32,8 +34,6 @@ data class Call<T: Keyword> internal constructor(val variableName: String): Keyw
     constructor(variable: Variable<T>, callableFunction: String): this(variable.name) {
         jsReturn = "$variableName.$callableFunction"
     }
-
-    override var jsReturn = ""
 
     override fun render(): String {
         return jsReturn

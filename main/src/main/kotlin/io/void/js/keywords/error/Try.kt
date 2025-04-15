@@ -16,9 +16,7 @@ data class Try(
         body(js, this)
     }
 
-    override fun render(): String {
-        return "try {${children.joinToString(";") { it.render() }}}"
-    }
+    override var jsReturn: String = "try {${children.joinToString(";") { it.render() }}}"
 
     fun catch(catchClause: Catch): Void {
         jsReturn += catchClause.render()

@@ -15,10 +15,6 @@ data class If(val condition: String, val _body: JavaScript.(Function) -> Unit, v
 
     override var jsReturn: String = "if($condition) {${children.joinToString(";") { it.render() }}}"
 
-    override fun render(): String {
-        return jsReturn
-    }
-
     fun ElseIf(condition: String, body: JavaScript.(Function) -> Unit): If {
         body(js, this)
         jsReturn += "else if ($condition) {${children.joinToString(";") { it.render() }}}"
