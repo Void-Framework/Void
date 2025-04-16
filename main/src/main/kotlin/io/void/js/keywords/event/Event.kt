@@ -37,6 +37,11 @@ data class EventFunction(
         }
     }
 
+    fun phase(): Void {
+        put(InlineCall(operation = "$eventValueName.eventPhase"))
+        return Void()
+    }
+
     override var jsReturn: String = "($eventValueName) => {${children.joinToString(";") { it.render() }}}"
 
     override fun render(): String {
