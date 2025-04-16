@@ -3,10 +3,15 @@ package io.void.js.keywords
 import io.void.html.Element
 import io.void.js.JavaScript
 import io.void.js.keywords.datastructures.JsList
+import io.void.js.keywords.datastructures.Void
+import io.void.js.keywords.event.CustomEvent
+import io.void.js.keywords.event.Event
+import io.void.js.keywords.event.EventFunction
+import io.void.js.keywords.event.exception.FunctionNotVariableException
 import io.void.js.keywords.string.TemplateString
 import io.void.js.keywords.variable.Variable
 
-class DOM(document: Variable<DOM>? = null): Keyword {
+class DOM(document: Variable<DOM>? = null): BrowserObject {
 
     companion object {
         val element = DOM().HTMLElement()
@@ -28,7 +33,7 @@ class DOM(document: Variable<DOM>? = null): Keyword {
         return jsReturn
     }
 
-    inner class HTMLElement: Keyword {
+    inner class HTMLElement: BrowserObject {
 
         override var jsReturn: String = ""
 
@@ -36,17 +41,19 @@ class DOM(document: Variable<DOM>? = null): Keyword {
             return jsReturn
         }
 
-        fun html(element: Element) {
+        fun html(element: Element): Void {
             jsReturn += ".innerHTML = '${element.render()}'"
+            return Void()
         }
 
-        fun text(newValue: String) {
+        fun text(newValue: String): Void {
             jsReturn += ".textContent = ${if (!TemplateString.isTemplateString(newValue)) {
                 "\"$newValue\""
             } else {
                 "`$newValue`"
             }
             }"
+            return Void()
         }
     }
 }
