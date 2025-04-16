@@ -101,5 +101,35 @@ enum class Events {
     CONTEXTMENU,
     CANCEL,
     CUECHANGE,
-    AUXCLICK
+    AUXCLICK,
+    TOUCHSTART,
+    TOUCHMOVE,
+    TOUCHEND,
+    TOUCHCANCEL,
+
+    // ResizeObserver-like (virtual or optional)
+    RESIZE_OBSERVED,
+
+    // FormData events
+    FORMDATA,
+
+    // Page visibility
+    VISIBILITYCHANGE,
+
+    // Selection events
+    SELECTIONCHANGE,
+
+    // Device orientation & motion
+    DEVICEORIENTATION,
+    DEVICEMOTION,
+
+    // Pointer events (extra)
+    POINTERRAWUPDATE,
+
+    // Shadow DOM
+    SLOTCHANGE,
+
+    // WebGL context events
+    WEBGLCONTEXTLOST,
+    WEBGLCONTEXTRESTORED
 }
