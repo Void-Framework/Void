@@ -3,7 +3,10 @@ package io.void.js.keywords.event
 import io.void.js.JavaScript
 import io.void.js.keywords.Call
 import io.void.js.keywords.Function
+import io.void.js.keywords.InlineCall
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.datastructures.Void
+import io.void.js.keywords.event.exception.FunctionNotVariableException
 import io.void.js.keywords.variable.Variable
 
 data class EventFunction(
@@ -55,7 +58,7 @@ fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boole
 data class Event(val eventType: CustomEvent, val function: EventFunction): Keyword {
     var bubble = false
     private var isVariable = false
-    private lateinit var variable: Variable<EventFunction>
+    lateinit var variable: Variable<EventFunction>
 
     override var jsReturn: String = ".addEventListener(\"${eventType.eventName.lowercase()}\", ${if (!isVariable) function.render() else variable.name}${if (!bubble) ", true" else ""})"
 
@@ -72,7 +75,7 @@ data class Event(val eventType: CustomEvent, val function: EventFunction): Keywo
     }
 }
 
-fun JavaScript.listen(_eventType: CustomEvent, _function: EventFunction): Event {
+fun JavaScript.on(_eventType: CustomEvent, _function: EventFunction): Event {
     val event = Event(
         eventType = _eventType,
         function = _function
@@ -80,17 +83,12 @@ fun JavaScript.listen(_eventType: CustomEvent, _function: EventFunction): Event 
     children.add(event)
     return event
 }
-fun JavaScript.listen(_eventType: List<CustomEvent>, _function: EventFunction): List<Event> {
+fun JavaScript.on(_eventType: List<CustomEvent>, _function: EventFunction): List<Event> {
     return _eventType.map {
-        val event = Event(
-            eventType = it,
-            function = _function
-        )
-        children.add(event)
-        return@map event
+        return@map on(it, _function)
     }
 }
-fun JavaScript.listen(_eventType: CustomEvent, variable: Variable<EventFunction>): Event {
+fun JavaScript.on(_eventType: CustomEvent, variable: Variable<EventFunction>): Event {
     val event = Event(
         eventType = _eventType,
         variable = variable
@@ -98,13 +96,30 @@ fun JavaScript.listen(_eventType: CustomEvent, variable: Variable<EventFunction>
     children.add(event)
     return event
 }
-fun JavaScript.listen(_eventType: List<CustomEvent>, variable: Variable<EventFunction>): List<Event> {
+fun JavaScript.on(_eventType: List<CustomEvent>, variable: Variable<EventFunction>): List<Event> {
     return _eventType.map {
-        val event = Event(
-            eventType = it,
-            variable = variable
-        )
-        children.add(event)
-        return@map event
+        return@map on(it, variable)
     }
+}
+fun JavaScript.off(event: Event): Void {
+    try {
+        children.add(
+            InlineCall(
+                operation = ".removeEventListener(\"${event.eventType.eventName}\", ${event.variable.name}${if (!event.bubble) ", true" else ""})"
+            )
+        )
+    } catch (e: Exception) {
+        throw FunctionNotVariableException(event = event)
+    }
+    return Void()
+}
+fun JavaScript.off(events: List<Event>): Void {
+    events.forEach {
+        try {
+            off(it)
+        } catch (e: Exception) {
+            throw FunctionNotVariableException(event = it)
+        }
+    }
+    return Void()
 }
