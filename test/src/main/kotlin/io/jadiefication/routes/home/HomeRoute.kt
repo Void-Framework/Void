@@ -197,7 +197,7 @@ class HomeRoute : Page(target = "/") {
             }, HTMLElement()))
         })
 
-        console().log(elements(5, Div {
+        console().log(DOM().elements(5, Div {
             H3 { Fractal("User List") }
             Ul {
             }}).render())
