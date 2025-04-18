@@ -39,6 +39,10 @@ data class For(
     }
 
     override var jsReturn: String = "for($condition) {${children.joinToString(";") { it.render() }}}"
+
+    override fun render(): String {
+        return jsReturn
+    }
 }
 
 fun JavaScript.While(condition: String, body: JavaScript.(Function) -> Unit): While {
