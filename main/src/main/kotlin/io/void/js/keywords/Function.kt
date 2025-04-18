@@ -1,6 +1,7 @@
 package io.void.js.keywords
 
 import io.void.js.JavaScript
+import io.void.js.keywords.variable.Variable
 
 open class Function(
     val name: String,
@@ -27,6 +28,18 @@ open class Function(
     fun async(): Function {
         jsReturn = "async $jsReturn"
         return this
+    }
+
+    fun getArg(name: String): FunctionVariable<*> {
+        return FunctionVariable<Any>(name)
+    }
+}
+
+data class FunctionVariable<T>(override val name: String): Variable<T> {
+    override val value: T? = null
+    override var jsReturn: String = name
+    override fun render(): String {
+        return jsReturn
     }
 }
 
