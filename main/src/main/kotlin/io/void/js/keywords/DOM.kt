@@ -58,7 +58,34 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
     }
 }
 
-fun JavaScript.id(id: String): DOM.HTMLElement {
+class HTMLElement: BrowserObject {
+
+    override var jsReturn: String = ""
+
+    override fun render(): String {
+        return jsReturn
+    }
+
+    fun html(element: Element): Void {
+        jsReturn += ".innerHTML = '${element.render()}'"
+        return Void()
+    }
+    fun text(newValue: String): Void {
+        jsReturn += ".textContent = ${if (!TemplateString.isTemplateString(newValue)) {
+            "\"$newValue\""
+        } else {
+            "`$newValue`"
+        }
+        }"
+        return Void()
+    }
+    fun clone(children: Boolean = true): HTMLElement {
+        jsReturn += ".cloneNode($children)"
+        return HTMLElement()
+    }
+}
+
+fun JavaScript.id(id: String): HTMLElement {
     val dom = DOM()
     children.add(dom)
     return dom.getElementById(id = id)
