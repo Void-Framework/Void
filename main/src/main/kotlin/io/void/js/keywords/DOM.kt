@@ -108,6 +108,6 @@ fun JavaScript.elements(amount: Int, element: Element): Void {
     if (element.attributes.isNotEmpty()) {
         attributes.setLength(attributes.length - 1)
     }
-    InlineCall("elements($amount, ${element.name}, $text, {$attributes})")
+    InlineCall("elements($amount, \"${element.name}\", \"$text\", {$attributes})")
     return Void()
 }
