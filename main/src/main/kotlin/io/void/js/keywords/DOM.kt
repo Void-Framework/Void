@@ -37,6 +37,21 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
         jsReturn += ".createDocumentFragment()"
         return Void()
     }
+    fun elements(amount: Int, element: Element): BrowserObject {
+        val text = StringBuilder("")
+        val attributes = StringBuilder("")
+        element.children!!.forEach {
+            text.append(it.render())
+        }
+        element.attributes.forEach { (name, value) ->
+            attributes.append("${name.name.lowercase()}: \"$value\",")
+        }
+        if (element.attributes.isNotEmpty()) {
+            attributes.setLength(attributes.length - 1)
+        }
+        jsReturn = "elements($amount, \"${element.name}\", \"$text\", {$attributes})"
+        return this
+    }
 
     override fun render(): String {
         return jsReturn
@@ -96,18 +111,8 @@ fun JavaScript.selectAll(identifier: String): JsList<HTMLElement> {
     children.add(list)
     return list
 }
-fun JavaScript.elements(amount: Int, element: Element): Void {
-    val text = StringBuilder("")
-    val attributes = StringBuilder("")
-    element.children!!.forEach {
-        text.append(it.render())
-    }
-    element.attributes.forEach { (name, value) ->
-        attributes.append("${name.name.lowercase()}: \"$value\",")
-    }
-    if (element.attributes.isNotEmpty()) {
-        attributes.setLength(attributes.length - 1)
-    }
-    InlineCall("elements($amount, \"${element.name}\", \"$text\", {$attributes})")
-    return Void()
+fun JavaScript.elements(amount: Int, element: Element): BrowserObject {
+    val dom = DOM()
+    children.add(dom)
+    return dom.elements(amount, element)
 }
