@@ -21,7 +21,7 @@ data class Call<T: Keyword> internal constructor(val variableName: String): Keyw
         }${clazz.jsReturn}"
     }
 
-    constructor(variable: Variable<T>, callableMethod: T.() -> Any, clazz: T): this(variable.name) {
+    constructor(variable: Variable<*>, callableMethod: T.() -> Any, clazz: T): this(variable.name) {
         clazz.callableMethod()
         jsReturn = "$variableName${if (clazz.jsReturn.startsWith(".")){
             ""
@@ -68,7 +68,7 @@ inline fun <reified T : Keyword> JavaScript.call(variableName: String, noinline 
     return call
 }
 
-inline fun <reified T : Keyword> JavaScript.call(variable: Variable<T>, noinline callableMethod: T.() -> Any, clazz: T): Call<T> {
+inline fun <reified T : Keyword> JavaScript.call(variable: Variable<*>, noinline callableMethod: T.() -> Any, clazz: T): Call<T> {
     val call = Call(
         variable = variable,
         callableMethod = callableMethod,
