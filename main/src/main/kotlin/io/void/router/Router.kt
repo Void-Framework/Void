@@ -3,6 +3,7 @@ package io.void.router
 import io.void.api.ApiPage
 import io.void.api.CssPage
 import io.void.api.JsPage
+import io.void.api.VoidJsPage
 import io.void.clienthandler.ClientHandler
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
@@ -22,6 +23,10 @@ class Router {
     val styles: ConcurrentHashMap<String, Pair<UUID, String>> = ConcurrentHashMap()
     val js: ConcurrentHashMap<String, Pair<UUID, String>> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
+
+    init {
+        addRoute(VoidJsPage())
+    }
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page): Router {
@@ -78,7 +83,7 @@ class Router {
                             } else {
                                 ""
                             }
-                            }${if (js.containsKey(target)) {
+                            }<script src=\"/js/void.js\"></script>${if (js.containsKey(target)) {
                                 "<script src=\"/js/${js[target]!!.first}.js\" ${if (!page!!.javascript!!.runBeforeLoad) {
                                     "defer"
                                 } else {

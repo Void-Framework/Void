@@ -183,8 +183,8 @@ class HomeRoute : Page(target = "/") {
             it.put(Call("userMap", {
                 entries().forEach().run(function("processEntry", listOf("entry")) { function ->
                     function.put(Call("entry", {
-                        this.HTMLElement().text("Role: \${entry[0]}, User: \${entry[1]}")
-                    }, DOM()))
+                        text("Role: \${entry[0]}, User: \${entry[1]}")
+                    }, HTMLElement()))
                 })
             }, JsMap<String, String>(mapOf())))
             it.put(InlineCall(operation = "i++"))
@@ -193,9 +193,14 @@ class HomeRoute : Page(target = "/") {
         // Test object manipulation
         objectMethod("userObject").keys().forEach().run(function("displayKey", listOf("key")) {
             it.put(Call("key", {
-                this.HTMLElement().text("User property: \${key}")
-            }, DOM()))
+                text("User property: \${key}")
+            }, HTMLElement()))
         })
+
+        console().log(elements(5, Div {
+            H3 { Fractal("User List") }
+            Ul {
+            }}).render())
 
         // Add interactive test button
         id("test-button").html(Button(
