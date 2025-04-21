@@ -1,5 +1,6 @@
 package io.jadiefication.routes.home
 
+import DirectValue
 import io.void.generated.*
 import io.void.html.Element
 import io.void.html.Fractal
@@ -39,13 +40,13 @@ class HomeRoute : Page(target = "/") {
         data = setData("Welcome to Void Framework")
 
         // Test DOM manipulation and events
-        id("features").html(Div {
+        id(DirectValue("features")).html(DirectValue(Div {
             H3 { Fractal("Dynamic Content") }
             P { Fractal("This content was added via JavaScript") }
-        })
+        }))
 
         // Test event handling on all buttons
-        selectAll("button").forEach().run(function("handleButtonClick", listOf("button")) {
+        selectAll(DirectValue("button")).forEach().run(function("handleButtonClick", listOf("button")) {
             it.put(Call("button", {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
@@ -53,7 +54,7 @@ class HomeRoute : Page(target = "/") {
                 _body = { js ->
                     js.put(Call<Function>("console", "log('Button clicked!')"))
                     js.put(Call<DOM>("button", {
-                        HTMLElement().text("Clicked!")
+                        HTMLElement().text(DirectValue("Clicked!"))
                     }, DOM()))
                 },
                 js = this,
@@ -62,7 +63,7 @@ class HomeRoute : Page(target = "/") {
         })
 
         // Test dynamic class toggling
-        selectAll("article").forEach().run(function("handleArticleHover", listOf("article")) {
+        selectAll(DirectValue("article")).forEach().run(function("handleArticleHover", listOf("article")) {
             it.put(Call("article", {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.MOUSEOVER), EventFunction(
@@ -70,7 +71,7 @@ class HomeRoute : Page(target = "/") {
                 _body = { js ->
                     js.put(Call<Function>("console", "log('Article hovered!')"))
                     js.put(Call<DOM>("article", {
-                        HTMLElement().text("Hover effect active")
+                        HTMLElement().text(DirectValue("Hover effect active"))
                     }, DOM()))
                 },
                 js = this,
@@ -85,16 +86,16 @@ class HomeRoute : Page(target = "/") {
         }
 
         // Add click event to footer to update title
-        id("footer").html(Button(
+        id(DirectValue("footer")).html(DirectValue(Button(
             attribute {
                 name = AttributeNames.CLASS
                 value = buttonClasses
             }
         ) {
             Fractal("Update Title")
-        })
+        }))
 
-        selectAll("#footer button").forEach().run(function("footerButton", listOf("button")) {
+        selectAll(DirectValue("#footer button")).forEach().run(function("footerButton", listOf("button")) {
             it.put(Call("button", {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
@@ -183,7 +184,7 @@ class HomeRoute : Page(target = "/") {
             it.put(Call("userMap", {
                 entries().forEach().run(function("processEntry", listOf("entry")) { function ->
                     function.put(Call("entry", {
-                        text("Role: \${entry[0]}, User: \${entry[1]}")
+                        text(DirectValue("Role: \${entry[0]}, User: \${entry[1]}"))
                     }, HTMLElement()))
                 })
             }, JsMap<String, String>(mapOf())))
@@ -193,27 +194,27 @@ class HomeRoute : Page(target = "/") {
         // Test object manipulation
         objectMethod("userObject").keys().forEach().run(function("displayKey", listOf("key")) {
             it.put(Call("key", {
-                text("User property: \${key}")
+                text(DirectValue("User property: \${key}"))
             }, HTMLElement()))
         })
 
-        console().log(DOM().elements(5, Div {
+        console().log(DOM().elements(DirectValue(5), DirectValue(Div {
             H3 { Fractal("User List") }
             Ul {
-            }}).render())
+            }})).render())
 
         // Add interactive test button
-        id("test-button").html(Button(
+        id(DirectValue("test-button")).html(DirectValue(Button(
             attribute {
                 name = AttributeNames.CLASS
                 value = "bg-blue-500 text-white px-4 py-2 rounded"
             }
         ) {
             Fractal("Run Data Structure Tests")
-        })
+        }))
 
         // Add event listener for test button
-        selectAll("#test-button button").forEach().run(function("buttonHandler", listOf("button")) {
+        selectAll(DirectValue("#test-button button")).forEach().run(function("buttonHandler", listOf("button")) {
             it.put(Call("button", {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
