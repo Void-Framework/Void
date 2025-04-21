@@ -1,5 +1,6 @@
 package io.void.api
 
+import DirectValue
 import io.void.api.method.Method
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
@@ -56,7 +57,7 @@ internal class VoidJsPage: ApiPage(
                                                 If.put(Call(
                                                     element,
                                                     {
-                                                        html(it.getArg("text"))
+                                                        html(DirectValue(it.getArg("text")))
                                                     },
                                                     HTMLElement()
                                                 ))
@@ -64,7 +65,7 @@ internal class VoidJsPage: ApiPage(
                                                 Else.put(Call(
                                                     element,
                                                     {
-                                                        text(it.getArg("text"))
+                                                        text(DirectValue(it.getArg("text")))
                                                     },
                                                     HTMLElement()
                                                 ))
