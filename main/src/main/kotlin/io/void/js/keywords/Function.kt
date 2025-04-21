@@ -17,7 +17,7 @@ open class Function(
         return jsReturn
     }
 
-    fun run(arguments: List<String>): String {
+    open fun run(arguments: List<String>): String {
         return "$name(${arguments.joinToString(", ")})"
     }
 

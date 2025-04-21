@@ -21,6 +21,10 @@ data class Lambda(
     override fun render(): String {
         return jsReturn
     }
+
+    override fun run(arguments: List<String>): String {
+        return "${render()}(${_arguments.joinToString(", ")})"
+    }
 }
 
 fun JavaScript.Lambda(body: JavaScript.(Function) -> Unit, arguments: List<String>): Lambda {
