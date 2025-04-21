@@ -1,6 +1,7 @@
 import io.void.html.Element
 import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.string.TemplateString
 import io.void.js.keywords.variable.Variable
 
 interface JsValue<T> {
@@ -10,7 +11,11 @@ interface JsValue<T> {
 // Implementation for direct values
 data class DirectValue<T>(private val value: T) : JsValue<T> {
     override fun toJs(): String = when (value) {
-        is String -> "\"$value\""
+        is String -> if (TemplateString.isTemplateString(value)) {
+            TemplateString.turnToTemplateString(value)
+        } else {
+            "\"$value\""
+        }
         is Keyword -> value.render()
         is Element -> value.render()
         else -> value.toString()
@@ -29,3 +34,4 @@ data class FunctionValue(private val function: Function, private val argsList: L
 // Extension functions to create JsValues
 fun <T> T.asJsValue(): JsValue<T> = DirectValue(this)
 fun <T> Variable<T>.asJsValue(): JsValue<T> = VariableValue(this)
+fun Function.asJsValue(): JsValue<Any?> = FunctionValue(this)
