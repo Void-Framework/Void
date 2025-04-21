@@ -18,7 +18,13 @@ data class DirectValue<T>(private val value: T) : JsValue<T> {
         }
         is Keyword -> value.render()
         is Element -> value.render()
-        else -> value.toString()
+        is Iterable<*> -> value.joinToString(",") { DirectValue(it).toJs() }
+        is Number, Boolean -> value.toString()
+        else -> "\"${value.toString()}\""
+    }
+
+    override fun toString(): String {
+        return toJs()
     }
 }
 
