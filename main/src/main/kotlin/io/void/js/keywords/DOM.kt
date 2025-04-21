@@ -1,5 +1,7 @@
 package io.void.js.keywords
 
+import DirectValue
+import JsValue
 import io.void.html.Element
 import io.void.html.Fractal
 import io.void.js.JavaScript
@@ -12,44 +14,24 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
 
     override var jsReturn = document?.name ?: "document"
 
-    fun id(id: String): HTMLElement {
-        jsReturn += ".getElementById(\"$id\")"
+    fun id(id: JsValue<*>): HTMLElement {
+        jsReturn += ".getElementById(${id.toJs()})"
         return HTMLElement()
     }
-    fun selectAll(identifier: String): JsList<HTMLElement> {
-        jsReturn += ".querySelectorAll(\"$identifier\")"
+    fun selectAll(identifier: JsValue<*>): JsList<HTMLElement> {
+        jsReturn += ".querySelectorAll(${identifier.toJs()})"
         return JsList(listOf(HTMLElement()))
     }
-    fun element(element: Element): Void {
-        jsReturn += ".create${if (element is Fractal) {
-            if (element.text.startsWith("<") && element.text.endsWith(">")) {
-                "Element"
-            } else {
-                "TextNode"
-            }
-        } else {
-            "Element"
-        }
-        }(${element.render()})"
+    fun element(element: JsValue<*>): Void {
+        jsReturn += ".createElement(${element.toJs()})"
         return Void()
     }
     fun fragment(): Void {
         jsReturn += ".createDocumentFragment()"
         return Void()
     }
-    fun elements(amount: Int, element: Element): BrowserObject {
-        val text = StringBuilder("")
-        val attributes = StringBuilder("")
-        element.children!!.forEach {
-            text.append(it.render())
-        }
-        element.attributes.forEach { (name, value) ->
-            attributes.append("${name.name.lowercase()}: \"$value\",")
-        }
-        if (element.attributes.isNotEmpty()) {
-            attributes.setLength(attributes.length - 1)
-        }
-        jsReturn = "elements($amount, \"${element.name}\", \"$text\", {$attributes})"
+    fun elements(amount: JsValue<*>, element: JsValue<*>): BrowserObject {
+        jsReturn = "elements(${amount.toJs()}, ${element.toJs()})"
         return this
     }
 
@@ -66,52 +48,35 @@ class HTMLElement: BrowserObject {
         return jsReturn
     }
 
-    fun html(element: Element): Void {
-        val elementText = element.render()
-        jsReturn += ".innerHTML = '${if (!TemplateString.isTemplateString(elementText)) {
-            "\"$elementText\""
-        } else {
-            "`$elementText`"
-        }
-        }'"
+    fun html(element: JsValue<*>): Void {
+        jsReturn += ".innerHTML = ${element.toJs()}"
         return Void()
     }
-    fun html(element: Variable<*>): Void {
-        jsReturn += ".innerHTML = ${element.name}"
+    fun text(newValue: JsValue<*>): Void {
+        jsReturn += ".textContent = ${newValue.toJs()}"
         return Void()
     }
-    fun text(newValue: String): Void {
-        jsReturn += ".textContent = ${if (!TemplateString.isTemplateString(newValue)) {
-            "\"$newValue\""
-        } else {
-            "`$newValue`"
-        }
-        }"
-        return Void()
-    }
-    fun text(newValue: Variable<*>): Void {
-        jsReturn += ".textContent = ${newValue.name}"
-        return Void()
-    }
-    fun clone(children: Boolean = true): HTMLElement {
-        jsReturn += ".cloneNode($children)"
+    fun clone(children: JsValue<*> = DirectValue(true)): HTMLElement {
+        jsReturn += ".cloneNode(${children.toJs()})"
         return HTMLElement()
     }
 }
 
-fun JavaScript.id(id: String): HTMLElement {
+fun JavaScript.id(id: JsValue<*>): HTMLElement {
     val dom = DOM()
     children.add(dom)
-    return dom.id(id = id)
+    return dom.id(id)
 }
-fun JavaScript.selectAll(identifier: String): JsList<HTMLElement> {
+
+fun JavaScript.selectAll(identifier: JsValue<*>): JsList<HTMLElement> {
     val dom = DOM()
     children.add(dom)
-    val list = dom.selectAll(identifier = identifier)
+    val list = dom.selectAll(identifier)
     children.add(list)
     return list
 }
-fun JavaScript.elements(amount: Int, element: Element): BrowserObject {
+
+fun JavaScript.elements(amount: JsValue<*>, element: JsValue<*>): BrowserObject {
     val dom = DOM()
     children.add(dom)
     return dom.elements(amount, element)
