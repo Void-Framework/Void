@@ -13,15 +13,15 @@ class Window(window: JsValue<*>? = null): Keyword {
         return jsReturn
     }
 
-    fun alert(message: JsValue<*>?): Window {
+    fun alert(message: JsValue<String>?): Window {
         jsReturn += ".alert(${message ?: "\"\""})"
         return this
     }
-    fun open(url: JsValue<*>? = null, name: JsValue<*>? = null, specs: JsValue<*>? = null): Window {
+    fun open(url: JsValue<*>? = null, name: JsValue<String>? = null, specs: JsValue<*>? = null): Window {
         jsReturn += ".open(${url ?: "\"\""}, ${name ?: "\"\""}, ${specs ?: "\"\""})"
         return Window()
     }
-    fun confirm(message: JsValue<*>): Window {
+    fun confirm(message: JsValue<String>): Window {
         jsReturn += ".confirm($message)"
         return this
     }
@@ -33,15 +33,15 @@ class Window(window: JsValue<*>? = null): Keyword {
         jsReturn += ".location.href = ${url ?: "\"\""}"
         return this
     }
-    fun prompt(message: JsValue<*>? = null, defaultText: JsValue<*>? = null): Window {
+    fun prompt(message: JsValue<String>? = null, defaultText: JsValue<String>? = null): Window {
         jsReturn += ".prompt(${message ?: "\"\""}, ${defaultText ?: "\"\""})"
         return this
     }
-    fun scrollBy(x: JsValue<*>, y: JsValue<*>): Window {
+    fun scrollBy(x: JsValue<Int>, y: JsValue<Int>): Window {
         jsReturn += ".scrollBy($x, $y)"
         return this
     }
-    fun scrollTo(x: JsValue<*>, y: JsValue<*>): Window {
+    fun scrollTo(x: JsValue<Int>, y: JsValue<Int>): Window {
         jsReturn += ".scrollTo($x, $y)"
         return this
     }
@@ -55,7 +55,7 @@ class Window(window: JsValue<*>? = null): Keyword {
             jsReturn += ".forward()"
             return this
         }
-        fun go(number: JsValue<*>): History {
+        fun go(number: JsValue<Int>): History {
             jsReturn += ".go($number)"
             return this
         }

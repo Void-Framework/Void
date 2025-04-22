@@ -56,7 +56,7 @@ internal class VoidJsPage: ApiPage(
                                                 If.put(Call(
                                                     element.asJsValue(),
                                                     {
-                                                        html(it.getArg("text").asJsValue())
+                                                        html(it.getArg("text").asJsValue() as VariableValue<String>)
                                                     },
                                                     HTMLElement()
                                                 ))
@@ -64,7 +64,7 @@ internal class VoidJsPage: ApiPage(
                                                 Else.put(Call(
                                                     element.asJsValue(),
                                                     {
-                                                        text(it.getArg("text").asJsValue())
+                                                        text(it.getArg("text").asJsValue() as VariableValue<String>)
                                                     },
                                                     HTMLElement()
                                                 ))
