@@ -10,10 +10,11 @@ open class Function<T>(
 ): Keyword {
 
     val children = mutableListOf<Keyword>()
+    private var async = false
     override var jsReturn: String = ""
 
     override fun render(): String {
-        jsReturn = "function $name(${arguments.joinToString(", ")}) {${children.joinToString(";") { it.render() }}}"
+        jsReturn = "${if (async) "async " else ""}function $name(${arguments.joinToString(", ")}) {${children.joinToString(";") { it.render() }}}"
         return jsReturn
     }
 
@@ -26,7 +27,7 @@ open class Function<T>(
     }
 
     fun async(): Function<T> {
-        jsReturn = "async $jsReturn"
+        async = true
         return this
     }
 
