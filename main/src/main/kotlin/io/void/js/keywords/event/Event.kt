@@ -58,7 +58,7 @@ fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boole
     return function
 }
 
-data class Event(val eventType: JsValue<CustomEvent>, val function: JsValue<EventFunction>): Keyword {
+data class Event(val eventType: JsValue<JsEvent>, val function: JsValue<EventFunction>): Keyword {
     var bubble = false
     private var isVariable = false
     lateinit var variable: Variable<EventFunction>

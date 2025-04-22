@@ -7,20 +7,29 @@ import io.void.js.keywords.Keyword
 import io.void.js.keywords.asJsValue
 import io.void.js.keywords.variable.Const
 
-data class CustomEvent(val eventName: JsValue<*>): Keyword {
+interface JsEvent: Keyword
+data class CustomEvent(val eventName: JsValue<*>): JsEvent {
 
     val variable = Const(name = DataHandler.randomString(5), value = "new Event($eventName)")
     override var jsReturn: String = variable.render()
 
     companion object {
-        private val defaultEvents: Map<Events, CustomEvent> by lazy {
-            Events.entries.associateWith { CustomEvent(it.name.lowercase().asJsValue()) }.toMap()
+        private val defaultEvents: Map<Events, DefaultEvent> by lazy {
+            Events.entries.associateWith { DefaultEvent(it.name.lowercase()) }.toMap()
         }
 
-        fun getEvent(events: Events): CustomEvent {
+        fun getEvent(events: Events): DefaultEvent {
             return defaultEvents[events]!!
         }
     }
+
+    override fun render(): String {
+        return jsReturn
+    }
+}
+
+data class DefaultEvent(val eventName: String): JsEvent {
+    override var jsReturn: String = "\"$eventName\""
 
     override fun render(): String {
         return jsReturn

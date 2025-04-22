@@ -4,13 +4,14 @@ import io.void.js.keywords.datastructures.Void
 import io.void.js.keywords.event.CustomEvent
 import io.void.js.keywords.event.Event
 import io.void.js.keywords.event.EventFunction
+import io.void.js.keywords.event.JsEvent
 import io.void.js.keywords.event.exception.FunctionNotVariableException
 import io.void.js.keywords.variable.Variable
 import java.lang.UnsupportedOperationException
 
 interface BrowserObject: Keyword {
 
-    fun on(_eventType: JsValue<CustomEvent>, _function: JsValue<EventFunction>): Event {
+    fun on(_eventType: JsValue<JsEvent>, _function: JsValue<EventFunction>): Event {
         val event = Event(
             eventType = _eventType,
             function = _function
@@ -18,7 +19,7 @@ interface BrowserObject: Keyword {
         jsReturn += event.render()
         return event
     }
-    fun on(_eventType: List<JsValue<CustomEvent>>, _function: JsValue<EventFunction>): List<Event> {
+    fun on(_eventType: List<JsValue<JsEvent>>, _function: JsValue<EventFunction>): List<Event> {
         return _eventType.map {
             return@map on(it, _function)
         }
