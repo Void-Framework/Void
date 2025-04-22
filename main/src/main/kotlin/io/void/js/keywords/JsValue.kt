@@ -22,7 +22,6 @@ data class DirectValue<T>(internal val value: T) : JsValue<T> {
         is Number, Boolean -> value.toString()
         else -> "\"${value.toString()}\""
     }
-
     override fun toString(): String {
         return toJs()
     }
@@ -31,10 +30,16 @@ data class DirectValue<T>(internal val value: T) : JsValue<T> {
 // Implementation for variables
 data class VariableValue<T>(internal val variable: Variable<T>) : JsValue<T> {
     override fun toJs(): String = variable.name
+    override fun toString(): String {
+        return toJs()
+    }
 }
 
 data class FunctionValue(internal val function: Function, internal val argsList: JsValue<*> = emptyJsValue()) : JsValue<Any?> {
     override fun toJs(): String = function.run(argsList)
+    override fun toString(): String {
+        return toJs()
+    }
 }
 
 // Extension functions to create JsValues
