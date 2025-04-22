@@ -4,7 +4,6 @@ import io.void.html.Element
 import io.void.html.Fractal
 import io.void.js.JavaScript
 import io.void.js.keywords.datastructures.JsList
-import io.void.js.keywords.datastructures.Void
 import io.void.js.keywords.string.TemplateString
 import io.void.js.keywords.variable.Variable
 
@@ -20,13 +19,13 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
         jsReturn += ".querySelectorAll(${identifier.toJs()})"
         return JsList(HTMLElement().asJsValue())
     }
-    fun element(element: JsValue<*>): Void {
+    fun element(element: JsValue<*>): HTMLElement {
         jsReturn += ".createElement(${element.toJs()})"
-        return Void()
+        return HTMLElement()
     }
-    fun fragment(): Void {
+    fun fragment(): BrowserObject {
         jsReturn += ".createDocumentFragment()"
-        return Void()
+        return this
     }
     fun elements(amount: JsValue<*>, element: JsValue<*>): BrowserObject {
         jsReturn = "elements(${amount.toJs()}, ${element.toJs()})"
@@ -46,13 +45,13 @@ class HTMLElement: BrowserObject {
         return jsReturn
     }
 
-    fun html(element: JsValue<*>): Void {
+    fun html(element: JsValue<*>): HTMLElement {
         jsReturn += ".innerHTML = ${element.toJs()}"
-        return Void()
+        return this
     }
-    fun text(newValue: JsValue<*>): Void {
+    fun text(newValue: JsValue<*>): HTMLElement {
         jsReturn += ".textContent = ${newValue.toJs()}"
-        return Void()
+        return this
     }
     fun clone(children: JsValue<*> = DirectValue(true)): HTMLElement {
         jsReturn += ".cloneNode(${children.toJs()})"

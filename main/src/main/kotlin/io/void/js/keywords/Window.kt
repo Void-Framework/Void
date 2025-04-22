@@ -1,7 +1,6 @@
 package io.void.js.keywords
 
 import io.void.js.JavaScript
-import io.void.js.keywords.datastructures.Void
 import io.void.js.keywords.string.TemplateString
 import io.void.js.keywords.variable.Variable
 import java.net.URL
@@ -14,51 +13,51 @@ class Window(window: JsValue<*>? = null): Keyword {
         return jsReturn
     }
 
-    fun alert(message: JsValue<*>?): Void {
+    fun alert(message: JsValue<*>?): Window {
         jsReturn += ".alert(${message ?: "\"\""})"
-        return Void()
+        return this
     }
     fun open(url: JsValue<*>? = null, name: JsValue<*>? = null, specs: JsValue<*>? = null): Window {
         jsReturn += ".open(${url ?: "\"\""}, ${name ?: "\"\""}, ${specs ?: "\"\""})"
         return Window()
     }
-    fun confirm(message: JsValue<*>): Void {
+    fun confirm(message: JsValue<*>): Window {
         jsReturn += ".confirm($message)"
-        return Void()
+        return this
     }
     fun history(): History {
         jsReturn += ".history"
         return History()
     }
-    fun href(url: JsValue<*>?): Void {
+    fun href(url: JsValue<*>?): Window {
         jsReturn += ".location.href = ${url ?: "\"\""}"
-        return Void()
+        return this
     }
-    fun prompt(message: JsValue<*>? = null, defaultText: JsValue<*>? = null): Void {
+    fun prompt(message: JsValue<*>? = null, defaultText: JsValue<*>? = null): Window {
         jsReturn += ".prompt(${message ?: "\"\""}, ${defaultText ?: "\"\""})"
-        return Void()
+        return this
     }
-    fun scrollBy(x: JsValue<*>, y: JsValue<*>): Void {
+    fun scrollBy(x: JsValue<*>, y: JsValue<*>): Window {
         jsReturn += ".scrollBy($x, $y)"
-        return Void()
+        return this
     }
-    fun scrollTo(x: JsValue<*>, y: JsValue<*>): Void {
+    fun scrollTo(x: JsValue<*>, y: JsValue<*>): Window {
         jsReturn += ".scrollTo($x, $y)"
-        return Void()
+        return this
     }
 
     inner class History {
-        fun back(): Void {
+        fun back(): History {
             jsReturn += ".back()"
-            return Void()
+            return this
         }
-        fun forward(): Void {
+        fun forward(): History {
             jsReturn += ".forward()"
-            return Void()
+            return this
         }
-        fun go(number: JsValue<*>): Void {
+        fun go(number: JsValue<*>): History {
             jsReturn += ".go($number)"
-            return Void()
+            return this
         }
     }
 }

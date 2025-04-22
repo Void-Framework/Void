@@ -3,7 +3,6 @@ package io.void.js.keywords.event
 import io.void.js.JavaScript
 import io.void.js.keywords.*
 import io.void.js.keywords.Function
-import io.void.js.keywords.datastructures.Void
 import io.void.js.keywords.event.exception.FunctionNotVariableException
 import io.void.js.keywords.variable.Variable
 
@@ -35,9 +34,9 @@ data class EventFunction(
         }
     }
 
-    fun phase(): Void {
+    fun phase(): EventFunction {
         put(InlineCall(operation = "$eventValueName.eventPhase"))
-        return Void()
+        return this
     }
 
     override var jsReturn: String = "($eventValueName) => {${children.joinToString(";") { it.render() }}}"

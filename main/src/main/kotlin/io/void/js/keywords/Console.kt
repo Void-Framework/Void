@@ -2,7 +2,6 @@ package io.void.js.keywords
 
 import io.void.js.JavaScript
 import io.void.js.keywords.datastructures.JsList
-import io.void.js.keywords.datastructures.Void
 import io.void.js.keywords.string.TemplateString
 import io.void.js.keywords.variable.Variable
 
@@ -13,25 +12,25 @@ class Console(console: JsValue<*>? = null): Keyword {
     override fun render(): String {
         return jsReturn
     }
-    fun error(message: JsValue<*>): Void {
+    fun error(message: JsValue<*>): Console {
         jsReturn += ".error($message)"
-        return Void()
+        return this
     }
-    fun info(message: JsValue<*>): Void {
+    fun info(message: JsValue<*>): Console {
         jsReturn += ".info($message)"
-        return Void()
+        return this
     }
-    fun log(message: JsValue<*>): Void {
+    fun log(message: JsValue<*>): Console {
         jsReturn += ".log($message)"
-        return Void()
+        return this
     }
-    fun table(list: JsValue<*>): Void {
+    fun table(list: JsValue<*>): Console {
         jsReturn += ".table($list)"
-        return Void()
+        return this
     }
-    fun warn(message: JsValue<*>): Void {
+    fun warn(message: JsValue<*>): Console {
         jsReturn += ".warn($message)"
-        return Void()
+        return this
     }
 }
 

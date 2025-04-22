@@ -3,7 +3,6 @@ package io.void.js.keywords.error
 import io.void.js.JavaScript
 import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
-import io.void.js.keywords.datastructures.Void
 
 data class Try(
     val _body: JavaScript.(Function) -> Unit,
@@ -18,9 +17,9 @@ data class Try(
 
     override var jsReturn: String = "try {${children.joinToString(";") { it.render() }}}"
 
-    fun catch(catchClause: Catch): Void {
+    fun catch(catchClause: Catch): Try {
         jsReturn += catchClause.render()
-        return Void()
+        return this
     }
 
     override fun render(): String {
