@@ -19,10 +19,10 @@ class DataHandler private constructor() {
         }
     }
 
-     internal fun <T> create(value: T, js: JavaScript, uuid: UUID): DataHolder<T> {
+     inline fun <reified T> create(value: T, js: JavaScript, uuid: UUID): DataHolder<T> {
          val funcName = randomString(5)
          // Create the function first
-         val function = js.function(funcName, listOf("newValue")) {
+         val function = js.function<T>(funcName, listOf("newValue")) {
              val Return = Return(_value = "newValue")
              it.children.add(Return)
          }
@@ -36,7 +36,7 @@ class DataHandler private constructor() {
     }
 }
 
-fun <T> JavaScript.setData(value: T): DataHolder<T> {
+inline fun <reified T> JavaScript.setData(value: T): DataHolder<T> {
     val uuid = UUID.randomUUID()
     val dataHolder = DataHandler.singleton.create(value = value, js = this, uuid = uuid)
     children.add(dataHolder)

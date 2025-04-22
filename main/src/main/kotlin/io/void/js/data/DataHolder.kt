@@ -4,13 +4,11 @@ import io.void.html.Element
 import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
 import io.void.js.JavaScript
+import io.void.js.keywords.*
 import io.void.js.keywords.Function
-import io.void.js.keywords.FunctionRunner
-import io.void.js.keywords.Keyword
-import io.void.js.keywords.function
 import java.util.UUID
 
-class DataHolder<T> internal constructor(private var value: T?, val function: Function, private val js: JavaScript, val uuid: UUID): Keyword {
+class DataHolder<T>(private var value: T?, val function: Function<T>, private val js: JavaScript, val uuid: UUID): Keyword {
 
     override var jsReturn: String = ""
 
@@ -23,10 +21,10 @@ class DataHolder<T> internal constructor(private var value: T?, val function: Fu
         return "let ${DataHandler.randomString(6)} = $value;"
     }
 
-    fun set(newValue: T): FunctionRunner {
+    fun set(newValue: T): FunctionRunner<T> {
         val runner = FunctionRunner(
             function = function,
-            args = listOf(newValue as String)
+            args = newValue.asJsValue()
         )
         js.children.add(runner)
         return runner

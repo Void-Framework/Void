@@ -5,9 +5,9 @@ import io.void.js.keywords.Function
 
 data class While(
     val condition: String,
-    val _body: JavaScript.(Function) -> Unit,
+    val _body: JavaScript.(Function<Nothing>) -> Unit,
     val js: JavaScript
-): Function(
+): Function<Nothing>(
     name = "",
     arguments = emptyList(),
     body = _body
@@ -26,9 +26,9 @@ data class While(
 
 data class For(
     val condition: String,
-    val _body: JavaScript.(Function) -> Unit,
+    val _body: JavaScript.(Function<Nothing>) -> Unit,
     val js: JavaScript
-): Function(
+): Function<Nothing>(
     name = "",
     arguments = emptyList(),
     body = _body
@@ -45,7 +45,7 @@ data class For(
     }
 }
 
-fun JavaScript.While(condition: String, body: JavaScript.(Function) -> Unit): While {
+fun JavaScript.While(condition: String, body: JavaScript.(Function<Nothing>) -> Unit): While {
     val While = While(
         condition = condition,
         _body = body,
@@ -55,7 +55,7 @@ fun JavaScript.While(condition: String, body: JavaScript.(Function) -> Unit): Wh
     return While
 }
 
-fun JavaScript.For(condition: String, body: JavaScript.(Function) -> Unit): For {
+fun JavaScript.For(condition: String, body: JavaScript.(Function<Nothing>) -> Unit): For {
     val For = For(
         condition = condition,
         _body = body,

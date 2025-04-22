@@ -3,10 +3,10 @@ package io.void.js.keywords
 import io.void.js.JavaScript
 import io.void.js.keywords.variable.Variable
 
-open class Function(
+open class Function<T>(
     val name: String,
     val arguments: List<String> = emptyList(),
-    val body: JavaScript.(Function) -> Unit
+    val body: JavaScript.(Function<T>) -> Unit
 ): Keyword {
 
     val children = mutableListOf<Keyword>()
@@ -25,7 +25,7 @@ open class Function(
         this.children.add(keyword)
     }
 
-    fun async(): Function {
+    fun async(): Function<T> {
         jsReturn = "async $jsReturn"
         return this
     }
@@ -43,7 +43,7 @@ data class FunctionVariable<T>(override val name: String): Variable<T> {
     }
 }
 
-fun JavaScript.function(name: String, arguments: List<String>, body: JavaScript.(Function) -> Unit): Function {
+fun <T> JavaScript.function(name: String, arguments: List<String>, body: JavaScript.(Function<T>) -> Unit): Function<T> {
     val function = Function(
         name = name,
         arguments = arguments,
@@ -54,9 +54,9 @@ fun JavaScript.function(name: String, arguments: List<String>, body: JavaScript.
     return function
 }
 
-data class FunctionRunner(val function: Function, val args: List<String>): Keyword {
+data class FunctionRunner<T>(val function: Function<T>, val args: JsValue<*>): Keyword {
 
-    override var jsReturn: String = "${function.name}(${args.joinToString(", ")})"
+    override var jsReturn: String = "${function.name}($args)"
 
     override fun render(): String {
         return jsReturn
@@ -64,7 +64,7 @@ data class FunctionRunner(val function: Function, val args: List<String>): Keywo
 
 }
 
-fun JavaScript.run(function: Function, arguments: List<String>): FunctionRunner {
+fun <T> JavaScript.run(function: Function<T>, arguments: JsValue<*>): FunctionRunner<T> {
     val run = FunctionRunner(
         function = function,
         args = arguments

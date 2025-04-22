@@ -7,11 +7,11 @@ import io.void.js.keywords.event.exception.FunctionNotVariableException
 import io.void.js.keywords.variable.Variable
 
 data class EventFunction(
-    val _body: JavaScript.(Function) -> Unit,
+    val _body: JavaScript.(Function<Nothing>) -> Unit,
     val stopReload: Boolean = false,
     val js: JavaScript,
     val eventValueName: String
-): Function(
+): Function<Nothing>(
     name = "",
     arguments = listOf(eventValueName),
     body = _body,
@@ -23,13 +23,13 @@ data class EventFunction(
         body(js, this)
         if (eventValueName.isNotBlank()) {
             if (stopReload) {
-                children.addFirst(Call<Function>(eventValueName.asJsValue(), "preventDefault()"))
+                children.addFirst(Call<Function<Nothing>>(eventValueName.asJsValue(), "preventDefault()"))
             }
             if (!propagate) {
-                children.addFirst(Call<Function>(eventValueName.asJsValue(), "stopPropagation()"))
+                children.addFirst(Call<Function<Nothing>>(eventValueName.asJsValue(), "stopPropagation()"))
             }
             if (!immediatePropagation) {
-                children.addFirst(Call<Function>(eventValueName.asJsValue(), "stopImmediatePropagation()"))
+                children.addFirst(Call<Function<Nothing>>(eventValueName.asJsValue(), "stopImmediatePropagation()"))
             }
         }
     }
@@ -46,7 +46,7 @@ data class EventFunction(
     }
 }
 
-fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boolean = false, eventValueName: String): EventFunction {
+fun JavaScript.eFunction(body : JavaScript.(Function<Nothing>) -> Unit, stopReload: Boolean = false, eventValueName: String): EventFunction {
     val function = EventFunction(
         _body = body,
         stopReload = stopReload,

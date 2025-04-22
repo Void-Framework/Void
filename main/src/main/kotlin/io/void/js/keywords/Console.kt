@@ -12,15 +12,15 @@ class Console(console: JsValue<*>? = null): Keyword {
     override fun render(): String {
         return jsReturn
     }
-    fun error(message: JsValue<String>): Console {
+    fun error(message: JsValue<*>): Console {
         jsReturn += ".error($message)"
         return this
     }
-    fun info(message: JsValue<String>): Console {
+    fun info(message: JsValue<*>): Console {
         jsReturn += ".info($message)"
         return this
     }
-    fun log(message: JsValue<String>): Console {
+    fun log(message: JsValue<*>): Console {
         jsReturn += ".log($message)"
         return this
     }
@@ -28,7 +28,7 @@ class Console(console: JsValue<*>? = null): Keyword {
         jsReturn += ".table($list)"
         return this
     }
-    fun warn(message: JsValue<String>): Console {
+    fun warn(message: JsValue<*>): Console {
         jsReturn += ".warn($message)"
         return this
     }
