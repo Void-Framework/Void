@@ -28,7 +28,7 @@ class Server(private val router: Router, val port: Int, val httpVersion: Number 
     }
 
     fun startHTTPServer() {
-        isHTTP = true;
+        isHTTP = true
         Thread {
             try {
                 socket = ServerSocket(port)
@@ -57,9 +57,8 @@ class Server(private val router: Router, val port: Int, val httpVersion: Number 
     }
 
     fun startHTTPSServer(password: String, file: File, needsAuth: Boolean) {
-        isHTTP = false;
+        isHTTP = false
         val paswd = password.toCharArray()
-        val fis: FileInputStream
         try {
             FileInputStream(file).use { keystore.load(it, paswd) }
 

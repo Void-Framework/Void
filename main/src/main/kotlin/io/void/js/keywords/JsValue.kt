@@ -9,7 +9,7 @@ interface JsValue<T> {
 }
 
 // Implementation for direct values
-data class DirectValue<T>(private val value: T) : JsValue<T> {
+data class DirectValue<T>(internal val value: T) : JsValue<T> {
     override fun toJs(): String = when (value) {
         is String -> if (TemplateString.isTemplateString(value)) {
             TemplateString.turnToTemplateString(value)
@@ -29,11 +29,11 @@ data class DirectValue<T>(private val value: T) : JsValue<T> {
 }
 
 // Implementation for variables
-data class VariableValue<T>(private val variable: Variable<T>) : JsValue<T> {
+data class VariableValue<T>(internal val variable: Variable<T>) : JsValue<T> {
     override fun toJs(): String = variable.name
 }
 
-data class FunctionValue(private val function: Function, private val argsList: JsValue<*> = emptyJsValue()) : JsValue<Any?> {
+data class FunctionValue(internal val function: Function, internal val argsList: JsValue<*> = emptyJsValue()) : JsValue<Any?> {
     override fun toJs(): String = function.run(argsList)
 }
 

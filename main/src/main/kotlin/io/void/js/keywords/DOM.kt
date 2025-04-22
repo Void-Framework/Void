@@ -1,7 +1,5 @@
 package io.void.js.keywords
 
-import DirectValue
-import JsValue
 import io.void.html.Element
 import io.void.html.Fractal
 import io.void.js.JavaScript
@@ -20,7 +18,7 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
     }
     fun selectAll(identifier: JsValue<*>): JsList<HTMLElement> {
         jsReturn += ".querySelectorAll(${identifier.toJs()})"
-        return JsList(listOf(HTMLElement()))
+        return JsList(HTMLElement().asJsValue())
     }
     fun element(element: JsValue<*>): Void {
         jsReturn += ".createElement(${element.toJs()})"

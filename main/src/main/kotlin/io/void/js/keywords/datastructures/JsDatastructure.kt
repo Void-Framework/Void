@@ -3,6 +3,7 @@ package io.void.js.keywords.datastructures
 import io.void.js.data.DataHandler
 import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.asJsValue
 
 interface JsDatastructure: Keyword {
 
@@ -17,7 +18,7 @@ interface JsDatastructure: Keyword {
 class Runnable(var keyword: Keyword) {
     fun run(function: Function): Void {
         val random = DataHandler.randomString(5)
-        keyword.jsReturn += "$random => ${function.run(listOf(random))})"
+        keyword.jsReturn += "$random => ${function.run(random.asJsValue())})"
         return Void()
     }
 }

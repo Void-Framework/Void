@@ -1,9 +1,12 @@
 package io.void.js.keywords.datastructures
 
 import io.void.js.JavaScript
+import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.asJsValue
+import io.void.js.keywords.emptyJsValue
 
-data class JsObject(val values: Map<String, Any?>): JsDatastructure {
+data class JsObject(val values: Map<String, JsValue<*>?>): JsDatastructure {
 
     override var jsReturn: String = ""
     private var inside = StringBuilder("")
@@ -26,17 +29,17 @@ data class JsObject(val values: Map<String, Any?>): JsDatastructure {
         return this
     }
 
-    fun getValue(key: String): Void {
+    fun getValue(key: JsValue<*>): Void {
         jsReturn += ".$key"
         return Void()
     }
-    fun setValue(key: String, value: Any?): Void {
+    fun setValue(key: String, value: JsValue<*>?): Void {
         jsReturn += ".$key = $value"
         return Void()
     }
 }
 
-data class ObjectsMethods(private val objectName: String): Keyword {
+data class ObjectsMethods(private val objectName: JsValue<*>): Keyword {
     override var jsReturn: String = "Object"
 
     override fun render(): String {
@@ -47,24 +50,25 @@ data class ObjectsMethods(private val objectName: String): Keyword {
         jsReturn = "delete $objectName.$key"
         return Void()
     }
-    fun keys(): JsDatastructure {
+    fun keys(): JsList<String> {
         jsReturn += ".keys($objectName)"
-        val list = JsList<String>(listOf())
+        val list = JsList(emptyJsValue() as JsValue<String>)
         return list
     }
     fun values(): JsList<Any> {
         jsReturn += ".values($objectName)"
-        val list = JsList<Any>(listOf())
+        val list = JsList(emptyJsValue() as JsValue<Any>)
         return list
     }
     fun entries(): JsList<JsList<Any>> {
         jsReturn += ".entries($objectName)"
-        val list = JsList<JsList<Any>>(listOf())
+        @Suppress("UNCHECKED_CAST")
+        val list = JsList(JsList(emptyJsValue() as JsValue<Any>).asJsValue())
         return list
     }
 }
 
-fun JavaScript.jsObject(values: Map<String, Any?>): JsObject {
+fun JavaScript.jsObject(values: Map<String, JsValue<*>?>): JsObject {
     val JsObject = JsObject(
         values = values
     ).initialize()
@@ -72,7 +76,7 @@ fun JavaScript.jsObject(values: Map<String, Any?>): JsObject {
     return JsObject as JsObject
 }
 
-fun JavaScript.objectMethod(objectName: String): ObjectsMethods {
+fun JavaScript.objectMethod(objectName: JsValue<*>): ObjectsMethods {
     val methods = ObjectsMethods(
         objectName = objectName
     )

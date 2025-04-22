@@ -6,10 +6,11 @@ import io.void.js.keywords.event.Event
 import io.void.js.keywords.event.EventFunction
 import io.void.js.keywords.event.exception.FunctionNotVariableException
 import io.void.js.keywords.variable.Variable
+import java.lang.UnsupportedOperationException
 
 interface BrowserObject: Keyword {
 
-    fun on(_eventType: CustomEvent, _function: EventFunction): Event {
+    fun on(_eventType: JsValue<CustomEvent>, _function: JsValue<EventFunction>): Event {
         val event = Event(
             eventType = _eventType,
             function = _function
@@ -17,41 +18,29 @@ interface BrowserObject: Keyword {
         jsReturn += event.render()
         return event
     }
-    fun on(_eventType: List<CustomEvent>, _function: EventFunction): List<Event> {
+    fun on(_eventType: List<JsValue<CustomEvent>>, _function: JsValue<EventFunction>): List<Event> {
         return _eventType.map {
             return@map on(it, _function)
         }
     }
-    fun on(_eventType: CustomEvent, variable: Variable<EventFunction>): Event {
-        val event = Event(
-            eventType = _eventType,
-            variable = variable
-        )
-        jsReturn += event.render()
-        return event
-    }
-    fun on(_eventType: List<CustomEvent>, variable: Variable<EventFunction>): List<Event> {
-        return _eventType.map {
-            return@map on(it, variable)
+    fun off(event: JsValue<Event>): Void {
+        val eventValue = when (event) {
+            is DirectValue<Event> -> event.value
+            is VariableValue<Event> -> event.variable.value!!
+            else -> throw UnsupportedOperationException("Cannot use a js function")
         }
-    }
-    fun off(event: Event): Void {
         try {
             jsReturn += InlineCall(
-                operation = ".removeEventListener(\"${event.eventType.eventName}\", ${event.variable.name}${if (!event.bubble) ", true" else ""})"
+                operation = ".removeEventListener($event, ${eventValue.variable.name}${if (!eventValue.bubble) ", true" else ""})"
             ).render()
         } catch (e: Exception) {
-            throw FunctionNotVariableException(event = event)
+            throw FunctionNotVariableException(event = eventValue)
         }
         return Void()
     }
-    fun off(events: List<Event>): Void {
+    fun off(events: List<JsValue<Event>>): Void {
         events.forEach {
-            try {
-                off(it)
-            } catch (e: Exception) {
-                throw FunctionNotVariableException(event = it)
-            }
+            off(it)
         }
         return Void()
     }
