@@ -80,7 +80,7 @@ class HomeRoute : Page(target = "/") {
         // Test data updates
         val updateTitleFunction = function<Nothing>("updateTitle", listOf()) {
             it.put(Console().log("Updating tittle...".asJsValue()))
-            it.put(data.set("\"Title Updated!\""))
+            it.put(data.set("Title Updated!"))
         }
 
         // Add click event to footer to update title
