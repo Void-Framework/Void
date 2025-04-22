@@ -1,6 +1,5 @@
 package io.void.js.keywords
 
-import io.void.js.keywords.datastructures.Void
 import io.void.js.keywords.event.CustomEvent
 import io.void.js.keywords.event.Event
 import io.void.js.keywords.event.EventFunction
@@ -24,7 +23,7 @@ interface BrowserObject: Keyword {
             return@map on(it, _function)
         }
     }
-    fun off(event: JsValue<Event>): Void {
+    fun off(event: JsValue<Event>): BrowserObject {
         val eventValue = when (event) {
             is DirectValue<Event> -> event.value
             is VariableValue<Event> -> event.variable.value!!
@@ -37,12 +36,12 @@ interface BrowserObject: Keyword {
         } catch (e: Exception) {
             throw FunctionNotVariableException(event = eventValue)
         }
-        return Void()
+        return this
     }
-    fun off(events: List<JsValue<Event>>): Void {
+    fun off(events: List<JsValue<Event>>): BrowserObject {
         events.forEach {
             off(it)
         }
-        return Void()
+        return this
     }
 }

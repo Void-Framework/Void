@@ -21,21 +21,21 @@ data class JsSet<T>(val baseList: JsValue<T>): JsDatastructure {
         jsReturn += ".add($value)"
         return this@JsSet
     }
-    fun has(value: JsValue<T>): Void {
+    fun has(value: JsValue<T>): JsSet<T> {
         jsReturn += ".has($value)"
-        return Void()
+        return this
     }
-    fun delete(value: JsValue<T>): Void {
+    fun delete(value: JsValue<T>): JsSet<T> {
         jsReturn += ".delete($value)"
-        return Void()
+        return this
     }
-    fun clear(): Void {
+    fun clear(): JsSet<T> {
         jsReturn += ".clear()"
-        return Void()
+        return this
     }
-    fun size(): Void {
+    fun size(): JsSet<T> {
         jsReturn += ".size"
-        return Void()
+        return this
     }
 }
 

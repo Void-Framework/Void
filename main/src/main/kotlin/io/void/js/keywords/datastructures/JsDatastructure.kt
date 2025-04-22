@@ -16,9 +16,9 @@ interface JsDatastructure: Keyword {
 }
 
 class Runnable(var keyword: Keyword) {
-    fun run(function: Function): Void {
+    fun run(function: Function): Runnable {
         val random = DataHandler.randomString(5)
         keyword.jsReturn += "$random => ${function.run(random.asJsValue())})"
-        return Void()
+        return this
     }
 }

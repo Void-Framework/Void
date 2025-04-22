@@ -18,21 +18,21 @@ data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
         jsReturn = "[$arguments]"
         return this
     }
-    fun push(item: JsValue<T>): Void {
+    fun push(item: JsValue<T>): JsList<T> {
         jsReturn += ".push($item)"
-        return Void()
+        return this
     }
-    fun pop(): Void {
+    fun pop(): JsList<T> {
         jsReturn += ".pop()"
-        return Void()
+        return this
     }
-    fun shift(): Void {
+    fun shift(): JsList<T> {
         jsReturn += ".shift()"
-        return Void()
+        return this
     }
-    fun unshift(item: JsValue<T>): Void {
+    fun unshift(item: JsValue<T>): JsList<T> {
         jsReturn += ".unshift($item)"
-        return Void()
+        return this
     }
     fun splice(index: JsValue<T>, count: JsValue<T>? = null, item: JsValue<*>?): JsList<T> {
         jsReturn += ".splice($index${if (count != null) {
@@ -56,9 +56,9 @@ data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
         jsReturn += ".filter("
         return Runnable(this)
     }
-    fun includes(item: JsValue<*>): Void {
+    fun includes(item: JsValue<*>): JsList<T> {
         jsReturn += ".includes($item)"
-        return Void()
+        return this
     }
 }
 
