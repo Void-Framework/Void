@@ -24,7 +24,7 @@ internal class VoidJsPage: ApiPage(
                     "Content-Type" to "application/javascript",
                 ),
                 body = JavaScript {
-                    function("elements", listOf("size", "elementName", "text", "attributes")) {
+                    function<BrowserObject>("elements", listOf("size", "elementName", "text", "attributes")) {
                         val dom = DOM()
                         dom.fragment()
                         val fragment = Const(
@@ -72,14 +72,14 @@ internal class VoidJsPage: ApiPage(
                                     )
                                     For.put(
                                         For("const key in attributes", { smth ->
-                                            smth.put(Call<Function>(
+                                            smth.put(Call<Function<Nothing>>(
                                                 element.asJsValue(),
                                                 "setAttribute(key, attributes[key])"
                                             ))
                                         }, this@JavaScript)
                                     )
                                     For.put(
-                                        Call<Function>(
+                                        Call<Function<Nothing>>(
                                             fragment.asJsValue(),
                                             "appendChild(element);"
                                         )

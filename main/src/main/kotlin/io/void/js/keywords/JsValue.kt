@@ -35,7 +35,7 @@ data class VariableValue<T>(internal val variable: Variable<T>) : JsValue<T> {
     }
 }
 
-data class FunctionValue(internal val function: Function, internal val argsList: JsValue<*> = emptyJsValue()) : JsValue<Any?> {
+data class FunctionValue<T>(internal val function: Function<T>, internal val argsList: JsValue<*> = emptyJsValue()) : JsValue<T> {
     override fun toJs(): String = function.run(argsList)
     override fun toString(): String {
         return toJs()
@@ -45,7 +45,7 @@ data class FunctionValue(internal val function: Function, internal val argsList:
 // Extension functions to create JsValues
 fun <T> T.asJsValue(): JsValue<T> = DirectValue(this)
 fun <T> Variable<T>.asJsValue(): JsValue<T> = VariableValue(this)
-fun Function.asJsValue(argsList: JsValue<*>): JsValue<Any?> = FunctionValue(this, argsList)
+fun <T> Function<T>.asJsValue(argsList: JsValue<*>): JsValue<T> = FunctionValue(this, argsList)
 fun emptyJsValue(): JsValue<Nothing> = object : JsValue<Nothing> {
     override fun toJs(): String = ""
 }

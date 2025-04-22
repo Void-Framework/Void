@@ -5,9 +5,9 @@ import io.void.js.keywords.Function
 import io.void.js.keywords.Keyword
 
 data class Try(
-    val _body: JavaScript.(Function) -> Unit,
+    val _body: JavaScript.(Function<Nothing>) -> Unit,
     val js: JavaScript
-): Function(
+): Function<Nothing>(
     name = "",
     body = _body
 ) {
@@ -27,7 +27,7 @@ data class Try(
     }
 }
 
-fun JavaScript.Try(body: JavaScript.(Function) -> Unit): Try {
+fun JavaScript.Try(body: JavaScript.(Function<Nothing>) -> Unit): Try {
     val Try = Try(
         _body = body,
         js = this

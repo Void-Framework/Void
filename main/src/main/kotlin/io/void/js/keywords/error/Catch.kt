@@ -4,10 +4,10 @@ import io.void.js.JavaScript
 import io.void.js.keywords.Function
 
 data class CatchFunction(
-    val _body: JavaScript.(Function) -> Unit,
+    val _body: JavaScript.(Function<Nothing>) -> Unit,
     val js: JavaScript,
     val errorName: String
-): Function(
+): Function<Nothing>(
     name = "",
     body = _body,
     arguments = listOf(errorName)
@@ -26,7 +26,7 @@ data class CatchFunction(
 data class Catch(
     val _body: CatchFunction,
     val js: JavaScript
-): Function(
+): Function<Nothing>(
     name = "",
     body = _body._body
 ) {

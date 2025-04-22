@@ -6,9 +6,9 @@ import io.void.js.keywords.Keyword
 
 data class If(
     val condition: String,
-    val _body: JavaScript.(Function) -> Unit,
+    val _body: JavaScript.(Function<Nothing>) -> Unit,
     val js: JavaScript
-): Function(
+): Function<Nothing>(
     name = "",
     arguments = emptyList(),
     body = _body
@@ -31,14 +31,14 @@ data class If(
         return jsReturn
     }
 
-    fun ElseIf(condition: String, body: JavaScript.(Function) -> Unit): If {
+    fun ElseIf(condition: String, body: JavaScript.(Function<Nothing>) -> Unit): If {
         children.clear()
         body(js, this)
         jsReturn += "else if ($condition) {${renderBlock(children)}}"
         return this
     }
 
-    fun Else(body: JavaScript.(Function) -> Unit): If {
+    fun Else(body: JavaScript.(Function<Nothing>) -> Unit): If {
         children.clear()
         body(js, this)
         jsReturn += "else {${renderBlock(children)}}"
@@ -46,7 +46,7 @@ data class If(
     }
 }
 
-fun JavaScript.If(condition: String, body: JavaScript.(Function) -> Unit): If {
+fun JavaScript.If(condition: String, body: JavaScript.(Function<Nothing>) -> Unit): If {
     val conditional = If(
         condition = condition,
         _body = body,

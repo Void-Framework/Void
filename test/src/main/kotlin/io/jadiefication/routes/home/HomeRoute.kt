@@ -44,7 +44,7 @@ class HomeRoute : Page(target = "/") {
         }.asJsValue())
 
         // Test event handling on all buttons
-        selectAll("button".asJsValue()).forEach().run(function("handleButtonClick", listOf("button")) {
+        selectAll("button".asJsValue()).forEach().run(function<Nothing>("handleButtonClick", listOf("button")) {
             it.put(Call(it.getArg("button").asJsValue(), {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
@@ -61,7 +61,7 @@ class HomeRoute : Page(target = "/") {
         })
 
         // Test dynamic class toggling
-        selectAll("article".asJsValue()).forEach().run(function("handleArticleHover", listOf("article")) {
+        selectAll("article".asJsValue()).forEach().run(function<Nothing>("handleArticleHover", listOf("article")) {
             it.put(Call(it.getArg("article").asJsValue(), {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.MOUSEOVER).asJsValue(), EventFunction(
@@ -78,7 +78,7 @@ class HomeRoute : Page(target = "/") {
         })
 
         // Test data updates
-        val updateTitleFunction = function("updateTitle", listOf()) {
+        val updateTitleFunction = function<Nothing>("updateTitle", listOf()) {
             it.put(Console().log("Updating tittle...".asJsValue()))
             it.put(data.set("\"Title Updated!\""))
         }
@@ -93,13 +93,13 @@ class HomeRoute : Page(target = "/") {
             Fractal("Update Title")
         }.asJsValue())
 
-        selectAll("#footer button".asJsValue()).forEach().run(function("footerButton", listOf("button")) {
+        selectAll("#footer button".asJsValue()).forEach().run(function<Nothing>("footerButton", listOf("button")) {
             it.put(Call("button".asJsValue(), {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
                 stopReload = true,
                 _body = { js ->
-                    js.put(run(updateTitleFunction, emptyList()))
+                    js.put(run(updateTitleFunction, emptyJsValue()))
                 },
                 js = this,
                 eventValueName = ""
@@ -130,7 +130,7 @@ class HomeRoute : Page(target = "/") {
 
         // Test control flow with data structures
         call(userList.asJsValue(), {
-            forEach().run(function("displayUser", listOf("user")) {
+            forEach().run(function<Nothing>("displayUser", listOf("user")) {
                 it.put(If("user === 'John'", _body = { body ->
                     body.put(Console().log("Found admin \${user}".asJsValue()))
                 }, js = this).ElseIf("user === 'Jane'") { body ->
@@ -190,7 +190,7 @@ class HomeRoute : Page(target = "/") {
         }*/
 
         // Test object manipulation
-        objectMethod(userObject.asJsValue()).keys().forEach().run(function("displayKey", listOf("key")) {
+        objectMethod(userObject.asJsValue()).keys().forEach().run(function<Nothing>("displayKey", listOf("key")) {
             it.put(Call(it.getArg("key").asJsValue(), {
                 text("User property: \${key}".asJsValue())
             }, HTMLElement()))
@@ -212,7 +212,7 @@ class HomeRoute : Page(target = "/") {
         }.asJsValue())
 
         // Add event listener for test button
-        selectAll("#test-button button".asJsValue()).forEach().run(function("buttonHandler", listOf("button")) {
+        selectAll("#test-button button".asJsValue()).forEach().run(function<Nothing>("buttonHandler", listOf("button")) {
             it.put(Call(it.getArg("button").asJsValue(), {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(

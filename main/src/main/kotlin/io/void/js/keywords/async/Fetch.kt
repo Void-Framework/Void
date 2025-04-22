@@ -7,10 +7,10 @@ import io.void.js.keywords.Keyword
 import java.net.URL
 
 data class FetchFunction(
-    val _body: JavaScript.(Function) -> Unit,
+    val _body: JavaScript.(Function<Nothing>) -> Unit,
     val responseArgName: String,
     val js: JavaScript
-): Function(
+): Function<Nothing>(
     name = "",
     arguments = listOf(responseArgName),
     body = _body
