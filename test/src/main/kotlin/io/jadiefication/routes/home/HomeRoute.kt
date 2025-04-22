@@ -201,7 +201,7 @@ class HomeRoute : Page(target = "/") {
         console().log(DOM().elements(5.asJsValue(), Div {
             H3 { Fractal("User List") }
             Ul {
-            }}.asJsValue()).render())
+            }}.asJsValue()).asJsValue())
 
         // Add interactive test button
         id("test-button".asJsValue()).html(Button(

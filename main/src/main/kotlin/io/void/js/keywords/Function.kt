@@ -17,8 +17,8 @@ open class Function(
         return jsReturn
     }
 
-    open fun run(arguments: List<String>): String {
-        return "$name(${arguments.joinToString(", ")})"
+    open fun run(arguments: JsValue<*>): String {
+        return "$name($arguments)"
     }
 
     fun put(keyword: Keyword) {

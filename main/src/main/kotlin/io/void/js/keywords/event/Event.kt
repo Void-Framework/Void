@@ -1,10 +1,8 @@
 package io.void.js.keywords.event
 
 import io.void.js.JavaScript
-import io.void.js.keywords.Call
+import io.void.js.keywords.*
 import io.void.js.keywords.Function
-import io.void.js.keywords.InlineCall
-import io.void.js.keywords.Keyword
 import io.void.js.keywords.datastructures.Void
 import io.void.js.keywords.event.exception.FunctionNotVariableException
 import io.void.js.keywords.variable.Variable
@@ -26,13 +24,13 @@ data class EventFunction(
         body(js, this)
         if (eventValueName.isNotBlank()) {
             if (stopReload) {
-                children.addFirst(Call<Function>(eventValueName, "preventDefault()"))
+                children.addFirst(Call<Function>(eventValueName.asJsValue(), "preventDefault()"))
             }
             if (!propagate) {
-                children.addFirst(Call<Function>(eventValueName, "stopPropagation()"))
+                children.addFirst(Call<Function>(eventValueName.asJsValue(), "stopPropagation()"))
             }
             if (!immediatePropagation) {
-                children.addFirst(Call<Function>(eventValueName, "stopImmediatePropagation()"))
+                children.addFirst(Call<Function>(eventValueName.asJsValue(), "stopImmediatePropagation()"))
             }
         }
     }
@@ -60,22 +58,18 @@ fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boole
     return function
 }
 
-data class Event(val eventType: CustomEvent, val function: EventFunction): Keyword {
+data class Event(val eventType: JsValue<CustomEvent>, val function: JsValue<EventFunction>): Keyword {
     var bubble = false
     private var isVariable = false
     lateinit var variable: Variable<EventFunction>
 
-    override var jsReturn: String = ".addEventListener(\"${eventType.eventName.lowercase()}\", ${if (!isVariable) function.render() else variable.name}${if (!bubble) ", true" else ""})"
+    init {
+        isVariable = function is VariableValue<EventFunction>
+    }
+
+    override var jsReturn: String = ".addEventListener($eventType,${if (!isVariable) function.toJs() else variable.name},${if (!bubble) ", true" else ""})"
 
     override fun render(): String {
         return jsReturn
-    }
-
-    constructor(eventType: CustomEvent, variable: Variable<EventFunction>): this(
-        eventType = eventType,
-        function = variable.value!!
-    ) {
-        isVariable = true
-        this.variable = variable
     }
 }

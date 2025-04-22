@@ -2,6 +2,7 @@ package io.void.js.keywords.datastructures
 
 import io.void.js.JavaScript
 import io.void.js.keywords.Function
+import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 
 data class JsMap<K, V>(val baseMap: Map<K, V>): JsDatastructure {
@@ -27,19 +28,19 @@ data class JsMap<K, V>(val baseMap: Map<K, V>): JsDatastructure {
         return this
     }
 
-    fun set(key: K, value: V): JsMap<K, V> {
+    fun set(key: JsValue<K>, value: JsValue<V>): JsMap<K, V> {
         jsReturn += ".set($key, $value)"
         return this@JsMap
     }
-    fun get(key: K): Void {
+    fun get(key: JsValue<K>): Void {
         jsReturn += ".get($key)"
         return Void()
     }
-    fun has(key: K): Void {
+    fun has(key: JsValue<K>): Void {
         jsReturn += ".has($key)"
         return Void()
     }
-    fun delete(key: K): Void {
+    fun delete(key: JsValue<K>): Void {
         jsReturn += ".delete($key)"
         return Void()
     }
@@ -62,5 +63,6 @@ inline fun <reified K, reified V> JavaScript.map(baseMap: Map<K, V>): JsMap<K, V
         baseMap = baseMap,
     ).initialize()
     children.add(map)
+    @Suppress("UNCHECKED_CAST")
     return map as JsMap<K, V>
 }

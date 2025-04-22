@@ -1,27 +1,23 @@
 package io.void.js.keywords.error
 
 import io.void.js.JavaScript
+import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.string.TemplateString
 
 data class Error(
-    val message: String,
-    val extraData: String
+    val message: JsValue<*>,
+    val extraData: JsValue<*>
 ): Keyword {
 
-    override var jsReturn: String = "new Error(${if (TemplateString.isTemplateString(message)) {
-        "`$message`"
-    } else {
-        message
-    }
-    }$extraData)"
+    override var jsReturn: String = "new Error($message,$extraData)"
 
     override fun render(): String {
         return jsReturn
     }
 }
 
-fun JavaScript.Error(name: String, extraData: String): Error {
+fun JavaScript.Error(name: JsValue<*>, extraData: JsValue<*>): Error {
     val error = Error(
         message = name,
         extraData = extraData

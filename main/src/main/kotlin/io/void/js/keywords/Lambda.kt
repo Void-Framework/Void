@@ -22,8 +22,8 @@ data class Lambda(
         return jsReturn
     }
 
-    override fun run(arguments: List<String>): String {
-        return "${render()}(${_arguments.joinToString(", ")})"
+    override fun run(arguments: JsValue<*>): String {
+        return "${render()}($arguments)"
     }
 }
 

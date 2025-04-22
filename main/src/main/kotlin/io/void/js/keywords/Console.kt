@@ -6,51 +6,31 @@ import io.void.js.keywords.datastructures.Void
 import io.void.js.keywords.string.TemplateString
 import io.void.js.keywords.variable.Variable
 
-class Console(val console: Variable<Console>? = null): Keyword {
+class Console(console: JsValue<*>? = null): Keyword {
 
-    override var jsReturn: String = console?.name ?: "console"
+    override var jsReturn: String = console?.toJs() ?: "console"
 
     override fun render(): String {
         return jsReturn
     }
-    fun error(message: String): Void {
-        jsReturn += ".error(${if (TemplateString.isTemplateString(message)) {
-            TemplateString.turnToTemplateString(message)
-        } else {
-            "\"$message\""
-        }
-        })"
+    fun error(message: JsValue<*>): Void {
+        jsReturn += ".error($message)"
         return Void()
     }
-    fun info(message: String): Void {
-        jsReturn += ".info(${if (TemplateString.isTemplateString(message)) {
-            TemplateString.turnToTemplateString(message)
-        } else {
-            "\"$message\""
-        }
-        })"
+    fun info(message: JsValue<*>): Void {
+        jsReturn += ".info($message)"
         return Void()
     }
-    fun log(message: String): Void {
-        jsReturn += ".log(${if (TemplateString.isTemplateString(message)) {
-            TemplateString.turnToTemplateString(message)
-        } else {
-            "\"$message\""
-        }
-        })"
+    fun log(message: JsValue<*>): Void {
+        jsReturn += ".log($message)"
         return Void()
     }
-    fun table(list: JsList<*>): Void {
-        jsReturn += ".table(${list.render()})"
+    fun table(list: JsValue<*>): Void {
+        jsReturn += ".table($list)"
         return Void()
     }
-    fun warn(message: String): Void {
-        jsReturn += ".warn(${if (TemplateString.isTemplateString(message)) {
-            TemplateString.turnToTemplateString(message)
-        } else {
-            "\"$message\""
-        }
-        })"
+    fun warn(message: JsValue<*>): Void {
+        jsReturn += ".warn($message)"
         return Void()
     }
 }

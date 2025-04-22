@@ -3,32 +3,22 @@ package io.void.js.keywords.datastructures
 import io.void.js.JavaScript
 import io.void.js.data.DataHandler
 import io.void.js.keywords.Function
+import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import kotlin.collections.List
 
-data class JsList<T>(val arguments: List<T>): JsDatastructure {
+data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
 
     override var jsReturn = ""
-    private var inside = StringBuilder("")
-
-    init {
-        arguments.forEach {
-            inside.append("$it,")
-        }
-        if (arguments.isNotEmpty()) {
-            inside.setLength(inside.length - 1)
-        }
-    }
-
     override fun render(): String {
         return jsReturn
     }
 
     override fun initialize(): JsDatastructure {
-        jsReturn = "[$inside]"
+        jsReturn = "[$arguments]"
         return this
     }
-    fun push(item: String): Void {
+    fun push(item: JsValue<T>): Void {
         jsReturn += ".push($item)"
         return Void()
     }
@@ -40,18 +30,18 @@ data class JsList<T>(val arguments: List<T>): JsDatastructure {
         jsReturn += ".shift()"
         return Void()
     }
-    fun unshift(item: String): Void {
+    fun unshift(item: JsValue<T>): Void {
         jsReturn += ".unshift($item)"
         return Void()
     }
-    fun splice(index: Int, count: Int? = null, item: List<String>?): JsList<T> {
+    fun splice(index: JsValue<T>, count: JsValue<T>? = null, item: JsValue<*>?): JsList<T> {
         jsReturn += ".splice($index${if (count != null) {
             ", $count"
         } else {
             ""
         }
         }${if (item != null) {
-            ", ${item.joinToString(", ")}"
+            ", $item"
         } else {
             ""
         }
@@ -66,14 +56,15 @@ data class JsList<T>(val arguments: List<T>): JsDatastructure {
         jsReturn += ".filter("
         return Runnable(this)
     }
-    fun includes(item: String): Void {
+    fun includes(item: JsValue<*>): Void {
         jsReturn += ".includes($item)"
         return Void()
     }
 }
 
-inline fun <reified T> JavaScript.jsList(arguments: List<T>): JsList<T> {
+inline fun <reified T> JavaScript.jsList(arguments: JsValue<*>): JsList<T> {
     val list = JsList(arguments = arguments)
     children.add(list)
+    @Suppress("UNCHECKED_CAST")
     return list.initialize() as JsList<T>
 }

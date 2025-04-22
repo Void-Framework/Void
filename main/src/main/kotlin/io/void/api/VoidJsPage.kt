@@ -1,11 +1,11 @@
 package io.void.api
 
-import DirectValue
 import io.void.api.method.Method
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
 import io.void.js.JavaScript
 import io.void.js.keywords.*
+import io.void.js.keywords.Function
 import io.void.js.keywords.controlflow.For
 import io.void.js.keywords.controlflow.If
 import io.void.js.keywords.variable.Const
@@ -55,17 +55,17 @@ internal class VoidJsPage: ApiPage(
                                         If(condition = "isHTML",
                                             _body = { If ->
                                                 If.put(Call(
-                                                    element,
+                                                    element.asJsValue(),
                                                     {
-                                                        html(DirectValue(it.getArg("text")))
+                                                        html(it.getArg("text").asJsValue())
                                                     },
                                                     HTMLElement()
                                                 ))
                                             }, js = this@JavaScript).Else { Else ->
                                                 Else.put(Call(
-                                                    element,
+                                                    element.asJsValue(),
                                                     {
-                                                        text(DirectValue(it.getArg("text")))
+                                                        text(it.getArg("text").asJsValue())
                                                     },
                                                     HTMLElement()
                                                 ))
@@ -73,15 +73,15 @@ internal class VoidJsPage: ApiPage(
                                     )
                                     For.put(
                                         For("const key in attributes", { smth ->
-                                            smth.put(Call(
-                                                element,
+                                            smth.put(Call<Function>(
+                                                element.asJsValue(),
                                                 "setAttribute(key, attributes[key])"
                                             ))
                                         }, this@JavaScript)
                                     )
                                     For.put(
-                                        Call(
-                                            fragment,
+                                        Call<Function>(
+                                            fragment.asJsValue(),
                                             "appendChild(element);"
                                         )
                                     )

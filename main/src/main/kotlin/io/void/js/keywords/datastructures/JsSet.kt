@@ -1,9 +1,10 @@
 package io.void.js.keywords.datastructures
 
 import io.void.js.JavaScript
+import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 
-data class JsSet<T>(val baseList: JsList<T>): JsDatastructure {
+data class JsSet<T>(val baseList: JsValue<T>): JsDatastructure {
 
     override var jsReturn: String = ""
 
@@ -12,19 +13,19 @@ data class JsSet<T>(val baseList: JsList<T>): JsDatastructure {
     }
 
     override fun initialize(): JsDatastructure {
-        jsReturn = "new Set(${baseList.render()})"
+        jsReturn = "new Set($baseList)"
         return this
     }
 
-    fun add(value: T): JsSet<T> {
+    fun add(value: JsValue<T>): JsSet<T> {
         jsReturn += ".add($value)"
         return this@JsSet
     }
-    fun has(value: T): Void {
+    fun has(value: JsValue<T>): Void {
         jsReturn += ".has($value)"
         return Void()
     }
-    fun delete(value: T): Void {
+    fun delete(value: JsValue<T>): Void {
         jsReturn += ".delete($value)"
         return Void()
     }
@@ -38,7 +39,7 @@ data class JsSet<T>(val baseList: JsList<T>): JsDatastructure {
     }
 }
 
-inline fun <reified T> JavaScript.set(baseList: JsList<T>): JsSet<T> {
+inline fun <reified T> JavaScript.set(baseList: JsValue<T>): JsSet<T> {
     val set = JsSet(baseList = baseList).initialize()
     children.add(set)
     return set as JsSet<T>
