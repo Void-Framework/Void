@@ -1,7 +1,6 @@
 package io.void.js.keywords
 
 import io.void.js.JavaScript
-import io.void.js.keywords.variable.Variable
 
 @ConsistentCopyVisibility
 data class Call<T: Keyword> internal constructor(val variableName: String): Keyword {
