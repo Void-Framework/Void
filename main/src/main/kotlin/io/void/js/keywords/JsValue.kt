@@ -17,7 +17,7 @@ data class DirectValue<T>(internal val value: T) : JsValue<T> {
             "\"$value\""
         }
         is Keyword -> value.render()
-        is Element -> value.render()
+        is Element -> "\"${value.render()}\""
         is Iterable<*> -> value.joinToString(",") { DirectValue(it).toJs() }
         is Number, Boolean -> value.toString()
         else -> "\"${value.toString()}\""
