@@ -19,7 +19,7 @@ open class Function<T>(
     }
 
     open fun run(arguments: JsValue<*>): String {
-        return "$name($arguments)"
+        return if (arguments != emptyJsValue()) "$name($arguments)" else "$name()"
     }
 
     fun put(keyword: Keyword) {
@@ -57,7 +57,7 @@ fun <T> JavaScript.function(name: String, arguments: List<String>, body: JavaScr
 
 data class FunctionRunner<T>(val function: Function<T>, val args: JsValue<*>): Keyword {
 
-    override var jsReturn: String = "${function.name}($args)"
+    override var jsReturn: String = "${function.name}(${args.toJs()})"
 
     override fun render(): String {
         return jsReturn
