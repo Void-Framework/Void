@@ -1,6 +1,6 @@
+package io.void.js.keywords
+
 import io.void.html.Element
-import io.void.js.keywords.Function
-import io.void.js.keywords.Keyword
 import io.void.js.keywords.string.TemplateString
 import io.void.js.keywords.variable.Variable
 
@@ -33,11 +33,14 @@ data class VariableValue<T>(private val variable: Variable<T>) : JsValue<T> {
     override fun toJs(): String = variable.name
 }
 
-data class FunctionValue(private val function: Function, private val argsList: List<String> = emptyList()) : JsValue<Any?> {
+data class FunctionValue(private val function: Function, private val argsList: JsValue<*> = emptyJsValue()) : JsValue<Any?> {
     override fun toJs(): String = function.run(argsList)
 }
 
 // Extension functions to create JsValues
 fun <T> T.asJsValue(): JsValue<T> = DirectValue(this)
 fun <T> Variable<T>.asJsValue(): JsValue<T> = VariableValue(this)
-fun Function.asJsValue(): JsValue<Any?> = FunctionValue(this)
+fun Function.asJsValue(argsList: JsValue<*>): JsValue<Any?> = FunctionValue(this, argsList)
+fun emptyJsValue(): JsValue<Nothing> = object : JsValue<Nothing> {
+    override fun toJs(): String = ""
+}
