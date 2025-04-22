@@ -45,7 +45,7 @@ class HomeRoute : Page(target = "/") {
 
         // Test event handling on all buttons
         selectAll("button".asJsValue()).forEach().run(function("handleButtonClick", listOf("button")) {
-            it.put(Call("button".asJsValue(), {
+            it.put(Call(it.getArg("button").asJsValue(), {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
                 stopReload = true,
@@ -62,7 +62,7 @@ class HomeRoute : Page(target = "/") {
 
         // Test dynamic class toggling
         selectAll("article".asJsValue()).forEach().run(function("handleArticleHover", listOf("article")) {
-            it.put(Call("article".asJsValue(), {
+            it.put(Call(it.getArg("article").asJsValue(), {
                 this.render()
             }, Event(CustomEvent.getEvent(Events.MOUSEOVER).asJsValue(), EventFunction(
                 stopReload = true,
@@ -124,12 +124,12 @@ class HomeRoute : Page(target = "/") {
             value = JsObject(mapOf(
                 "name" to "John".asJsValue(),
                 "age" to 30.asJsValue(),
-                "roles" to listOf("admin", "user").asJsValue()
+                "roles" to JsList(listOf("admin", "user").asJsValue()).initialize().asJsValue()
             )).initialize()
         )
 
         // Test control flow with data structures
-        call("userList".asJsValue(), {
+        call(userList.asJsValue(), {
             forEach().run(function("displayUser", listOf("user")) {
                 it.put(If("user === 'John'", _body = { body ->
                     body.put(Console().log("Found admin \${user}".asJsValue()))
@@ -177,7 +177,7 @@ class HomeRoute : Page(target = "/") {
             name = "i",
             value = 0
             )
-        While("i < 5") {
+        /*While("i < 5") {
             it.put(Console().log("Processing users...".asJsValue()))
             it.put(Call(userMap.asJsValue(), {
                 entries().forEach().run(function("processEntry", listOf("entry")) { function ->
@@ -187,7 +187,7 @@ class HomeRoute : Page(target = "/") {
                 })
             }, JsMap<String, String>(mapOf())))
             it.put(InlineCall(operation = "i++"))
-        }
+        }*/
 
         // Test object manipulation
         objectMethod(userObject.asJsValue()).keys().forEach().run(function("displayKey", listOf("key")) {
