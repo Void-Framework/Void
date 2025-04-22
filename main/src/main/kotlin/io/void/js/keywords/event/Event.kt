@@ -58,7 +58,7 @@ fun JavaScript.eFunction(body : JavaScript.(Function) -> Unit, stopReload: Boole
 }
 
 data class Event(val eventType: JsValue<JsEvent>, val function: JsValue<EventFunction>): Keyword {
-    var bubble = false
+    var useCapture = false
     private var isVariable = false
     lateinit var variable: Variable<EventFunction>
 
@@ -66,7 +66,7 @@ data class Event(val eventType: JsValue<JsEvent>, val function: JsValue<EventFun
         isVariable = function is VariableValue<EventFunction>
     }
 
-    override var jsReturn: String = ".addEventListener($eventType,${if (!isVariable) function.toJs() else variable.name},${if (!bubble) ", true" else ""})"
+    override var jsReturn: String = ".addEventListener($eventType,${if (!isVariable) function.toJs() else variable.name}${if (useCapture) ", true" else ""})"
 
     override fun render(): String {
         return jsReturn

@@ -31,7 +31,7 @@ interface BrowserObject: Keyword {
         }
         try {
             jsReturn += InlineCall(
-                operation = ".removeEventListener($event, ${eventValue.variable.name}${if (!eventValue.bubble) ", true" else ""})"
+                operation = ".removeEventListener($event, ${eventValue.variable.name}${if (!eventValue.useCapture) ", true" else ""})"
             ).render()
         } catch (e: Exception) {
             throw FunctionNotVariableException(event = eventValue)
