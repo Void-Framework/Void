@@ -1,6 +1,5 @@
 package io.jadiefication.routes.home
 
-import asJsValue
 import io.void.generated.*
 import io.void.html.Element
 import io.void.html.Fractal
@@ -8,7 +7,6 @@ import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
 import io.void.html.page.Page
 import io.void.js.JavaScript
-import io.void.js.data.DataHandler
 import io.void.js.data.DataHolder
 import io.void.js.data.get
 import io.void.js.data.setData
@@ -47,41 +45,41 @@ class HomeRoute : Page(target = "/") {
 
         // Test event handling on all buttons
         selectAll("button".asJsValue()).forEach().run(function("handleButtonClick", listOf("button")) {
-            it.put(Call("button", {
+            it.put(Call("button".asJsValue(), {
                 this.render()
-            }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
+            }, Event(CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
                 stopReload = true,
                 _body = { js ->
-                    js.put(Call<Function>("console", "log('Button clicked!')"))
-                    js.put(Call<DOM>("button", {
+                    js.put(Console().log("Button Clicked!".asJsValue()))
+                    js.put(Call<DOM>("button".asJsValue(), {
                         HTMLElement().text("Clicked!".asJsValue())
                     }, DOM()))
                 },
                 js = this,
                 eventValueName = ""
-            ))))
+            ).asJsValue())))
         })
 
         // Test dynamic class toggling
         selectAll("article".asJsValue()).forEach().run(function("handleArticleHover", listOf("article")) {
-            it.put(Call("article", {
+            it.put(Call("article".asJsValue(), {
                 this.render()
-            }, Event(CustomEvent.getEvent(Events.MOUSEOVER), EventFunction(
+            }, Event(CustomEvent.getEvent(Events.MOUSEOVER).asJsValue(), EventFunction(
                 stopReload = true,
                 _body = { js ->
-                    js.put(Call<Function>("console", "log('Article hovered!')"))
-                    js.put(Call<DOM>("article", {
+                    js.put(Console().log("Article Hovered!".asJsValue()))
+                    js.put(Call<DOM>("article".asJsValue(), {
                         HTMLElement().text("Hover effect active".asJsValue())
                     }, DOM()))
                 },
                 js = this,
                 eventValueName = ""
-            ))))
+            ).asJsValue())))
         })
 
         // Test data updates
         val updateTitleFunction = function("updateTitle", listOf()) {
-            it.put(Call<Function>("console", "log('Updating title...')"))
+            it.put(Console().log("Updating tittle...".asJsValue()))
             it.put(data.set("\"Title Updated!\""))
         }
 
@@ -96,22 +94,22 @@ class HomeRoute : Page(target = "/") {
         }.asJsValue())
 
         selectAll("#footer button".asJsValue()).forEach().run(function("footerButton", listOf("button")) {
-            it.put(Call("button", {
+            it.put(Call("button".asJsValue(), {
                 this.render()
-            }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
+            }, Event(CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
                 stopReload = true,
                 _body = { js ->
                     js.put(run(updateTitleFunction, emptyList()))
                 },
                 js = this,
                 eventValueName = ""
-            ))))
+            ).asJsValue())))
         })
 
         // Test data structures
         val userList = const(
             name = "userList",
-            value = JsList(listOf("\"John\"", "\"Jane\"", "\"Bob\"")).initialize()
+            value = JsList(listOf("John", "Jane", "Bob").asJsValue()).initialize()
         )
         val userMap = const(
             name = "userMap",
@@ -124,24 +122,24 @@ class HomeRoute : Page(target = "/") {
         val userObject = const(
             name = "userObject",
             value = JsObject(mapOf(
-                "name" to "\"John\"",
-                "age" to 30,
-                "roles" to listOf("\"admin\"", "\"user\"")
+                "name" to "John".asJsValue(),
+                "age" to 30.asJsValue(),
+                "roles" to listOf("admin", "user").asJsValue()
             )).initialize()
         )
 
         // Test control flow with data structures
-        call("userList", {
+        call("userList".asJsValue(), {
             forEach().run(function("displayUser", listOf("user")) {
                 it.put(If("user === 'John'", _body = { body ->
-                    body.put(Call<Function>("console", "log('Found admin: ' + user)"))
+                    body.put(Console().log("Found admin \${user}".asJsValue()))
                 }, js = this).ElseIf("user === 'Jane'") { body ->
-                    body.put(Call<Function>("console", "log('Found moderator: ' + user)"))
+                    body.put(Console().log("Found moderator \${user}".asJsValue()))
                 }.Else { body ->
-                    body.put(Call<Function>("console", "log('Found user: ' + user)"))
+                    body.put(Console().log("Found user \${user}".asJsValue()))
                 })
             })
-        }, JsList<String>(listOf()))
+        }, JsList(emptyJsValue() as JsValue<String>))
 
         // Test DOM manipulation with data structures
         /*id("user-list").html(Div {
@@ -160,18 +158,18 @@ class HomeRoute : Page(target = "/") {
         // Test fetch with data handling
         fetch(null, URL("https://api.example.com/users"))
             .then(FetchFunction({ js ->
-                js.put(Call<Function>("console", "log('Fetched users')"))
+                js.put(Console().log("Fetched users".asJsValue()))
                 // Process response
-                js.put(Call<DOM>("response", {
+                /*js.put(Call<DOM>("response", {
                     //this.HTMLElement().text("Data fetched successfully")
-                }, DOM()))
+                }, DOM()))*/
             }, "response", this))
             .catch(FetchFunction({ js ->
-                js.put(Call<Function>("console", "log('Error fetching users')"))
+                js.put(Console().log("Error fetching users".asJsValue()))
                 // Handle error
-                js.put(Call<DOM>("error", {
+                /*js.put(Call<DOM>("error", {
                     //this.HTMLElement().text("Error fetching data")
-                }, DOM()))
+                }, DOM()))*/
             }, "error", this))
 
         // Test loops with map
@@ -180,10 +178,10 @@ class HomeRoute : Page(target = "/") {
             value = 0
             )
         While("i < 5") {
-            it.put(Call<Function>("console", "log('Processing users...')"))
-            it.put(Call("userMap", {
+            it.put(Console().log("Processing users...".asJsValue()))
+            it.put(Call(userMap.asJsValue(), {
                 entries().forEach().run(function("processEntry", listOf("entry")) { function ->
-                    function.put(Call("entry", {
+                    function.put(Call("entry".asJsValue(), {
                         text("Role: \${entry[0]}, User: \${entry[1]}".asJsValue())
                     }, HTMLElement()))
                 })
@@ -192,8 +190,8 @@ class HomeRoute : Page(target = "/") {
         }
 
         // Test object manipulation
-        objectMethod("userObject").keys().forEach().run(function("displayKey", listOf("key")) {
-            it.put(Call("key", {
+        objectMethod(userObject.asJsValue()).keys().forEach().run(function("displayKey", listOf("key")) {
+            it.put(Call(it.getArg("key").asJsValue(), {
                 text("User property: \${key}".asJsValue())
             }, HTMLElement()))
         })
@@ -215,30 +213,30 @@ class HomeRoute : Page(target = "/") {
 
         // Add event listener for test button
         selectAll("#test-button button".asJsValue()).forEach().run(function("buttonHandler", listOf("button")) {
-            it.put(Call("button", {
+            it.put(Call(it.getArg("button").asJsValue(), {
                 this.render()
-            }, Event(CustomEvent.getEvent(Events.CLICK), EventFunction(
+            }, Event(CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
                 stopReload = true,
                 _body = { js ->
                     // Test map operations
-                    js.put(Call("userMap", {
-                        set("newRole", "Alice")
+                    js.put(Call("userMap".asJsValue(), {
+                        set("newRole".asJsValue(), "Alice".asJsValue())
                     }, JsMap<String, String>(mapOf())))
-                    js.put(Call<Function>("console", "log('Added new user to map')"))
+                    js.put(Console().log("Added new user to map".asJsValue()))
 
                     // Test list operations
-                    js.put(Call("userMap", {
-                        push("Alice")
-                    }, JsList<String>(listOf())))
-                    js.put(Call<Function>("console", "log('Added new user to list')"))
+                    js.put(Call(userMap.asJsValue(), {
+                        push("Alice".asJsValue())
+                    }, JsList(emptyJsValue() as JsValue<String>)))
+                    js.put(Console().log("Added new user to list".asJsValue()))
 
                     // Test object operations
-                    js.put(ObjectsMethods("userObject").delete("age"))
-                    js.put(Call<Function>("console", "log('Deleted age from user object')"))
+                    js.put(ObjectsMethods(userObject.asJsValue()).delete("age"))
+                    js.put(Console().log("Deleted age from user object".asJsValue()))
                 },
                 js = this,
                 eventValueName = ""
-            ))))
+            ).asJsValue())))
         })
     }
 

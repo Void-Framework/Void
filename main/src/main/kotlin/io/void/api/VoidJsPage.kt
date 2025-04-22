@@ -9,7 +9,6 @@ import io.void.js.keywords.Function
 import io.void.js.keywords.controlflow.For
 import io.void.js.keywords.controlflow.If
 import io.void.js.keywords.variable.Const
-import io.void.js.keywords.variable.const
 
 internal class VoidJsPage: ApiPage(
     target = "/js/void.js",
