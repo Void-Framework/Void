@@ -3,6 +3,7 @@ package io.void.js.keywords
 import io.void.html.Element
 import io.void.js.keywords.string.TemplateString
 import io.void.js.keywords.variable.Variable
+import io.void.js.Function
 
 interface JsValue<T> {
     fun toJs(): String

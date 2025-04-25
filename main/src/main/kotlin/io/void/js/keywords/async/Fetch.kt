@@ -2,12 +2,12 @@ package io.void.js.keywords.async
 
 import io.void.dto.ResponseDTO
 import io.void.js.JavaScript
-import io.void.js.keywords.Function
+import io.void.js.Function
 import io.void.js.keywords.Keyword
 import java.net.URL
 
 data class FetchFunction(
-    val _body: JavaScript.(Function<Nothing>) -> Unit,
+    val _body: JavaScript.() -> Unit,
     val responseArgName: String,
     val js: JavaScript
 ): Function<Nothing>(
@@ -15,10 +15,6 @@ data class FetchFunction(
     arguments = listOf(responseArgName),
     body = _body
 ) {
-
-    init {
-        body(js, this)
-    }
 
     override var jsReturn: String = "$responseArgName => {${children.joinToString(";") { it.render() }}}"
 
