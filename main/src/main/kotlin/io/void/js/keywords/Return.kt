@@ -13,5 +13,6 @@ data class Return<T>(val value: T?): Keyword {
 
 inline fun <reified T> JavaScript.Return(_value: T?): Return<T> {
     val Return = Return(value = _value)
+    children.add(Return)
     return Return
 }
