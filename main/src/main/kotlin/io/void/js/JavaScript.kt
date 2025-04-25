@@ -6,9 +6,9 @@ import io.void.js.keywords.datastructures.JsDatastructure
 import io.void.js.keywords.emptyJsValue
 import io.void.js.keywords.variable.Variable
 
-sealed class JavaScript(val runBeforeLoad: Boolean = false) {
+sealed class JavaScript(open val runBeforeLoad: Boolean = false, open val code: JavaScript.() -> Unit) {
 
-    constructor(runBeforeLoad: Boolean = false, code: JavaScript.() -> Unit) : this(runBeforeLoad) {
+    init {
         this.apply(code)
     }
 
@@ -39,6 +39,8 @@ sealed class JavaScript(val runBeforeLoad: Boolean = false) {
         return js
     }
 }
+
+class Js(override val runBeforeLoad: Boolean = false, override val code: JavaScript.() -> Unit): JavaScript(runBeforeLoad, code)
 
 open class Function<T>(
     val name: String,
