@@ -1,21 +1,17 @@
 package io.void.js.keywords.controlflow
 
 import io.void.js.JavaScript
-import io.void.js.keywords.Function
+import io.void.js.Function
 
 data class While(
     val condition: String,
-    val _body: JavaScript.(Function<Nothing>) -> Unit,
+    val _body: JavaScript.() -> Unit,
     val js: JavaScript
 ): Function<Nothing>(
     name = "",
     arguments = emptyList(),
     body = _body
 ) {
-
-    init {
-        body(js, this)
-    }
 
     override var jsReturn: String = "while($condition) {${children.joinToString(";") { it.render() }}}"
 
@@ -26,17 +22,13 @@ data class While(
 
 data class For(
     val condition: String,
-    val _body: JavaScript.(Function<Nothing>) -> Unit,
+    val _body: JavaScript.() -> Unit,
     val js: JavaScript
 ): Function<Nothing>(
     name = "",
     arguments = emptyList(),
     body = _body
 ) {
-
-    init {
-        body(js, this)
-    }
 
     override var jsReturn: String = "for($condition) {${children.joinToString(";") { it.render() }}}"
 
@@ -45,7 +37,7 @@ data class For(
     }
 }
 
-fun JavaScript.While(condition: String, body: JavaScript.(Function<Nothing>) -> Unit): While {
+fun JavaScript.While(condition: String, body: JavaScript.() -> Unit): While {
     val While = While(
         condition = condition,
         _body = body,
@@ -55,7 +47,7 @@ fun JavaScript.While(condition: String, body: JavaScript.(Function<Nothing>) -> 
     return While
 }
 
-fun JavaScript.For(condition: String, body: JavaScript.(Function<Nothing>) -> Unit): For {
+fun JavaScript.For(condition: String, body: JavaScript.() -> Unit): For {
     val For = For(
         condition = condition,
         _body = body,

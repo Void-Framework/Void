@@ -2,12 +2,12 @@ package io.void.js.keywords.event
 
 import io.void.js.JavaScript
 import io.void.js.keywords.*
-import io.void.js.keywords.Function
+import io.void.js.Function
 import io.void.js.keywords.event.exception.FunctionNotVariableException
 import io.void.js.keywords.variable.Variable
 
 data class EventFunction(
-    val _body: JavaScript.(Function<Nothing>) -> Unit,
+    val _body: JavaScript.() -> Unit,
     val stopReload: Boolean = false,
     val js: JavaScript,
     val eventValueName: String
@@ -20,7 +20,6 @@ data class EventFunction(
     var immediatePropagation = true
 
     init {
-        body(js, this)
         if (eventValueName.isNotBlank()) {
             if (stopReload) {
                 children.addFirst(Call<Function<Nothing>>(eventValueName.asJsValue(), "preventDefault()"))
@@ -35,7 +34,7 @@ data class EventFunction(
     }
 
     fun phase(): EventFunction {
-        put(InlineCall(operation = "$eventValueName.eventPhase"))
+        children.add(InlineCall(operation = "$eventValueName.eventPhase"))
         return this
     }
 
@@ -46,7 +45,7 @@ data class EventFunction(
     }
 }
 
-fun JavaScript.eFunction(body : JavaScript.(Function<Nothing>) -> Unit, stopReload: Boolean = false, eventValueName: String): EventFunction {
+fun JavaScript.eFunction(body : JavaScript.() -> Unit, stopReload: Boolean = false, eventValueName: String): EventFunction {
     val function = EventFunction(
         _body = body,
         stopReload = stopReload,

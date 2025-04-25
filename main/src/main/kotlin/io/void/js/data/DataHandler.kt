@@ -1,9 +1,9 @@
 package io.void.js.data
 
 import io.void.js.JavaScript
-import io.void.js.keywords.Function
+import io.void.js.Function
+import io.void.js.function
 import io.void.js.keywords.Return
-import io.void.js.keywords.function
 import java.util.UUID
 
 class DataHandler private constructor() {
@@ -23,8 +23,7 @@ class DataHandler private constructor() {
          val funcName = randomString(5)
          // Create the function first
          val function = js.function<T>(funcName, listOf("newValue")) {
-             val Return = Return(_value = "newValue")
-             it.children.add(Return)
+             Return("newValue")
          }
 
          return DataHolder(

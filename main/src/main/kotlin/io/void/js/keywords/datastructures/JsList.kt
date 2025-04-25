@@ -2,7 +2,7 @@ package io.void.js.keywords.datastructures
 
 import io.void.js.JavaScript
 import io.void.js.data.DataHandler
-import io.void.js.keywords.Function
+import io.void.js.Function
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import kotlin.collections.List

@@ -1,10 +1,10 @@
 package io.void.js.keywords.error
 
 import io.void.js.JavaScript
-import io.void.js.keywords.Function
+import io.void.js.Function
 
 data class CatchFunction(
-    val _body: JavaScript.(Function<Nothing>) -> Unit,
+    val _body: JavaScript.() -> Unit,
     val js: JavaScript,
     val errorName: String
 ): Function<Nothing>(
@@ -12,9 +12,6 @@ data class CatchFunction(
     body = _body,
     arguments = listOf(errorName)
 ) {
-    init {
-        body(js, this)
-    }
 
     override var jsReturn: String = children.joinToString(";") { it.render() }
 
@@ -30,9 +27,6 @@ data class Catch(
     name = "",
     body = _body._body
 ) {
-    init {
-        body(js, this)
-    }
 
     override fun render(): String {
         return "catch {${_body.render()}}"

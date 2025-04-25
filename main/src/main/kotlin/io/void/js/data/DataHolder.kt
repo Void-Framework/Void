@@ -5,7 +5,8 @@ import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
 import io.void.js.JavaScript
 import io.void.js.keywords.*
-import io.void.js.keywords.Function
+import io.void.js.Function
+import io.void.js.FunctionRunner
 import java.util.UUID
 
 class DataHolder<T>(private var value: T?, val function: Function<T>, private val js: JavaScript, val uuid: UUID): Keyword {
