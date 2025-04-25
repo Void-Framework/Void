@@ -30,12 +30,14 @@ data class If(
 
     fun ElseIf(condition: String, body: JavaScript.() -> Unit): If {
         children.clear()
+        this.body()
         jsReturn += "else if ($condition) {${renderBlock(children)}}"
         return this
     }
 
     fun Else(body: JavaScript.() -> Unit): If {
         children.clear()
+        this.body()
         jsReturn += "else {${renderBlock(children)}}"
         return this
     }
