@@ -41,24 +41,24 @@ internal class VoidJsPage: ApiPage(
                         )
                         For(
                             condition = "let i = 0; i < size; i++",
-                            _body = {
+                            body = {
                                 val element = const(
                                     name = "element",
                                     value = InlineCall(operation = "document.createElement(elementName)")
                                 )
                                 If(
                                     condition = "isHTML",
-                                    _body = {
-                                        Call(
+                                    body = {
+                                        call(
                                             element.asJsValue(),
                                             {
                                                 html(text.asJsValue() as VariableValue<String>)
                                             },
                                             HTMLElement()
                                         )
-                                    }, js = this@Js
+                                    }
                                 ).Else {
-                                    Call(
+                                    call(
                                         element.asJsValue(),
                                         {
                                             text(text.asJsValue() as VariableValue<String>)
@@ -67,17 +67,16 @@ internal class VoidJsPage: ApiPage(
                                     )
                                 }
                                 For("const key in attributes", {
-                                    Call<Function<Nothing>>(
+                                    call<Function<Nothing>>(
                                         element.asJsValue(),
                                         "setAttribute(key, attributes[key])"
                                     )
-                                }, this@Js)
-                                Call<Function<Nothing>>(
+                                })
+                                call<Function<Nothing>>(
                                     fragment.asJsValue(),
                                     "appendChild(element);"
                                 )
-                            },
-                            js = this@Js
+                            }
                         )
                         Return(fragment.name)
                     }
