@@ -9,8 +9,7 @@ import io.void.js.keywords.variable.Variable
 
 data class EventFunction(
     val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
-    val stopReload: Boolean = false,
-    val js: JavaScript,
+    val stopReload: Boolean = true,
     val eventValueName: String
 ): Function<Nothing>(
     name = "",
@@ -50,7 +49,6 @@ fun JavaScript.eFunction(body : JavaScript.(List<FunctionVariable<*>>) -> Unit, 
     val function = EventFunction(
         _body = body,
         stopReload = stopReload,
-        js = this,
         eventValueName = eventValueName
     )
     children.add(function)
