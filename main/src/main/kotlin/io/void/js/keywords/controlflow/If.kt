@@ -2,11 +2,12 @@ package io.void.js.keywords.controlflow
 
 import io.void.js.JavaScript
 import io.void.js.Function
+import io.void.js.FunctionVariable
 import io.void.js.keywords.Keyword
 
 data class If(
     val condition: String,
-    val _body: JavaScript.() -> Unit,
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
     val js: JavaScript
 ): Function<Nothing>(
     name = "",
@@ -40,7 +41,7 @@ data class If(
     }
 }
 
-fun JavaScript.If(condition: String, body: JavaScript.() -> Unit): If {
+fun JavaScript.If(condition: String, body: JavaScript.(List<FunctionVariable<*>>) -> Unit): If {
     val conditional = If(
         condition = condition,
         _body = body,
