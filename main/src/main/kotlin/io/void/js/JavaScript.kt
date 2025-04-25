@@ -6,9 +6,9 @@ import io.void.js.keywords.datastructures.JsDatastructure
 import io.void.js.keywords.emptyJsValue
 import io.void.js.keywords.variable.Variable
 
-sealed class JavaScript(open val runBeforeLoad: Boolean = false, open val code: JavaScript.() -> Unit) {
+sealed class JavaScript(open val runBeforeLoad: Boolean = false) {
 
-    init {
+    constructor(runBeforeLoad: Boolean = false, code: JavaScript.() -> Unit): this(runBeforeLoad) {
         this.apply(code)
     }
 
@@ -40,17 +40,22 @@ sealed class JavaScript(open val runBeforeLoad: Boolean = false, open val code: 
     }
 }
 
-class Js(override val runBeforeLoad: Boolean = false, override val code: JavaScript.() -> Unit): JavaScript(runBeforeLoad, code)
+class Js(override val runBeforeLoad: Boolean = false, val code: JavaScript.() -> Unit): JavaScript(runBeforeLoad, code)
 
 open class Function<T>(
     val name: String,
     val arguments: List<String> = emptyList(),
-    val body: JavaScript.() -> Unit
-): JavaScript(code = body), Keyword {
+    val body: JavaScript.(List<FunctionVariable<*>>) -> Unit
+): JavaScript(), Keyword {
 
     override val children = mutableListOf<Keyword>()
     private var async = false
     override var jsReturn: String = ""
+    protected val functionArgs = arguments.map { FunctionVariable<Any?>(it) }
+
+    init {
+        this.body(functionArgs)
+    }
 
     override fun render(): String {
         jsReturn = "${if (async) "async " else ""}function $name(${arguments.joinToString(", ")}) {${children.joinToString(";") { it.render() }}}"
@@ -79,13 +84,12 @@ data class FunctionVariable<T>(override val name: String): Variable<T> {
     }
 }
 
-fun <T> JavaScript.function(name: String, arguments: List<String>, body: JavaScript.() -> Unit): Function<T> {
+fun <T> JavaScript.function(name: String, arguments: List<String>, body: JavaScript.(List<FunctionVariable<*>>) -> Unit): Function<T> {
     val function = Function<T>(
         name = name,
         arguments = arguments,
         body = body
     )
-    body(function)
     children.add(function)
     return function
 }

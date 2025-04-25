@@ -3,11 +3,12 @@ package io.void.js.keywords.event
 import io.void.js.JavaScript
 import io.void.js.keywords.*
 import io.void.js.Function
+import io.void.js.FunctionVariable
 import io.void.js.keywords.event.exception.FunctionNotVariableException
 import io.void.js.keywords.variable.Variable
 
 data class EventFunction(
-    val _body: JavaScript.() -> Unit,
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
     val stopReload: Boolean = false,
     val js: JavaScript,
     val eventValueName: String
@@ -45,7 +46,7 @@ data class EventFunction(
     }
 }
 
-fun JavaScript.eFunction(body : JavaScript.() -> Unit, stopReload: Boolean = false, eventValueName: String): EventFunction {
+fun JavaScript.eFunction(body : JavaScript.(List<FunctionVariable<*>>) -> Unit, stopReload: Boolean = false, eventValueName: String): EventFunction {
     val function = EventFunction(
         _body = body,
         stopReload = stopReload,

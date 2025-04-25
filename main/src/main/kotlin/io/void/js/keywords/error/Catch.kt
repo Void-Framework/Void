@@ -2,9 +2,10 @@ package io.void.js.keywords.error
 
 import io.void.js.JavaScript
 import io.void.js.Function
+import io.void.js.FunctionVariable
 
 data class CatchFunction(
-    val _body: JavaScript.() -> Unit,
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
     val js: JavaScript,
     val errorName: String
 ): Function<Nothing>(

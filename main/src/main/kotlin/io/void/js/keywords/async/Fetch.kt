@@ -3,11 +3,12 @@ package io.void.js.keywords.async
 import io.void.dto.ResponseDTO
 import io.void.js.JavaScript
 import io.void.js.Function
+import io.void.js.FunctionVariable
 import io.void.js.keywords.Keyword
 import java.net.URL
 
 data class FetchFunction(
-    val _body: JavaScript.() -> Unit,
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
     val responseArgName: String,
     val js: JavaScript
 ): Function<Nothing>(

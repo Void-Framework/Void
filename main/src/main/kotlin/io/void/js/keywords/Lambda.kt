@@ -2,10 +2,11 @@ package io.void.js.keywords
 
 import io.void.js.JavaScript
 import io.void.js.Function
+import io.void.js.FunctionVariable
 
 data class Lambda<T>(
     val _arguments: List<String>,
-    val _body: JavaScript.() -> Unit,
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
     val js: JavaScript
 ): Function<T>(
     name = "",
@@ -23,7 +24,7 @@ data class Lambda<T>(
     }
 }
 
-inline fun <reified T> JavaScript.Lambda(noinline body: JavaScript.() -> Unit, arguments: List<String>): Lambda<T> {
+inline fun <reified T> JavaScript.Lambda(noinline body: JavaScript.(List<FunctionVariable<*>>) -> Unit, arguments: List<String>): Lambda<T> {
     val lambda = Lambda<T>(
         _body = body,
         _arguments = arguments,

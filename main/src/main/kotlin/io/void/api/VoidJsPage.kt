@@ -5,10 +5,13 @@ import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
 import io.void.js.JavaScript
 import io.void.js.keywords.*
-import io.void.js.keywords.Function
+import io.void.js.Function
+import io.void.js.Js
+import io.void.js.function
 import io.void.js.keywords.controlflow.For
 import io.void.js.keywords.controlflow.If
 import io.void.js.keywords.variable.Const
+import io.void.js.keywords.variable.const
 
 internal class VoidJsPage: ApiPage(
     target = "/js/void.js",
@@ -23,72 +26,60 @@ internal class VoidJsPage: ApiPage(
                 headers = mutableMapOf(
                     "Content-Type" to "application/javascript",
                 ),
-                body = JavaScript {
-                    function<BrowserObject>("elements", listOf("size", "elementName", "text", "attributes")) {
+                body = Js {
+                    function<BrowserObject>("elements", listOf("size", "elementName", "text", "attributes")) { args ->
+                        val (size, elementName, text, attributes) = args
                         val dom = DOM()
                         dom.fragment()
-                        val fragment = Const(
+                        val fragment = const(
                             name = "fragment",
                             value = dom
                         )
-                        val isHTML = Const(
+                        const(
                             name = "isHTML",
                             value = InlineCall(operation = "/<[^>]+>/.test(text)")
                         )
-                        it.put(
-                            fragment
-                        )
-                        it.put(
-                            isHTML
-                        )
-                        it.put(
-                            For(
-                                condition = "let i = 0; i < size; i++",
-                                _body = { For ->
-                                    val element = Const(
-                                        name = "element",
-                                        value = InlineCall(operation = "document.createElement(elementName)")
-                                    )
-                                    For.put(element)
-                                    For.put(
-                                        If(condition = "isHTML",
-                                            _body = { If ->
-                                                If.put(Call(
-                                                    element.asJsValue(),
-                                                    {
-                                                        html(it.getArg("text").asJsValue() as VariableValue<String>)
-                                                    },
-                                                    HTMLElement()
-                                                ))
-                                            }, js = this@JavaScript).Else { Else ->
-                                                Else.put(Call(
-                                                    element.asJsValue(),
-                                                    {
-                                                        text(it.getArg("text").asJsValue() as VariableValue<String>)
-                                                    },
-                                                    HTMLElement()
-                                                ))
-                                        }
-                                    )
-                                    For.put(
-                                        For("const key in attributes", { smth ->
-                                            smth.put(Call<Function<Nothing>>(
-                                                element.asJsValue(),
-                                                "setAttribute(key, attributes[key])"
-                                            ))
-                                        }, this@JavaScript)
-                                    )
-                                    For.put(
-                                        Call<Function<Nothing>>(
-                                            fragment.asJsValue(),
-                                            "appendChild(element);"
+                        For(
+                            condition = "let i = 0; i < size; i++",
+                            _body = {
+                                val element = const(
+                                    name = "element",
+                                    value = InlineCall(operation = "document.createElement(elementName)")
+                                )
+                                If(
+                                    condition = "isHTML",
+                                    _body = {
+                                        Call(
+                                            element.asJsValue(),
+                                            {
+                                                html(text.asJsValue() as VariableValue<String>)
+                                            },
+                                            HTMLElement()
                                         )
+                                    }, js = this@Js
+                                ).Else {
+                                    Call(
+                                        element.asJsValue(),
+                                        {
+                                            text(text.asJsValue() as VariableValue<String>)
+                                        },
+                                        HTMLElement()
                                     )
-                                },
-                                js = this@JavaScript
-                            )
+                                }
+                                For("const key in attributes", {
+                                    Call<Function<Nothing>>(
+                                        element.asJsValue(),
+                                        "setAttribute(key, attributes[key])"
+                                    )
+                                }, this@Js)
+                                Call<Function<Nothing>>(
+                                    fragment.asJsValue(),
+                                    "appendChild(element);"
+                                )
+                            },
+                            js = this@Js
                         )
-                        it.put(Return(fragment.name))
+                        Return(fragment.name)
                     }
                 }.render()
             )

@@ -2,10 +2,11 @@ package io.void.js.keywords.error
 
 import io.void.js.JavaScript
 import io.void.js.Function
+import io.void.js.FunctionVariable
 import io.void.js.keywords.Keyword
 
 data class Try(
-    val _body: JavaScript.() -> Unit,
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
     val js: JavaScript
 ): Function<Nothing>(
     name = "",
@@ -24,7 +25,7 @@ data class Try(
     }
 }
 
-fun JavaScript.Try(body: JavaScript.() -> Unit): Try {
+fun JavaScript.Try(body: JavaScript.(List<FunctionVariable<*>>) -> Unit): Try {
     val Try = Try(
         _body = body,
         js = this
