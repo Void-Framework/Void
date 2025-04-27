@@ -69,21 +69,21 @@ class HTMLElement: BrowserObject {
         jsReturn += ".cloneNode(${children.toJs()})"
         return HTMLElement()
     }
-    fun attribute(attribute: AttributeNames): JsValue<HTMLElement> {
+    fun attribute(attribute: AttributeNames): HTMLElement {
         jsReturn += ".getAttribute(\"${attribute.name.lowercase()}\")"
-        return this.asJsValue()
+        return this
     }
-    fun attribute(attribute: Attribute): JsValue<HTMLElement> {
+    fun attribute(attribute: Attribute): HTMLElement  {
         jsReturn += ".setAttribute(\"${attribute.name.name.lowercase()}\", \"${attribute.value}\")"
-        return this.asJsValue()
+        return this
     }
-    fun attribute(attribute: JsValue<String>): JsValue<HTMLElement> {
+    fun attribute(attribute: JsValue<String>): HTMLElement  {
         jsReturn += ".getAttribute($attribute)"
-        return this.asJsValue()
+        return this
     }
-    fun attribute(attributeName: JsValue<String>, attributeValue: JsValue<String>): JsValue<HTMLElement> {
+    fun attribute(attributeName: JsValue<String>, attributeValue: JsValue<String>): HTMLElement  {
         jsReturn += ".setAttribute($attributeName, $attributeValue)"
-        return this.asJsValue()
+        return this
     }
 }
 
