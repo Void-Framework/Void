@@ -30,6 +30,6 @@ data class Catch(
 ) {
 
     override fun render(): String {
-        return "catch {${_body.render()}}"
+        return "catch (${_body.errorName}) {${_body.render()}}"
     }
 }
