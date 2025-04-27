@@ -20,6 +20,11 @@ data class Try(
         return this
     }
 
+    fun finally(finally: Finally): Try {
+        jsReturn += finally.render()
+        return this
+    }
+
     override fun render(): String {
         return jsReturn
     }
