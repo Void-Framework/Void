@@ -2,6 +2,8 @@ package io.void.js.keywords
 
 import io.void.html.Element
 import io.void.html.Fractal
+import io.void.html.attributes.Attribute
+import io.void.html.attributes.AttributeNames
 import io.void.js.JavaScript
 import io.void.js.keywords.datastructures.JsList
 import io.void.js.keywords.string.TemplateString
@@ -66,6 +68,22 @@ class HTMLElement: BrowserObject {
     fun clone(children: JsValue<Boolean> = DirectValue(true)): HTMLElement {
         jsReturn += ".cloneNode(${children.toJs()})"
         return HTMLElement()
+    }
+    fun attribute(attribute: AttributeNames): JsValue<HTMLElement> {
+        jsReturn += ".getAttribute(\"${attribute.name.lowercase()}\")"
+        return this.asJsValue()
+    }
+    fun attribute(attribute: Attribute): JsValue<HTMLElement> {
+        jsReturn += ".setAttribute(\"${attribute.name.name.lowercase()}\", \"${attribute.value}\")"
+        return this.asJsValue()
+    }
+    fun attribute(attribute: JsValue<String>): JsValue<HTMLElement> {
+        jsReturn += ".getAttribute($attribute)"
+        return this.asJsValue()
+    }
+    fun attribute(attributeName: JsValue<String>, attributeValue: JsValue<String>): JsValue<HTMLElement> {
+        jsReturn += ".setAttribute($attributeName, $attributeValue)"
+        return this.asJsValue()
     }
 }
 
