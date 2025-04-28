@@ -18,6 +18,7 @@ import io.void.js.keywords.datastructures.emptySet
 import io.void.js.keywords.variable.Const
 import io.void.js.keywords.variable.const
 import io.void.js.keywords.variable.let
+import io.void.js.keywords.variable.set
 import io.void.js.run
 
 internal class VoidJsPage: ApiPage(
@@ -117,7 +118,7 @@ internal class VoidJsPage: ApiPage(
                         val write = const(
                             name = "write",
                             value = Lambda<Nothing>(_arguments = listOf("newValue")) { (newValue) ->
-                                value.Setter(newValue)
+                                set(value, newValue)
                                 call(deps.asJsValue(), {
                                     forEach().run(function<Nothing>("run", listOf("fn")) { (fn) ->
                                         InlineCall("fn()")
