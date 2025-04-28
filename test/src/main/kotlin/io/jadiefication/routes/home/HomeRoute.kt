@@ -102,8 +102,8 @@ class HomeRoute : Page(target = "/") {
         }.asJsValue()
         )
 
-        selectAll("#footer button".asJsValue()).forEach().run(function<Nothing>("footerButton", listOf("button")) { (button) ->
-            call("button".asJsValue(), {}, Event(
+        selectAll("#footer".asJsValue()).forEach().run(function<Nothing>("footerButton", listOf("button")) { (button) ->
+            call(button.asJsValue(), {}, Event(
                 CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
                     stopReload = true,
                     _body = {
