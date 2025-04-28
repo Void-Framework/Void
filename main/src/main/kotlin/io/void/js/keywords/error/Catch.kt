@@ -6,7 +6,6 @@ import io.void.js.FunctionVariable
 
 data class CatchFunction(
     val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
-    val js: JavaScript,
     val errorName: String
 ): Function<Nothing>(
     name = "",
@@ -22,8 +21,7 @@ data class CatchFunction(
 }
 
 data class Catch(
-    val _body: CatchFunction,
-    val js: JavaScript
+    val _body: CatchFunction
 ): Function<Nothing>(
     name = "",
     body = _body._body

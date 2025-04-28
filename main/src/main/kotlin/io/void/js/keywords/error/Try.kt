@@ -6,8 +6,7 @@ import io.void.js.FunctionVariable
 import io.void.js.keywords.Keyword
 
 data class Try(
-    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
-    val js: JavaScript
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit
 ): Function<Nothing>(
     name = "",
     body = _body
@@ -32,8 +31,7 @@ data class Try(
 
 fun JavaScript.Try(body: JavaScript.(List<FunctionVariable<*>>) -> Unit): Try {
     val Try = Try(
-        _body = body,
-        js = this
+        _body = body
     )
     children.add(Try)
     return Try

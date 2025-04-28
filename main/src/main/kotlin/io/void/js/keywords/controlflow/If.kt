@@ -7,8 +7,7 @@ import io.void.js.keywords.Keyword
 
 data class If(
     val condition: String,
-    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
-    val js: JavaScript
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit
 ): Function<Nothing>(
     name = "",
     arguments = emptyList(),
@@ -46,8 +45,7 @@ data class If(
 fun JavaScript.If(condition: String, body: JavaScript.(List<FunctionVariable<*>>) -> Unit): If {
     val conditional = If(
         condition = condition,
-        _body = body,
-        js = this
+        _body = body
     )
     children.add(conditional)
     return conditional

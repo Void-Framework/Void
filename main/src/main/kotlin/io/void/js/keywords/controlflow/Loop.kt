@@ -6,8 +6,7 @@ import io.void.js.FunctionVariable
 
 data class While(
     val condition: String,
-    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
-    val js: JavaScript
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit
 ): Function<Nothing>(
     name = "",
     arguments = emptyList(),
@@ -23,8 +22,7 @@ data class While(
 
 data class For(
     val condition: String,
-    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
-    val js: JavaScript
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit
 ): Function<Nothing>(
     name = "",
     arguments = emptyList(),
@@ -41,8 +39,7 @@ data class For(
 fun JavaScript.While(condition: String, body: JavaScript.(List<FunctionVariable<*>>) -> Unit): While {
     val While = While(
         condition = condition,
-        _body = body,
-        js = this
+        _body = body
     )
     children.add(While)
     return While
@@ -51,8 +48,7 @@ fun JavaScript.While(condition: String, body: JavaScript.(List<FunctionVariable<
 fun JavaScript.For(condition: String, body: JavaScript.(List<FunctionVariable<*>>) -> Unit): For {
     val For = For(
         condition = condition,
-        _body = body,
-        js = this
+        _body = body
     )
     children.add(For)
     return For
