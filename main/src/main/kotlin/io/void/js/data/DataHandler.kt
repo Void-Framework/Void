@@ -8,6 +8,7 @@ import io.void.js.keywords.InlineCall
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.Return
+import io.void.js.keywords.variable.Const
 import java.util.UUID
 
 class DataHandler: Keyword {
@@ -22,9 +23,11 @@ class DataHandler: Keyword {
     }
 }
 
-inline fun <reified T> JavaScript.setData(value: JsValue<*>): DataHolder {
-    InlineCall("ref($value)")
-    return DataHolder()
+fun JavaScript.setData(value: JsValue<*>, name: String): Const<DataHolder> {
+    return Const(
+        name = name,
+        value = DataHolder(this).initialize(value)
+    )
 }
 
 fun String.Companion.randomString(length: Int): String {

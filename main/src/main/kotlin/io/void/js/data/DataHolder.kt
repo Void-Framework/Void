@@ -7,11 +7,18 @@ import io.void.js.JavaScript
 import io.void.js.keywords.*
 import io.void.js.Function
 import io.void.js.FunctionRunner
+import io.void.js.Js
+import io.void.js.keywords.variable.Const
 import java.util.UUID
 
-class DataHolder: Keyword {
+class DataHolder(val js: JavaScript): Keyword {
 
     override var jsReturn: String = ""
+
+    fun initialize(baseValue: Any?): DataHolder {
+        jsReturn = "ref($baseValue)"
+        return this
+    }
 
     override fun render(): String {
         return jsReturn
@@ -24,4 +31,11 @@ class DataHolder: Keyword {
     fun write(value: JsValue<*>) {
         jsReturn += ".write($value)"
     }
+}
+
+fun Element.get(dataHolder: Const<DataHolder>, js: JavaScript): Fractal {
+    val uuid = UUID.randomUUID().toString()
+    this.attributes[AttributeNames.V_DATAHOLD] = uuid
+    js.children.addFirst(InlineCall("bindText(document.querySelector('[v-datahold=\"$uuid\"]'), ${dataHolder.name})"))
+    return Fractal(text = "")
 }
