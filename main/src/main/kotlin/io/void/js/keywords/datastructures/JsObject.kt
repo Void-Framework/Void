@@ -3,8 +3,10 @@ package io.void.js.keywords.datastructures
 import io.void.js.JavaScript
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.Reference
 import io.void.js.keywords.asJsValue
 import io.void.js.keywords.emptyJsValue
+import io.void.js.keywords.refer
 
 data class JsObject(val values: Map<String, JsValue<*>?>): JsDatastructure {
 
@@ -29,13 +31,13 @@ data class JsObject(val values: Map<String, JsValue<*>?>): JsDatastructure {
         return this
     }
 
-    fun getValue(key: JsValue<*>): JsObject {
+    fun getValue(key: JsValue<*>): JsValue<*>? {
         jsReturn += ".$key"
-        return this
+        return null
     }
-    fun setValue(key: String, value: JsValue<*>?): JsObject {
+    fun setValue(key: String, value: JsValue<*>?): Reference<JsObject> {
         jsReturn += ".$key = $value"
-        return this
+        return this.refer()
     }
 }
 
@@ -46,9 +48,9 @@ data class ObjectsMethods(private val objectName: JsValue<*>): Keyword {
         return jsReturn
     }
 
-    fun delete(key: String): ObjectsMethods {
+    fun delete(key: String): Reference<ObjectsMethods> {
         jsReturn = "delete $objectName.$key"
-        return this
+        return this.refer()
     }
     fun keys(): JsList<String> {
         jsReturn += ".keys($objectName)"

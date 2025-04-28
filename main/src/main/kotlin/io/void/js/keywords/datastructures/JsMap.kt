@@ -4,6 +4,9 @@ import io.void.js.JavaScript
 import io.void.js.Function
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.Reference
+import io.void.js.keywords.asJsValue
+import io.void.js.keywords.refer
 
 data class JsMap<K, V>(val baseMap: Map<K, V>): JsDatastructure {
 
@@ -32,25 +35,25 @@ data class JsMap<K, V>(val baseMap: Map<K, V>): JsDatastructure {
         jsReturn += ".set($key, $value)"
         return this@JsMap
     }
-    fun get(key: JsValue<K>): JsMap<K, V> {
+    fun get(key: JsValue<K>): JsValue<V>? {
         jsReturn += ".get($key)"
-        return this
+        return null
     }
-    fun has(key: JsValue<K>): JsMap<K, V> {
+    fun has(key: JsValue<K>): JsValue<Boolean> {
         jsReturn += ".has($key)"
-        return this
+        return true.asJsValue()
     }
-    fun delete(key: JsValue<K>): JsMap<K, V> {
+    fun delete(key: JsValue<K>): JsValue<Boolean> {
         jsReturn += ".delete($key)"
-        return this
+        return true.asJsValue()
     }
-    fun clear(): JsMap<K, V> {
+    fun clear(): Reference<JsMap<K, V>> {
         jsReturn += ".clear()"
-        return this
+        return this.refer()
     }
-    fun size(): JsMap<K, V> {
+    fun size(): JsValue<Int> {
         jsReturn += ".size"
-        return this
+        return 0.asJsValue()
     }
     fun entries(): JsMap<K, V> {
         jsReturn += ".entries()"

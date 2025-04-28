@@ -12,25 +12,25 @@ class Console(console: JsValue<*>? = null): Keyword {
     override fun render(): String {
         return jsReturn
     }
-    fun error(message: JsValue<*>): Console {
+    fun error(message: JsValue<*>): Reference<Console> {
         jsReturn += ".error($message)"
-        return this
+        return this.refer()
     }
-    fun info(message: JsValue<*>): Console {
+    fun info(message: JsValue<*>): Reference<Console> {
         jsReturn += ".info($message)"
-        return this
+        return this.refer()
     }
-    fun log(message: JsValue<*>): Console {
+    fun log(message: JsValue<*>): Reference<Console> {
         jsReturn += ".log($message)"
-        return this
+        return this.refer()
     }
-    fun table(list: JsValue<*>): Console {
+    fun table(list: JsValue<*>): Reference<Console> {
         jsReturn += ".table($list)"
-        return this
+        return this.refer()
     }
-    fun warn(message: JsValue<*>): Console {
+    fun warn(message: JsValue<*>): Reference<Console> {
         jsReturn += ".warn($message)"
-        return this
+        return this.refer()
     }
 }
 
