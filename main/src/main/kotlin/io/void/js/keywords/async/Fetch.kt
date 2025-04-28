@@ -9,8 +9,7 @@ import java.net.URL
 
 data class FetchFunction(
     val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
-    val responseArgName: String,
-    val js: JavaScript
+    val responseArgName: String
 ): Function<Nothing>(
     name = "",
     arguments = listOf(responseArgName),

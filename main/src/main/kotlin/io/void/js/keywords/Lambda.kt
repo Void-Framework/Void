@@ -7,7 +7,6 @@ import io.void.js.FunctionVariable
 data class Lambda<T>(
     val _arguments: List<String>,
     val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
-    val js: JavaScript
 ): Function<T>(
     name = "",
     body = _body,
@@ -27,8 +26,7 @@ data class Lambda<T>(
 inline fun <reified T> JavaScript.Lambda(noinline body: JavaScript.(List<FunctionVariable<*>>) -> Unit, arguments: List<String>): Lambda<T> {
     val lambda = Lambda<T>(
         _body = body,
-        _arguments = arguments,
-        js = this
+        _arguments = arguments
     )
     children.add(lambda)
     return lambda
