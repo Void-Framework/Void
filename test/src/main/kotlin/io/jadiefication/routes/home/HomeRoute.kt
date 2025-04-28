@@ -19,6 +19,7 @@ import io.void.js.keywords.async.fetch
 import io.void.js.keywords.controlflow.If
 import io.void.js.keywords.datastructures.*
 import io.void.js.keywords.event.*
+import io.void.js.keywords.variable.Const
 import io.void.js.keywords.variable.const
 import io.void.js.keywords.variable.let
 import io.void.js.run
@@ -33,12 +34,11 @@ class HomeRoute : Page(target = "/") {
     private val linkClasses = "text-blue-500 hover:text-blue-700 transition-colors duration-300"
     private val cardClasses = "bg-gray-50 p-4 rounded-lg border border-gray-200"
     private val buttonClasses = "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-300"
-    private lateinit var data: DataHolder
+    private lateinit var data: Const<DataHolder>
 
     override val javascript: JavaScript = Js(false) {
         // Test data binding
-        data = setData("Welcome to Void Framework".asJsValue())
-        DataHandler().text()
+        data = setData("Welcome to Void Framework".asJsValue(), "data")
 
         // Test DOM manipulation and events
         id("features".asJsValue()).html(Div {
@@ -85,7 +85,9 @@ class HomeRoute : Page(target = "/") {
         // Test data updates
         val updateTitleFunction = function<Nothing>("updateTitle", listOf()) {
             console().log("Updating tittle...".asJsValue())
-            data.write("Title Updated!".asJsValue())
+            call(data.asJsValue(), {
+                write("Title Updated!".asJsValue())
+            }, DataHolder(this))
         }
 
         // Add click event to footer to update title
