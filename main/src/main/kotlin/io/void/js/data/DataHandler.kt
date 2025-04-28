@@ -9,6 +9,7 @@ import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.Return
 import io.void.js.keywords.variable.Const
+import io.void.js.keywords.variable.const
 import java.util.UUID
 
 class DataHandler: Keyword {
@@ -24,7 +25,7 @@ class DataHandler: Keyword {
 }
 
 fun JavaScript.setData(value: JsValue<*>, name: String): Const<DataHolder> {
-    return Const(
+    return const(
         name = name,
         value = DataHolder(this).initialize(value)
     )
