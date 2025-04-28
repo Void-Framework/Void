@@ -2,6 +2,7 @@ package io.void.js.keywords.event
 
 import io.void.js.JavaScript
 import io.void.js.data.DataHandler
+import io.void.js.data.randomString
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.asJsValue
@@ -10,7 +11,7 @@ import io.void.js.keywords.variable.Const
 interface JsEvent: Keyword
 data class CustomEvent(val eventName: JsValue<*>): JsEvent {
 
-    val variable = Const(name = DataHandler.randomString(5), value = "new Event($eventName)")
+    val variable = Const(name = String.randomString(5), value = "new Event($eventName)")
     override var jsReturn: String = variable.render()
 
     companion object {

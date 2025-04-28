@@ -23,7 +23,6 @@ enum class AttributeNames(val dataTypes: AttributeTypes) {
     COORDS(AttributeTypes.STRING),
     CROSSORIGIN(AttributeTypes.STRING),
     DATA(AttributeTypes.STRING),
-    V_DATAHOLD(AttributeTypes.STRING),
     DATETIME(AttributeTypes.STRING),
     DEFAULT(AttributeTypes.BOOLEAN),
     DEFER(AttributeTypes.BOOLEAN),

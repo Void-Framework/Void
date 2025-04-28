@@ -9,35 +9,19 @@ import io.void.js.Function
 import io.void.js.FunctionRunner
 import java.util.UUID
 
-class DataHolder<T>(private var value: T?, val function: Function<T>, private val js: JavaScript, val uuid: UUID): Keyword {
+class DataHolder: Keyword {
 
     override var jsReturn: String = ""
 
     override fun render(): String {
-        val value = when (value) {
-            is String -> value?.toString()?.let { "\"$it\"" } ?: "null"
-            else -> value?.toString() ?: "null"
-        }
-        // Remove the semicolon here since JavaScript.render() will handle it
-        return "let ${DataHandler.randomString(6)} = $value;"
+        return jsReturn
     }
 
-    fun set(newValue: T): FunctionRunner<T> {
-        val runner = FunctionRunner(
-            function = function,
-            args = newValue.asJsValue()
-        )
-        js.children.add(runner)
-        return runner
+    fun read(): Any {
+        jsReturn += ".read()"
+        return ""
     }
-
-    internal fun get(): T? {
-        return value
+    fun write(value: JsValue<*>) {
+        jsReturn += ".write($value)"
     }
-}
-
-fun Element.get(dataHolder: DataHolder<*>): Element {
-    val fractal = Fractal(_text = dataHolder.get().toString())
-    this.parent.attributes[AttributeNames.V_DATAHOLD] = dataHolder.uuid.toString()
-    return fractal
 }
