@@ -15,16 +15,21 @@ data class Let<T>(override val value: T?, override val name: String): Variable<T
     override fun render(): String {
         return jsReturn
     }
+}
 
-    inner class Setter(newValue: T): Keyword {
+class Setter<T>(newValue: T, variable: Let<T>): Keyword {
 
-        override var jsReturn: String = "$name = $newValue"
-
-        override fun render(): String {
-            return this.jsReturn
-        }
-
+    override var jsReturn: String = "${variable.name} = ${if (newValue is Keyword) {
+        newValue.render()
+    } else {
+        "$newValue"
     }
+    }"
+
+    override fun render(): String {
+        return this.jsReturn
+    }
+
 }
 
 inline fun <reified T> JavaScript.let(value: T, name: String): Let<T> {
@@ -34,4 +39,9 @@ inline fun <reified T> JavaScript.let(value: T, name: String): Let<T> {
     )
     children.add(let)
     return let
+}
+inline fun <reified T> JavaScript.set(value: Let<T>, newValue: T): Setter<T> {
+    val set = Setter(newValue, value)
+    children.add(set)
+    return set
 }
