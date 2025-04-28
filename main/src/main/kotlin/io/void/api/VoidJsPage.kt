@@ -6,10 +6,12 @@ import io.void.dto.ResponseDTO
 import io.void.js.JavaScript
 import io.void.js.keywords.*
 import io.void.js.Function
+import io.void.js.FunctionVariable
 import io.void.js.Js
 import io.void.js.function
 import io.void.js.keywords.controlflow.For
 import io.void.js.keywords.controlflow.If
+import io.void.js.keywords.datastructures.JsList
 import io.void.js.keywords.variable.Const
 import io.void.js.keywords.variable.const
 
@@ -79,6 +81,13 @@ internal class VoidJsPage: ApiPage(
                             }
                         )
                         Return(fragment.name)
+                    }
+                    function<Nothing>("attributes", listOf("element", "attributes")) { (element, attributes) ->
+                        For("const key in attributes") {
+                            call(element.asJsValue(), {
+                                attribute(FunctionVariable<String>("key").asJsValue(), FunctionVariable<String>("attributes").asJsValue())
+                            }, HTMLElement())
+                        }
                     }
                 }.render()
             )
