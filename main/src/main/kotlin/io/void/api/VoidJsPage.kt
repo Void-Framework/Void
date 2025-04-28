@@ -14,9 +14,11 @@ import io.void.js.keywords.controlflow.For
 import io.void.js.keywords.controlflow.If
 import io.void.js.keywords.datastructures.JsList
 import io.void.js.keywords.datastructures.JsSet
+import io.void.js.keywords.datastructures.emptySet
 import io.void.js.keywords.variable.Const
 import io.void.js.keywords.variable.const
 import io.void.js.keywords.variable.let
+import io.void.js.run
 
 internal class VoidJsPage: ApiPage(
     target = "/js/void.js",
@@ -88,14 +90,14 @@ internal class VoidJsPage: ApiPage(
                     function<Nothing>("attributes", listOf("element", "attributes")) { (element, attributes) ->
                         For("const key in attributes") {
                             call(element.asJsValue(), {
-                                attribute(FunctionVariable<String>("key").asJsValue(), FunctionVariable<String>("attributes").asJsValue())
+                                attribute(FunctionVariable<String>("key").asJsValue(), FunctionVariable<String>("attributes[key]").asJsValue())
                             }, HTMLElement())
                         }
                     }
                     function<Pair<Lambda<*>, Lambda<Nothing>>>("ref", listOf("initialValue")) { (initialValue) ->
                         val deps = const(
                             name = "deps",
-                            value = JsSet(emptyJsValue() as JsValue<Lambda<*>>).initialize()
+                            value = JsSet(emptyJsValue().asJsValue() as JsValue<Lambda<Nothing>>).emptySet()
                         )
                         val value = let(
                             name = "value",
@@ -109,7 +111,7 @@ internal class VoidJsPage: ApiPage(
                                         add(collector.asJsValue() as JsValue<Lambda<*>>)
                                     }, JsSet(emptyJsValue() as JsValue<Lambda<*>>))
                                 }
-                                Return(value)
+                                Return(value.asJsValue())
                             }
                         )
                         val write = const(
@@ -135,7 +137,7 @@ internal class VoidJsPage: ApiPage(
                         )
                     }
                     function<Nothing>("bindText", listOf("element", "ref")) { (element, ref) ->
-                        watchEffect.run(Lambda<Nothing>(_arguments = listOf("track")) {
+                        run(watchEffect, Lambda<Nothing>(_arguments = listOf("track")) {
                             call(element.asJsValue(), {
                                 text(InlineCall("ref.read(track)").asJsValue() as JsValue<String>)
                             }, HTMLElement())
