@@ -6,6 +6,7 @@ import io.void.js.Function
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.asJsValue
+import io.void.js.keywords.emptyJsValue
 import kotlin.collections.List
 
 data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
@@ -19,6 +20,11 @@ data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
         jsReturn = "[$arguments]"
         return this
     }
+    fun emptyList(): JsList<T> {
+        jsReturn = "[]"
+        return this
+    }
+
     fun push(item: JsValue<T>): JsValue<Int> {
         jsReturn += ".push($item)"
         return 0.asJsValue()
@@ -68,4 +74,10 @@ inline fun <reified T> JavaScript.jsList(arguments: JsValue<*>): JsList<T> {
     children.add(list)
     @Suppress("UNCHECKED_CAST")
     return list.initialize() as JsList<T>
+}
+inline fun <reified T> JavaScript.emptyJsList(): JsList<T> {
+    val list = JsList(arguments = emptyJsValue())
+    children.add(list)
+    @Suppress("UNCHECKED_CAST")
+    return list.emptyList() as JsList<T>
 }

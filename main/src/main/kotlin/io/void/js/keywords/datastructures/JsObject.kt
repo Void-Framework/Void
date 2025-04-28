@@ -25,6 +25,10 @@ data class JsObject(val values: Map<String, JsValue<*>?>): JsDatastructure {
     override fun render(): String {
         return jsReturn
     }
+    fun emptyObject(): JsObject {
+        jsReturn = "{}"
+        return this
+    }
 
     override fun initialize(): JsDatastructure {
         jsReturn = "{$inside}"
@@ -84,5 +88,10 @@ fun JavaScript.objectMethod(objectName: JsValue<*>): ObjectsMethods {
     )
     children.add(methods)
     return methods
+}
+ fun JavaScript.emptyObject(): JsObject {
+    val set = JsObject(values = emptyMap()).emptyObject()
+    children.add(set)
+    return set as JsObject
 }
 
