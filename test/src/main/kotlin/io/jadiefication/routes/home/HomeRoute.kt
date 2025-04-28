@@ -8,6 +8,7 @@ import io.void.html.attributes.attribute
 import io.void.html.page.Page
 import io.void.js.JavaScript
 import io.void.js.Js
+import io.void.js.data.DataHandler
 import io.void.js.data.DataHolder
 import io.void.js.data.get
 import io.void.js.data.setData
@@ -32,11 +33,12 @@ class HomeRoute : Page(target = "/") {
     private val linkClasses = "text-blue-500 hover:text-blue-700 transition-colors duration-300"
     private val cardClasses = "bg-gray-50 p-4 rounded-lg border border-gray-200"
     private val buttonClasses = "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-300"
-    private lateinit var data: DataHolder<String>
+    private lateinit var data: DataHolder
 
     override val javascript: JavaScript = Js(false) {
         // Test data binding
-        data = setData("Welcome to Void Framework")
+        data = setData("Welcome to Void Framework".asJsValue())
+        DataHandler().text()
 
         // Test DOM manipulation and events
         id("features".asJsValue()).html(Div {
@@ -83,7 +85,7 @@ class HomeRoute : Page(target = "/") {
         // Test data updates
         val updateTitleFunction = function<Nothing>("updateTitle", listOf()) {
             console().log("Updating tittle...".asJsValue())
-            data.set("Title Updated!")
+            data.write("Title Updated!".asJsValue())
         }
 
         // Add click event to footer to update title
@@ -149,53 +151,21 @@ class HomeRoute : Page(target = "/") {
             })
         }, JsList(emptyJsValue() as JsValue<String>))
 
-        // Test DOM manipulation with data structures
-        /*id("user-list").html(Div {
-            H3 { Fractal("User List") }
-            Ul {
-                call("userList", {
-                    forEach().run(function("createUserItem", listOf("user")) {
-                        it.put(Call("user", {
-                            this.HTMLElement().html(Li { Fractal("\${user}") })
-                        }, DOM()))
-                    })
-                }, JsList<String>(listOf()))
-            }
-        })*/
-
         // Test fetch with data handling
         fetch(null, URL("https://api.example.com/users"))
             .then(FetchFunction({ (result) ->
                 console().log("Fetched users".asJsValue())
-                // Process response
-                /*js.put(Call<DOM>("response", {
-                    //this.HTMLElement().text("Data fetched successfully")
-                }, DOM()))*/
-            }, "response", this))
+            }, "response"))
             .catch(FetchFunction({ (error) ->
                 console().log("Error fetching users".asJsValue())
                 // Handle error
-                /*js.put(Call<DOM>("error", {
-                    //this.HTMLElement().text("Error fetching data")
-                }, DOM()))*/
-            }, "error", this))
+            }, "error"))
 
         // Test loops with map
         let(
             name = "i",
             value = 0
         )
-        /*While("i < 5") {
-            it.put(Console().log("Processing users...".asJsValue()))
-            it.put(Call(userMap.asJsValue(), {
-                entries().forEach().run(function("processEntry", listOf("entry")) { function ->
-                    function.put(Call("entry".asJsValue(), {
-                        text("Role: \${entry[0]}, User: \${entry[1]}".asJsValue())
-                    }, HTMLElement()))
-                })
-            }, JsMap<String, String>(mapOf())))
-            it.put(InlineCall(operation = "i++"))
-        }*/
 
         // Test object manipulation
         objectMethod(userObject.asJsValue()).keys().forEach().run(function<Nothing>("displayKey", listOf("key")) { (key) ->
