@@ -5,6 +5,7 @@ import io.void.js.data.DataHandler
 import io.void.js.Function
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.asJsValue
 import kotlin.collections.List
 
 data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
@@ -18,21 +19,21 @@ data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
         jsReturn = "[$arguments]"
         return this
     }
-    fun push(item: JsValue<T>): JsList<T> {
+    fun push(item: JsValue<T>): JsValue<Int> {
         jsReturn += ".push($item)"
-        return this
+        return 0.asJsValue()
     }
-    fun pop(): JsList<T> {
+    fun pop(): JsValue<T?> {
         jsReturn += ".pop()"
-        return this
+        return null.asJsValue()
     }
-    fun shift(): JsList<T> {
+    fun shift(): JsValue<T?> {
         jsReturn += ".shift()"
-        return this
+        return null.asJsValue()
     }
-    fun unshift(item: JsValue<T>): JsList<T> {
+    fun unshift(item: JsValue<T>): JsValue<Int> {
         jsReturn += ".unshift($item)"
-        return this
+        return 0.asJsValue()
     }
     fun splice(index: JsValue<T>, count: JsValue<T>? = null, item: JsValue<*>?): JsList<T> {
         jsReturn += ".splice($index${if (count != null) {
@@ -56,9 +57,9 @@ data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
         jsReturn += ".filter("
         return Runnable(this)
     }
-    fun includes(item: JsValue<*>): JsList<T> {
+    fun includes(item: JsValue<*>): JsValue<Boolean> {
         jsReturn += ".includes($item)"
-        return this
+        return true.asJsValue()
     }
 }
 

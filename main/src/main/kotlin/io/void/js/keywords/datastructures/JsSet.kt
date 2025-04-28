@@ -3,6 +3,9 @@ package io.void.js.keywords.datastructures
 import io.void.js.JavaScript
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.Reference
+import io.void.js.keywords.asJsValue
+import io.void.js.keywords.refer
 
 data class JsSet<T>(val baseList: JsValue<T>): JsDatastructure {
 
@@ -21,21 +24,21 @@ data class JsSet<T>(val baseList: JsValue<T>): JsDatastructure {
         jsReturn += ".add($value)"
         return this@JsSet
     }
-    fun has(value: JsValue<T>): JsSet<T> {
+    fun has(value: JsValue<T>): JsValue<Boolean> {
         jsReturn += ".has($value)"
-        return this
+        return true.asJsValue()
     }
-    fun delete(value: JsValue<T>): JsSet<T> {
+    fun delete(value: JsValue<T>): JsValue<Boolean> {
         jsReturn += ".delete($value)"
-        return this
+        return true.asJsValue()
     }
-    fun clear(): JsSet<T> {
+    fun clear(): Reference<JsSet<T>> {
         jsReturn += ".clear()"
-        return this
+        return this.refer()
     }
-    fun size(): JsSet<T> {
+    fun size(): JsValue<Int> {
         jsReturn += ".size"
-        return this
+        return 0.asJsValue()
     }
 }
 

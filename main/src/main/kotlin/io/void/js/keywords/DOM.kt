@@ -57,13 +57,13 @@ class HTMLElement: BrowserObject {
         return jsReturn
     }
 
-    fun html(element: JsValue<*>): HTMLElement {
+    fun html(element: JsValue<*>): Reference<HTMLElement> {
         jsReturn += ".innerHTML = ${element.toJs()}"
-        return this
+        return this.refer()
     }
-    fun text(newValue: JsValue<String>): HTMLElement {
+    fun text(newValue: JsValue<String>): Reference<HTMLElement> {
         jsReturn += ".textContent = ${newValue.toJs()}"
-        return this
+        return this.refer()
     }
     fun clone(children: JsValue<Boolean> = DirectValue(true)): HTMLElement {
         jsReturn += ".cloneNode(${children.toJs()})"
@@ -73,17 +73,17 @@ class HTMLElement: BrowserObject {
         jsReturn += ".getAttribute(\"${attribute.name.lowercase()}\")"
         return this
     }
-    fun attribute(attribute: Attribute): HTMLElement  {
+    fun attribute(attribute: Attribute): Reference<HTMLElement>  {
         jsReturn += ".setAttribute(\"${attribute.name.name.lowercase()}\", \"${attribute.value}\")"
-        return this
+        return this.refer()
     }
     fun attribute(attribute: JsValue<String>): HTMLElement  {
         jsReturn += ".getAttribute($attribute)"
         return this
     }
-    fun attribute(attributeName: JsValue<String>, attributeValue: JsValue<String>): HTMLElement  {
+    fun attribute(attributeName: JsValue<String>, attributeValue: JsValue<String>): Reference<HTMLElement>  {
         jsReturn += ".setAttribute($attributeName, $attributeValue)"
-        return this
+        return this.refer()
     }
 }
 

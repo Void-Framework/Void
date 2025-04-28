@@ -23,7 +23,7 @@ interface BrowserObject: Keyword {
             return@map on(it, _function)
         }
     }
-    fun off(event: JsValue<Event>): BrowserObject {
+    fun off(event: JsValue<Event>): Reference<BrowserObject> {
         val eventValue = when (event) {
             is DirectValue<Event> -> event.value
             is VariableValue<Event> -> event.variable.value!!
@@ -36,7 +36,7 @@ interface BrowserObject: Keyword {
         } catch (e: Exception) {
             throw FunctionNotVariableException(event = eventValue)
         }
-        return this
+        return this.refer()
     }
     fun off(events: List<JsValue<Event>>): BrowserObject {
         events.forEach {

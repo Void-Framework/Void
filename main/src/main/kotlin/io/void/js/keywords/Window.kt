@@ -13,52 +13,57 @@ class Window(window: JsValue<*>? = null): Keyword {
         return jsReturn
     }
 
-    fun alert(message: JsValue<String>?): Window {
+    fun alert(message: JsValue<String>?): Reference<Window> {
         jsReturn += ".alert(${message ?: "\"\""})"
-        return this
+        return this.refer()
     }
     fun open(url: JsValue<*>? = null, name: JsValue<String>? = null, specs: JsValue<*>? = null): Window {
         jsReturn += ".open(${url ?: "\"\""}, ${name ?: "\"\""}, ${specs ?: "\"\""})"
         return Window()
     }
-    fun confirm(message: JsValue<String>): Window {
+    fun confirm(message: JsValue<String>): JsValue<Boolean> {
         jsReturn += ".confirm($message)"
-        return this
+        return true.asJsValue()
     }
     fun history(): History {
         jsReturn += ".history"
         return History()
     }
-    fun href(url: JsValue<*>?): Window {
+    fun href(url: JsValue<*>?): Reference<Window> {
         jsReturn += ".location.href = ${url ?: "\"\""}"
-        return this
+        return this.refer()
     }
-    fun prompt(message: JsValue<String>? = null, defaultText: JsValue<String>? = null): Window {
+    fun prompt(message: JsValue<String>? = null, defaultText: JsValue<String>? = null): JsValue<String> {
         jsReturn += ".prompt(${message ?: "\"\""}, ${defaultText ?: "\"\""})"
-        return this
+        return "".asJsValue()
     }
-    fun scrollBy(x: JsValue<Int>, y: JsValue<Int>): Window {
+    fun scrollBy(x: JsValue<Int>, y: JsValue<Int>): Reference<Window> {
         jsReturn += ".scrollBy($x, $y)"
-        return this
+        return this.refer()
     }
-    fun scrollTo(x: JsValue<Int>, y: JsValue<Int>): Window {
+    fun scrollTo(x: JsValue<Int>, y: JsValue<Int>): Reference<Window> {
         jsReturn += ".scrollTo($x, $y)"
-        return this
+        return this.refer()
+    }
+}
+
+class History: Keyword {
+    override var jsReturn: String = ""
+    override fun render(): String {
+        return jsReturn
     }
 
-    inner class History {
-        fun back(): History {
-            jsReturn += ".back()"
-            return this
-        }
-        fun forward(): History {
-            jsReturn += ".forward()"
-            return this
-        }
-        fun go(number: JsValue<Int>): History {
-            jsReturn += ".go($number)"
-            return this
-        }
+    fun back(): Reference<History> {
+        jsReturn += ".back()"
+        return this.refer()
+    }
+    fun forward(): Reference<History> {
+        jsReturn += ".forward()"
+        return this.refer()
+    }
+    fun go(number: JsValue<Int>): Reference<History> {
+        jsReturn += ".go($number)"
+        return this.refer()
     }
 }
 
