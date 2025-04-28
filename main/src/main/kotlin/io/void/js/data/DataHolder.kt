@@ -35,7 +35,8 @@ class DataHolder(val js: JavaScript): Keyword {
 
 fun Element.get(dataHolder: Const<DataHolder>): Fractal {
     val uuid = UUID.randomUUID().toString()
+    val js = dataHolder.value!!.js
     this.attributes[AttributeNames.V_DATAHOLD] = uuid
-    dataHolder.value!!.js.children.addFirst(InlineCall("bindText(document.querySelector('[v-datahold=\"$uuid\"]'), ${dataHolder.name})"))
+    js.children.add(js.children.indexOf(dataHolder) + 1, InlineCall("bindText(document.querySelector('[v_datahold=\"$uuid\"]'), ${dataHolder.name})"))
     return Fractal(text = "")
 }
