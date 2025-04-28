@@ -6,14 +6,17 @@ import io.void.dto.ResponseDTO
 import io.void.js.JavaScript
 import io.void.js.keywords.*
 import io.void.js.Function
+import io.void.js.FunctionRunner
 import io.void.js.FunctionVariable
 import io.void.js.Js
 import io.void.js.function
 import io.void.js.keywords.controlflow.For
 import io.void.js.keywords.controlflow.If
 import io.void.js.keywords.datastructures.JsList
+import io.void.js.keywords.datastructures.JsSet
 import io.void.js.keywords.variable.Const
 import io.void.js.keywords.variable.const
+import io.void.js.keywords.variable.let
 
 internal class VoidJsPage: ApiPage(
     target = "/js/void.js",
@@ -88,6 +91,55 @@ internal class VoidJsPage: ApiPage(
                                 attribute(FunctionVariable<String>("key").asJsValue(), FunctionVariable<String>("attributes").asJsValue())
                             }, HTMLElement())
                         }
+                    }
+                    function<Pair<Lambda<*>, Lambda<Nothing>>>("ref", listOf("initialValue")) { (initialValue) ->
+                        val deps = const(
+                            name = "deps",
+                            value = JsSet(emptyJsValue() as JsValue<Lambda<*>>).initialize()
+                        )
+                        val value = let(
+                            name = "value",
+                            value = initialValue
+                        )
+                        val read = const(
+                            name = "read",
+                            value = Lambda<Any>(_arguments = listOf("collector")) { (collector) ->
+                                If("collector") {
+                                    call(deps.asJsValue(), {
+                                        add(collector.asJsValue() as JsValue<Lambda<*>>)
+                                    }, JsSet(emptyJsValue() as JsValue<Lambda<*>>))
+                                }
+                                Return(value)
+                            }
+                        )
+                        val write = const(
+                            name = "write",
+                            value = Lambda<Nothing>(_arguments = listOf("newValue")) { (newValue) ->
+                                value.Setter(newValue)
+                                call(deps.asJsValue(), {
+                                    forEach().run(function<Nothing>("run", listOf("fn")) { (fn) ->
+                                        InlineCall("fn()")
+                                    })
+                                }, JsSet(emptyJsValue() as JsValue<Lambda<*>>))
+                            }
+                        )
+                        Return("{ read, write }")
+                    }
+                    val watchEffect = function<Nothing>("watchEffect", listOf("fn")) { (fn) ->
+                        val runner = const(
+                            name = "runner",
+                            value = Lambda<Nothing>(_arguments = emptyList()) {
+                                InlineCall("fn(runner)")
+                                InlineCall("runner()")
+                            }
+                        )
+                    }
+                    function<Nothing>("bindText", listOf("element", "ref")) { (element, ref) ->
+                        watchEffect.run(Lambda<Nothing>(_arguments = listOf("track")) {
+                            call(element.asJsValue(), {
+                                text(InlineCall("ref.read(track)").asJsValue() as JsValue<String>)
+                            }, HTMLElement())
+                        }.asJsValue())
                     }
                 }.render()
             )
