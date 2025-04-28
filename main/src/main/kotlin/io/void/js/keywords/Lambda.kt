@@ -12,7 +12,7 @@ data class Lambda<T>(
     body = _body,
     arguments = _arguments
 ) {
-    override var jsReturn: String = "(${_arguments.joinToString(", ")} => {${children.joinToString(";") { it.render() }}})"
+    override var jsReturn: String = "(${_arguments.joinToString(", ")}) => {${children.joinToString(";") { it.render() }}}"
 
     override fun render(): String {
         return jsReturn
