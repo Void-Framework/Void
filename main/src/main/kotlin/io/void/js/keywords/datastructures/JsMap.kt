@@ -7,6 +7,7 @@ import io.void.js.keywords.Keyword
 import io.void.js.keywords.Reference
 import io.void.js.keywords.asJsValue
 import io.void.js.keywords.refer
+import kotlin.collections.emptyMap
 
 data class JsMap<K, V>(val baseMap: Map<K, V>): JsDatastructure {
 
@@ -28,6 +29,10 @@ data class JsMap<K, V>(val baseMap: Map<K, V>): JsDatastructure {
 
     override fun initialize(): JsDatastructure {
         jsReturn = "new Map([$inside])"
+        return this
+    }
+    fun emptyMap(): JsMap<K, V> {
+        jsReturn = "new Map()"
         return this
     }
 
@@ -65,6 +70,14 @@ inline fun <reified K, reified V> JavaScript.map(baseMap: Map<K, V>): JsMap<K, V
     val map = JsMap(
         baseMap = baseMap,
     ).initialize()
+    children.add(map)
+    @Suppress("UNCHECKED_CAST")
+    return map as JsMap<K, V>
+}
+inline fun <reified K, reified V> JavaScript.emptyJsMap(): JsMap<K, V> {
+    val map = JsMap(
+        baseMap = emptyMap<K, V>(),
+    ).emptyMap()
     children.add(map)
     @Suppress("UNCHECKED_CAST")
     return map as JsMap<K, V>

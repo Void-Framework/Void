@@ -5,6 +5,7 @@ import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.Reference
 import io.void.js.keywords.asJsValue
+import io.void.js.keywords.emptyJsValue
 import io.void.js.keywords.refer
 
 data class JsSet<T>(val baseList: JsValue<T>): JsDatastructure {
@@ -17,6 +18,10 @@ data class JsSet<T>(val baseList: JsValue<T>): JsDatastructure {
 
     override fun initialize(): JsDatastructure {
         jsReturn = "new Set($baseList)"
+        return this
+    }
+    fun emptySet(): JsSet<T> {
+        jsReturn = "new Set()"
         return this
     }
 
@@ -44,6 +49,11 @@ data class JsSet<T>(val baseList: JsValue<T>): JsDatastructure {
 
 inline fun <reified T> JavaScript.set(baseList: JsValue<T>): JsSet<T> {
     val set = JsSet(baseList = baseList).initialize()
+    children.add(set)
+    return set as JsSet<T>
+}
+inline fun <reified T> JavaScript.emptySet(): JsSet<T> {
+    val set = JsSet(baseList = emptyJsValue()).emptySet()
     children.add(set)
     return set as JsSet<T>
 }
