@@ -516,6 +516,13 @@ enum class Events {
         override fun asJsValue(): JsValue<JsEvent> {
             return DirectValue<JsEvent>(DefaultEvent(this.name.lowercase()))
         }
+    },
+
+    // Storage
+    STORAGE {
+        override fun asJsValue(): JsValue<JsEvent> {
+            return DirectValue<JsEvent>(DefaultEvent(this.name.lowercase()))
+        }
     };
 
     abstract fun asJsValue(): JsValue<JsEvent>
