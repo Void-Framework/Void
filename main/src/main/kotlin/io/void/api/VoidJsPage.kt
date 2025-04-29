@@ -133,9 +133,9 @@ internal class VoidJsPage: ApiPage(
                             name = "runner",
                             value = Lambda<Nothing>(_arguments = emptyList()) {
                                 InlineCall("fn(runner)")
-                                InlineCall("runner()")
                             }
                         )
+                        InlineCall("runner()")
                     }
                     function<Nothing>("bindText", listOf("element", "ref")) { (element, ref) ->
                         run(watchEffect, Lambda<Nothing>(_arguments = listOf("track")) {
