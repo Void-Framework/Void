@@ -4,7 +4,9 @@ import io.void.dto.ResponseDTO
 import io.void.js.JavaScript
 import io.void.js.Function
 import io.void.js.FunctionVariable
+import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.asJsValue
 import java.net.URL
 
 data class FetchFunction(
@@ -25,12 +27,19 @@ data class FetchFunction(
 
 data class Fetch(
     val data: ResponseDTO?,
-    val url: URL,
+    val url: JsValue<String>,
+    val await: Boolean = false
 ): Keyword {
 
     private var headers: String = ""
 
-    override var jsReturn: String = "fetch(\"$url\"${if (data != null) {
+    constructor(data: ResponseDTO?, url: URL, await: Boolean = false): this(
+        data = data,
+        url = url.toString().asJsValue(),
+        await = await
+    )
+
+    override var jsReturn: String = "${if (await) "await " else ""}fetch($url${if (data != null) {
         ", {method: '${data.statusText}', headers: {$headers}, body: ${data.body}"
     } else {
         ""
@@ -49,28 +58,16 @@ data class Fetch(
     override fun render(): String {
         return "$jsReturn;"
     }
-
-    fun then(function: FetchFunction): Fetch {
-        jsReturn += ".then(${function.render()})"
-        return this
-    }
-
-    fun catch(function: FetchFunction): Fetch {
-        jsReturn += ".catch(${function.render()})"
-        return this
-    }
-
-    fun finally(function: FetchFunction): Fetch {
-        jsReturn += ".finally(${function.render()})"
-        return this
-    }
 }
 
-fun JavaScript.fetch(data: ResponseDTO?, url: URL): Fetch {
+fun JavaScript.fetch(data: ResponseDTO?, url: URL, await: Boolean = false): Promise {
     val fetch = Fetch(
         data= data,
         url = url,
+        await = await
     )
+    val promise = Promise()
     children.add(fetch)
-    return fetch
+    children.add(promise)
+    return promise
 }
