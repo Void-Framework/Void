@@ -1,6 +1,8 @@
 package io.void.js.keywords
 
 import io.void.js.JavaScript
+import io.void.js.keywords.storage.Local
+import io.void.js.keywords.storage.Session
 import io.void.js.keywords.string.TemplateString
 import io.void.js.keywords.variable.Variable
 import java.net.URL
@@ -44,6 +46,14 @@ class Window(window: JsValue<*>? = null): Keyword {
     fun scrollTo(x: JsValue<Int>, y: JsValue<Int>): Reference<Window> {
         jsReturn += ".scrollTo($x, $y)"
         return this.refer()
+    }
+    fun session(): Session {
+        jsReturn += ".sessionStorage"
+        return Session()
+    }
+    fun local(): Local {
+        jsReturn += ".localStorage"
+        return Local()
     }
 }
 
