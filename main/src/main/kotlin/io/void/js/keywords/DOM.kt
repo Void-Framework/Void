@@ -1,13 +1,11 @@
 package io.void.js.keywords
 
 import io.void.html.Element
-import io.void.html.Fractal
 import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import io.void.js.JavaScript
 import io.void.js.keywords.datastructures.JsList
 import io.void.js.keywords.datastructures.JsObject
-import io.void.js.keywords.string.TemplateString
 import io.void.js.keywords.variable.Variable
 import java.lang.UnsupportedOperationException
 
@@ -19,9 +17,25 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
         jsReturn += ".getElementById(${id.toJs()})"
         return HTMLElement()
     }
+    fun cssClass(cssClass: JsValue<String>): HTMLElement {
+        jsReturn += ".getElementByClassName($cssClass)"
+        return HTMLElement()
+    }
+    fun name(name: JsValue<String>): JsList<HTMLElement> {
+        jsReturn += ".getElementsByName($name)"
+        return JsList(HTMLElement().asJsValue())
+    }
+    fun tag(tag: JsValue<String>): JsList<HTMLElement> {
+        jsReturn += ".getElementsByTagName($tag)"
+        return JsList(HTMLElement().asJsValue())
+    }
     fun selectAll(identifier: JsValue<String>): JsList<HTMLElement> {
         jsReturn += ".querySelectorAll(${identifier.toJs()})"
         return JsList(HTMLElement().asJsValue())
+    }
+    fun select(identifier: JsValue<String>): HTMLElement {
+        jsReturn += ".querySelector($identifier)"
+        return HTMLElement()
     }
     fun element(element: JsValue<Element>): HTMLElement {
         jsReturn += ".createElement(${element.toJs()})"
@@ -47,6 +61,18 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
     fun elements(amount: JsValue<Int>, element: JsValue<HTMLElement>, elementInsides: JsValue<String>, attribute: JsValue<JsObject>): BrowserObject {
         jsReturn = "elements(${amount.toJs()}, ${element}, ${elementInsides}, $attribute)"
         return this
+    }
+    fun body(): HTMLElement {
+        jsReturn += ".body"
+        return HTMLElement()
+    }
+    fun attribute(names: AttributeNames): JsAttribute {
+        jsReturn += ".createAttribute(\"${names.name.lowercase()}\")"
+        return JsAttribute()
+    }
+    fun attribute(name: JsValue<String>): JsAttribute {
+        jsReturn += ".createAttribute($name)"
+        return JsAttribute()
     }
 
     override fun render(): String {
@@ -74,17 +100,17 @@ class HTMLElement: BrowserObject {
         jsReturn += ".cloneNode(${children.toJs()})"
         return HTMLElement()
     }
-    fun attribute(attribute: AttributeNames): HTMLElement {
+    fun attribute(attribute: AttributeNames): JsValue<String> {
         jsReturn += ".getAttribute(\"${attribute.name.lowercase()}\")"
-        return this
+        return "".asJsValue()
     }
     fun attribute(attribute: Attribute): Reference<HTMLElement>  {
         jsReturn += ".setAttribute(\"${attribute.name.name.lowercase()}\", \"${attribute.value}\")"
         return this.refer()
     }
-    fun attribute(attribute: JsValue<String>): HTMLElement  {
+    fun attribute(attribute: JsValue<String>): JsValue<String>  {
         jsReturn += ".getAttribute($attribute)"
-        return this
+        return "".asJsValue()
     }
     fun attribute(attributeName: JsValue<String>, attributeValue: JsValue<String>): Reference<HTMLElement>  {
         jsReturn += ".setAttribute($attributeName, $attributeValue)"
@@ -156,6 +182,59 @@ class HTMLElement: BrowserObject {
     fun add(element: JsValue<HTMLElement>): HTMLElement {
         jsReturn += ".appendChild($element)"
         return HTMLElement()
+    }
+    fun put(element: JsValue<HTMLElement>, type: PutType): Reference<HTMLElement> {
+        jsReturn += ".${type.name.lowercase()}($element)"
+        return this.refer()
+    }
+    fun put(element: JsValue<String>, type: PutType): Reference<HTMLElement> {
+        jsReturn += ".${type.name.lowercase()}($element)"
+        return this.refer()
+    }
+    fun put(element: JsList<HTMLElement>, type: PutType): Reference<HTMLElement> {
+        jsReturn += ".${type.name.lowercase()}(${element.render()})"
+        return this.refer()
+    }
+    fun put(element: JsList<String>, type: PutType): Reference<HTMLElement> {
+        jsReturn += ".${type.name.lowercase()}(${element.render()})"
+        return this.refer()
+    }
+    fun replace(element: JsValue<HTMLElement>, type: ReplaceType): Reference<HTMLElement> {
+        jsReturn += ".${type.name.lowercase().uppercase()}($element)"
+        return this.refer()
+    }
+    fun replace(element: JsValue<String>, type: ReplaceType): Reference<HTMLElement> {
+        jsReturn += ".${type.name.lowercase().uppercase()}($element)"
+        return this.refer()
+    }
+    fun replace(element: JsList<HTMLElement>, type: ReplaceType): Reference<HTMLElement> {
+        jsReturn += ".${type.name.lowercase().uppercase()}(${element.render()})"
+        return this.refer()
+    }
+    fun replace(element: JsList<String>, type: ReplaceType): Reference<HTMLElement> {
+        jsReturn += ".${type.name.lowercase().uppercase()}(${element.render()})"
+        return this.refer()
+    }
+}
+
+class JsAttribute: Keyword {
+    override var jsReturn: String = ""
+
+    override fun render(): String {
+        return jsReturn
+    }
+
+    fun value(): JsValue<String> {
+        jsReturn += ".value"
+        return "".asJsValue()
+    }
+    fun name(): JsValue<String> {
+        jsReturn += ".name"
+        return "".asJsValue()
+    }
+    fun value(value: JsValue<String>): JsValue<String> {
+        jsReturn += ".value = $value"
+        return "".asJsValue()
     }
 }
 
