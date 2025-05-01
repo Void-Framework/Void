@@ -183,36 +183,12 @@ class HTMLElement: BrowserObject {
         jsReturn += ".appendChild($element)"
         return HTMLElement()
     }
-    fun put(element: JsValue<HTMLElement>, type: PutType): Reference<HTMLElement> {
+    fun put(element: JsValue<*>, type: PutType): Reference<HTMLElement> {
         jsReturn += ".${type.name.lowercase()}($element)"
         return this.refer()
     }
-    fun put(element: JsValue<String>, type: PutType): Reference<HTMLElement> {
-        jsReturn += ".${type.name.lowercase()}($element)"
-        return this.refer()
-    }
-    fun put(element: JsList<HTMLElement>, type: PutType): Reference<HTMLElement> {
-        jsReturn += ".${type.name.lowercase()}(${element.render()})"
-        return this.refer()
-    }
-    fun put(element: JsList<String>, type: PutType): Reference<HTMLElement> {
-        jsReturn += ".${type.name.lowercase()}(${element.render()})"
-        return this.refer()
-    }
-    fun replace(element: JsValue<HTMLElement>, type: ReplaceType): Reference<HTMLElement> {
+    fun replace(element: JsValue<*>, type: ReplaceType): Reference<HTMLElement> {
         jsReturn += ".${type.name.lowercase().uppercase()}($element)"
-        return this.refer()
-    }
-    fun replace(element: JsValue<String>, type: ReplaceType): Reference<HTMLElement> {
-        jsReturn += ".${type.name.lowercase().uppercase()}($element)"
-        return this.refer()
-    }
-    fun replace(element: JsList<HTMLElement>, type: ReplaceType): Reference<HTMLElement> {
-        jsReturn += ".${type.name.lowercase().uppercase()}(${element.render()})"
-        return this.refer()
-    }
-    fun replace(element: JsList<String>, type: ReplaceType): Reference<HTMLElement> {
-        jsReturn += ".${type.name.lowercase().uppercase()}(${element.render()})"
         return this.refer()
     }
 }
