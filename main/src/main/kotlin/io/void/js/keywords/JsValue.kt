@@ -15,10 +15,28 @@ data class DirectValue<T>(internal val value: T) : JsValue<T> {
         is String -> if (TemplateString.isTemplateString(value)) {
             TemplateString.turnToTemplateString(value)
         } else {
-            "\"$value\""
+            if (value.contains("\"")) {
+                "'$value'"
+            } else {
+                "\"$value\""
+            }
         }
-        is Keyword -> value.render()
-        is Element -> "\"${value.render()}\""
+        is Keyword -> {
+            val render = value.render()
+            if (render.contains("\"")) {
+                "'$render'"
+            } else {
+                "\"$render\""
+            }
+        }
+        is Element -> {
+            val render = value.render()
+            if (render.contains("\"")) {
+                "'$render'"
+            } else {
+                "\"$render\""
+            }
+        }
         is Iterable<*> -> value.joinToString(",") { DirectValue(it).toJs() }
         is Number, Boolean -> value.toString()
         else -> "\"${value.toString()}\""
