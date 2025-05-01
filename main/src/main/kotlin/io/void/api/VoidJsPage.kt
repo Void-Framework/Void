@@ -120,9 +120,9 @@ internal class VoidJsPage: ApiPage(
                             value = Lambda<Nothing>(_arguments = listOf("newValue")) { (newValue) ->
                                 set(value, newValue)
                                 call(deps.asJsValue(), {
-                                    forEach().run(function<Nothing>("run", listOf("fn")) { (fn) ->
+                                    forEach { (fn) ->
                                         InlineCall("fn()")
-                                    })
+                                    }
                                 }, JsSet(emptyJsValue() as JsValue<Lambda<*>>))
                             }
                         )
