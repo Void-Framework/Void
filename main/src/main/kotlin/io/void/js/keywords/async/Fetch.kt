@@ -6,7 +6,9 @@ import io.void.js.Function
 import io.void.js.FunctionVariable
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.Reference
 import io.void.js.keywords.asJsValue
+import io.void.js.keywords.refer
 import java.net.URL
 
 data class FetchFunction(
@@ -55,19 +57,30 @@ data class Fetch(
         }
     }
 
+    fun then(function: FetchFunction): Fetch {
+        jsReturn += ".then(${function.render()})"
+        return this
+    }
+    fun catch(function: FetchFunction): Fetch {
+        jsReturn += ".catch(${function.render()})"
+        return this
+    }
+    fun finally(function: FetchFunction): Reference<Fetch> {
+        jsReturn += ".finally(${function.render()})"
+        return this.refer()
+    }
+
     override fun render(): String {
         return "$jsReturn;"
     }
 }
 
-fun JavaScript.fetch(data: ResponseDTO?, url: URL, await: Boolean = false): Promise {
+fun JavaScript.fetch(data: ResponseDTO?, url: URL, await: Boolean = false): Fetch {
     val fetch = Fetch(
         data= data,
         url = url,
         await = await
     )
-    val promise = Promise()
     children.add(fetch)
-    children.add(promise)
-    return promise
+    return fetch
 }
