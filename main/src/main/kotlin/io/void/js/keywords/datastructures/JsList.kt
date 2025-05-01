@@ -74,6 +74,14 @@ data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
         ).render()})"
         return this.refer()
     }
+    fun map(body: JsValue<JavaScript.(List<FunctionVariable<*>>) -> Unit>): Reference<JsList<T>> {
+        jsReturn += ".map($body)"
+        return this.refer()
+    }
+    fun filter(body: JsValue<JavaScript.(List<FunctionVariable<*>>) -> Unit>): Reference<JsList<T>> {
+        jsReturn += ".filter($body)"
+        return this.refer()
+    }
     fun includes(item: JsValue<*>): JsValue<Boolean> {
         jsReturn += ".includes($item)"
         return true.asJsValue()
