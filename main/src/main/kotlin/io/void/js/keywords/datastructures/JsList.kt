@@ -3,10 +3,15 @@ package io.void.js.keywords.datastructures
 import io.void.js.JavaScript
 import io.void.js.data.DataHandler
 import io.void.js.Function
+import io.void.js.FunctionVariable
+import io.void.js.data.randomString
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.Lambda
+import io.void.js.keywords.Reference
 import io.void.js.keywords.asJsValue
 import io.void.js.keywords.emptyJsValue
+import io.void.js.keywords.refer
 import kotlin.collections.List
 
 data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
@@ -55,13 +60,19 @@ data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
         })"
         return this@JsList
     }
-    fun map(): Runnable {
-        jsReturn += ".map("
-        return Runnable(this)
+    fun map(body: JavaScript.(List<FunctionVariable<*>>) -> Unit): Reference<JsList<T>> {
+        jsReturn += ".map(${Lambda<Nothing>(
+            _arguments = listOf(String.randomString(4)),
+            _body = body
+        ).render()})"
+        return this.refer()
     }
-    fun filter(): Runnable {
-        jsReturn += ".filter("
-        return Runnable(this)
+    fun filter(body: JavaScript.(List<FunctionVariable<*>>) -> Unit): Reference<JsList<T>> {
+        jsReturn += ".filter(${Lambda<Nothing>(
+            _arguments = listOf(String.randomString(4)),
+            _body = body
+        ).render()})"
+        return this.refer()
     }
     fun includes(item: JsValue<*>): JsValue<Boolean> {
         jsReturn += ".includes($item)"
