@@ -29,7 +29,7 @@ sealed class JavaScript(open val runBeforeLoad: Boolean = false) {
 
                 if (nextLine?.startsWith(".") == true ||
                     rendered.contains("function") ||
-                    rendered.contains("class")) {
+                    (rendered.contains("class")) && !rendered.contains("class=")) {
                     rendered
                 } else {
                     "$rendered;"

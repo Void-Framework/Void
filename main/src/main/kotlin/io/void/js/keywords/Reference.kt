@@ -1,18 +1,18 @@
 package io.void.js.keywords
 
 data class Reference<T: Keyword>(
-    val call: T
-): Keyword, JsValue<T> {
+    private val keywordProvider: () -> T
+): Keyword {
 
-    override var jsReturn: String = call.render()
+    override var jsReturn: String = ""
+        get() = keywordProvider().render()
+
     override fun render(): String {
-        return jsReturn
-    }
-    override fun toJs(): String {
-        return render()
+        return keywordProvider().render()
     }
 }
 
+
 fun <T: Keyword> T.refer(): Reference<T> {
-    return Reference(this)
+    return Reference { this }
 }
