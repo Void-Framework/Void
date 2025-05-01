@@ -47,7 +47,7 @@ class HomeRoute : Page(target = "/") {
         }.asJsValue())
 
         // Test event handling on all buttons
-        selectAll("button".asJsValue()).forEach().run(function<Nothing>("handleButtonClick", listOf("button")) { (button) ->
+        selectAll("button".asJsValue()).forEach { (button) ->
             call(
                 button.asJsValue(), {}, Event(
                     CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
@@ -56,16 +56,16 @@ class HomeRoute : Page(target = "/") {
                             console().log("Button Clicked!".asJsValue())
                             call<DOM>("button".asJsValue(), {
                                 HTMLElement().text("Clicked!".asJsValue())
-                        }, DOM())
-                    },
+                            }, DOM())
+                        },
                         eventValueName = ""
                     ).asJsValue()
                 )
             )
-        })
+        }
 
         // Test dynamic class toggling
-        selectAll("article".asJsValue()).forEach().run(function<Nothing>("handleArticleHover", listOf("article")) { (article) ->
+        selectAll("article".asJsValue()).forEach { (article) ->
             call(
                 article.asJsValue(), {}, Event(
                     CustomEvent.getEvent(Events.MOUSEOVER).asJsValue(), EventFunction(
@@ -80,7 +80,7 @@ class HomeRoute : Page(target = "/") {
                     ).asJsValue()
                 )
             )
-        })
+        }
 
         // Test data updates
         val updateTitleFunction = function<Nothing>("updateTitle", listOf()) {
@@ -102,7 +102,7 @@ class HomeRoute : Page(target = "/") {
         }.asJsValue()
         )
 
-        selectAll("#footer".asJsValue()).forEach().run(function<Nothing>("footerButton", listOf("button")) { (button) ->
+        selectAll("#footer".asJsValue()).forEach { (button) ->
             call(button.asJsValue(), {}, Event(
                 CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
                     stopReload = true,
@@ -112,7 +112,7 @@ class HomeRoute : Page(target = "/") {
                     eventValueName = ""
                 ).asJsValue())
             )
-        })
+        }
 
         // Test data structures
         val userList = const(
@@ -142,7 +142,7 @@ class HomeRoute : Page(target = "/") {
 
         // Test control flow with data structures
         call(userList.asJsValue(), {
-            forEach().run(function<Nothing>("displayUser", listOf("user")) { (user) ->
+            forEach { (user) ->
                 If("user === 'John'", body = {
                     console().log("Found admin \${user}".asJsValue())
                 }).ElseIf("user === 'Jane'") {
@@ -150,7 +150,7 @@ class HomeRoute : Page(target = "/") {
                 }.Else {
                     console().log("Found user \${user}".asJsValue())
                 }
-            })
+            }
         }, JsList(emptyJsValue() as JsValue<String>))
 
         // Test fetch with data handling
@@ -170,11 +170,11 @@ class HomeRoute : Page(target = "/") {
         )
 
         // Test object manipulation
-        objectMethod(userObject.asJsValue()).keys().forEach().run(function<Nothing>("displayKey", listOf("key")) { (key) ->
+        objectMethod(userObject.asJsValue()).keys().forEach { (key) ->
             call(key.asJsValue(), {
                 text("User property: \${key}".asJsValue())
             }, HTMLElement())
-        })
+        }
 
         console().log(DOM().elements(5.asJsValue(), Div {
             H3 { Fractal("User List") }
@@ -195,33 +195,32 @@ class HomeRoute : Page(target = "/") {
         )
 
         // Add event listener for test button
-        selectAll("#test-button button".asJsValue()).forEach()
-            .run(function<Nothing>("buttonHandler", listOf("button")) { (button) ->
-                call(button.asJsValue(), {}, Event(
-                    CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
-                        stopReload = true,
-                        _body = { js ->
-                            // Test map operations
-                            call("userMap".asJsValue(), {
-                                set("newRole".asJsValue(), "Alice".asJsValue())
-                            }, JsMap<String, String>(mapOf()))
-                            console().log("Added new user to map".asJsValue())
+        selectAll("#test-button button".asJsValue()).forEach { (button) ->
+            call(button.asJsValue(), {}, Event(
+                CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
+                    stopReload = true,
+                    _body = { js ->
+                        // Test map operations
+                        call("userMap".asJsValue(), {
+                            set("newRole".asJsValue(), "Alice".asJsValue())
+                        }, JsMap<String, String>(mapOf()))
+                        console().log("Added new user to map".asJsValue())
 
-                            // Test list operations
-                            call(userMap.asJsValue(), {
-                                push("Alice".asJsValue())
-                            }, JsList(emptyJsValue() as JsValue<String>))
-                            console().log("Added new user to list".asJsValue())
+                        // Test list operations
+                        call(userMap.asJsValue(), {
+                            push("Alice".asJsValue())
+                        }, JsList(emptyJsValue() as JsValue<String>))
+                        console().log("Added new user to list".asJsValue())
 
-                            // Test object operations
-                            objectMethod(userObject.asJsValue()).delete("age")
-                            console().log("Deleted age from user object".asJsValue())
-                        },
-                        eventValueName = ""
-                    ).asJsValue()
-                )
-                )
-            })
+                        // Test object operations
+                        objectMethod(userObject.asJsValue()).delete("age")
+                        console().log("Deleted age from user object".asJsValue())
+                    },
+                    eventValueName = ""
+                ).asJsValue()
+            )
+            )
+        }
     }
 
     override var content: Element? = Main(
