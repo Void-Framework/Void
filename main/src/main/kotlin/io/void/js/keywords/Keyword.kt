@@ -4,8 +4,18 @@ interface Keyword {
 
     var jsReturn: String
     fun render(): String
+    var await: Boolean
+        get() = false
+        set(value) {
+            await = value
+        }
+
     fun await(): Keyword {
-        jsReturn = "await $jsReturn"
+        await = true
         return this
+    }
+
+    fun awaitRender(): String {
+        return "await ${render()}"
     }
 }

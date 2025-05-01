@@ -20,7 +20,7 @@ sealed class JavaScript(open val runBeforeLoad: Boolean = false) {
         }
 
         val js = children.mapIndexed { index, keyword ->
-            val rendered = keyword.render()
+            val rendered = if (keyword.await) keyword.awaitRender() else keyword.render()
             if (!rendered.endsWith(";")) {
                 // Check if next line starts with a dot or is a function/class declaration
                 val nextLine = if (index < children.size - 1) {
@@ -69,10 +69,6 @@ open class Function<T>(
     fun async(): Function<T> {
         async = true
         return this
-    }
-
-    fun getArg(name: String): FunctionVariable<*> {
-        return FunctionVariable<Any>(name)
     }
 }
 

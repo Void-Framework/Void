@@ -30,15 +30,13 @@ data class FetchFunction(
 data class Fetch(
     val data: ResponseDTO?,
     val url: JsValue<String>,
-    val await: Boolean = false
 ): Keyword {
 
     private var headers: String = ""
 
-    constructor(data: ResponseDTO?, url: URL, await: Boolean = false): this(
+    constructor(data: ResponseDTO?, url: URL): this(
         data = data,
-        url = url.toString().asJsValue(),
-        await = await
+        url = url.toString().asJsValue()
     )
 
     override var jsReturn: String = "${if (await) "await " else ""}fetch($url${if (data != null) {
@@ -75,11 +73,10 @@ data class Fetch(
     }
 }
 
-fun JavaScript.fetch(data: ResponseDTO?, url: URL, await: Boolean = false): Fetch {
+fun JavaScript.fetch(data: ResponseDTO?, url: URL): Fetch {
     val fetch = Fetch(
         data= data,
-        url = url,
-        await = await
+        url = url
     )
     children.add(fetch)
     return fetch
