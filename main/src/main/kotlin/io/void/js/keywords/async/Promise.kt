@@ -12,15 +12,9 @@ import io.void.js.keywords.error.Error
 class Promise(): Keyword {
 
     override var jsReturn: String = ""
-    private var await: Boolean = false
 
     constructor(lambda: PromiseLambda) : this() {
         jsReturn = "${if (await) "await " else ""}new Promise(${lambda.render()})"
-    }
-
-    fun await(): Keyword {
-        await = true
-        return this
     }
 
     override fun render(): String {
