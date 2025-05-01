@@ -21,14 +21,7 @@ data class DirectValue<T>(internal val value: T) : JsValue<T> {
                 "\"$value\""
             }
         }
-        is Keyword -> {
-            val render = value.render()
-            if (render.contains("\"")) {
-                "'$render'"
-            } else {
-                "\"$render\""
-            }
-        }
+        is Keyword -> value.render()
         is Element -> {
             val render = value.render()
             if (render.contains("\"")) {
