@@ -143,12 +143,12 @@ class HomeRoute : Page(target = "/") {
         // Test control flow with data structures
         call(userList.asJsValue(), {
             forEach { (user) ->
-                If("user === 'John'", body = {
-                    console().log("Found admin \${user}".asJsValue())
-                }).ElseIf("user === 'Jane'") {
-                    console().log("Found moderator \${user}".asJsValue())
+                If("${user.name} === 'John'", body = {
+                    console().log("Found admin \${${user.name}}".asJsValue())
+                }).ElseIf("${user.name} === 'Jane'") {
+                    console().log("Found moderator \${${user.name}}".asJsValue())
                 }.Else {
-                    console().log("Found user \${user}".asJsValue())
+                    console().log("Found user \${${user.name}}".asJsValue())
                 }
             }
         }, JsList(emptyJsValue() as JsValue<String>))
