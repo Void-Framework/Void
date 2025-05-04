@@ -82,3 +82,7 @@ inline fun <reified K, reified V> JavaScript.emptyJsMap(): JsMap<K, V> {
     @Suppress("UNCHECKED_CAST")
     return map as JsMap<K, V>
 }
+inline fun <reified K, reified V> Map<K, V>.asJsMap(): JsMap<K, V> {
+    val map = JsMap(this)
+    return map as JsMap<K, V>
+}

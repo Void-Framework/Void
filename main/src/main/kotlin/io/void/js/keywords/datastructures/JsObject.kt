@@ -89,9 +89,13 @@ fun JavaScript.objectMethod(objectName: JsValue<*>): ObjectsMethods {
     children.add(methods)
     return methods
 }
- fun JavaScript.emptyObject(): JsObject {
+fun JavaScript.emptyObject(): JsObject {
     val set = JsObject(values = emptyMap()).emptyObject()
     children.add(set)
     return set as JsObject
+}
+fun Map<String, JsValue<*>>.asJsObject(): JsObject {
+    val jsObject = JsObject(this)
+    return jsObject
 }
 

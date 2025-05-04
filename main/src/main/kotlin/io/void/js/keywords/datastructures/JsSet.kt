@@ -57,3 +57,7 @@ inline fun <reified T> JavaScript.emptySet(): JsSet<T> {
     children.add(set)
     return set as JsSet<T>
 }
+inline fun <reified T> Set<T>.asJsSet(): JsSet<T> {
+    val set = JsSet(this.asJsValue())
+    return set as JsSet<T>
+}

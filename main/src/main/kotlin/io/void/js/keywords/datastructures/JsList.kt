@@ -100,3 +100,7 @@ inline fun <reified T> JavaScript.emptyJsList(): JsList<T> {
     @Suppress("UNCHECKED_CAST")
     return list.emptyList() as JsList<T>
 }
+inline fun <reified T> List<T>.asJsList(): JsList<T> {
+    val list = JsList(arguments = this.asJsValue())
+    return list as JsList<T>
+}
