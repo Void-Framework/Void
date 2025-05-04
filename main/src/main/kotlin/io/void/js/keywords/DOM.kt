@@ -74,6 +74,14 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
         jsReturn += ".createAttribute($name)"
         return JsAttribute()
     }
+    fun cookies(nameAndValue: JsValue<String>): Reference<DOM> {
+        jsReturn += ".cookie = $nameAndValue"
+        return this.refer()
+    }
+    fun cookies(): JsValue<String> {
+        jsReturn += ".cookie"
+        return "".asJsValue()
+    }
 
     override fun render(): String {
         return jsReturn
@@ -217,7 +225,9 @@ class JsAttribute: Keyword {
 fun JavaScript.id(id: JsValue<String>): HTMLElement {
     val dom = DOM()
     children.add(dom)
-    return dom.id(id)
+    val element = dom.id(id)
+    children.add(element)
+    return element
 }
 
 fun JavaScript.selectAll(identifier: JsValue<String>): JsList<HTMLElement> {
@@ -231,5 +241,7 @@ fun JavaScript.selectAll(identifier: JsValue<String>): JsList<HTMLElement> {
 fun JavaScript.elements(amount: JsValue<Int>, element: JsValue<Element>): BrowserObject {
     val dom = DOM()
     children.add(dom)
-    return dom.elements(amount, element)
+    val elements = dom.elements(amount, element)
+    children.add(elements)
+    return elements
 }
