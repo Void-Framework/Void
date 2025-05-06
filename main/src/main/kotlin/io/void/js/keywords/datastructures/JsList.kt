@@ -4,6 +4,7 @@ import io.void.js.JavaScript
 import io.void.js.data.DataHandler
 import io.void.js.Function
 import io.void.js.FunctionVariable
+import io.void.js.Js
 import io.void.js.data.randomString
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
@@ -14,7 +15,9 @@ import io.void.js.keywords.emptyJsValue
 import io.void.js.keywords.refer
 import kotlin.collections.List
 
-data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
+data class JsList<T>(
+    val arguments: JsValue<T>
+): JsDatastructure {
 
     override var jsReturn = ""
     override fun render(): String {
@@ -34,13 +37,13 @@ data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
         jsReturn += ".push($item)"
         return 0.asJsValue()
     }
-    fun pop(): JsValue<T?> {
+    fun pop(): T? {
         jsReturn += ".pop()"
-        return null.asJsValue()
+        return null
     }
-    fun shift(): JsValue<T?> {
+    fun shift(): T? {
         jsReturn += ".shift()"
-        return null.asJsValue()
+        return null
     }
     fun unshift(item: JsValue<T>): JsValue<Int> {
         jsReturn += ".unshift($item)"
@@ -86,21 +89,27 @@ data class JsList<T>(val arguments: JsValue<T>): JsDatastructure {
         jsReturn += ".includes($item)"
         return true.asJsValue()
     }
+    fun get(index: JsValue<Int>): T? {
+        jsReturn += "[$index]"
+        return null
+    }
+    fun set(index: JsValue<Int>, value: JsValue<T>): Reference<JsList<T>> {
+        jsReturn += "[$index] = $value"
+        return this.refer()
+    }
 }
 
-inline fun <reified T> JavaScript.jsList(arguments: JsValue<*>): JsList<T> {
+fun <T> JavaScript.jsList(arguments: JsValue<*>): JsList<T> {
     val list = JsList(arguments = arguments)
     children.add(list)
-    @Suppress("UNCHECKED_CAST")
     return list.initialize() as JsList<T>
 }
-inline fun <reified T> JavaScript.emptyJsList(): JsList<T> {
+fun <T> JavaScript.emptyJsList(): JsList<T> {
     val list = JsList(arguments = emptyJsValue())
     children.add(list)
-    @Suppress("UNCHECKED_CAST")
     return list.emptyList() as JsList<T>
 }
-inline fun <reified T> List<T>.asJsList(): JsList<T> {
+fun <T> List<T>.asJsList(): JsList<T> {
     val list = JsList(arguments = this.asJsValue())
     return list as JsList<T>
 }
