@@ -81,3 +81,44 @@ data class PromiseLambda(
         return jsReturn
     }
 }
+
+fun JavaScript.all(list: JsValue<JsList<Promise>>): Promise {
+    val promise = Promise()
+    children.add(promise)
+    return promise.all(list)
+}
+fun JavaScript.allSettled(list: JsValue<JsList<Promise>>): Promise {
+    val promise = Promise()
+    children.add(promise)
+    return promise.allSettled(list)
+}
+fun JavaScript.any(list: JsValue<JsList<Promise>>): Promise {
+    val promise = Promise()
+    children.add(promise)
+    return promise.any(list)
+}
+fun JavaScript.race(list: JsValue<JsList<Promise>>): Promise {
+    val promise = Promise()
+    children.add(promise)
+    return promise.race(list)
+}
+fun JavaScript.reject(reason: JsValue<Error>): Promise {
+    val promise = Promise()
+    children.add(promise)
+    return promise.reject(reason)
+}
+fun JavaScript.resolve(reason: JsValue<*>): Promise {
+    val promise = Promise()
+    children.add(promise)
+    return promise.resolve(reason)
+}
+fun JavaScript.pTry(function: JsValue<Function<*>>, args: JsValue<*> = emptyJsValue()): Promise {
+    val promise = Promise()
+    children.add(promise)
+    return promise.jsTry(function, args)
+}
+fun JavaScript.withResolvers(): Promise {
+    val promise = Promise()
+    children.add(promise)
+    return promise.withResolvers()
+}
