@@ -53,6 +53,12 @@ fun JavaScript.eFunction(body : JavaScript.(List<FunctionVariable<*>>) -> Unit, 
     children.add(function)
     return function
 }
+fun JavaScript.listen(htmlElement: JsValue<HTMLElement>, eventType: JsValue<JsEvent>, function: JsValue<EventFunction>) {
+    call(htmlElement, {}, Event(
+        eventType,
+        function
+    ))
+}
 
 data class Event(val eventType: JsValue<JsEvent>, val function: JsValue<EventFunction>): Keyword {
     var useCapture = false
