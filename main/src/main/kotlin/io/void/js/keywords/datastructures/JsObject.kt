@@ -35,17 +35,17 @@ data class JsObject(val values: Map<String, JsValue<*>?>): JsDatastructure {
         return this
     }
 
-    fun getValue(key: JsValue<*>): JsValue<*>? {
+    fun value(key: JsValue<*>): JsValue<*>? {
         jsReturn += ".$key"
         return null
     }
-    fun setValue(key: String, value: JsValue<*>?): Reference<JsObject> {
+    fun value(key: String, value: JsValue<*>?): Reference<JsObject> {
         jsReturn += ".$key = $value"
         return this.refer()
     }
 }
 
-data class ObjectsMethods(private val objectName: JsValue<*>): Keyword {
+data class ObjectsMethods(private val objectName: JsValue<JsObject>): Keyword {
     override var jsReturn: String = "Object"
 
     override fun render(): String {
@@ -72,6 +72,10 @@ data class ObjectsMethods(private val objectName: JsValue<*>): Keyword {
         val list = JsList(JsList(emptyJsValue() as JsValue<Any>).asJsValue())
         return list
     }
+    fun assign(source: JsValue<JsObject>): JsObject {
+        jsReturn += ".assign($objectName, $source)"
+        return JsObject(emptyMap())
+    }
 }
 
 fun JavaScript.jsObject(values: Map<String, JsValue<*>?>): JsObject {
@@ -82,7 +86,7 @@ fun JavaScript.jsObject(values: Map<String, JsValue<*>?>): JsObject {
     return JsObject as JsObject
 }
 
-fun JavaScript.objectMethod(objectName: JsValue<*>): ObjectsMethods {
+fun JavaScript.objectMethod(objectName: JsValue<JsObject>): ObjectsMethods {
     val methods = ObjectsMethods(
         objectName = objectName
     )
