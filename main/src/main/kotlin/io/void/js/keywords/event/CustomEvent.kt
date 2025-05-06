@@ -9,9 +9,9 @@ import io.void.js.keywords.asJsValue
 import io.void.js.keywords.variable.Const
 
 interface JsEvent: Keyword
-data class CustomEvent(val eventName: JsValue<*>): JsEvent {
+data class CustomEvent(val eventName: JsValue<*>, val parent: JavaScript): JsEvent {
 
-    val variable = Const(name = String.randomString(5), value = "new Event($eventName)")
+    val variable = Const(name = String.randomString(5), value = "new Event($eventName)", parent = parent)
     override var jsReturn: String = variable.render()
 
     companion object {
@@ -38,7 +38,7 @@ data class DefaultEvent(val eventName: String): JsEvent {
 }
 
 fun JavaScript.customEvent(name: JsValue<*>): CustomEvent {
-    val event = CustomEvent(name)
+    val event = CustomEvent(name, this)
     children.add(event)
     return event
 }
