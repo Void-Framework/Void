@@ -1,16 +1,11 @@
 package io.void.js.data
 
 import io.void.js.JavaScript
-import io.void.js.Function
-import io.void.js.function
 import io.void.js.keywords.HTMLElement
-import io.void.js.keywords.InlineCall
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
-import io.void.js.keywords.Return
 import io.void.js.keywords.variable.Const
 import io.void.js.keywords.variable.const
-import java.util.UUID
 
 class DataHandler: Keyword {
 

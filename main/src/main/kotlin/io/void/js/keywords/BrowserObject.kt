@@ -1,11 +1,9 @@
 package io.void.js.keywords
 
-import io.void.js.keywords.event.CustomEvent
 import io.void.js.keywords.event.Event
 import io.void.js.keywords.event.EventFunction
 import io.void.js.keywords.event.JsEvent
 import io.void.js.keywords.event.exception.FunctionNotVariableException
-import io.void.js.keywords.variable.Variable
 import java.lang.UnsupportedOperationException
 
 interface BrowserObject: Keyword {
@@ -30,7 +28,7 @@ interface BrowserObject: Keyword {
             else -> throw UnsupportedOperationException("Cannot use a js function")
         }
         try {
-            jsReturn += InlineCall(
+            jsReturn += RawJs(
                 operation = ".removeEventListener($event, ${eventValue.variable.name}${if (!eventValue.useCapture) ", true" else ""})"
             ).render()
         } catch (e: Exception) {

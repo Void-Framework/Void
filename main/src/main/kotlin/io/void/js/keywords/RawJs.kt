@@ -2,7 +2,7 @@ package io.void.js.keywords
 
 import io.void.js.JavaScript
 
-data class InlineCall(
+data class RawJs(
     val operation: String
 ): Keyword {
 
@@ -12,8 +12,8 @@ data class InlineCall(
     }
 }
 
-fun JavaScript.InlineCall(call: String): InlineCall {
-    val inlineCall = InlineCall(operation = call)
-    children.add(inlineCall)
-    return inlineCall
+fun JavaScript.raw(call: String): RawJs {
+    val rawJs = RawJs(operation = call)
+    children.add(rawJs)
+    return rawJs
 }

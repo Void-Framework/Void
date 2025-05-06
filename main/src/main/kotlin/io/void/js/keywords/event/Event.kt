@@ -4,7 +4,6 @@ import io.void.js.JavaScript
 import io.void.js.keywords.*
 import io.void.js.Function
 import io.void.js.FunctionVariable
-import io.void.js.keywords.event.exception.FunctionNotVariableException
 import io.void.js.keywords.variable.Variable
 
 data class EventFunction(
@@ -34,7 +33,7 @@ data class EventFunction(
     }
 
     fun phase(): JsValue<Int> {
-        children.add(InlineCall(operation = "$eventValueName.eventPhase"))
+        children.add(RawJs(operation = "$eventValueName.eventPhase"))
         return 0.asJsValue()
     }
 
