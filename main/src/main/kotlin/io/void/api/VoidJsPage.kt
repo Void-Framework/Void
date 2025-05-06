@@ -3,19 +3,14 @@ package io.void.api
 import io.void.api.method.Method
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
-import io.void.js.JavaScript
 import io.void.js.keywords.*
 import io.void.js.Function
-import io.void.js.FunctionRunner
 import io.void.js.FunctionVariable
 import io.void.js.Js
 import io.void.js.function
 import io.void.js.keywords.controlflow.For
 import io.void.js.keywords.controlflow.If
-import io.void.js.keywords.datastructures.JsList
 import io.void.js.keywords.datastructures.JsSet
-import io.void.js.keywords.datastructures.emptySet
-import io.void.js.keywords.variable.Const
 import io.void.js.keywords.variable.const
 import io.void.js.keywords.variable.let
 import io.void.js.keywords.variable.set
@@ -45,14 +40,14 @@ internal class VoidJsPage: ApiPage(
                         )
                         const(
                             name = "isHTML",
-                            value = InlineCall(operation = "/<[^>]+>/.test(text)")
+                            value = RawJs(operation = "/<[^>]+>/.test(text)")
                         )
                         For(
                             condition = "let i = 0; i < size; i++",
                             body = {
                                 val element = const(
                                     name = "element",
-                                    value = InlineCall(operation = "document.createElement(elementName)")
+                                    value = RawJs(operation = "document.createElement(elementName)")
                                 )
                                 If(
                                     condition = "isHTML",
@@ -121,7 +116,7 @@ internal class VoidJsPage: ApiPage(
                                 set(value, newValue)
                                 call(deps.asJsValue(), {
                                     forEach { (fn) ->
-                                        InlineCall("${fn.name}()")
+                                        raw("${fn.name}()")
                                     }
                                 }, JsSet(emptyJsValue() as JsValue<Lambda<*>>))
                             }
@@ -132,15 +127,15 @@ internal class VoidJsPage: ApiPage(
                         val runner = const(
                             name = "runner",
                             value = Lambda<Nothing>(_arguments = emptyList()) {
-                                InlineCall("fn(runner)")
+                                raw("fn(runner)")
                             }
                         )
-                        InlineCall("runner()")
+                        raw("runner()")
                     }
                     function<Nothing>("bindText", listOf("element", "ref")) { (element, ref) ->
                         run(watchEffect, Lambda<Nothing>(_arguments = listOf("track")) {
                             call(element.asJsValue(), {
-                                text(InlineCall("ref.read(track)").asJsValue() as JsValue<String>)
+                                text(raw("ref.read(track)").asJsValue() as JsValue<String>)
                             }, HTMLElement())
                         }.asJsValue())
                     }
