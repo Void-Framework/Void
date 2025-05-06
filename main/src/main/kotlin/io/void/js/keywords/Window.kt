@@ -1,5 +1,6 @@
 package io.void.js.keywords
 
+import io.void.js.Function
 import io.void.js.JavaScript
 import io.void.js.keywords.storage.Local
 import io.void.js.keywords.storage.Session
@@ -55,6 +56,22 @@ class Window(window: JsValue<*>? = null): Keyword {
         jsReturn += ".localStorage"
         return Local()
     }
+    fun timeout(function: JsValue<Function<Nothing>>, delay: Int = 0, args: JsValue<*>? = null): JsValue<Int> {
+        jsReturn += ".setTimeout($function${if (delay != 0) ", $delay" else ""}${if (args != null) ", $args" else ""})"
+        return 0.asJsValue()
+    }
+    fun timeout(id: JsValue<Int>): Reference<Window> {
+        jsReturn += ".clearTimeout($id)"
+        return this.refer()
+    }
+    fun interval(function: JsValue<Function<Nothing>>, delay: Int = 0, args: JsValue<*>? = null): JsValue<Int> {
+        jsReturn += ".setInterval($function${if (delay != 0) ", $delay" else ""}${if (args != null) ", $args" else ""})"
+        return 0.asJsValue()
+    }
+    fun interval(id: JsValue<Int>): Reference<Window> {
+        jsReturn += ".clearInterval($id)"
+        return this.refer()
+    }
 }
 
 class History: Keyword {
@@ -77,8 +94,81 @@ class History: Keyword {
     }
 }
 
-fun JavaScript.window(): Window {
-    val window = Window()
+fun JavaScript.alert(message: JsValue<String>, window: JsValue<*>? = null) {
+    val window = Window(window)
     children.add(window)
-    return window
+    window.alert(message)
+}
+fun JavaScript.open(url: JsValue<*>? = null, name: JsValue<String>? = null, specs: JsValue<*>? = null, window: JsValue<*>? = null): Window {
+    val window = Window(window)
+    children.add(window)
+    val newWindow = window.open(url, name, specs)
+    children.add(newWindow)
+    return newWindow
+}
+fun JavaScript.confirm(message: JsValue<String>, window: JsValue<*>? = null): JsValue<Boolean> {
+    val window = Window(window)
+    children.add(window)
+    return window.confirm(message)
+}
+fun JavaScript.history(window: JsValue<*>? = null): History {
+    val window = Window(window)
+    children.add(window)
+    val history = window.history()
+    children.add(history)
+    return history
+}
+fun JavaScript.href(url: JsValue<*>?, window: JsValue<*>? = null) {
+    val window = Window(window)
+    children.add(window)
+    window.href(url)
+}
+fun JavaScript.prompt(message: JsValue<String>? = null, defaultText: JsValue<String>? = null, window: JsValue<*>? = null): JsValue<String> {
+    val window = Window(window)
+    children.add(window)
+    return window.prompt(message, defaultText)
+}
+fun JavaScript.scrollBy(x: JsValue<Int>, y: JsValue<Int>, window: JsValue<*>? = null) {
+    val window = Window(window)
+    children.add(window)
+    window.scrollBy(x, y)
+}
+fun JavaScript.scrollTo(x: JsValue<Int>, y: JsValue<Int>, window: JsValue<*>? = null) {
+    val window = Window(window)
+    children.add(window)
+    window.scrollTo(x, y)
+}
+fun JavaScript.session(window: JsValue<*>? = null): Session {
+    val window = Window(window)
+    children.add(window)
+    val session = window.session()
+    children.add(session)
+    return session
+}
+fun JavaScript.local(window: JsValue<*>? = null): Local {
+    val window = Window(window)
+    children.add(window)
+    val local = window.local()
+    children.add(local)
+    return local
+}
+fun JavaScript.timeout(function: JsValue<Function<Nothing>>, delay: Int = 0, args: JsValue<*>? = null, window: JsValue<*>? = null): JsValue<Int> {
+    val window = Window(window)
+    children.add(window)
+    return window.timeout(function, delay, args)
+}
+fun JavaScript.timeout(id: JsValue<Int>, window: JsValue<*>? = null) {
+    val window = Window(window)
+    children.add(window)
+    window.timeout(id)
+}
+fun JavaScript.interval(function: JsValue<Function<Nothing>>, delay: Int = 0, args: JsValue<*>? = null, window: JsValue<*>? = null): JsValue<Int> {
+    val window = Window(window)
+    children.add(window)
+    return window.interval(function, delay, args)
+}
+fun JavaScript.interval(id: JsValue<Int>, window: JsValue<*>? = null) {
+    val window = Window(window)
+    children.add(window)
+    window.interval(id)
 }
