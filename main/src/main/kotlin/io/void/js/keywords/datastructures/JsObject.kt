@@ -86,12 +86,30 @@ fun JavaScript.jsObject(values: Map<String, JsValue<*>?>): JsObject {
     return JsObject as JsObject
 }
 
-fun JavaScript.objectMethod(objectName: JsValue<JsObject>): ObjectsMethods {
-    val methods = ObjectsMethods(
-        objectName = objectName
-    )
+fun JavaScript.delete(objectName: JsValue<JsObject>, key: String) {
+    val methods = ObjectsMethods(objectName)
     children.add(methods)
-    return methods
+    methods.delete(key)
+}
+fun JavaScript.keys(objectName: JsValue<JsObject>): JsList<String> {
+    val methods = ObjectsMethods(objectName)
+    children.add(methods)
+    return methods.keys()
+}
+fun JavaScript.values(objectName: JsValue<JsObject>): JsList<Any> {
+    val methods = ObjectsMethods(objectName)
+    children.add(methods)
+    return methods.values()
+}
+fun JavaScript.entries(objectName: JsValue<JsObject>): JsList<JsList<Any>> {
+    val methods = ObjectsMethods(objectName)
+    children.add(methods)
+    return methods.entries()
+}
+fun JavaScript.assign(objectName: JsValue<JsObject>, source: JsValue<JsObject>): JsObject {
+    val methods = ObjectsMethods(objectName)
+    children.add(methods)
+    return methods.assign(source)
 }
 fun JavaScript.emptyObject(): JsObject {
     val set = JsObject(values = emptyMap()).emptyObject()
