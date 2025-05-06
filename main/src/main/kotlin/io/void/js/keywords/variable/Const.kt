@@ -1,6 +1,7 @@
 package io.void.js.keywords.variable
 
 import io.void.js.JavaScript
+import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.RawJs
 
@@ -16,34 +17,19 @@ data class Const<T>(
         "$value"
     }
     }"
-    operator fun plus(other: T) {
+    operator fun plus(other: JsValue<T>) {
         parent.children.add(RawJs("$name + $other"))
     }
-    operator fun plus(other: Variable<T>) {
-        parent.children.add(RawJs("$name + $other"))
-    }
-    operator fun minus(other: T) {
+    operator fun minus(other: JsValue<T>) {
         parent.children.add(RawJs("$name - $other"))
     }
-    operator fun minus(other: Variable<T>) {
-        parent.children.add(RawJs("$name - $other"))
-    }
-    operator fun times(other: T) {
+    operator fun times(other: JsValue<T>) {
         parent.children.add(RawJs("$name * $other"))
     }
-    operator fun times(other: Variable<T>) {
-        parent.children.add(RawJs("$name * $other"))
-    }
-    operator fun div(other: T) {
+    operator fun div(other: JsValue<T>) {
         parent.children.add(RawJs("$name / $other"))
     }
-    operator fun div(other: Variable<T>) {
-        parent.children.add(RawJs("$name / $other"))
-    }
-    operator fun rem(other: T) {
-        parent.children.add(RawJs("$name % $other"))
-    }
-    operator fun rem(other: Variable<T>) {
+    operator fun rem(other: JsValue<T>) {
         parent.children.add(RawJs("$name % $other"))
     }
 
