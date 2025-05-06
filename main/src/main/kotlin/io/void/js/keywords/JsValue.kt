@@ -32,7 +32,7 @@ data class DirectValue<T>(internal val value: T) : JsValue<T> {
         }
         is Iterable<*> -> value.joinToString(",") { DirectValue(it).toJs() }
         is Number, Boolean -> value.toString()
-        else -> "\"${value.toString()}\""
+        else -> "\"$value\""
     }
     override fun toString(): String {
         return toJs()
@@ -49,6 +49,19 @@ data class VariableValue<T>(internal val variable: Variable<T>) : JsValue<T> {
 
 data class FunctionValue<T>(internal val function: Function<T>, internal val argsList: JsValue<*> = emptyJsValue()) : JsValue<T> {
     override fun toJs(): String = function.run(argsList)
+    override fun toString(): String {
+        return toJs()
+    }
+}
+
+class Undefined: JsValue<Nothing> {
+    override fun toJs(): String = "undefined"
+    override fun toString(): String {
+        return toJs()
+    }
+}
+class Null: JsValue<Nothing> {
+    override fun toJs(): String = "null"
     override fun toString(): String {
         return toJs()
     }
