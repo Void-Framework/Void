@@ -2,20 +2,59 @@ package io.void.js.keywords.variable
 
 import io.void.js.JavaScript
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.RawJs
+import io.void.js.keywords.raw
 
-data class Let<T>(override val value: T?, override val name: String): Variable<T> {
+data class Let<T>(
+    override val value: T?,
+    override val name: String,
+    val parent: JavaScript
+) : Variable<T> {
 
-    override var jsReturn: String = "let $name = ${if (value is Keyword) {
-        value.render()
-    } else {
-        "$value"
+    override var jsReturn: String = "let $name = ${if (value is Keyword) value.render() else "$value"}"
+
+    override fun render(): String = jsReturn
+
+    operator fun inc(): Let<T> {
+        parent.children.add(RawJs("$name++"))
+        return this
     }
-    }"
-
-    override fun render(): String {
-        return jsReturn
+    operator fun dec(): Let<T> {
+        parent.children.add(RawJs("$name--"))
+        return this
+    }
+    operator fun plus(other: T) {
+        parent.children.add(RawJs("$name + $other"))
+    }
+    operator fun plus(other: Variable<T>) {
+        parent.children.add(RawJs("$name + $other"))
+    }
+    operator fun minus(other: T) {
+        parent.children.add(RawJs("$name - $other"))
+    }
+    operator fun minus(other: Variable<T>) {
+        parent.children.add(RawJs("$name - $other"))
+    }
+    operator fun times(other: T) {
+        parent.children.add(RawJs("$name * $other"))
+    }
+    operator fun times(other: Variable<T>) {
+        parent.children.add(RawJs("$name * $other"))
+    }
+    operator fun div(other: T) {
+        parent.children.add(RawJs("$name / $other"))
+    }
+    operator fun div(other: Variable<T>) {
+        parent.children.add(RawJs("$name / $other"))
+    }
+    operator fun rem(other: T) {
+        parent.children.add(RawJs("$name % $other"))
+    }
+    operator fun rem(other: Variable<T>) {
+        parent.children.add(RawJs("$name % $other"))
     }
 }
+
 
 class Setter<T>(newValue: T, variable: Let<T>): Keyword {
 
@@ -33,10 +72,7 @@ class Setter<T>(newValue: T, variable: Let<T>): Keyword {
 }
 
 inline fun <reified T> JavaScript.let(value: T, name: String): Let<T> {
-    val let = Let(
-        value = value,
-        name = name
-    )
+    val let = Let(value = value, name = name, parent = this)
     children.add(let)
     return let
 }
