@@ -18,7 +18,7 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
         return HTMLElement()
     }
     fun cssClass(cssClass: JsValue<String>): HTMLElement {
-        jsReturn += ".getElementByClassName($cssClass)"
+        jsReturn += ".getElementsByClassName($cssClass)"
         return HTMLElement()
     }
     fun name(name: JsValue<String>): JsList<HTMLElement> {
@@ -222,26 +222,104 @@ class JsAttribute: Keyword {
     }
 }
 
-fun JavaScript.id(id: JsValue<String>): HTMLElement {
-    val dom = DOM()
+fun JavaScript.id(id: JsValue<String>, document: Variable<DOM>? = null): HTMLElement {
+    val dom = DOM(document)
     children.add(dom)
-    val element = dom.id(id)
-    children.add(element)
-    return element
+    val elements = dom.id(id)
+    children.add(elements)
+    return elements
 }
-
-fun JavaScript.selectAll(identifier: JsValue<String>): JsList<HTMLElement> {
-    val dom = DOM()
+fun JavaScript.cssClass(cssClass: JsValue<String>, document: Variable<DOM>? = null): HTMLElement {
+    val dom = DOM(document)
     children.add(dom)
-    val list = dom.selectAll(identifier)
-    children.add(list)
-    return list
+    val elements = dom.cssClass(cssClass)
+    children.add(elements)
+    return elements
 }
-
-fun JavaScript.elements(amount: JsValue<Int>, element: JsValue<Element>): BrowserObject {
-    val dom = DOM()
+fun JavaScript.name(name: JsValue<String>, document: Variable<DOM>? = null): JsList<HTMLElement> {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.name(name)
+    children.add(elements)
+    return elements
+}
+fun JavaScript.tag(tag: JsValue<String>, document: Variable<DOM>? = null): JsList<HTMLElement> {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.tag(tag)
+    children.add(elements)
+    return elements
+}
+fun JavaScript.selectAll(id: JsValue<String>, document: Variable<DOM>? = null): JsList<HTMLElement> {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.selectAll(id)
+    children.add(elements)
+    return elements
+}
+fun JavaScript.select(id: JsValue<String>, document: Variable<DOM>? = null): HTMLElement {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.select(id)
+    children.add(elements)
+    return elements
+}
+fun JavaScript.element(element: JsValue<Element>, document: Variable<DOM>? = null): HTMLElement {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.element(element)
+    children.add(elements)
+    return elements
+}
+fun JavaScript.fragment(document: Variable<DOM>? = null): BrowserObject {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.fragment()
+    children.add(elements)
+    return elements
+}
+fun JavaScript.elements(amount: JsValue<Int>, element: JsValue<Element>, document: Variable<DOM>? = null): BrowserObject {
+    val dom = DOM(document)
     children.add(dom)
     val elements = dom.elements(amount, element)
     children.add(elements)
     return elements
+}
+fun JavaScript.elements(amount: JsValue<Int>, element: JsValue<HTMLElement>, elementInsides: JsValue<String>, attribute: JsValue<JsObject>, document: Variable<DOM>? = null): BrowserObject {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.elements(amount, element, elementInsides, attribute)
+    children.add(elements)
+    return elements
+}
+fun JavaScript.body(document: Variable<DOM>? = null): HTMLElement {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.body()
+    children.add(elements)
+    return elements
+}
+fun JavaScript.attribute(names: AttributeNames, document: Variable<DOM>? = null): JsAttribute {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.attribute(names)
+    children.add(elements)
+    return elements
+}
+fun JavaScript.attribute(name: JsValue<String>, document: Variable<DOM>? = null): JsAttribute {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.attribute(name)
+    children.add(elements)
+    return elements
+}
+fun JavaScript.cookies(nameAndValue: JsValue<String>, document: Variable<DOM>? = null) {
+    val dom = DOM(document)
+    children.add(dom)
+    val elements = dom.cookies(nameAndValue)
+}
+fun JavaScript.cookies(document: Variable<DOM>? = null): JsValue<String> {
+    val dom = DOM(document)
+    children.add(dom)
+    return dom.cookies()
 }
