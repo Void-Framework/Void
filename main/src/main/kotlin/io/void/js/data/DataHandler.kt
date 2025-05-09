@@ -26,9 +26,17 @@ fun JavaScript.setData(value: JsValue<*>, name: String): Const<DataHolder> {
     )
 }
 
+val String.Companion.letters
+    get() = mutableMapOf<Int, MutableSet<String>>()
 fun String.Companion.randomString(length: Int): String {
     val chars = ('a'..'z') + ('A'..'Z')
-    return (1..length)
+    var string = (1..length)
         .map { chars.random() }
         .joinToString("")
+    if (letters[length]?.contains(string) == true) {
+        string = randomString(length)
+    } else {
+        letters[length]?.add(string)
+    }
+    return string
 }
