@@ -6,6 +6,7 @@ import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
 import io.void.html.page.Page
+import io.void.js.Function
 import io.void.js.JavaScript
 import io.void.js.Js
 import io.void.js.data.DataHandler
@@ -22,6 +23,7 @@ import io.void.js.keywords.event.*
 import io.void.js.keywords.variable.Const
 import io.void.js.keywords.variable.const
 import io.void.js.keywords.variable.let
+import io.void.js.keywords.variable.set
 import io.void.js.run
 import java.net.URL
 
@@ -37,191 +39,359 @@ class HomeRoute : Page(target = "/") {
     private lateinit var data: Const<DataHolder>
 
     override val javascript: JavaScript = Js(false) {
-        // Test data binding
+        // Data binding with reactive updates
         data = setData("Welcome to Void Framework".asJsValue(), "data")
 
-        // Test DOM manipulation and events
+        // DOM manipulation - add dynamic content
         id("features".asJsValue()).html(Div {
             H3 { Fractal("Dynamic Content") }
-            P { Fractal("This content was added via JavaScript") }
+            P { Fractal("This content was dynamically inserted via JavaScript") }
+            Ul(attribute {
+                name = AttributeNames.ID
+                value = "dynamic-list"
+            }) {
+                // Will be populated later
+            }
         }.asJsValue())
 
-        // Test event handling on all buttons
-        selectAll("button".asJsValue()).forEach { (button) ->
-            call(
-                button.asJsValue(), {}, Event(
-                    CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
-                        stopReload = true,
-                        _body = { js ->
-                            console().log("Button Clicked!".asJsValue())
-                            call<DOM>("button".asJsValue(), {
-                                HTMLElement().text("Clicked!".asJsValue())
-                            }, DOM())
-                        },
-                        eventValueName = ""
-                    ).asJsValue()
-                )
-            )
-        }
-
-        // Test dynamic class toggling
-        selectAll("article".asJsValue()).forEach { (article) ->
-            call(
-                article.asJsValue(), {}, Event(
-                    CustomEvent.getEvent(Events.MOUSEOVER).asJsValue(), EventFunction(
-                        stopReload = true,
-                        _body = { js ->
-                            console().log("Article Hovered!".asJsValue())
-                            call<DOM>("article".asJsValue(), {
-                                HTMLElement().text("Hover effect active".asJsValue())
-                            }, DOM())
-                        },
-                        eventValueName = ""
-                    ).asJsValue()
-                )
-            )
-        }
-
-        // Test data updates
-        val updateTitleFunction = function<Nothing>("updateTitle", listOf()) {
-            console().log("Updating tittle...".asJsValue())
-            call(data.asJsValue(), {
-                write("Title Updated!".asJsValue())
-            }, DataHolder(this))
-        }
-
-        // Add click event to footer to update title
-        id("footer".asJsValue()).html(
-            Button(
-            attribute {
-                name = AttributeNames.CLASS
-                value = buttonClasses
-            }
-        ) {
-            Fractal("Update Title")
-        }.asJsValue()
-        )
-
-        selectAll("#footer".asJsValue()).forEach { (button) ->
-            call(button.asJsValue(), {}, Event(
-                CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
-                    stopReload = true,
-                    _body = {
-                        run(updateTitleFunction, emptyJsValue())
-                    },
-                    eventValueName = ""
-                ).asJsValue())
-            )
-        }
-
-        // Test data structures
-        val userList = const(
-            name = "userList",
-            value = JsList(listOf("John", "Jane", "Bob").asJsValue()).initialize()
-        )
-        val userMap = const(
-            name = "userMap",
-            value = JsMap(
-                mapOf(
-                    "\"admin\"" to "\"John\"",
-                    "\"moderator\"" to "\"Jane\"",
-                    "\"user\"" to "\"Bob\""
-                )
-            ).initialize()
-        )
-        val userObject = const(
-            name = "userObject",
-            value = JsObject(
-                mapOf(
-                    "name" to "John".asJsValue(),
-                    "age" to 30.asJsValue(),
-                    "roles" to JsList(listOf("admin", "user").asJsValue()).initialize().asJsValue()
-                )
-            ).initialize()
-        )
-
-        // Test control flow with data structures
-        call(userList.asJsValue(), {
-            forEach { (user) ->
-                If("${user.name} === 'John'", body = {
-                    console().log("Found admin \${${user.name}}".asJsValue())
-                }).ElseIf("${user.name} === 'Jane'") {
-                    console().log("Found moderator \${${user.name}}".asJsValue())
-                }.Else {
-                    console().log("Found user \${${user.name}}".asJsValue())
-                }
-            }
-        }, JsList(emptyJsValue() as JsValue<String>))
-
-        // Test fetch with data handling
-        fetch(null, URL("https://api.example.com/users"))
-            .then(FetchFunction({ (result) ->
-                console().log("Fetched users".asJsValue())
-            }, "response"))
-            .catch(FetchFunction({ (error) ->
-                console().log("Error fetching users".asJsValue())
-                // Handle error
-            }, "error"))
-
-        // Test loops with map
-        let(
-            name = "i",
+        // Create a counter for demonstrating state
+        var counter = let(
+            name = "counter",
             value = 0
         )
 
-        // Test object manipulation
-        objectMethod(userObject.asJsValue()).keys().forEach { (key) ->
-            call(key.asJsValue(), {
-                text("User property: \${key}".asJsValue())
-            }, HTMLElement())
+        // Create a function to update counter display
+        val updateCounterDisplay = function<Nothing>("updateCounterDisplay", emptyList()) {
+            id("counter-value".asJsValue()).text(counter.asJsValue() as JsValue<String>)
         }
 
-        console().log(DOM().elements(5.asJsValue(), Div {
-            H3 { Fractal("User List") }
-            Ul {
+        // Add counter UI
+        id("counter-container".asJsValue()).html(Div {
+            H3 { Fractal("State Management Demo") }
+            P {
+                Fractal("Counter value: ")
+                Span(attribute {
+                    name = AttributeNames.ID
+                    value = "counter-value"
+                }) { Fractal("0") }
             }
-        }.asJsValue()).asJsValue())
-
-        // Add interactive test button
-        id("test-button".asJsValue()).html(
             Button(
-            attribute {
-                name = AttributeNames.CLASS
-                value = "bg-blue-500 text-white px-4 py-2 rounded"
-            }
-        ) {
-            Fractal("Run Data Structure Tests")
-        }.asJsValue()
+                attribute {
+                    name = AttributeNames.ID
+                    value = "increment-button"
+                },
+                attribute {
+                    name = AttributeNames.CLASS
+                    value = buttonClasses
+                }
+            ) { Fractal("Increment") }
+            Button(
+                attribute {
+                    name = AttributeNames.ID
+                    value = "decrement-button"
+                },
+                attribute {
+                    name = AttributeNames.CLASS
+                    value = buttonClasses
+                }
+            ) { Fractal("Decrement") }
+        }.asJsValue())
+
+        // Add event listeners for counter buttons
+        listen(id("increment-button".asJsValue()).asJsValue(), Events.CLICK.asJsValue(), {
+            counter++
+            run(updateCounterDisplay, emptyJsValue())
+        })
+        listen(id("increment-button".asJsValue()).asJsValue(), Events.CLICK.asJsValue(), {
+            counter++
+            run(updateCounterDisplay, emptyJsValue())
+        })
+        listen(id("decrement-button".asJsValue()).asJsValue(), Events.CLICK.asJsValue(), {
+            counter++
+            run(updateCounterDisplay, emptyJsValue())
+        })
+
+        id("decrement-button".asJsValue()).on(Events.CLICK.asJsValue(), {
+            counter--
+            run(updateCounterDisplay, emptyJsValue())
+        })
+
+        // Test data structures - create a user list
+        val users = const(
+            name = "users",
+            value = JsList(listOf(
+                JsObject(mapOf(
+                    "id" to 1.asJsValue(),
+                    "name" to "John Doe".asJsValue(),
+                    "role" to "Admin".asJsValue()
+                )).initialize(),
+                JsObject(mapOf(
+                    "id" to 2.asJsValue(),
+                    "name" to "Jane Smith".asJsValue(),
+                    "role" to "Developer".asJsValue()
+                )).initialize(),
+                JsObject(mapOf(
+                    "id" to 3.asJsValue(),
+                    "name" to "Bob Johnson".asJsValue(),
+                    "role" to "Designer".asJsValue()
+                )).initialize()
+            ).asJsValue()).initialize()
         )
 
-        // Add event listener for test button
-        selectAll("#test-button button".asJsValue()).forEach { (button) ->
-            call(button.asJsValue(), {}, Event(
-                CustomEvent.getEvent(Events.CLICK).asJsValue(), EventFunction(
-                    stopReload = true,
-                    _body = { js ->
-                        // Test map operations
-                        call("userMap".asJsValue(), {
-                            set("newRole".asJsValue(), "Alice".asJsValue())
-                        }, JsMap<String, String>(mapOf()))
-                        console().log("Added new user to map".asJsValue())
+        // Function to render user list
+        val renderUserList = function<Nothing>("renderUserList", emptyList()) {
+            val listHtml = let(
+                name = "listHtml",
+                value = ""
+            )
 
-                        // Test list operations
-                        call(userMap.asJsValue(), {
-                            push("Alice".asJsValue())
-                        }, JsList(emptyJsValue() as JsValue<String>))
-                        console().log("Added new user to list".asJsValue())
+            call(users.asJsValue(), {
+                forEach { (user) ->
+                    // Build HTML for each user
+                    set(listHtml, "\${${listHtml.name}} <li class='p-2 border-b'>\${${user.name}.name} - \${${user.name}.role}</li>")
+                }
+            }, JsList(emptyJsValue() as JsValue<JsObject>))
 
-                        // Test object operations
-                        objectMethod(userObject.asJsValue()).delete("age")
-                        console().log("Deleted age from user object".asJsValue())
+            // Update the DOM with our list
+            id("dynamic-list".asJsValue()).html(listHtml.asJsValue())
+        }
+
+        // Initial render
+        run(renderUserList, emptyJsValue())
+
+        // Add a form to add new users
+        id("user-form-container".asJsValue()).html(Div {
+            H3 { Fractal("Add New User") }
+            Form(
+                attribute {
+                    name = AttributeNames.ID
+                    value = "user-form"
+                }
+            ) {
+                Div {
+                    Label(
+                        attribute {
+                            name = AttributeNames.FOR
+                            value = "user-name"
+                        }
+                    ) { Fractal("Name:") }
+                    Input(
+                        attribute {
+                            name = AttributeNames.ID
+                            value = "user-name"
+                        },
+                        attribute {
+                            name = AttributeNames.TYPE
+                            value = "text"
+                        },
+                        attribute {
+                            name = AttributeNames.CLASS
+                            value = "border p-2 w-full"
+                        }
+                    )
+                }
+                Div {
+                    Label(
+                        attribute {
+                            name = AttributeNames.FOR
+                            value = "user-role"
+                        }
+                    ) { Fractal("Role:") }
+                    Input(
+                        attribute {
+                            name = AttributeNames.ID
+                            value = "user-role"
+                        },
+                        attribute {
+                            name = AttributeNames.TYPE
+                            value = "text"
+                        },
+                        attribute {
+                            name = AttributeNames.CLASS
+                            value = "border p-2 w-full"
+                        }
+                    )
+                }
+                Button(
+                    attribute {
+                        name = AttributeNames.ID
+                        value = "add-user-button"
                     },
-                    eventValueName = ""
-                ).asJsValue()
+                    attribute {
+                        name = AttributeNames.TYPE
+                        value = "submit"
+                    },
+                    attribute {
+                        name = AttributeNames.CLASS
+                        value = buttonClasses
+                    }
+                ) { Fractal("Add User") }
+            }
+        }.asJsValue())
+
+        // Handle form submission
+        id("user-form".asJsValue()).on(Events.SUBMIT.asJsValue(), { (event) ->
+            // Prevent default form submission
+            val userName = const(
+                name = "userName",
+                value = Call<Function<Nothing>>(DOM().id("user-name".asJsValue()).asJsValue(), ".value")
             )
+            val userRole = const(
+                name = "userRole",
+                value = Call<Function<Nothing>>(DOM().id("user-role".asJsValue()).asJsValue(), ".value")
             )
+
+            If("!userName || !userRole") {
+                alert("Please fill in all fields".asJsValue())
+                Return()
+            }
+
+            val newUser = const(
+                name = "newUser",
+                value = JsObject(mapOf(
+                    "id" to "Date.now()".asJsValue(),
+                    "name" to userName.asJsValue(),
+                    "role" to userRole.asJsValue()
+                )).initialize()
+            )
+            call(users.asJsValue(), {
+                push(newUser.asJsValue() as JsValue<JsObject>)
+            }, JsList<JsObject>(JsObject(emptyMap()).asJsValue()))
+
+            call<Function<Nothing>>(DOM().id("user-name".asJsValue()).asJsValue(), ".value = \"\"")
+            call<Function<Nothing>>(DOM().id("user-role".asJsValue()).asJsValue(), ".value = \"\"")
+
+            run(renderUserList, emptyJsValue())
+            alert("User added successfully!".asJsValue())
+        })
+
+        // Test fetch API with async/await
+        val fetchData = function<Nothing>("fetchData", emptyList()) {
+            id("fetch-status".asJsValue()).text("Loading...".asJsValue())
+
+            fetch(null, URL("https://jsonplaceholder.typicode.com/todos/1"))
+                .then(FetchFunction({ (response) ->
+                    table(response.asJsValue())
+                }))
+                .then(FetchFunction({ (data) ->
+                    id("fetch-status".asJsValue()).text("Data loaded!".asJsValue())
+                    id("fetch-result".asJsValue()).html(
+                        Pre {
+                            Code {
+                                Fractal("JSON.stringify(${data.name}, null, 2)")
+                            }
+                        }.asJsValue()
+                    )
+                }))
+                .catch(FetchFunction({ (error) ->
+                    id("fetch-status".asJsValue()).text("Error loading data".asJsValue())
+                    id("fetch-result".asJsValue()).text(error.asJsValue() as JsValue<String>)
+                }))
+        }
+
+        // Add fetch test UI
+        id("fetch-container".asJsValue()).html(Div {
+            H3 { Fractal("Fetch API Test") }
+            Button(
+                attribute {
+                    name = AttributeNames.ID
+                    value = "fetch-button"
+                },
+                attribute {
+                    name = AttributeNames.CLASS
+                    value = buttonClasses
+                }
+            ) { Fractal("Fetch Data") }
+            Div(
+                attribute {
+                    name = AttributeNames.ID
+                    value = "fetch-status"
+                },
+                attribute {
+                    name = AttributeNames.CLASS
+                    value = "mt-2"
+                }
+            ) { Fractal("Click button to fetch data") }
+            Div(
+                attribute {
+                    name = AttributeNames.ID
+                    value = "fetch-result"
+                },
+                attribute {
+                    name = AttributeNames.CLASS
+                    value = "mt-2 p-4 bg-gray-100 rounded"
+                }
+            ) {}
+        }.asJsValue())
+
+        // Add event listener for fetch button
+        id("fetch-button".asJsValue()).on(Events.CLICK.asJsValue()) {
+            run(fetchData, emptyJsValue())
+        }
+
+        // Test class toggling
+        /*val toggleClass = function<Nothing>("toggleClass", listOf("element", "className")) { (element, className) ->
+            call(element.asJsValue(), {
+                classList().toggle(className.asJsValue())
+            }, HTMLElement())
+        }*/
+
+        // Add class toggle test
+        id("toggle-container".asJsValue()).html(Div {
+            H3 { Fractal("Class Toggle Test") }
+            Div(
+                attribute {
+                    name = AttributeNames.ID
+                    value = "toggle-element"
+                },
+                attribute {
+                    name = AttributeNames.CLASS
+                    value = "p-4 bg-gray-200 transition-all duration-300"
+                }
+            ) { Fractal("Click me to toggle class") }
+        }.asJsValue())
+
+        // Add event listener for toggle element
+        /*id("toggle-element".asJsValue()).on(Events.CLICK.asJsValue()) { (event) ->
+            call(event.asJsValue(), {
+                target()
+            }, EventFunction(
+                stopReload = false,
+                _body = { js ->
+                    run(toggleClass, listOf("event.target".asJsValue(), "bg-blue-300".asJsValue()))
+                },
+                eventValueName = "event"
+            ))
+        }*/
+
+        // Update title function
+        val updateTitle = function<Nothing>("updateTitle", emptyList()) {
+            log("Updating title...".asJsValue())
+            call(data.asJsValue(), {
+                write("Void Framework - Interactive Demo".asJsValue())
+            }, DataHolder(this))
+        }
+
+        // Add update title button
+        id("footer".asJsValue()).html(
+            Button(
+                attribute {
+                    name = AttributeNames.ID
+                    value = "update-title-button"
+                },
+                attribute {
+                    name = AttributeNames.CLASS
+                    value = buttonClasses
+                }
+            ) { Fractal("Update Page Title") }.asJsValue()
+        ).asJsValue()
+
+        // Add event listener for update title button
+        id("update-title-button".asJsValue()).on(Events.CLICK.asJsValue()) {
+            run(updateTitle, emptyJsValue())
         }
     }
+
 
     override var content: Element? = Main(
         attribute {
