@@ -4,54 +4,43 @@ import io.void.js.JavaScript
 import io.void.js.keywords.*
 import io.void.js.Function
 import io.void.js.FunctionVariable
+import io.void.js.data.randomString
 import io.void.js.keywords.variable.Variable
 
 data class EventFunction(
-    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
-    val stopReload: Boolean = true,
-    val eventValueName: String
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit
 ): Function<Nothing>(
     name = "",
-    arguments = listOf(eventValueName),
+    arguments = listOf(String.randomString(4)),
     body = _body,
 ) {
     var propagate = true
     var immediatePropagation = true
+    var stopReload: Boolean = true
+    val eventName = arguments[0]
 
     init {
-        if (eventValueName.isNotBlank()) {
-            if (stopReload) {
-                children.addFirst(Call<Function<Nothing>>(eventValueName.asJsValue(), "preventDefault()"))
-            }
-            if (!propagate) {
-                children.addFirst(Call<Function<Nothing>>(eventValueName.asJsValue(), "stopPropagation()"))
-            }
-            if (!immediatePropagation) {
-                children.addFirst(Call<Function<Nothing>>(eventValueName.asJsValue(), "stopImmediatePropagation()"))
-            }
+        if (stopReload) {
+            children.addFirst(Call<Function<Nothing>>(eventName.asJsValue(), "preventDefault()"))
+        }
+        if (!propagate) {
+            children.addFirst(Call<Function<Nothing>>(eventName.asJsValue(), "stopPropagation()"))
+        }
+        if (!immediatePropagation) {
+            children.addFirst(Call<Function<Nothing>>(eventName.asJsValue(), "stopImmediatePropagation()"))
         }
     }
 
     fun phase(): JsValue<Int> {
-        children.add(RawJs(operation = "$eventValueName.eventPhase"))
+        children.add(RawJs(operation = "$eventName.eventPhase"))
         return 0.asJsValue()
     }
 
-    override var jsReturn: String = "($eventValueName) => {${children.joinToString(";") { it.render() }}}"
+    override var jsReturn: String = "($eventName) => {${children.joinToString(";") { it.render() }}}"
 
     override fun render(): String {
         return jsReturn
     }
-}
-
-fun JavaScript.eFunction(body : JavaScript.(List<FunctionVariable<*>>) -> Unit, stopReload: Boolean = false, eventValueName: String): EventFunction {
-    val function = EventFunction(
-        _body = body,
-        stopReload = stopReload,
-        eventValueName = eventValueName
-    )
-    children.add(function)
-    return function
 }
 fun JavaScript.listen(htmlElement: JsValue<HTMLElement>, eventType: JsValue<JsEvent>, function: JsValue<EventFunction>) {
     call(htmlElement, {}, Event(
@@ -59,11 +48,25 @@ fun JavaScript.listen(htmlElement: JsValue<HTMLElement>, eventType: JsValue<JsEv
         function
     ))
 }
+fun JavaScript.listen(htmlElement: JsValue<HTMLElement>, eventType: JsValue<JsEvent>, function: JavaScript.(List<FunctionVariable<*>>) -> Unit) {
+    call(htmlElement, {}, Event(
+        eventType,
+        function
+    ))
+}
+fun Function<Nothing>.asEventFunction(): JsValue<EventFunction> {
+    return EventFunction(this.body).asJsValue()
+}
 
 data class Event(val eventType: JsValue<JsEvent>, val function: JsValue<EventFunction>): Keyword {
     var useCapture = false
     private var isVariable = false
     lateinit var variable: Variable<EventFunction>
+
+    constructor(eventType: JsValue<JsEvent>, body: JavaScript.(List<FunctionVariable<*>>) -> Unit): this(
+        eventType,
+        EventFunction(body).asJsValue()
+    )
 
     init {
         isVariable = function is VariableValue<EventFunction>

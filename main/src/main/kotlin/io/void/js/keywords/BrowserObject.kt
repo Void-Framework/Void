@@ -1,5 +1,7 @@
 package io.void.js.keywords
 
+import io.void.js.FunctionVariable
+import io.void.js.JavaScript
 import io.void.js.keywords.event.Event
 import io.void.js.keywords.event.EventFunction
 import io.void.js.keywords.event.JsEvent
@@ -41,5 +43,18 @@ interface BrowserObject: Keyword {
             off(it)
         }
         return this
+    }
+    fun on(_eventType: JsValue<JsEvent>, _function: JavaScript.(List<FunctionVariable<*>>) -> Unit): Event {
+        val event = Event(
+            eventType = _eventType,
+            body = _function
+        )
+        jsReturn += event.render()
+        return event
+    }
+    fun on(_eventType: List<JsValue<JsEvent>>, _function: JavaScript.(List<FunctionVariable<*>>) -> Unit): List<Event> {
+        return _eventType.map {
+            return@map on(it, _function)
+        }
     }
 }
