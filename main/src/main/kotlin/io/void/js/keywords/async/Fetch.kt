@@ -4,6 +4,7 @@ import io.void.dto.ResponseDTO
 import io.void.js.JavaScript
 import io.void.js.Function
 import io.void.js.FunctionVariable
+import io.void.js.data.randomString
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.Reference
@@ -12,13 +13,13 @@ import io.void.js.keywords.refer
 import java.net.URL
 
 data class FetchFunction(
-    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit,
-    val responseArgName: String
+    val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit
 ): Function<Nothing>(
     name = "",
-    arguments = listOf(responseArgName),
+    arguments = listOf(String.randomString(4)),
     body = _body
 ) {
+    val responseArgName = arguments[0]
 
     override var jsReturn: String = "$responseArgName => {${children.joinToString(";") { it.render() }}}"
 
