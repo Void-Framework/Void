@@ -27,6 +27,8 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
 
     init {
         middleware = middleware?.sortedByDescending { it.priority }
+        TailwindGen.grabTailwind()
+
     }
 
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
