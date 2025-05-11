@@ -23,20 +23,26 @@ sealed class JavaScript(open val runBeforeLoad: Boolean = false) {
             val rendered = if (keyword.await) keyword.awaitRender() else keyword.render()
             if (!rendered.endsWith(";")) {
                 // Check if next line starts with a dot or is a function/class declaration
-                val nextLine = if (index < children.size - 1) {
-                    children[index + 1].render()
-                } else null
+                val nextLine = getNextLine(index, children)
 
-                if (nextLine?.startsWith(".") == true ||
-                    rendered.contains("function") ||
-                    (rendered.contains("class")) && !rendered.contains("class=")) {
-                    rendered
-                } else {
-                    "$rendered;"
-                }
+                renderKeyword(rendered, nextLine)
             } else rendered
         }.joinToString("\n")
         return js
+    }
+    internal fun getNextLine(index: Int, list: MutableList<Keyword>): String? {
+        return if (index < children.size - 1) {
+            children[index + 1].render()
+        } else null
+    }
+    internal fun renderKeyword(rendered: String, nextLine: String?): String {
+        return if (nextLine?.startsWith(".") == true ||
+            rendered.contains("function") ||
+            (rendered.contains("class")) && !rendered.contains("class=")) {
+            rendered
+        } else {
+            "$rendered;"
+        }
     }
 }
 
@@ -58,7 +64,16 @@ open class Function<T>(
     }
 
     override fun render(): String {
-        jsReturn = "${if (async) "async " else ""}function $name(${arguments.joinToString(", ")}) {${children.joinToString(";") { it.render() }}}"
+        val js = children.mapIndexed { index, keyword ->
+            val rendered = if (keyword.await) keyword.awaitRender() else keyword.render()
+            if (!rendered.endsWith(";")) {
+                // Check if next line starts with a dot or is a function/class declaration
+                val nextLine = getNextLine(index, children)
+
+                renderKeyword(rendered, nextLine)
+            } else rendered
+        }.joinToString("\n")
+        jsReturn = "${if (async) "async " else ""}function $name(${arguments.joinToString(", ")}) {$js}"
         return jsReturn
     }
 
