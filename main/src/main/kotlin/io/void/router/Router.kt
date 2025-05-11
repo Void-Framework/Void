@@ -2,8 +2,6 @@ package io.void.router
 
 import io.void.api.ApiPage
 import io.void.api.CssPage
-import io.void.api.JsPage
-import io.void.api.VoidJsPage
 import io.void.clienthandler.ClientHandler
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
@@ -21,23 +19,12 @@ class Router {
 
     private val routes: ConcurrentHashMap<String, Page> = ConcurrentHashMap()
     val styles: ConcurrentHashMap<String, Pair<UUID, String>> = ConcurrentHashMap()
-    val js: ConcurrentHashMap<String, Pair<UUID, String>> = ConcurrentHashMap()
     private val builder = HTTPBuilder()
-
-    init {
-        addRoute(VoidJsPage())
-    }
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page): Router {
         if (route::class != CssPage::class) {
             TailwindGen.processTailwind(route, this)
-        }
-        if (route.javascript != null) {
-            val uuid = UUID.randomUUID()
-            val renderedJS = "\"use strict\";" + route.javascript!!.render()
-            this.addRoute(JsPage(uuid, renderedJS))
-            js[route.target] = uuid to renderedJS
         }
         if (routes.containsKey(route.target)) {
             throw RouteTargetUsedException(route.target)
@@ -83,16 +70,7 @@ class Router {
                             } else {
                                 ""
                             }
-                            }<script src=\"/js/void.js\"></script>${if (js.containsKey(target)) {
-                                "<script src=\"/js/${js[target]!!.first}.js\" ${if (!page!!.javascript!!.runBeforeLoad) {
-                                    "defer"
-                                } else {
-                                    ""
-                                }}></script>"
-                            } else {
-                                ""
-                        }
-                        }</head><body>${page!!.content!!.render()}</body></html>"
+                            }</head><body>${page!!.content!!.render()}</body></html>"
                     ),
                     outputStream = client.getOutputStream()
                 )
