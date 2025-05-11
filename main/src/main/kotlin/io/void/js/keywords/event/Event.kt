@@ -21,13 +21,13 @@ data class EventFunction(
 
     init {
         if (stopReload) {
-            children.addFirst(Call<Function<Nothing>>(eventName.asJsValue(), "preventDefault()"))
+            children.addFirst(Call<Function<Nothing>>(RawJs(eventName).asJsValue(), "preventDefault()"))
         }
         if (!propagate) {
-            children.addFirst(Call<Function<Nothing>>(eventName.asJsValue(), "stopPropagation()"))
+            children.addFirst(Call<Function<Nothing>>(RawJs(eventName).asJsValue(), "stopPropagation()"))
         }
         if (!immediatePropagation) {
-            children.addFirst(Call<Function<Nothing>>(eventName.asJsValue(), "stopImmediatePropagation()"))
+            children.addFirst(Call<Function<Nothing>>(RawJs(eventName).asJsValue(), "stopImmediatePropagation()"))
         }
     }
 
