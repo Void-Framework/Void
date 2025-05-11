@@ -4,14 +4,11 @@ import io.void.api.ApiPage
 import io.void.api.method.Method
 import io.void.dto.RequestDTO
 import io.void.dto.ResponseDTO
-import io.void.js.JavaScript
 
 class SetterRoute: ApiPage(
     target = "/setter",
     method = Method.GET
 ) {
-
-    override val javascript: JavaScript? = null
 
     override fun serverGetter(request: RequestDTO): ResponseDTO {
         if (request.method == method) {
