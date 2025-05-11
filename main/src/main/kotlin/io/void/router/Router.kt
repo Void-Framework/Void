@@ -60,6 +60,11 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
+        if (route::class != CssPage::class) {
+            if (route.contentType == ContentType.HtmlElements::class) {
+                TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
+            }
+        }
         Processor.annotationProcessor(page = route)
         handleTargetChecking(route, routes)
         if (route is IExceptionPage) {
@@ -67,11 +72,6 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
         }
         if (route is INullRoutePage) {
             nullPage = route
-        }
-        if (route::class != CssPage::class) {
-            if (route.contentType == ContentType.HtmlElements::class) {
-                TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
-            }
         }
         if (route is DynamicPage<*>) {
             val target = route.target.split("/").toMutableList()
