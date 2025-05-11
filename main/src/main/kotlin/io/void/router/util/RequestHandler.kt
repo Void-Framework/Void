@@ -1,0 +1,86 @@
+package io.void.router.util
+
+import io.void.cache.Cache
+import io.void.clienthandler.ClientHandler
+import io.void.dto.http.RequestDTO
+import io.void.dto.http.ResponseDTO
+import io.void.html.page.Page
+import io.void.html.page.content.ContentType
+import io.void.html.page.dynamic.DynamicPage
+import io.void.router.Router
+import java.net.Socket
+import java.util.concurrent.ConcurrentHashMap
+
+internal interface RequestHandler {
+    val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>>
+
+    fun handleDynamic(requestDTO: RequestDTO): ResponseDTO? {
+        val target = requestDTO.target
+        val url = target.split('/')
+        if (url.contains("favicon.ico")) return null
+        dynamicRoutes.forEach { (target, route) ->
+            var matches = true
+            target.forEachIndexed { i, pTarget ->
+                try {
+                    if (url[i] != pTarget) {
+                        if (pTarget != "{}") {
+                            matches = false
+                            return@forEachIndexed
+                        }
+                    }
+                } catch (_: Exception) {
+                    return@forEachIndexed
+                }
+            }
+
+            if (matches) {
+                route.request = requestDTO
+                return route.content().let { content ->
+                    when (content) {
+                        is ContentType.Response -> content.response
+                        is ContentType.HtmlElements -> constructClassicResponse(page = route)
+                    }
+                }
+            }
+        }
+        return null
+    }
+
+    fun <T : Page<*>> constructClassicResponse(page: T): ResponseDTO {
+        return ResponseDTO(
+            status = 200,
+            statusText = "All is well",
+            headers = mutableMapOf("Content-Type" to "text/html"),
+            body = """<!doctype html><html>
+                <head>${page.metadata?.render() ?: ""}</head>
+                <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
+                </html>""".trimIndent()
+        )
+    }
+
+    fun handleResponse(page: Page<ContentType.Response>, clientHandler: ClientHandler) {
+        val client = clientHandler.client
+        ResponseDTO.build(
+            response = page.content().response,
+            outputStream = client.getOutputStream(),
+            version = clientHandler.server.httpVersion
+        )
+    }
+
+    fun handleCasual(page: Page<ContentType.HtmlElements>, clientHandler: ClientHandler, target: String) {
+        val client = clientHandler.client
+        val response = if (Cache.singleton.cache.containsKey(target)) {
+            Cache.singleton.cache[target]!!
+        } else {
+            constructClassicResponse(
+                page = page,
+            )
+        }
+
+        ResponseDTO.build(
+            response = response,
+            outputStream = client.getOutputStream(),
+            version = clientHandler.server.httpVersion
+        )
+    }
+}

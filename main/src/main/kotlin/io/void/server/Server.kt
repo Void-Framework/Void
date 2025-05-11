@@ -1,8 +1,14 @@
 package io.void.server
 
 import io.void.clienthandler.ClientHandler
-import io.void.http.builder.HTTPBuilder
+import io.void.dto.http.ResponseDTO
 import io.void.router.Router
+import io.void.server.exception.HTTPSNotOnException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.net.ServerSocket
@@ -15,36 +21,42 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
 import javax.net.ssl.SSLSocket
 
-class Server(private val router: Router, val port: Int, val httpVersion: Number = 3) {
+class Server(private val router: Router, val httpVersion: Number = 1.1) {
 
-    var isHTTP: Boolean = false
     private lateinit var socket: ServerSocket
-    private val executorService: ExecutorService = Executors.newCachedThreadPool()
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
+    var isHTTPSOn = false
 
-    init {
-        HTTPBuilder.version = httpVersion
-    }
-
-    fun startHTTPServer() {
-        isHTTP = true
+    fun startHTTPServer(port: Int, routeToHTTPS: Boolean = false) {
         Thread {
             try {
                 socket = ServerSocket(port)
                 while (socket.isBound) {
                     val client = socket.accept()
-                    executorService.submit {
-                        try {
-                            ClientHandler(
-                                client = client,
-                                server = this
-                            ).setRouter(router = this.router).start(server = this)
-                        } catch (e: Exception) {
-                            ClientHandler(
-                                client = client,
-                                server = this
-                            ).error(e)
+                    if (routeToHTTPS) {
+                        if (isHTTPSOn) {
+                            ResponseDTO.build(
+                                response = ResponseDTO(
+                                    status = 301,
+                                    statusText = "Moved Permanently",
+                                    headers = mutableMapOf("Location" to "https://${client.inetAddress.hostName}"),
+                                    body = ""
+                                ),
+                                outputStream = client.getOutputStream(),
+                                version = httpVersion
+                            )
+                        } else {
+                            throw HTTPSNotOnException()
+                        }
+                    } else {
+                        scope.launch {
+                            try {
+                                ClientHandler(client = client, server = this@Server).setRouter(router = router).start()
+                            } catch (e: Exception) {
+                                ClientHandler(client = client, server = this@Server).error(e = e)
+                            }
                         }
                     }
                 }
@@ -56,41 +68,37 @@ class Server(private val router: Router, val port: Int, val httpVersion: Number 
         }.start()
     }
 
-    fun startHTTPSServer(password: String, file: File, needsAuth: Boolean) {
-        isHTTP = false
-        val paswd = password.toCharArray()
-        try {
-            FileInputStream(file).use { keystore.load(it, paswd) }
+    fun startHTTPSServer(port: Int, password: String, file: File, needsAuth: Boolean) {
+        Thread {
+            val paswd = password.toCharArray()
+            try {
+                FileInputStream(file).use { keystore.load(it, paswd) }
 
-            val kmf = KeyManagerFactory.getInstance("SunX509")
-            kmf.init(keystore, paswd)
+                val kmf = KeyManagerFactory.getInstance("SunX509")
+                kmf.init(keystore, paswd)
 
-            context.init(kmf.keyManagers, null, SecureRandom())
-            val factory = context.serverSocketFactory
+                context.init(kmf.keyManagers, null, SecureRandom())
+                val factory = context.serverSocketFactory
 
-            val server = factory.createServerSocket(port) as SSLServerSocket
-            server.needClientAuth = needsAuth
-            while (server.isBound) {
-                val client = server.accept() as SSLSocket
-                client.startHandshake()
-                executorService.submit {
-                    try {
-                        ClientHandler(
-                            client = client,
-                            server = this
-                        ).setRouter(router = this.router).start(server = this)
-                    } catch (e: Exception) {
-                        ClientHandler(
-                            client = client,
-                            server = this
-                        ).error(e)
+                val server = factory.createServerSocket(port) as SSLServerSocket
+                isHTTPSOn = true
+                server.needClientAuth = needsAuth
+                while (server.isBound) {
+                    val client = server.accept() as SSLSocket
+                    client.startHandshake()
+                    scope.launch {
+                        try {
+                            ClientHandler(client = client, server = this@Server).setRouter(router = router).start()
+                        } catch (e: Exception) {
+                            ClientHandler(client = client, server = this@Server).error(e = e)
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                socket.close()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            socket.close()
-        }
+        }.start()
     }
 }

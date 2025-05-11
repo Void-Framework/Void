@@ -2,6 +2,7 @@ package test
 
 import io.jadiefication.routes.home.HomeRoute
 import io.jadiefication.routes.setter.SetterRoute
+import io.jadiefication.routes.user.UserRoute
 import io.void.router.Router
 import io.void.server.Server
 import kotlinx.coroutines.*
@@ -17,6 +18,7 @@ import java.net.http.HttpResponse
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RouteTests {
@@ -30,15 +32,15 @@ class RouteTests {
 
     @BeforeAll
     fun setup() {
-        val router = Router().addRoutes(listOf(HomeRoute(), SetterRoute()))
-        server = Server(
-            router = router,
-            port = port,
-            httpVersion = 1.1
-        )
-        
+        val router = Router().addRoutes(listOf(
+            HomeRoute(),
+            SetterRoute(),
+            UserRoute() // Add the dynamic route
+        ))
+        server = Server(router = router)
+
         serverJob = scope.launch {
-            server.startHTTPServer()
+            server.startHTTPServer(port = port)
         }
         
         // Wait for server to start and be ready
@@ -49,10 +51,9 @@ class RouteTests {
     fun tearDown() {
         runBlocking {
             serverJob?.cancelAndJoin()
-            scope.cancel()
+            scope.cancel("Cancelled")
         }
     }
-
     private fun createConnectionGET(path: String): HttpRequest {
         val connection = HttpRequest.newBuilder()
             .uri(URI.create("http://localhost:$port$path"))
@@ -92,16 +93,57 @@ class RouteTests {
         
         val response = cResponse.body()
         val json = JSONObject(response)
-        
+
         assertEquals("Jade", json.getString("name"))
         assertEquals(20, json.getInt("age"))
         assertTrue(json.getBoolean("isStudent"))
-        
+
         val meta = json.getJSONObject("meta")
         assertTrue(meta.getBoolean("registered"))
         
         val languages = meta.getJSONArray("languages")
         assertTrue(languages.toString().contains("Kotlin"))
+    }
+
+    @Test
+    fun `test dynamic user route returns correct user data`() {
+        val userId = "123"
+        val connection = createConnectionGET("/users/$userId")
+        val cResponse = client.send(connection, HttpResponse.BodyHandlers.ofString())
+
+        assertEquals(200, cResponse.statusCode())
+        assertTrue(cResponse.headers().allValues("Content-Type").contains("application/json"))
+
+        val response = cResponse.body()
+        val json = JSONObject(response)
+
+        assertEquals(userId, json.getString("id"))
+        assertNotNull(json.getString("name"))
+        assertNotNull(json.getString("email"))
+    }
+
+    @Test
+    fun `test dynamic user route with invalid ID returns 404`() {
+        val connection = createConnectionGET("/users/invalid")
+        val cResponse = client.send(connection, HttpResponse.BodyHandlers.ofString())
+
+        assertEquals(404, cResponse.statusCode())
+    }
+
+    @Test
+    fun `test dynamic route pattern matching works correctly`() {
+        val testCases = listOf(
+            "123" to 200,
+            "456" to 200,
+            "abc" to 404,  // assuming we only accept numeric IDs
+            "" to 404
+        )
+
+        testCases.forEach { (userId, expectedStatus) ->
+            val connection = createConnectionGET("/users/$userId")
+            val cResponse = client.send(connection, HttpResponse.BodyHandlers.ofString())
+            assertEquals(expectedStatus, cResponse.statusCode(), "Failed for user ID: $userId")
+        }
     }
 
     @Test
@@ -118,5 +160,14 @@ class RouteTests {
         val cResponse = client.send(connection, HttpResponse.BodyHandlers.ofString())
         
         assertEquals(405, cResponse.statusCode())
+    }
+
+    @Test
+    fun `test cached route returns same content`() {
+        val connection = createConnectionGET("/")
+
+        val (cResponse1, cResponse2) = client.send(connection, HttpResponse.BodyHandlers.ofString()) to client.send(connection, HttpResponse.BodyHandlers.ofString())
+
+        assertEquals(cResponse1, cResponse2, "Cached content should be identical")
     }
 }

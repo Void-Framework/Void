@@ -1,18 +1,24 @@
 package io.jadiefication.routes.setter
 
-import io.void.api.ApiPage
 import io.void.api.method.Method
-import io.void.dto.RequestDTO
-import io.void.dto.ResponseDTO
+import io.void.dto.http.ResponseDTO
+import io.void.html.page.Page
+import io.void.html.page.content.ContentType
+import io.void.html.page.metadata.Metadata
+import kotlin.reflect.KClass
 
-class SetterRoute: ApiPage(
-    target = "/setter",
-    method = Method.GET
+class SetterRoute : Page<ContentType.Response>(
+    target = "/setter"
 ) {
 
-    override fun serverGetter(request: RequestDTO): ResponseDTO {
-        if (request.method == method) {
-            return ResponseDTO.json(mutableMapOf(
+    override var metadata: Metadata? = null
+
+    private val method = Method.GET
+    override val contentType: KClass<ContentType.Response> = ContentType.Response::class
+
+    override fun content(): ContentType.Response {
+        return ContentType.Response(responseDTO = if (request.method == method) {
+            ResponseDTO.json(mutableMapOf(
                 "name" to "Jade",
                 "age" to 20,
                 "isStudent" to true,
@@ -33,12 +39,12 @@ class SetterRoute: ApiPage(
                 "emptyMap" to mapOf<String, Any>()
             ), 200, "All is fine")
         } else {
-            return ResponseDTO(
+            ResponseDTO(
                 status = 405,
                 statusText = "Method not allowed",
                 headers = mutableMapOf(),
                 body = ""
-                )
-        }
+            )
+        })
     }
 }
