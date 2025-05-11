@@ -14,8 +14,8 @@ abstract class Element internal constructor(open val name: String) {
     abstract val allowedAttributes: List<AttributeNames>
     internal val parent = this
 
-    fun isAllowed(attribute: AttributeNames): Boolean {
-        return allowedAttributes.contains(attribute) || globalAttributes.contains(attribute)
+    private fun isAllowed(attribute: AttributeNames): Boolean {
+        return allowedAttributes.contains(element = attribute) || globalAttributes.contains(element = attribute)
     }
 
     abstract fun render(): String
@@ -26,4 +26,13 @@ abstract class Element internal constructor(open val name: String) {
                 attributes[it.name] = it.value.toString()
         } }
     }
+}
+
+fun Element.loop(range: IntRange, element: Element.(Int) -> Unit): Fractal {
+    val fragment = Fractal {
+        for (i in range) {
+            element(i)
+        }
+    }
+    return fragment
 }

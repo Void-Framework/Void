@@ -4,19 +4,18 @@ import io.void.api.CssPage
 import io.void.html.Element
 import io.void.html.attributes.AttributeNames
 import io.void.html.page.Page
+import io.void.html.page.content.ContentType
+import io.void.html.page.metadata.MetadataHandler
 import io.void.router.Router
 import java.io.BufferedReader
-import java.io.File
 import java.io.InputStreamReader
-import java.io.Reader
-import java.nio.file.Files
 import java.util.*
 
 class TailwindGen {
 
     companion object {
 
-        private fun putInTailwind(element: Element, page: Page) {
+        private fun putInTailwind(element: Element, page: Page<*>) {
             if (element.attributes.containsKey(AttributeNames.CLASS)) {
                 page.classAttributes[element] = element.attributes[AttributeNames.CLASS]!!.split(" ")
             }
@@ -24,18 +23,16 @@ class TailwindGen {
                 putInTailwind(it, page)
             }
         }
-
-        internal fun processTailwind(page: Page, router: Router) {
-            val attributes = mutableSetOf<String>()
-            val content = page.content
-            if (content != null) {
-                if (content.attributes.containsKey(AttributeNames.CLASS)) {
-                    putInTailwind(content, page)
-                }
-                content.children?.forEach {
-                    putInTailwind(it, page)
-                }
+        private fun handleElements(element: Element, page: Page<ContentType.HtmlElements>) {
+            if (element.attributes.containsKey(AttributeNames.CLASS)) {
+                putInTailwind(element, page)
             }
+            element.children?.forEach {
+                putInTailwind(it, page)
+            }
+        }
+        private fun handleClasses(page: Page<ContentType.HtmlElements>): MutableSet<String> {
+            val attributes = mutableSetOf<String>()
             page.classAttributes.forEach { (_, attribute) ->
                 attribute.forEach {
                     if (it.contains(":")) {
@@ -45,6 +42,22 @@ class TailwindGen {
                     }
                 }
             }
+            return attributes
+        }
+
+        private fun handleMetadataAdding(page: Page<ContentType.HtmlElements>, uuid: UUID) {
+            if (page.metadata == null) {
+                page.metadata = MetadataHandler.create(page = page, builder = {
+                    style = uuid
+                })
+            } else {
+                page.metadata!!.style = uuid
+            }
+        }
+
+        internal fun processTailwind(page: Page<ContentType.HtmlElements>, router: Router) {
+            handleElements(page.content().htmlElement, page)
+            val attributes = handleClasses(page)
 
             val resourceFile = object {}.javaClass.getResourceAsStream("/input.css")
 
@@ -90,7 +103,7 @@ class TailwindGen {
             val uuid = UUID.randomUUID()
             val css = newProcessedLines.joinToString().filter { it != ',' }
             router.addRoute(CssPage(uuid, css))
-            router.styles[page.target] = uuid to css
+            handleMetadataAdding(page, uuid)
         }
     }
 }

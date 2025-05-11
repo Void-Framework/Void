@@ -1,25 +1,25 @@
 package io.void.clienthandler
 
-import io.void.http.parser.HTTPParser
+import io.void.dto.http.RequestDTO
+import io.void.dto.http.ResponseDTO
 import io.void.router.Router
 import io.void.server.Server
 import java.net.Socket
 
-class ClientHandler(val client: Socket, server: Server) {
+class ClientHandler(val client: Socket, val server: Server) {
 
     private lateinit var router: Router
-    private val parser = HTTPParser()
 
     fun setRouter(router: Router): ClientHandler {
         this.router = router
         return this
     }
 
-    fun start(server: Server) {
+    fun start() {
         try {
-            val request = parser.parse(
+            val request = RequestDTO.parse(
                 inputStream = client.getInputStream(),
-                client = client
+                clientHandler = this
             )
             this.router.route(
                 requestDTO = request,
@@ -33,9 +33,18 @@ class ClientHandler(val client: Socket, server: Server) {
     }
 
     fun error(e: Exception) {
+        val response = router.middlewareHandleError(e)
+        if (response != null) {
+            ResponseDTO.build(
+                response = response,
+                outputStream = client.getOutputStream(),
+                version = server.httpVersion
+            )
+            return
+        }
         e.printStackTrace()
         try {
-            this.router.error(client, e)
+            this.router.error(this, e)
         } catch (error: Exception) {
             error.printStackTrace()
         } finally {

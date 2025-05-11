@@ -3,15 +3,19 @@ package io.void.html
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-open class Fractal(): ElementWithChildren(name = "") {
+open class Fractal internal constructor(): ElementWithChildren(name = "") {
 
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
-    lateinit var text: String
     var storedChildren: MutableList<Element> = mutableListOf()
+    private var text: String = ""
 
     override fun render(): String {
-        return text
+        return if (children?.isEmpty() == true) {
+            text
+        } else {
+            children?.joinToString("") { it.render() } ?: ""
+        }
     }
 
     internal constructor(text: String) : this() {
@@ -19,11 +23,7 @@ open class Fractal(): ElementWithChildren(name = "") {
     }
 
     internal constructor(children: Element.() -> Unit) : this() {
-        val element = this.apply(children)
-        this.text = element.render()
-        element.children!!.forEach {
-            storedChildren.add(it)
-        }
+        this.apply(children)
     }
 }
 

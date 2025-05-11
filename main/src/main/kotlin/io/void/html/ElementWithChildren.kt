@@ -48,7 +48,7 @@ abstract class ElementWithChildren internal constructor(override val name: Strin
             if (child is Fractal) {
                 if (child.children?.isNotEmpty() == true) {
                     child.children!!.forEach { fChild ->
-                        return isAccepted(child)
+                        return isAccepted(fChild)
                     }
                 } else {
                     return true
