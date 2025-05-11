@@ -42,18 +42,6 @@ data class EventFunction(
         return jsReturn
     }
 }
-fun JavaScript.listen(htmlElement: JsValue<HTMLElement>, eventType: JsValue<JsEvent>, function: JsValue<EventFunction>) {
-    call(htmlElement, {}, Event(
-        eventType,
-        function
-    ))
-}
-fun JavaScript.listen(htmlElement: JsValue<HTMLElement>, eventType: JsValue<JsEvent>, function: JavaScript.(List<FunctionVariable<*>>) -> Unit) {
-    call(htmlElement, {}, Event(
-        eventType,
-        function
-    ))
-}
 fun Function<Nothing>.asEventFunction(): JsValue<EventFunction> {
     return EventFunction(this.body).asJsValue()
 }
