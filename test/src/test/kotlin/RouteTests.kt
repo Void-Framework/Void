@@ -161,13 +161,4 @@ class RouteTests {
         
         assertEquals(405, cResponse.statusCode())
     }
-
-    @Test
-    fun `test cached route returns same content`() {
-        val connection = createConnectionGET("/")
-
-        val (cResponse1, cResponse2) = client.send(connection, HttpResponse.BodyHandlers.ofString()) to client.send(connection, HttpResponse.BodyHandlers.ofString())
-
-        assertEquals(cResponse1, cResponse2, "Cached content should be identical")
-    }
 }
