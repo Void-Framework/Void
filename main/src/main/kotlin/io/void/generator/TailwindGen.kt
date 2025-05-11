@@ -8,12 +8,63 @@ import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.MetadataHandler
 import io.void.router.Router
 import java.io.BufferedReader
+import java.io.InputStream
 import java.io.InputStreamReader
+import java.io.StringReader
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.util.*
 
 class TailwindGen {
 
     companion object {
+
+        private lateinit var resourceFile: String
+        private val client = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_1_1) // Forces HTTP/2
+            .build()
+
+        internal fun grabTailwind() {
+            val request = HttpRequest.newBuilder()
+                .uri(URI.create("https://cdn.jsdelivr.net/npm/tailwindcss@latest/dist/tailwind.min.css"))
+                .GET()
+                .build()
+            val cResponse = client.send(request, HttpResponse.BodyHandlers.ofString())
+            val body = cResponse.body()
+            resourceFile = formatCss(body)
+        }
+
+        private fun formatCss(css: String): String {
+            // Normalize whitespace and break into tokens
+            val spaced = css
+                .replace("{", "{\n")
+                .replace("}", "\n}\n")
+                .replace(";", ";\n")
+
+            val lines = spaced.lines()
+            val sb = StringBuilder()
+            var indentLevel = 0
+
+            for (rawLine in lines) {
+                val line = rawLine.trim()
+                if (line.isEmpty()) continue
+
+                // Adjust indent for closing brace
+                if (line == "}") indentLevel--
+
+                // Append indented line
+                sb.append("    ".repeat(indentLevel))
+                    .append(line)
+                    .append("\n")
+
+                // Increase indent after opening brace
+                if (line.endsWith("{")) indentLevel++
+            }
+
+            return sb.toString()
+        }
 
         private fun putInTailwind(element: Element, page: Page<*>) {
             if (element.attributes.containsKey(AttributeNames.CLASS)) {
@@ -59,12 +110,10 @@ class TailwindGen {
             handleElements(page.content().htmlElement, page)
             val attributes = handleClasses(page)
 
-            val resourceFile = object {}.javaClass.getResourceAsStream("/input.css")
-
             var currentLine = ""
             val processedLines = mutableListOf<String>()
 
-            BufferedReader(InputStreamReader(resourceFile)).use { reader ->
+            BufferedReader(StringReader(resourceFile)).use { reader ->
                 reader.lines().forEach { line ->
                     if (!line.endsWith("}")) {
                         currentLine += line
@@ -84,7 +133,20 @@ class TailwindGen {
                 processedLines.add(currentLine)
             }
 
-            val newProcessedLines = processedLines.filter { line ->
+            val newProcessedLines = filterLines(processedLines, attributes)
+
+            val uuid = UUID.randomUUID()
+            val css = newProcessedLines.joinToString().filter { it != ',' }
+            router.addRoute(CssPage(uuid, css))
+            handleMetadataAdding(page, uuid)
+        }
+
+        private fun filterLines(processedLines: MutableList<String>, attributes: MutableSet<String>): List<String> {
+            return processedLines.filter { line ->
+                if (line.startsWith("::after") || line.startsWith("::before") ||
+                    line.startsWith("html") || line.startsWith("body") || line.startsWith("*")) {
+                    line
+                }
                 attributes.any { attribute ->
                     return@any if (line.contains("@media")) {
                         line.substringAfter("{").substringBefore("{").trim() == attribute
@@ -99,11 +161,6 @@ class TailwindGen {
                     return@map it
                 }
             }
-
-            val uuid = UUID.randomUUID()
-            val css = newProcessedLines.joinToString().filter { it != ',' }
-            router.addRoute(CssPage(uuid, css))
-            handleMetadataAdding(page, uuid)
         }
     }
 }
