@@ -20,8 +20,8 @@ class Metadata internal constructor(page: Page<*>) {
     var themeColor: String = "#ffffff"
     var robotRules: String = "noindex nofollow"
 
-    var externalCss: MutableList<URL>? = null
-    var externalJS: Map<URL, Boolean>? = null
+    var externalCss: MutableList<String>? = null
+    var externalJS: Map<String, Boolean>? = null
     internal var style: UUID? = null
 
     fun render(): String {
@@ -79,10 +79,10 @@ class Metadata internal constructor(page: Page<*>) {
 
     private fun handleStyles() {
         if (externalCss == null) {
-            externalCss = mutableListOf(URL("/css/$style/styles.css"))
+            externalCss = mutableListOf("/css/$style/styles.css")
 
         } else {
-            externalCss!!.add(URL("/css/$style/styles.css"))
+            externalCss!!.add("/css/$style/styles.css")
         }
     }
 }
