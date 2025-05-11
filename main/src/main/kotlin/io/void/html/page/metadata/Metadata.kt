@@ -4,6 +4,7 @@ import io.void.html.page.Page
 import java.net.InetAddress
 import java.net.URL
 import java.nio.charset.Charset
+import java.util.UUID
 
 class Metadata internal constructor(page: Page<*>) {
 
@@ -19,10 +20,12 @@ class Metadata internal constructor(page: Page<*>) {
     var themeColor: String = "#ffffff"
     var robotRules: String = "noindex nofollow"
 
-    var externalCss: List<URL>? = null
-    var externalJS: Map<URL, Boolean>? = null
+    var externalCss: MutableList<String>? = null
+    var externalJS: Map<String, Boolean>? = null
+    internal var style: UUID? = null
 
     fun render(): String {
+        handleStyles()
         return "<title>$title</title>" +
                 meta("description", description) +
                 if (favicon != null) {
@@ -72,5 +75,14 @@ class Metadata internal constructor(page: Page<*>) {
 
     private fun metaOG(name: String, content: String): String {
         return "<meta property=\"og:$name\" content=\"$content\">"
+    }
+
+    private fun handleStyles() {
+        if (externalCss == null) {
+            externalCss = mutableListOf("/css/$style/styles.css")
+
+        } else {
+            externalCss!!.add("/css/$style/styles.css")
+        }
     }
 }

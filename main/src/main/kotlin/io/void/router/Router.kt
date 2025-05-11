@@ -1,24 +1,27 @@
 package io.void.router
 
-import io.void.cache.Cache
 import io.void.cache.Processor
 import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
+import io.void.api.CssPage
+import io.void.clienthandler.ClientHandler
+import io.void.generator.TailwindGen
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.exceptions.IExceptionPage
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.middleware.Middleware
-import io.void.router.exceptions.RouteNoTargetException
-import io.void.router.exceptions.RouteTargetUsedException
 import io.void.router.page.INullRoutePage
 import io.void.router.util.MiddlewareTime
 import io.void.router.util.RequestHandler
 import io.void.router.util.RouteCheck
+import jdk.javadoc.internal.tool.resources.version
 import java.net.Socket
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.reflect.KClass
 
 class Router(private var middleware: List<Middleware>? = null): RouteCheck, RequestHandler {
 
@@ -27,6 +30,7 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
     }
 
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
+    val styles: ConcurrentHashMap<String, Pair<UUID, String>> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private var exceptionPage = ExceptionPage(e = Exception())
     private var nullPage: Page<*>? = null
@@ -56,6 +60,11 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
 
     //Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
+        if (route::class != CssPage::class) {
+            if (route.contentType == ContentType.HtmlElements::class) {
+                TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
+            }
+        }
         Processor.annotationProcessor(page = route)
         handleTargetChecking(route, routes)
         if (route is IExceptionPage) {
@@ -85,17 +94,16 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
         return this
     }
 
-
-    fun route(requestDTO: RequestDTO, client: Socket) {
-        middleware?.let {
-            val response = middlewareProcess(requestDTO, MiddlewareTime.BEFORE)
-            if (response != null) {
-                ResponseDTO.build(
-                    response = response,
-                    outputStream = client.getOutputStream()
-                )
-                return
-            }
+    fun route(requestDTO: RequestDTO, clientHandler: ClientHandler) {
+        val client = clientHandler.client
+        val response = middlewareProcess(requestDTO, MiddlewareTime.BEFORE)
+        if (response != null) {
+            ResponseDTO.build(
+                response = response,
+                outputStream = client.getOutputStream(),
+                version = clientHandler.server.httpVersion
+            )
+            return
         }
         val target = requestDTO.target
         if (routes.containsKey(target)) {
@@ -104,12 +112,12 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
             if (page.content() is ContentType.Response) {
                 handleResponse(
                     page = page as Page<ContentType.Response>,
-                    client = client
+                    clientHandler = clientHandler
                 )
             } else {
                 handleCasual(
                     page = page as Page<ContentType.HtmlElements>,
-                    client = client,
+                    clientHandler = clientHandler,
                     target = target
                 )
             }
@@ -139,7 +147,8 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
                 }
             ResponseDTO.build(
                 response = response,
-                outputStream = client.getOutputStream()
+                outputStream = client.getOutputStream(),
+                version = clientHandler.server.httpVersion
             )
             val lateResponse = middlewareProcess(
                 requestDTO = requestDTO,
@@ -148,13 +157,15 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
             if (lateResponse != null) {
                 ResponseDTO.build(
                     response = lateResponse,
-                    outputStream = client.getOutputStream()
+                    outputStream = client.getOutputStream(),
+                    version = clientHandler.server.httpVersion
                 )
             }
         }
     }
 
-    fun error(client: Socket, e: Exception) {
+    fun error(clientHandler: ClientHandler, e: Exception) {
+        val client = clientHandler.client
         exceptionPage.e = e
         var statusCode: Int? = null
         var log = true
@@ -176,7 +187,9 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
                     "Connection" to "close"
                 ),
                 body = exceptionPage.page),
-            outputStream = client.getOutputStream())
+            outputStream = client.getOutputStream(),
+            version = clientHandler.server.httpVersion
+        )
 
         if (log) {
             e.printStackTrace()

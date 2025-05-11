@@ -3,7 +3,7 @@ package io.jadiefication.components
 import io.void.generated.*
 import io.void.html.CustomElement
 import io.void.html.Element
-import io.void.html.Fragment
+import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
 import io.void.html.attributes.attribute
 import io.void.html.loop
@@ -33,26 +33,26 @@ class TestComponent: CustomElement() {
                         value = "noopener"
                     }),
             ) {
-                Fragment(_text = "Click Me Title")
+                Fractal(_text = "Click Me Title")
             }
         }
 
         Br()
 
         H3 {
-            Fragment("Subtitle Here")
+            Fractal("Subtitle Here")
         }
 
         listOf("test", "test").forEach {
             H1 {
-                Fragment(it)
+                Fractal(it)
             }
             Br()
         }
 
         loop(0..3) {
             H1 {
-                Fragment("HELP $it")
+                Fractal("HELP $it")
             }
             Br()
         }

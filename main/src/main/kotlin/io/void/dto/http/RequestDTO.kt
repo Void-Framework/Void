@@ -1,6 +1,7 @@
 package io.void.dto.http
 
 import io.void.api.method.Method
+import io.void.clienthandler.ClientHandler
 import io.void.router.Router
 import java.io.BufferedReader
 import java.io.InputStream
@@ -11,7 +12,7 @@ import java.util.*
 data class RequestDTO(var method: Method, var target: String, var headers: Map<String, String>, var body: String) {
 
     companion object {
-        fun parse(inputStream: InputStream, client: Socket): RequestDTO {
+        fun parse(inputStream: InputStream, clientHandler: ClientHandler): RequestDTO {
             val headers: MutableMap<String, String> = mutableMapOf()
             val method: Method
             val path: String
@@ -21,7 +22,7 @@ data class RequestDTO(var method: Method, var target: String, var headers: Map<S
                 if (line.size < 2) throw IllegalArgumentException("Invalid request line")
                 method = Method.valueOf(line[0].uppercase(Locale.getDefault()))
             } catch (e: Exception) {
-                Router().error(client, e)
+                Router().error(clientHandler, e)
                 return RequestDTO(
                     method = Method.GET,
                     target = "/",
