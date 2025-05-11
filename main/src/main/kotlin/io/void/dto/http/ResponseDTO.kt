@@ -16,9 +16,9 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
             }
         }
 
-        fun build(response: ResponseDTO, outputStream: OutputStream)  {
+        fun build(response: ResponseDTO, outputStream: OutputStream, version: Number = 1.1)  {
             val writer = PrintWriter(outputStream, true)
-            writer.println("HTTP/1.1 ${response.status} ${response.statusText}")
+            writer.println("HTTP/$version ${response.status} ${response.statusText}")
 
             val responseBody = response.body
             if (!response.headers.containsKey("Content-Length")) {

@@ -10,8 +10,9 @@ abstract class Element internal constructor(open val name: String) {
     private val globalAttributes = listOf(AttributeNames.ACCESSKEY, AttributeNames.CLASS, AttributeNames.CONTENTEDITABLE, AttributeNames.DATA,
         AttributeNames.DIR, AttributeNames.DRAGGABLE, AttributeNames.ENTERKEYHINT, AttributeNames.HIDDEN, AttributeNames.ID,
         AttributeNames.INERT, AttributeNames.INPUTMODE, AttributeNames.LANG, AttributeNames.POPOVER, AttributeNames.SPELLCHECK,
-        AttributeNames.STYLE, AttributeNames.TABINDEX, AttributeNames.TITLE, AttributeNames.TRANSLATE)
+        AttributeNames.STYLE, AttributeNames.TABINDEX, AttributeNames.TITLE, AttributeNames.TRANSLATE, AttributeNames.V_DATAHOLD)
     abstract val allowedAttributes: List<AttributeNames>
+    internal val parent = this
 
     private fun isAllowed(attribute: AttributeNames): Boolean {
         return allowedAttributes.contains(element = attribute) || globalAttributes.contains(element = attribute)
@@ -27,8 +28,8 @@ abstract class Element internal constructor(open val name: String) {
     }
 }
 
-fun Element.loop(range: IntRange, element: Element.(Int) -> Unit): Fragment {
-    val fragment = Fragment {
+fun Element.loop(range: IntRange, element: Element.(Int) -> Unit): Fractal {
+    val fragment = Fractal {
         for (i in range) {
             element(i)
         }

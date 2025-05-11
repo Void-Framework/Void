@@ -6,6 +6,7 @@ import io.void.router.Router
 import io.void.server.exception.HTTPSNotOnException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.io.File
@@ -20,7 +21,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
 import javax.net.ssl.SSLSocket
 
-class Server(private val router: Router) {
+class Server(private val router: Router, val httpVersion: Number = 1.1) {
 
     private lateinit var socket: ServerSocket
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -43,7 +44,8 @@ class Server(private val router: Router) {
                                     headers = mutableMapOf("Location" to "https://${client.inetAddress.hostName}"),
                                     body = ""
                                 ),
-                                outputStream = client.getOutputStream()
+                                outputStream = client.getOutputStream(),
+                                version = httpVersion
                             )
                         } else {
                             throw HTTPSNotOnException()
@@ -51,9 +53,9 @@ class Server(private val router: Router) {
                     } else {
                         scope.launch {
                             try {
-                                ClientHandler(client = client).setRouter(router = router).start()
+                                ClientHandler(client = client, server = this@Server).setRouter(router = router).start()
                             } catch (e: Exception) {
-                                ClientHandler(client = client).error(e = e)
+                                ClientHandler(client = client, server = this@Server).error(e = e)
                             }
                         }
                     }
@@ -86,14 +88,16 @@ class Server(private val router: Router) {
                     client.startHandshake()
                     scope.launch {
                         try {
-                            ClientHandler(client = client).setRouter(router = router).start()
+                            ClientHandler(client = client, server = this@Server).setRouter(router = router).start()
                         } catch (e: Exception) {
-                            ClientHandler(client = client).error(e = e)
+                            ClientHandler(client = client, server = this@Server).error(e = e)
                         }
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                socket.close()
             }
         }.start()
     }

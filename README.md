@@ -21,18 +21,11 @@ Then, add the local path to your build tool configuration.
 ## Usage 💻
 Here's a quick example to get started in Kotlin:
 ```kotlin
-package main.java.main.Test
-
-import main.java.main.Server.Server
-import main.router.Router
-
 val router = Router().addRoutes(HomeRoute())
 
 fun main() {
     val server = Server(router = router)
-
     server.startServer(8080)
-
 }
 ```
 
@@ -51,4 +44,3 @@ This project is licensed under the MIT License. See the `LICENSE` file for more 
 ---
 
 Made with ❤️ by [Jadiefication](https://github.com/Jadiefication)
-

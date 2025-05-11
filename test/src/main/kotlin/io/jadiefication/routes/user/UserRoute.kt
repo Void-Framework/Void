@@ -7,7 +7,7 @@ import io.void.html.page.metadata.Metadata
 import kotlin.reflect.KClass
 
 class UserRoute : DynamicPage<ContentType.Response>(target = "/users/{id}") {
-    override val metadata: Metadata? = null
+    override var metadata: Metadata? = null
     override val contentType: KClass<ContentType.Response> = ContentType.Response::class
 
     override fun content(): ContentType.Response {

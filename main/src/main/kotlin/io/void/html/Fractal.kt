@@ -3,10 +3,11 @@ package io.void.html
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class Fragment internal constructor(): ElementWithChildren(name = "") {
+open class Fractal internal constructor(): ElementWithChildren(name = "") {
 
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
+    var storedChildren: MutableList<Element> = mutableListOf()
     private var text: String = ""
 
     override fun render(): String {
@@ -26,18 +27,18 @@ class Fragment internal constructor(): ElementWithChildren(name = "") {
     }
 }
 
-fun Element.Fragment(_text: String): Fragment {
-    val fragment = Fragment(
+fun Element.Fractal(_text: String): Fractal {
+    val fractal = Fractal(
         text = _text
     )
-    children!!.add(fragment)
-    return fragment
+    children!!.add(fractal)
+    return fractal
 }
 
-fun Element.Fragment(_children: Element.() -> Unit): Fragment {
-    val fragment = Fragment(
+fun Element.Fractal(_children: Element.() -> Unit): Fractal {
+    val fractal = Fractal(
         children = _children
     )
-    children!!.add(fragment)
-    return fragment
+    children!!.add(fractal)
+    return fractal
 }

@@ -11,7 +11,7 @@ class SetterRoute : Page<ContentType.Response>(
     target = "/setter"
 ) {
 
-    override val metadata: Metadata? = null
+    override var metadata: Metadata? = null
 
     private val method = Method.GET
     override val contentType: KClass<ContentType.Response> = ContentType.Response::class
