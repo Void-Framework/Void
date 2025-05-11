@@ -98,19 +98,10 @@ class HomeRoute : Page(target = "/") {
         }.asJsValue())
 
         // Add event listeners for counter buttons
-        listen(id("increment-button".asJsValue()).asJsValue(), Events.CLICK.asJsValue(), {
+        id("increment-button".asJsValue()).on(Events.CLICK.asJsValue(), {
             counter++
             run(updateCounterDisplay, emptyJsValue())
         })
-        listen(id("increment-button".asJsValue()).asJsValue(), Events.CLICK.asJsValue(), {
-            counter++
-            run(updateCounterDisplay, emptyJsValue())
-        })
-        listen(id("decrement-button".asJsValue()).asJsValue(), Events.CLICK.asJsValue(), {
-            counter++
-            run(updateCounterDisplay, emptyJsValue())
-        })
-
         id("decrement-button".asJsValue()).on(Events.CLICK.asJsValue(), {
             counter--
             run(updateCounterDisplay, emptyJsValue())
