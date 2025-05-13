@@ -13,6 +13,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="test" />
+        <module name="lang" />
         <module name="main" />
       </profile>
     </annotationProcessing>

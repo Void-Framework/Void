@@ -12,6 +12,7 @@
     <modules>
         <module>main</module>
         <module>test</module>
+        <module>lang</module>
     </modules>
 
     <properties>
