@@ -21,7 +21,7 @@ class TailwindGen {
 
     companion object {
 
-        private lateinit var resourceFile: String
+        private val processedLines = mutableListOf<String>()
         private val client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1) // Forces HTTP/2
             .build()
@@ -33,7 +33,27 @@ class TailwindGen {
                 .build()
             val cResponse = client.send(request, HttpResponse.BodyHandlers.ofString())
             val body = cResponse.body()
-            resourceFile = formatCss(body)
+            val resourceFile = formatCss(body)
+            var currentLine = ""
+            BufferedReader(StringReader(resourceFile)).use { reader ->
+                reader.lines().forEach { line ->
+                    if (!line.endsWith("}")) {
+                        currentLine += line
+                    } else {
+                        processedLines.add("$currentLine    }")
+                        currentLine = ""  // Reset currentLine after processing
+                    }
+                }
+                // Don't forget to add the last line if it doesn't end with "}":
+                if (currentLine.isNotEmpty()) {
+                    processedLines.add(currentLine)
+                }
+            }
+
+            // Don't forget to add the last line if it doesn't end with "},":
+            if (currentLine.isNotEmpty()) {
+                processedLines.add(currentLine)
+            }
         }
 
         private fun formatCss(css: String): String {
@@ -109,29 +129,6 @@ class TailwindGen {
         internal fun processTailwind(page: Page<ContentType.HtmlElements>, router: Router) {
             handleElements(page.content().htmlElement, page)
             val attributes = handleClasses(page)
-
-            var currentLine = ""
-            val processedLines = mutableListOf<String>()
-
-            BufferedReader(StringReader(resourceFile)).use { reader ->
-                reader.lines().forEach { line ->
-                    if (!line.endsWith("}")) {
-                        currentLine += line
-                    } else {
-                        processedLines.add("$currentLine    }")
-                        currentLine = ""  // Reset currentLine after processing
-                    }
-                }
-                // Don't forget to add the last line if it doesn't end with "}":
-                if (currentLine.isNotEmpty()) {
-                    processedLines.add(currentLine)
-                }
-            }
-
-            // Don't forget to add the last line if it doesn't end with "},":
-            if (currentLine.isNotEmpty()) {
-                processedLines.add(currentLine)
-            }
 
             val newProcessedLines = filterLines(processedLines, attributes)
 
