@@ -76,7 +76,6 @@ class Tokenizer(private val source: String) {
         '!' to Tokens.NOT,
         '?' to Tokens.QUESTIONMARK
     )
-
     private val operations = mapOf(
         "!=" to Tokens.NOT_EQUALS,
         "/>" to Tokens.END_TAG,
@@ -93,6 +92,8 @@ class Tokenizer(private val source: String) {
         "?." to Tokens.SAFE_CALL,
         "?:" to Tokens.ELVIS
     )
+
+    private val stringDeclaration = listOf('"', '\'')
 
     fun lex(): List<Token> {
         while (!isAtEnd()) {
@@ -119,6 +120,7 @@ class Tokenizer(private val source: String) {
             char.isDigit() -> lexNumber(start)
             char.isLetter() -> lexIdentifier(start)
             else -> {
+                if (stringDeclaration.contains(char)) lexString(start, char)
                 if (html) errors.add(LexError(char, line, column))
                 handleSymbol(char, start)
             }
@@ -142,7 +144,6 @@ class Tokenizer(private val source: String) {
         }
     }
 
-
     private fun addToken(type: Tokens, lexeme: String, start: Int) {
         tokens.add(Token(type, lexeme, line, column + (start - current)))
     }
@@ -151,6 +152,7 @@ class Tokenizer(private val source: String) {
         if (doubleOperations.contains(char)) {
             if (peekNext() == char) {
                 addToken(doubleOperations[char]!!, "$char$char", start)
+                advance()
                 return true
             } else {
                 return handleTwoCharOperations(start, char)
@@ -162,17 +164,22 @@ class Tokenizer(private val source: String) {
     private fun handleTwoCharOperations(start: Int, char: Char): Boolean {
         if (char == '.' && peekNext() == '.' && peekNextNext() == '.') {
             addToken(Tokens.SPREAD, "...", start)
+            advance()
+            advance()
             return true
         } else {
             if (operations.contains("$char${peekNext()}")) {
                 addToken(operations["$char${peekNext()}"]!!, "$char${peekNext()}", start)
+                advance()
                 return true
             } else {
                 if (mathOperations.contains(char)) {
                     addToken(mathOperations[char]!!, "$char", start)
+                    advance()
                     return true
                 } else {
                     errors.add(LexError(char, line, column))
+                    advance()
                     return false
                 }
             }
@@ -180,11 +187,45 @@ class Tokenizer(private val source: String) {
     }
 
     private fun lexIdentifier(start: Int) {
-        while (!isAtEnd() && peek().isLetterOrDigit()) advance()
+        while (!isAtEnd() && peek().isLetter()) advance()
         val text = source.substring(start, current)
         val type = keywords[text] ?: Tokens.IDENTIFIER
         addToken(type, text, start)
     }
+
+    private fun lexString(start: Int, char: Char) {
+        var escaped = false
+        var actualStart = start
+        while (!isAtEnd()) {
+            val c = advance()
+            escaped = if (c == '\\' && !escaped) {
+                true
+            } else if (c == char && !escaped) {
+                break
+            } else if (c == '$' && !escaped && peekNext() == '{') {
+                handleVariables()
+                val text = source.substring(start, current - 1)
+                addToken(Tokens.STRING, text, actualStart)
+                actualStart = current
+                false
+            } else {
+                false
+            }
+        }
+
+        val text = source.substring(start, current)
+        addToken(Tokens.STRING, text, actualStart)
+    }
+
+    private fun handleVariables() {
+        while (!isAtEnd() && peek() != '}') {
+            val c = advance()
+            handleNextChar(c, current - 1)
+        }
+
+        if (!isAtEnd()) advance()
+    }
+
 
     private fun lexNumber(start: Int) {
         while (!isAtEnd() && peek().isDigit()) advance()
@@ -199,21 +240,8 @@ class Tokenizer(private val source: String) {
         return char
     }
     private fun peek() = if (!isAtEnd()) source[current] else '\u0000'
-    private fun peekNext(): Char {
-        return try {
-            source[current + 1]
-        } catch (_: Exception) {
-            //IndexOutOfBounds
-            '\u9999'
-        }
-    }
-    private fun peekNextNext(): Char {
-        return try {
-            source[current + 2]
-        } catch (_: Exception) {
-            //IndexOutOfBounds
-            '\u9999'
-        }
-    }
+    private fun peekNext(): Char = if (current + 1 < source.length) source[current + 1] else '\u0000'
+    private fun peekNextNext(): Char = if (current + 2 < source.length) source[current + 1] else '\u0000'
+    private fun peekBefore() = if (current - 1 < source.length) source[current - 1] else '\u0000'
     private fun isAtEnd() = current >= source.length
 }
