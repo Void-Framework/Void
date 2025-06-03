@@ -1,4 +1,6 @@
 package io.ktx.transpiler
 
-class Transpiler {
+import java.io.File
+
+class Transpiler(file: File) {
 }
