@@ -1,8 +1,14 @@
 package io.ktx.cli
 
 import io.ktx.transpiler.Transpiler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.File
 
+private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 fun main(args: Array<String>) {
     val currentDirectoryPath = System.getProperty("user.dir")
     try {
@@ -17,10 +23,14 @@ fun main(args: Array<String>) {
 fun handleAddingRoutes(folder: File) {
     folder.listFiles()?.forEach {
         if (it.isDirectory) {
-            handleAddingRoutes(it)
+            scope.launch {
+                handleAddingRoutes(it)
+            }
         } else {
             if (it.extension == "ktx") {
-                handleTranspiling(it)
+                scope.launch {
+                    handleTranspiling(it)
+                }
             }
         }
     }
