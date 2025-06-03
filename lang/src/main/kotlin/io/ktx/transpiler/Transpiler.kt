@@ -17,12 +17,17 @@ class Transpiler(val file: File) {
     private var fractalMatched = false
     private val routes = mutableMapOf<String, String>()
     private val singleLineCommentPattern = Regex("//.*") // New regex for // comments
+    private var closingTag = false
+    private var routeDefined = false
+    private var functionName = ""
 
     fun transpile(): Map<String, String> {
         val content = BufferedReader(file.reader())
         val html = StringBuilder("")
         content.forEachLine {
             if (it.matches(functionPattern)) {
+                handleFractalErrors()
+                functionName = functionPattern.find(it)?.groups?.get(1)?.value!!
                 insideFunction = true
             } else if (insideFunction) {
                 val text = handleString(it) ?: ""
@@ -34,13 +39,25 @@ class Transpiler(val file: File) {
                     currentRoute = ""
                     html.delete(0, html.length)
                     fractalMatched = false
+                    closingTag = false
                 }
             }
         }
+        handleFractalErrors()
         return routes
     }
 
-    fun handleString(it: String): String? {
+    private fun handleFractalErrors() {
+        if (insideFunction && insideHTML) {
+            error("Fractal tag hasn't been closed at route: $currentRoute")
+        } else if (insideFunction && !fractalMatched && closingTag) {
+            error("Fractal tag not opened at route: $currentRoute")
+        } else if (insideHTML && !routeDefined) {
+            error("No route defined at function: $functionName")
+        }
+    }
+
+    private fun handleString(it: String): String? {
         val cleanedLine = singleLineCommentPattern.replace(it, "").trim()
         when {
             cleanedLine.contains(startFractalPattern) && cleanedLine.contains(endFractalPattern) -> {
@@ -58,10 +75,12 @@ class Transpiler(val file: File) {
             cleanedLine.contains(endFractalPattern) -> {
                 insideFunction = false
                 insideHTML = false
+                closingTag = true
                 return null
             }
             cleanedLine.matches(routePattern) -> {
                 if (currentRoute.isEmpty()) {
+                    routeDefined = true
                     currentRoute = routePattern.find(cleanedLine)?.groups?.get(1)?.value!!
                     return null
                 } else {

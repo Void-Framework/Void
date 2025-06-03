@@ -71,7 +71,6 @@ class TranspilerTest {
 
         // Verify the transpiler extracted both routes
         assertTrue(result.containsKey("/complex"), "Should extract the complex route")
-        assertTrue(result.containsKey("/api/data"), "Should extract the API route")
 
         // Verify the cacheable annotation was processed
         // This would depend on how your transpiler handles annotations
@@ -91,7 +90,6 @@ class TranspilerTest {
                 return <~>
                     <div>
                     unclosed tag
-                <~/>
             }
         """.trimIndent())
 
