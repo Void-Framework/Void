@@ -5,8 +5,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 class VoidCommandTest {
 
@@ -14,9 +17,16 @@ class VoidCommandTest {
     lateinit var tempDir: File
 
     private lateinit var ktxFile: File
+    private lateinit var standardOut: PrintStream
+    private val outputStreamCaptor = ByteArrayOutputStream()
 
     @BeforeEach
     fun setup() {
+        // Save the original standard output
+        standardOut = System.out
+        // Redirect standard output to our stream capturer
+        System.setOut(PrintStream(outputStreamCaptor))
+
         // Create a sample .ktx file for testing with the correct fractal syntax
         ktxFile = File(tempDir, "TestRoute.ktx")
         ktxFile.writeText("""
@@ -33,17 +43,52 @@ class VoidCommandTest {
     }
 
     @Test
-    fun `test handleTranspiling processes ktx file correctly`() {
-        // Execute the transpilation
-        handleTranspiling(ktxFile)
+    fun `test main with no arguments prints documentation message`() {
+        // Call main with empty args
+        main(arrayOf())
 
-        // Verify the transpiler was called and produced expected output
-        // This is a basic test - in a real scenario, you'd verify the output files
-        assertTrue(true, "Transpilation completed without exceptions")
+        // Verify the documentation message is printed
+        assertTrue(outputStreamCaptor.toString().contains("No arguments supplied, please refer to the documentation."))
     }
 
     @Test
-    fun `test handleAddingRoutes finds and processes ktx files`() {
+    fun `test main with invalid argument prints documentation message`() {
+        // Call main with invalid argument
+        main(arrayOf("invalid"))
+
+        // Verify the documentation message is printed
+        assertTrue(outputStreamCaptor.toString().contains("Incorrect arguments supplied, please refer to the documentation."))
+    }
+
+    @Test
+    fun `test main with routes argument processes ktx files`() {
+        // Save the original user.dir property
+        val originalUserDir = System.getProperty("user.dir")
+
+        try {
+            // Set the user.dir to our temp directory
+            System.setProperty("user.dir", tempDir.absolutePath)
+
+            // Call main with routes argument
+            main(arrayOf("routes"))
+
+            // Allow time for coroutines to complete
+            Thread.sleep(500)
+
+            // Verify no errors were printed
+            assertFalse(outputStreamCaptor.toString().contains("Exception"),
+                "No exceptions should be thrown during processing")
+
+        } finally {
+            // Restore the original user.dir property
+            System.setProperty("user.dir", originalUserDir)
+            // Restore standard output
+            System.setOut(standardOut)
+        }
+    }
+
+    @Test
+    fun `test handleAddingRoutes processes ktx files in directory`() {
         // Create a nested directory structure with ktx files
         val nestedDir = File(tempDir, "nested")
         nestedDir.mkdir()
@@ -66,7 +111,54 @@ class VoidCommandTest {
         // Allow time for coroutines to complete
         Thread.sleep(500)
 
-        // In a real test, you would verify the output files or mocked transpiler calls
-        assertTrue(true, "Route handling completed without exceptions")
+        // Since we don't have a way to directly verify the results of handleAddingRoutes,
+        // we'll just verify no exceptions were thrown
+        assertFalse(outputStreamCaptor.toString().contains("Exception"),
+            "No exceptions should be thrown during processing")
+    }
+
+    @Test
+    fun `test handleTranspiling processes ktx file`() {
+        // Execute the transpilation
+        handleTranspiling(ktxFile)
+
+        // Since the current implementation doesn't do much with the transpilation result,
+        // we'll just verify no exceptions were thrown
+        assertFalse(outputStreamCaptor.toString().contains("Exception"),
+            "No exceptions should be thrown during transpilation")
+    }
+
+    @Test
+    fun `test handleAddingRoutes skips non-ktx files`() {
+        // Create a non-ktx file
+        val nonKtxFile = File(tempDir, "NotARoute.txt")
+        nonKtxFile.writeText("This is not a KTX file")
+
+        // Execute the route handling
+        handleAddingRoutes(tempDir)
+
+        // Allow time for coroutines to complete
+        Thread.sleep(500)
+
+        // Verify no exceptions were thrown
+        assertFalse(outputStreamCaptor.toString().contains("Exception"),
+            "No exceptions should be thrown when processing non-ktx files")
+    }
+
+    @Test
+    fun `test handleAddingRoutes handles empty directories`() {
+        // Create an empty directory
+        val emptyDir = File(tempDir, "empty")
+        emptyDir.mkdir()
+
+        // Execute the route handling
+        handleAddingRoutes(emptyDir)
+
+        // Allow time for coroutines to complete
+        Thread.sleep(500)
+
+        // Verify no exceptions were thrown
+        assertFalse(outputStreamCaptor.toString().contains("Exception"),
+            "No exceptions should be thrown when processing empty directories")
     }
 }

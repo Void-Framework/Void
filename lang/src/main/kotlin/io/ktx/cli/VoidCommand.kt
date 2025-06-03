@@ -1,5 +1,6 @@
 package io.ktx.cli
 
+import io.ktx.page.Page
 import io.ktx.transpiler.Transpiler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +15,7 @@ fun main(args: Array<String>) {
     try {
         when (args.first()) {
             "routes" -> handleAddingRoutes(File(currentDirectoryPath))
+            else -> println("Incorrect arguments supplied, please refer to the documentation.")
         }
     } catch (e: Exception) {
         println("No arguments supplied, please refer to the documentation.")
@@ -36,7 +38,11 @@ fun handleAddingRoutes(folder: File) {
     }
 }
 
-fun handleTranspiling(file: File) {
+fun handleTranspiling(file: File): List<Page> {
     val transpiler = Transpiler(file)
-    val map = transpiler.transpile()
+    val list = mutableListOf<Page>()
+    transpiler.transpile().forEach { (route, content) ->
+        list.add(Page(route, content))
+    }
+    return list
 }
