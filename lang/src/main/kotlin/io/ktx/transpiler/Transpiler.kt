@@ -7,8 +7,8 @@ class Transpiler(val file: File) {
 
     private val functionPattern = Regex("""fun\s+Page\.(\w+)\s*\([^)]*\)\s*(?::\s*[\w\d_<>,\s?]+)?\s*\{""")
     private val routePattern = Regex("this\\.route\\s*=\\s*\"(.+?)\"")
-    private val startFractalPattern = Regex("""<~>""")
-    private val endFractalPattern = Regex("""<~/>""")
+    private val startFractalPattern = Regex("<~>")
+    private val endFractalPattern = Regex("<~/>")
     private val inlineCall = Regex("\\|(.*?)\\|")
     private var currentRoute = ""
     private val replacementString = "${'$'}{$1}"
@@ -25,8 +25,9 @@ class Transpiler(val file: File) {
             if (it.matches(functionPattern)) {
                 insideFunction = true
             } else if (insideFunction) {
+                val text = handleString(it) ?: ""
                 if (insideHTML) {
-                    html.append(handleString(it) ?: "")
+                    html.append(text)
                 }
                 if (!insideHTML && fractalMatched) {
                     routes.put(currentRoute, html.toString())
@@ -42,19 +43,19 @@ class Transpiler(val file: File) {
     fun handleString(it: String): String? {
         val cleanedLine = singleLineCommentPattern.replace(it, "").trim()
         when {
-            cleanedLine.matches(startFractalPattern) && cleanedLine.matches(endFractalPattern) -> {
+            cleanedLine.contains(startFractalPattern) && cleanedLine.contains(endFractalPattern) -> {
                 insideFunction = false
                 insideHTML = false
                 routes.put(currentRoute, inlineCall.replace(cleanedLine.substringBefore("<~/>").substringAfter("<~>"), replacementString))
                 currentRoute = ""
                 return null
             }
-            cleanedLine.matches(startFractalPattern) -> {
+            cleanedLine.contains(startFractalPattern) -> {
                 fractalMatched = true
                 insideHTML = true
                 return null
             }
-            cleanedLine.matches(endFractalPattern) -> {
+            cleanedLine.contains(endFractalPattern) -> {
                 insideFunction = false
                 insideHTML = false
                 return null
