@@ -16,6 +16,7 @@ class Transpiler(val file: File) {
     private var insideHTML = false
     private var fractalMatched = false
     private val routes = mutableMapOf<String, String>()
+    private val singleLineCommentPattern = Regex("//.*") // New regex for // comments
 
     fun transpile(): Map<String, String> {
         val content = BufferedReader(file.reader())
@@ -39,35 +40,36 @@ class Transpiler(val file: File) {
     }
 
     fun handleString(it: String): String? {
+        val cleanedLine = singleLineCommentPattern.replace(it, "").trim()
         when {
-            it.matches(startFractalPattern) && it.matches(endFractalPattern) -> {
+            cleanedLine.matches(startFractalPattern) && cleanedLine.matches(endFractalPattern) -> {
                 insideFunction = false
                 insideHTML = false
-                routes.put(currentRoute, inlineCall.replace(it.substringBefore("<~/>").substringAfter("<~>"), replacementString))
+                routes.put(currentRoute, inlineCall.replace(cleanedLine.substringBefore("<~/>").substringAfter("<~>"), replacementString))
                 currentRoute = ""
                 return null
             }
-            it.matches(startFractalPattern) -> {
+            cleanedLine.matches(startFractalPattern) -> {
                 fractalMatched = true
                 insideHTML = true
                 return null
             }
-            it.matches(endFractalPattern) -> {
+            cleanedLine.matches(endFractalPattern) -> {
                 insideFunction = false
                 insideHTML = false
                 return null
             }
-            it.matches(routePattern) -> {
+            cleanedLine.matches(routePattern) -> {
                 if (currentRoute.isEmpty()) {
-                    currentRoute = routePattern.find(it)?.groups?.get(1)?.value!!
+                    currentRoute = routePattern.find(cleanedLine)?.groups?.get(1)?.value!!
                     return null
                 } else {
-                    error("Already defined one route for specified page: ${routePattern.find(it)?.groups?.get(1)?.value!!}")
+                    error("Already defined one route for specified page: ${routePattern.find(cleanedLine)?.groups?.get(1)?.value!!}")
                 }
             }
             else -> {
                 if (insideHTML) {
-                    return inlineCall.replace(it, replacementString)
+                    return inlineCall.replace(cleanedLine, replacementString)
                 }
             }
         }

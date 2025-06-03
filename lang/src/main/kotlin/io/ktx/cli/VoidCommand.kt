@@ -38,4 +38,5 @@ fun handleAddingRoutes(folder: File) {
 
 fun handleTranspiling(file: File) {
     val transpiler = Transpiler(file)
+    val map = transpiler.transpile()
 }
