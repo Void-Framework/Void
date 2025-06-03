@@ -2,7 +2,6 @@ package io.ktx.transpiler
 
 import java.io.BufferedReader
 import java.io.File
-import java.util.UUID
 
 class Transpiler(val file: File) {
 
@@ -11,23 +10,28 @@ class Transpiler(val file: File) {
     private val startFractalPattern = Regex("""<~>""")
     private val endFractalPattern = Regex("""<~/>""")
     private val inlineCall = Regex("\\|(.*?)\\|")
-    private var uuid = UUID.randomUUID()
-    private var route = "" to uuid
+    private var currentRoute = ""
     private val replacementString = "${'$'}{$1}"
     private var insideFunction = false
     private var insideHTML = false
+    private var fractalMatched = false
+    private val routes = mutableMapOf<String, String>()
 
     fun transpile(): Map<String, String> {
         val content = BufferedReader(file.reader())
-        val routes = mutableMapOf<String, String>()
+        val html = StringBuilder("")
         content.forEachLine {
             if (it.matches(functionPattern)) {
                 insideFunction = true
             } else if (insideFunction) {
-                val html = handleString(it)
-                if (!insideHTML && html != null) {
-                    routes.put(route.first, html)
-                    route = "" to uuid
+                if (insideHTML) {
+                    html.append(handleString(it) ?: "")
+                }
+                if (!insideHTML && fractalMatched) {
+                    routes.put(currentRoute, html.toString())
+                    currentRoute = ""
+                    html.delete(0, html.length)
+                    fractalMatched = false
                 }
             }
         }
@@ -39,22 +43,23 @@ class Transpiler(val file: File) {
             it.matches(startFractalPattern) && it.matches(endFractalPattern) -> {
                 insideFunction = false
                 insideHTML = false
-                uuid = UUID.randomUUID()
-                return inlineCall.replace(it.substringBefore("<~/>").substringAfter("<~>"), replacementString)
+                routes.put(currentRoute, inlineCall.replace(it.substringBefore("<~/>").substringAfter("<~>"), replacementString))
+                currentRoute = ""
+                return null
             }
             it.matches(startFractalPattern) -> {
+                fractalMatched = true
                 insideHTML = true
                 return null
             }
             it.matches(endFractalPattern) -> {
                 insideFunction = false
                 insideHTML = false
-                uuid = UUID.randomUUID()
                 return null
             }
             it.matches(routePattern) -> {
-                if (route.first.isEmpty()) {
-                    route = routePattern.find(it)?.groups?.get(1)?.value!! to uuid
+                if (currentRoute.isEmpty()) {
+                    currentRoute = routePattern.find(it)?.groups?.get(1)?.value!!
                     return null
                 } else {
                     error("Already defined one route for specified page: ${routePattern.find(it)?.groups?.get(1)?.value!!}")
