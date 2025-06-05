@@ -110,6 +110,8 @@ class TranspilerTest {
         val transpiler = Transpiler(simpleKtxFile)
         val result = transpiler.transpile()
 
+        assertTrue(result.values.contains("""<div><h1>Simple Route</h1></div>""".trimIndent()), "HTML content should be the same.")
+
         // This test would depend on how your transpiler generates code
         // You might want to compile the generated code or validate its structure
 

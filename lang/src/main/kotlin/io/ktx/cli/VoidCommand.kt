@@ -44,5 +44,6 @@ fun handleTranspiling(file: File): List<Page> {
     transpiler.transpile().forEach { (route, content) ->
         list.add(Page(route, content))
     }
+    println(list)
     return list
 }

@@ -16,7 +16,7 @@ class Transpiler(val file: File) {
     private var insideHTML = false
     private var fractalMatched = false
     private val routes = mutableMapOf<String, String>()
-    private val singleLineCommentPattern = Regex("//.*") // New regex for // comments
+    private val singleLineCommentPattern = Regex("(?<!:)//.*") // New regex for // comments
     private var closingTag = false
     private var routeDefined = false
     private var functionName = ""
