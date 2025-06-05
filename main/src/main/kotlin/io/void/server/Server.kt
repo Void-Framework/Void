@@ -1,5 +1,6 @@
 package io.void.server
 
+import io.ktx.cli.main
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.ResponseDTO
 import io.void.generator.TailwindGen
@@ -29,6 +30,10 @@ class Server(private val router: Router, val httpVersion: Number = 1.1) {
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
     var isHTTPSOn = false
+
+    init {
+        main(arrayOf("routes"))
+    }
 
     fun startHTTPServer(port: Int, routeToHTTPS: Boolean = false) {
         Thread {

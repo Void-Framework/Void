@@ -1,0 +1,47 @@
+fun Page.HomeRoute() {
+    this.route = "/"
+    return <~>
+        <main class="container mx-auto px-4 py-8">
+                <header class="text-center mb-12">
+                    <h1>Welcome to Void Framework</h1>
+                    <nav class="flex justify-center gap-4 mt-4">
+                        <a href="#features" class="text-blue-500 hover:text-blue-700 transition-colors duration-300">Features</a>
+                        <a href="#docs" class="text-blue-500 hover:text-blue-700 transition-colors duration-300">Documentation</a>
+                    </nav>
+                </header>
+
+                <section id="features" class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Framework Features</h2>
+                    <article class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h3 class="text-xl text-gray-600 mb-2">Type-Safe HTML DSL</h3>
+                        <p>Build your UI with a fully type-safe Kotlin DSL</p>
+                    </article>
+                </section>
+
+                <section id="docs" class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Documentation</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <article class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <h3 class="text-xl text-gray-600 mb-2">Getting Started</h3>
+                            <p>Quick start guide for new projects</p>
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-300">Learn More</button>
+                        </article>
+                        <article class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <h3 class="text-xl text-gray-600 mb-2">API Reference</h3>
+                            <p>Complete API documentation</p>
+                            <a href="https://github.com/Jadiefication/void-framework"
+                               target="_blank"
+                               rel="noopener"
+                               class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-300 inline-block">View on GitHub</a>
+                        </article>
+                    </div>
+                </section>
+
+                <footer id="footer" class="text-center mt-12 text-gray-600">
+                    <p>© 2023 Void Framework. All rights reserved.</p>
+                    <small>Built with <code>Kotlin</code></small>
+                    <!-- testComponent() would be rendered here -->
+                </footer>
+            </main>
+    <~/>
+}

@@ -37,6 +37,11 @@
             <artifactId>kotlinx-coroutines-core</artifactId>
             <version>1.7.3</version>
         </dependency>
+        <dependency>
+            <groupId>io.jadiefication</groupId>
+            <artifactId>lang</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
