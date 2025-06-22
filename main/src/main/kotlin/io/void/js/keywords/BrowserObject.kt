@@ -10,17 +10,17 @@ import java.lang.UnsupportedOperationException
 
 interface BrowserObject: Keyword {
 
-    fun on(_eventType: JsValue<JsEvent>, _function: JsValue<EventFunction>, call: (Event) -> Unit): Reference<BrowserObject> {
+    fun on(_eventType: JsValue<JsEvent>, _function: JsValue<EventFunction>): Reference<BrowserObject> {
         val event = Event(
             eventType = _eventType,
             function = _function
         )
         jsReturn += event.render()
-        return applyMethods(call, event, this)
+        return this.refer()
     }
-    fun on(_eventType: List<JsValue<JsEvent>>, _function: JsValue<EventFunction>, call: (Event) -> Unit): List<Reference<BrowserObject>> {
+    fun on(_eventType: List<JsValue<JsEvent>>, _function: JsValue<EventFunction>): List<Reference<BrowserObject>> {
         return _eventType.map {
-            return@map on(it, _function, call)
+            return@map on(it, _function)
         }
     }
     fun off(event: JsValue<Event>): Reference<BrowserObject> {
@@ -44,17 +44,17 @@ interface BrowserObject: Keyword {
         }
         return this.refer()
     }
-    fun on(_eventType: JsValue<JsEvent>, _function: JavaScript.(List<FunctionVariable<*>>) -> Unit, call: (Event) -> Unit): Reference<BrowserObject> {
+    fun on(_eventType: JsValue<JsEvent>, _function: JavaScript.(List<FunctionVariable<*>>) -> Unit): Reference<BrowserObject> {
         val event = Event(
             eventType = _eventType,
             body = _function
         )
         jsReturn += event.render()
-        return applyMethods(call, event, this)
+        return this.refer()
     }
-    fun on(_eventType: List<JsValue<JsEvent>>, _function: JavaScript.(List<FunctionVariable<*>>) -> Unit, call: (Event) -> Unit): List<Reference<BrowserObject>> {
+    fun on(_eventType: List<JsValue<JsEvent>>, _function: JavaScript.(List<FunctionVariable<*>>) -> Unit): List<Reference<BrowserObject>> {
         return _eventType.map {
-            return@map on(it, _function, call)
+            return@map on(it, _function)
         }
     }
 }
