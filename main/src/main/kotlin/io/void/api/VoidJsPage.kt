@@ -11,6 +11,7 @@ import io.void.js.function
 import io.void.js.keywords.controlflow.For
 import io.void.js.keywords.controlflow.If
 import io.void.js.keywords.datastructures.JsSet
+import io.void.js.keywords.variable.Const
 import io.void.js.keywords.variable.const
 import io.void.js.keywords.variable.let
 import io.void.js.keywords.variable.set
@@ -32,11 +33,9 @@ internal class VoidJsPage: ApiPage(
                 body = Js {
                     function<BrowserObject>("elements", listOf("size", "elementName", "text", "attributes")) { args ->
                         val (size, elementName, text, attributes) = args
-                        val dom = DOM()
-                        dom.fragment()
-                        val fragment = const(
+                        var fragment = const(
                             name = "fragment",
-                            value = dom
+                            value = fragment {  }
                         )
                         const(
                             name = "isHTML",
