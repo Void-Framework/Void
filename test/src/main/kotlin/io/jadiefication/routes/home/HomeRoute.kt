@@ -108,13 +108,13 @@ class HomeRoute : Page(target = "/") {
             it.on(Events.CLICK.asJsValue(), {
                 counter++
                 run(updateCounterDisplay, emptyJsValue())
-            }, {})
+            })
         })
         id("decrement-button".asJsValue(), call = {
             it.on(Events.CLICK.asJsValue(), {
                 counter--
                 run(updateCounterDisplay, emptyJsValue())
-            }, {})
+            })
         })
 
         // Test data structures - create a user list
@@ -240,14 +240,14 @@ class HomeRoute : Page(target = "/") {
                 // Prevent default form submission
                 val userName = const(
                     name = "userName",
-                    value = id("user-name".asJsValue(), call = {
-                        raw(".value")
+                    value = DOM().id("user-name".asJsValue(), call = { element ->
+                        element.value()
                     })
                 )
                 val userRole = const(
                     name = "userRole",
-                    value = id("user-role".asJsValue(), call = {
-                        raw(".value")
+                    value = DOM().id("user-role".asJsValue(), call = { element ->
+                        element.value()
                     })
                 )
 
@@ -268,16 +268,16 @@ class HomeRoute : Page(target = "/") {
                     push(newUser.asJsValue() as JsValue<JsObject>)
                 }, JsList(JsObject(emptyMap()).asJsValue()))
 
-                id("user-name".asJsValue(), call = {
-                    raw(".value = \"\"")
+                id("user-name".asJsValue(), call = { element ->
+                    element.value("".asJsValue())
                 })
-                id("user-role".asJsValue(), call = {
-                    raw(".value = \"\"")
+                id("user-role".asJsValue(), call = { element ->
+                    element.value("".asJsValue())
                 })
 
                 run(renderUserList, emptyJsValue())
                 alert("User added successfully!".asJsValue())
-            }, {})
+            })
         })
 
         // Test fetch API with async/await
@@ -355,7 +355,7 @@ class HomeRoute : Page(target = "/") {
         id("fetch-button".asJsValue(), call = {
             it.on(Events.CLICK.asJsValue(), {
                 run(fetchData, emptyJsValue())
-            }, {})
+            })
         })
 
         // Test class toggling
@@ -423,7 +423,7 @@ class HomeRoute : Page(target = "/") {
         id("update-title-button".asJsValue(), call = {
             it.on(Events.CLICK.asJsValue(), {
                 run(updateTitle, emptyJsValue())
-            }, {})
+            })
         })
     }
 

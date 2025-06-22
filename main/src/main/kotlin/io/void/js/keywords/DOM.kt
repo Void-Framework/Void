@@ -200,6 +200,14 @@ class HTMLElement: BrowserObject {
         jsReturn += ".${type.name.lowercase().uppercase()}($element)"
         return this.refer()
     }
+    fun value(): Reference<HTMLElement> {
+        jsReturn += ".value"
+        return this.refer()
+    }
+    fun value(value: JsValue<*>): Reference<HTMLElement> {
+        jsReturn += ".value = $value"
+        return this.refer()
+    }
 }
 
 class JsAttribute: Keyword {
