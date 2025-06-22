@@ -24,7 +24,7 @@ interface Keyword {
         jsReturn += element
         return objectToRefer.refer()
     }
-    fun <M : Keyword, N : Keyword> applyMethods(call: (M?) -> Unit, element: M?, objectToRefer: N): Reference<N> {
+    fun <M : Keyword, N : Keyword> applyNullableMethods(call: (M?) -> Unit, element: M?, objectToRefer: N): Reference<N> {
         call(element)
         jsReturn += element
         return objectToRefer.refer()

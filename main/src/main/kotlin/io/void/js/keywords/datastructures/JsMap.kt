@@ -42,7 +42,7 @@ data class JsMap<K, V>(val baseMap: Map<K, V>): JsDatastructure {
     }
     fun get(key: JsValue<K>, call: (V?) -> Unit): Reference<JsMap<K, V>> {
         jsReturn += ".get($key)"
-        return applyMethods(call, null, this)
+        return applyNullableMethods(call, null, this)
     }
     fun has(key: JsValue<K>): JsValue<Boolean> {
         jsReturn += ".has($key)"
