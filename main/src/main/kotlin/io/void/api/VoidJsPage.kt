@@ -33,7 +33,7 @@ internal class VoidJsPage: ApiPage(
                 body = Js {
                     function<BrowserObject>("elements", listOf("size", "elementName", "text", "attributes")) { args ->
                         val (size, elementName, text, attributes) = args
-                        var fragment = const(
+                        val fragment = const(
                             name = "fragment",
                             value = fragment {  }
                         )

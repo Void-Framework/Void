@@ -40,19 +40,21 @@ class HomeRoute : Page(target = "/") {
 
     override val javascript: JavaScript = Js(false) {
         // Data binding with reactive updates
-        /*data = setData("Welcome to Void Framework".asJsValue(), "data")
+        data = setData("Welcome to Void Framework".asJsValue(), "data")
 
         // DOM manipulation - add dynamic content
-        id("features".asJsValue()).html(Div {
-            H3 { Fractal("Dynamic Content") }
-            P { Fractal("This content was dynamically inserted via JavaScript") }
-            Ul(attribute {
-                name = AttributeNames.ID
-                value = "dynamic-list"
-            }) {
-                // Will be populated later
-            }
-        }.asJsValue())
+        id("features".asJsValue(), call = {
+            it.html(Div {
+                H3 { Fractal("Dynamic Content") }
+                P { Fractal("This content was dynamically inserted via JavaScript") }
+                Ul(attribute {
+                    name = AttributeNames.ID
+                    value = "dynamic-list"
+                }) {
+                    // Will be populated later
+                }
+            }.asJsValue())
+        })
 
         // Create a counter for demonstrating state
         var counter = let(
@@ -62,49 +64,57 @@ class HomeRoute : Page(target = "/") {
 
         // Create a function to update counter display
         val updateCounterDisplay = function<Nothing>("updateCounterDisplay", emptyList()) {
-            id("counter-value".asJsValue()).text(counter.asJsValue() as JsValue<String>)
+            id("counter-value".asJsValue(), call = {
+                it.text(counter.asJsValue() as JsValue<String>)
+            })
         }
 
         // Add counter UI
-        id("counter-container".asJsValue()).html(Div {
-            H3 { Fractal("State Management Demo") }
-            P {
-                Fractal("Counter value: ")
-                Span(attribute {
-                    name = AttributeNames.ID
-                    value = "counter-value"
-                }) { Fractal("0") }
-            }
-            Button(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "increment-button"
-                },
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = buttonClasses
+        id("counter-container".asJsValue(), call = {
+            it.html(Div {
+                H3 { Fractal("State Management Demo") }
+                P {
+                    Fractal("Counter value: ")
+                    Span(attribute {
+                        name = AttributeNames.ID
+                        value = "counter-value"
+                    }) { Fractal("0") }
                 }
-            ) { Fractal("Increment") }
-            Button(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "decrement-button"
-                },
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = buttonClasses
-                }
-            ) { Fractal("Decrement") }
-        }.asJsValue())
+                Button(
+                    attribute {
+                        name = AttributeNames.ID
+                        value = "increment-button"
+                    },
+                    attribute {
+                        name = AttributeNames.CLASS
+                        value = buttonClasses
+                    }
+                ) { Fractal("Increment") }
+                Button(
+                    attribute {
+                        name = AttributeNames.ID
+                        value = "decrement-button"
+                    },
+                    attribute {
+                        name = AttributeNames.CLASS
+                        value = buttonClasses
+                    }
+                ) { Fractal("Decrement") }
+            }.asJsValue())
+        })
 
         // Add event listeners for counter buttons
-        id("increment-button".asJsValue()).on(Events.CLICK.asJsValue(), {
-            counter++
-            run(updateCounterDisplay, emptyJsValue())
+        id("increment-button".asJsValue(), call = {
+            it.on(Events.CLICK.asJsValue(), {
+                counter++
+                run(updateCounterDisplay, emptyJsValue())
+            }, {})
         })
-        id("decrement-button".asJsValue()).on(Events.CLICK.asJsValue(), {
-            counter--
-            run(updateCounterDisplay, emptyJsValue())
+        id("decrement-button".asJsValue(), call = {
+            it.on(Events.CLICK.asJsValue(), {
+                counter--
+                run(updateCounterDisplay, emptyJsValue())
+            }, {})
         })
 
         // Test data structures - create a user list
@@ -133,192 +143,220 @@ class HomeRoute : Page(target = "/") {
         val renderUserList = function<Nothing>("renderUserList", emptyList()) {
             val listHtml = let(
                 name = "listHtml",
-                value = ""
+                value = "".asJsValue()
             )
 
             call(users.asJsValue(), {
                 forEach { (user) ->
                     // Build HTML for each user
-                    set(listHtml, "\${${listHtml.name}} <li class='p-2 border-b'>\${${user.name}.name} - \${${user.name}.role}</li>")
+                    set(listHtml, "\${${listHtml.name}} <li class='p-2 border-b'>\${${user.name}.name} - \${${user.name}.role}</li>".asJsValue())
                 }
             }, JsList(emptyJsValue() as JsValue<JsObject>))
 
             // Update the DOM with our list
-            id("dynamic-list".asJsValue()).html(listHtml.asJsValue())
+            id("dynamic-list".asJsValue(), call = {
+                it.html(listHtml.asJsValue())
+            })
         }
 
         // Initial render
         run(renderUserList, emptyJsValue())
 
         // Add a form to add new users
-        id("user-form-container".asJsValue()).html(Div {
-            H3 { Fractal("Add New User") }
-            Form(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "user-form"
-                }
-            ) {
-                Div {
-                    Label(
-                        attribute {
-                            name = AttributeNames.FOR
-                            value = "user-name"
-                        }
-                    ) { Fractal("Name:") }
-                    Input(
-                        attribute {
-                            name = AttributeNames.ID
-                            value = "user-name"
-                        },
-                        attribute {
-                            name = AttributeNames.TYPE
-                            value = "text"
-                        },
-                        attribute {
-                            name = AttributeNames.CLASS
-                            value = "border p-2 w-full"
-                        }
-                    )
-                }
-                Div {
-                    Label(
-                        attribute {
-                            name = AttributeNames.FOR
-                            value = "user-role"
-                        }
-                    ) { Fractal("Role:") }
-                    Input(
-                        attribute {
-                            name = AttributeNames.ID
-                            value = "user-role"
-                        },
-                        attribute {
-                            name = AttributeNames.TYPE
-                            value = "text"
-                        },
-                        attribute {
-                            name = AttributeNames.CLASS
-                            value = "border p-2 w-full"
-                        }
-                    )
-                }
-                Button(
+        id("user-form-container".asJsValue(), call = {
+            it.html(Div {
+                H3 { Fractal("Add New User") }
+                Form(
                     attribute {
                         name = AttributeNames.ID
-                        value = "add-user-button"
-                    },
-                    attribute {
-                        name = AttributeNames.TYPE
-                        value = "submit"
-                    },
-                    attribute {
-                        name = AttributeNames.CLASS
-                        value = buttonClasses
+                        value = "user-form"
                     }
-                ) { Fractal("Add User") }
-            }
-        }.asJsValue())
+                ) {
+                    Div {
+                        Label(
+                            attribute {
+                                name = AttributeNames.FOR
+                                value = "user-name"
+                            }
+                        ) { Fractal("Name:") }
+                        Input(
+                            attribute {
+                                name = AttributeNames.ID
+                                value = "user-name"
+                            },
+                            attribute {
+                                name = AttributeNames.TYPE
+                                value = "text"
+                            },
+                            attribute {
+                                name = AttributeNames.CLASS
+                                value = "border p-2 w-full"
+                            }
+                        )
+                    }
+                    Div {
+                        Label(
+                            attribute {
+                                name = AttributeNames.FOR
+                                value = "user-role"
+                            }
+                        ) { Fractal("Role:") }
+                        Input(
+                            attribute {
+                                name = AttributeNames.ID
+                                value = "user-role"
+                            },
+                            attribute {
+                                name = AttributeNames.TYPE
+                                value = "text"
+                            },
+                            attribute {
+                                name = AttributeNames.CLASS
+                                value = "border p-2 w-full"
+                            }
+                        )
+                    }
+                    Button(
+                        attribute {
+                            name = AttributeNames.ID
+                            value = "add-user-button"
+                        },
+                        attribute {
+                            name = AttributeNames.TYPE
+                            value = "submit"
+                        },
+                        attribute {
+                            name = AttributeNames.CLASS
+                            value = buttonClasses
+                        }
+                    ) { Fractal("Add User") }
+                }
+            }.asJsValue())
+        })
 
         // Handle form submission
-        id("user-form".asJsValue()).on(Events.SUBMIT.asJsValue(), { (event) ->
-            // Prevent default form submission
-            val userName = const(
-                name = "userName",
-                value = Call<Function<Nothing>>(DOM().id("user-name".asJsValue()).asJsValue(), ".value")
-            )
-            val userRole = const(
-                name = "userRole",
-                value = Call<Function<Nothing>>(DOM().id("user-role".asJsValue()).asJsValue(), ".value")
-            )
+        id("user-form".asJsValue(), call = {
+            it.on(Events.SUBMIT.asJsValue(), { (event) ->
+                // Prevent default form submission
+                val userName = const(
+                    name = "userName",
+                    value = id("user-name".asJsValue(), call = {
+                        raw(".value")
+                    })
+                )
+                val userRole = const(
+                    name = "userRole",
+                    value = id("user-role".asJsValue(), call = {
+                        raw(".value")
+                    })
+                )
 
-            If("!userName || !userRole") {
-                alert("Please fill in all fields".asJsValue())
-                Return()
-            }
+                If("!userName || !userRole") {
+                    alert("Please fill in all fields".asJsValue())
+                    Return()
+                }
 
-            val newUser = const(
-                name = "newUser",
-                value = JsObject(mapOf(
-                    "id" to "Date.now()".asJsValue(),
-                    "name" to userName.asJsValue(),
-                    "role" to userRole.asJsValue()
-                )).initialize()
-            )
-            call(users.asJsValue(), {
-                push(newUser.asJsValue() as JsValue<JsObject>)
-            }, JsList<JsObject>(JsObject(emptyMap()).asJsValue()))
+                val newUser = const(
+                    name = "newUser",
+                    value = JsObject(mapOf(
+                        "id" to "Date.now()".asJsValue(),
+                        "name" to userName.asJsValue(),
+                        "role" to userRole.asJsValue()
+                    )).initialize()
+                )
+                call(users.asJsValue(), {
+                    push(newUser.asJsValue() as JsValue<JsObject>)
+                }, JsList(JsObject(emptyMap()).asJsValue()))
 
-            call<Function<Nothing>>(DOM().id("user-name".asJsValue()).asJsValue(), ".value = \"\"")
-            call<Function<Nothing>>(DOM().id("user-role".asJsValue()).asJsValue(), ".value = \"\"")
+                id("user-name".asJsValue(), call = {
+                    raw(".value = \"\"")
+                })
+                id("user-role".asJsValue(), call = {
+                    raw(".value = \"\"")
+                })
 
-            run(renderUserList, emptyJsValue())
-            alert("User added successfully!".asJsValue())
+                run(renderUserList, emptyJsValue())
+                alert("User added successfully!".asJsValue())
+            }, {})
         })
 
         // Test fetch API with async/await
         val fetchData = function<Nothing>("fetchData", emptyList()) {
-            id("fetch-status".asJsValue()).text("Loading...".asJsValue())
+            id("fetch-status".asJsValue(), call = {
+                it.text("Loading...".asJsValue())
+            })
 
             fetch(null, URL("https://jsonplaceholder.typicode.com/todos/1"))
                 .then(FetchFunction({ (response) ->
                     table(response.asJsValue())
                 }))
                 .then(FetchFunction({ (data) ->
-                    id("fetch-status".asJsValue()).text("Data loaded!".asJsValue())
-                    id("fetch-result".asJsValue()).html(
-                        Pre {
-                            Code {
-                                Fractal("JSON.stringify(${data.name}, null, 2)")
-                            }
-                        }.asJsValue()
-                    )
+                    id("fetch-status".asJsValue(), call = {
+                        it.text("Data loaded!".asJsValue())
+                    })
+                    id("fetch-result".asJsValue(), call = {
+                        it.html(
+                            Pre {
+                                Code {
+                                    Fractal("JSON.stringify(${data.name}, null, 2)")
+                                }
+                            }.asJsValue()
+                        )
+                    })
                 }))
                 .catch(FetchFunction({ (error) ->
-                    id("fetch-status".asJsValue()).text("Error loading data".asJsValue())
-                    id("fetch-result".asJsValue()).text(error.asJsValue() as JsValue<String>)
+                    id("fetch-status".asJsValue(), call = {
+                        it.text("Error loading data".asJsValue())
+                    })
+                    id("fetch-result".asJsValue(), call = {
+                        it.text(error.asJsValue() as JsValue<String>)
+                    })
                 }))
         }
 
         // Add fetch test UI
-        id("fetch-container".asJsValue()).html(Div {
-            H3 { Fractal("Fetch API Test") }
-            Button(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "fetch-button"
-                },
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = buttonClasses
-                }
-            ) { Fractal("Fetch Data") }
-            Div(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "fetch-status"
-                },
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = "mt-2"
-                }
-            ) { Fractal("Click button to fetch data") }
-            Div(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "fetch-result"
-                },
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = "mt-2 p-4 bg-gray-100 rounded"
-                }
-            ) {}
-        }.asJsValue())
+        id("fetch-container".asJsValue(), call = {
+            it.html(Div {
+                H3 { Fractal("Fetch API Test") }
+                Button(
+                    attribute {
+                        name = AttributeNames.ID
+                        value = "fetch-button"
+                    },
+                    attribute {
+                        name = AttributeNames.CLASS
+                        value = buttonClasses
+                    }
+                ) { Fractal("Fetch Data") }
+                Div(
+                    attribute {
+                        name = AttributeNames.ID
+                        value = "fetch-status"
+                    },
+                    attribute {
+                        name = AttributeNames.CLASS
+                        value = "mt-2"
+                    }
+                ) { Fractal("Click button to fetch data") }
+                Div(
+                    attribute {
+                        name = AttributeNames.ID
+                        value = "fetch-result"
+                    },
+                    attribute {
+                        name = AttributeNames.CLASS
+                        value = "mt-2 p-4 bg-gray-100 rounded"
+                    }
+                ) {}
+            }.asJsValue())
+        })
 
         // Add event listener for fetch button
-        id("fetch-button".asJsValue()).on(Events.CLICK.asJsValue()) {
-            run(fetchData, emptyJsValue())
-        }
+        id("fetch-button".asJsValue(), call = {
+            it.on(Events.CLICK.asJsValue(), {
+                run(fetchData, emptyJsValue())
+            }, {})
+        })
 
         // Test class toggling
         /*val toggleClass = function<Nothing>("toggleClass", listOf("element", "className")) { (element, className) ->
@@ -328,19 +366,21 @@ class HomeRoute : Page(target = "/") {
         }*/
 
         // Add class toggle test
-        id("toggle-container".asJsValue()).html(Div {
-            H3 { Fractal("Class Toggle Test") }
-            Div(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "toggle-element"
-                },
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = "p-4 bg-gray-200 transition-all duration-300"
-                }
-            ) { Fractal("Click me to toggle class") }
-        }.asJsValue())
+        id("toggle-container".asJsValue(), call = {
+            it.html(Div {
+                H3 { Fractal("Class Toggle Test") }
+                Div(
+                    attribute {
+                        name = AttributeNames.ID
+                        value = "toggle-element"
+                    },
+                    attribute {
+                        name = AttributeNames.CLASS
+                        value = "p-4 bg-gray-200 transition-all duration-300"
+                    }
+                ) { Fractal("Click me to toggle class") }
+            }.asJsValue())
+        })
 
         // Add event listener for toggle element
         /*id("toggle-element".asJsValue()).on(Events.CLICK.asJsValue()) { (event) ->
@@ -364,26 +404,26 @@ class HomeRoute : Page(target = "/") {
         }
 
         // Add update title button
-        id("footer".asJsValue()).html(
-            Button(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "update-title-button"
-                },
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = buttonClasses
-                }
-            ) { Fractal("Update Page Title") }.asJsValue()
-        ).asJsValue()
+        id("footer".asJsValue(), call = {
+            it.html(
+                Button(
+                    attribute {
+                        name = AttributeNames.ID
+                        value = "update-title-button"
+                    },
+                    attribute {
+                        name = AttributeNames.CLASS
+                        value = buttonClasses
+                    }
+                ) { Fractal("Update Page Title") }.asJsValue()
+            ).asJsValue()
+        })
 
         // Add event listener for update title button
-        id("update-title-button".asJsValue()).on(Events.CLICK.asJsValue()) {
-            run(updateTitle, emptyJsValue())
-        }*/
-
-        open("localhost:8080/js/void.js".asJsValue(), "test".asJsValue(), call = {
-            it.alert("test".asJsValue())
+        id("update-title-button".asJsValue(), call = {
+            it.on(Events.CLICK.asJsValue(), {
+                run(updateTitle, emptyJsValue())
+            }, {})
         })
     }
 
@@ -401,7 +441,7 @@ class HomeRoute : Page(target = "/") {
             }
         ) {
             H1 {
-                //this.get(data)
+                this.get(data)
             }
             Nav(
                 attribute {
