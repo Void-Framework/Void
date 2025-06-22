@@ -291,14 +291,12 @@ fun JavaScript.body(document: Variable<DOM>? = null, call: (HTMLElement) -> Unit
 }
 fun JavaScript.attribute(names: AttributeNames, document: Variable<DOM>? = null, call: (JsAttribute) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
     val elements = dom.attribute(names, call)
     children.add(elements)
     return elements
 }
 fun JavaScript.attribute(name: JsValue<String>, document: Variable<DOM>? = null, call: (JsAttribute) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
     val elements = dom.attribute(name, call)
     children.add(elements)
     return elements
