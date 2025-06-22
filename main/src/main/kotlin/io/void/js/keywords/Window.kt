@@ -113,7 +113,6 @@ fun JavaScript.alert(message: JsValue<String>, window: JsValue<*>? = null) {
 }
 fun JavaScript.open(url: JsValue<*>? = null, name: JsValue<String>? = null, specs: JsValue<*>? = null, window: JsValue<*>? = null, call: (Window) -> Unit) {
     val window = Window(window)
-    children.add(window)
     val newWindow = window.open(url, name, specs, call)
     children.add(newWindow)
 }
@@ -124,7 +123,6 @@ fun JavaScript.confirm(message: JsValue<String>, window: JsValue<*>? = null): Js
 }
 fun JavaScript.history(window: JsValue<*>? = null, call: (History) -> Unit) {
     val window = Window(window)
-    children.add(window)
     val history = window.history(call)
     children.add(history)
 }
@@ -150,13 +148,11 @@ fun JavaScript.scrollTo(x: JsValue<Int>, y: JsValue<Int>, window: JsValue<*>? = 
 }
 fun JavaScript.session(window: JsValue<*>? = null, call: (Session) -> Unit) {
     val window = Window(window)
-    children.add(window)
     val session = window.session(call)
     children.add(session)
 }
 fun JavaScript.local(window: JsValue<*>? = null, call: (Local) -> Unit) {
     val window = Window(window)
-    children.add(window)
     val local = window.local(call)
     children.add(local)
 }
