@@ -23,7 +23,7 @@ data class Lambda<T>(
     }
 }
 
-inline fun <reified T> JavaScript.Lambda(noinline body: JavaScript.(List<FunctionVariable<*>>) -> Unit, arguments: List<String>): Lambda<T> {
+inline fun <reified T> JavaScript.lambda(noinline body: JavaScript.(List<FunctionVariable<*>>) -> Unit, arguments: List<String>): Lambda<T> {
     val lambda = Lambda<T>(
         _body = body,
         _arguments = arguments

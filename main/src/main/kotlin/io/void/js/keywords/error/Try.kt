@@ -4,6 +4,8 @@ import io.void.js.JavaScript
 import io.void.js.Function
 import io.void.js.FunctionVariable
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.Reference
+import io.void.js.keywords.refer
 
 data class Try(
     val _body: JavaScript.(List<FunctionVariable<*>>) -> Unit
@@ -19,9 +21,9 @@ data class Try(
         return this
     }
 
-    fun finally(finally: Finally): Try {
+    fun finally(finally: Finally): Reference<Try> {
         jsReturn += finally.render()
-        return this
+        return this.refer()
     }
 
     override fun render(): String {

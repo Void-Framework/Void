@@ -3,11 +3,14 @@ package io.void.js.keywords.async
 import io.void.js.Function
 import io.void.js.FunctionVariable
 import io.void.js.JavaScript
+import io.void.js.keywords.Call
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
+import io.void.js.keywords.Reference
 import io.void.js.keywords.datastructures.JsList
 import io.void.js.keywords.emptyJsValue
 import io.void.js.keywords.error.Error
+import io.void.js.keywords.refer
 
 class Promise(): Keyword {
 
@@ -28,41 +31,41 @@ class Promise(): Keyword {
         jsReturn += ".catch(${function.render()})"
         return this
     }
-    fun finally(function: FetchFunction): Promise {
+    fun finally(function: FetchFunction): Reference<Promise> {
         jsReturn += ".finally(${function.render()})"
-        return this
+        return this.refer()
     }
-    fun all(list: JsValue<JsList<Promise>>): Promise {
+    fun all(list: JsValue<JsList<Promise>>, call: (Promise) -> Unit): Reference<Promise> {
         jsReturn = "${if (await) "await " else ""}Promise.all($list)"
-        return Promise()
+        return applyMethods(call, Promise(), this)
     }
-    fun allSettled(list: JsValue<JsList<Promise>>): Promise {
+    fun allSettled(list: JsValue<JsList<Promise>>, call: (Promise) -> Unit): Reference<Promise> {
         jsReturn = "${if (await) "await " else ""}Promise.allSettled($list)"
-        return Promise()
+        return applyMethods(call, Promise(), this)
     }
-    fun any(list: JsValue<JsList<Promise>>): Promise {
+    fun any(list: JsValue<JsList<Promise>>, call: (Promise) -> Unit): Reference<Promise> {
         jsReturn = "${if (await) "await " else ""}Promise.any($list)"
-        return Promise()
+        return applyMethods(call, Promise(), this)
     }
-    fun race(list: JsValue<JsList<Promise>>): Promise {
+    fun race(list: JsValue<JsList<Promise>>, call: (Promise) -> Unit): Reference<Promise> {
         jsReturn = "${if (await) "await " else ""}Promise.race($list)"
-        return Promise()
+        return applyMethods(call, Promise(), this)
     }
-    fun reject(reason: JsValue<Error>): Promise {
+    fun reject(reason: JsValue<Error>, call: (Promise) -> Unit): Reference<Promise> {
         jsReturn = "${if (await) "await " else ""}Promise.reject($reason)"
-        return Promise()
+        return applyMethods(call, Promise(), this)
     }
-    fun resolve(reason: JsValue<*>): Promise {
+    fun resolve(reason: JsValue<*>, call: (Promise) -> Unit): Reference<Promise> {
         jsReturn = "${if (await) "await " else ""}Promise.reject($reason)"
-        return Promise()
+        return applyMethods(call, Promise(), this)
     }
-    fun jsTry(function: JsValue<Function<*>>, args: JsValue<*> = emptyJsValue()): Promise {
+    fun jsTry(function: JsValue<Function<*>>, args: JsValue<*> = emptyJsValue(), call: (Promise) -> Unit): Reference<Promise> {
         jsReturn = "${if (await) "await " else ""}Promise.try($function${if (args == emptyJsValue()) "" else ", $args"})"
-        return Promise()
+        return applyMethods(call, Promise(), this)
     }
-    fun withResolvers(): Promise {
+    fun withResolvers(call: (Promise) -> Unit): Reference<Promise> {
         jsReturn = "${if (await) "await " else ""}Promise.withResolvers()"
-        return Promise()
+        return applyMethods(call, Promise(), this)
     }
 }
 
@@ -82,43 +85,51 @@ data class PromiseLambda(
     }
 }
 
-fun JavaScript.all(list: JsValue<JsList<Promise>>): Promise {
+fun JavaScript.all(list: JsValue<JsList<Promise>>, call: (Promise) -> Unit): Reference<Promise> {
     val promise = Promise()
     children.add(promise)
-    return promise.all(list)
+    promise.all(list, call)
+    return promise.refer()
 }
-fun JavaScript.allSettled(list: JsValue<JsList<Promise>>): Promise {
+fun JavaScript.allSettled(list: JsValue<JsList<Promise>>, call: (Promise) -> Unit): Reference<Promise> {
     val promise = Promise()
     children.add(promise)
-    return promise.allSettled(list)
+    promise.allSettled(list, call)
+    return promise.refer()
 }
-fun JavaScript.any(list: JsValue<JsList<Promise>>): Promise {
+fun JavaScript.any(list: JsValue<JsList<Promise>>, call: (Promise) -> Unit): Reference<Promise> {
     val promise = Promise()
     children.add(promise)
-    return promise.any(list)
+    promise.any(list, call)
+    return promise.refer()
 }
-fun JavaScript.race(list: JsValue<JsList<Promise>>): Promise {
+fun JavaScript.race(list: JsValue<JsList<Promise>>, call: (Promise) -> Unit): Reference<Promise> {
     val promise = Promise()
     children.add(promise)
-    return promise.race(list)
+    promise.race(list, call)
+    return promise.refer()
 }
-fun JavaScript.reject(reason: JsValue<Error>): Promise {
+fun JavaScript.reject(reason: JsValue<Error>, call: (Promise) -> Unit): Reference<Promise> {
     val promise = Promise()
     children.add(promise)
-    return promise.reject(reason)
+    promise.reject(reason, call)
+    return promise.refer()
 }
-fun JavaScript.resolve(reason: JsValue<*>): Promise {
+fun JavaScript.resolve(reason: JsValue<*>, call: (Promise) -> Unit): Reference<Promise> {
     val promise = Promise()
     children.add(promise)
-    return promise.resolve(reason)
+    promise.resolve(reason, call)
+    return promise.refer()
 }
-fun JavaScript.pTry(function: JsValue<Function<*>>, args: JsValue<*> = emptyJsValue()): Promise {
+fun JavaScript.pTry(function: JsValue<Function<*>>, args: JsValue<*> = emptyJsValue(), call: (Promise) -> Unit): Reference<Promise> {
     val promise = Promise()
     children.add(promise)
-    return promise.jsTry(function, args)
+    promise.jsTry(function, args, call)
+    return promise.refer()
 }
-fun JavaScript.withResolvers(): Promise {
+fun JavaScript.withResolvers(call: (Promise) -> Unit): Reference<Promise> {
     val promise = Promise()
     children.add(promise)
-    return promise.withResolvers()
+    promise.withResolvers(call)
+    return promise.refer()
 }
