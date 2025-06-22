@@ -13,39 +13,39 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
 
     override var jsReturn = document?.name ?: "document"
 
-    fun id(id: JsValue<String>): HTMLElement {
+    fun id(id: JsValue<String>, call: (HTMLElement) -> Unit): Reference<DOM> {
         jsReturn += ".getElementById(${id.toJs()})"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun cssClass(cssClass: JsValue<String>): HTMLElement {
+    fun cssClass(cssClass: JsValue<String>, call: (HTMLElement) -> Unit): Reference<DOM> {
         jsReturn += ".getElementsByClassName($cssClass)"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun name(name: JsValue<String>): JsList<HTMLElement> {
+    fun name(name: JsValue<String>, call: (JsList<HTMLElement>) -> Unit): Reference<DOM> {
         jsReturn += ".getElementsByName($name)"
-        return JsList(HTMLElement().asJsValue())
+        return applyMethods(call, JsList(HTMLElement().asJsValue()), this)
     }
-    fun tag(tag: JsValue<String>): JsList<HTMLElement> {
+    fun tag(tag: JsValue<String>, call: (JsList<HTMLElement>) -> Unit): Reference<DOM> {
         jsReturn += ".getElementsByTagName($tag)"
-        return JsList(HTMLElement().asJsValue())
+        return applyMethods(call, JsList(HTMLElement().asJsValue()), this)
     }
-    fun selectAll(identifier: JsValue<String>): JsList<HTMLElement> {
+    fun selectAll(identifier: JsValue<String>, call: (JsList<HTMLElement>) -> Unit): Reference<DOM> {
         jsReturn += ".querySelectorAll(${identifier.toJs()})"
-        return JsList(HTMLElement().asJsValue())
+        return applyMethods(call, JsList(HTMLElement().asJsValue()), this)
     }
-    fun select(identifier: JsValue<String>): HTMLElement {
+    fun select(identifier: JsValue<String>, call: (HTMLElement) -> Unit): Reference<DOM> {
         jsReturn += ".querySelector($identifier)"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun element(element: JsValue<Element>): HTMLElement {
+    fun element(element: JsValue<Element>, call: (HTMLElement) -> Unit): Reference<DOM> {
         jsReturn += ".createElement(${element.toJs()})"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun fragment(): BrowserObject {
+    fun fragment(call: (BrowserObject) -> Unit): Reference<DOM> {
         jsReturn += ".createDocumentFragment()"
-        return this
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun elements(amount: JsValue<Int>, element: JsValue<Element>): BrowserObject {
+    fun elements(amount: JsValue<Int>, element: JsValue<Element>, call: (BrowserObject) -> Unit): Reference<DOM> {
         val elementValue = when (element) {
             is DirectValue<Element> -> element.value
             is VariableValue<Element> -> element.variable.value!!
@@ -56,23 +56,23 @@ class DOM(document: Variable<DOM>? = null): BrowserObject {
         }
         if (elementValue.attributes.isNotEmpty()) attributes.replaceAfterLast(",", "")
         jsReturn = "elements(${amount.toJs()}, \"${elementValue.name}\", \"${elementValue.children!!.joinToString("") { it.render() }}\", {$attributes})"
-        return this
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun elements(amount: JsValue<Int>, element: JsValue<HTMLElement>, elementInsides: JsValue<String>, attribute: JsValue<JsObject>): BrowserObject {
+    fun elements(amount: JsValue<Int>, element: JsValue<HTMLElement>, elementInsides: JsValue<String>, attribute: JsValue<JsObject>, call: (BrowserObject) -> Unit): Reference<DOM> {
         jsReturn = "elements(${amount.toJs()}, ${element}, ${elementInsides}, $attribute)"
-        return this
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun body(): HTMLElement {
+    fun body(call: (HTMLElement) -> Unit): Reference<DOM> {
         jsReturn += ".body"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun attribute(names: AttributeNames): JsAttribute {
+    fun attribute(names: AttributeNames, call: (JsAttribute) -> Unit): Reference<DOM> {
         jsReturn += ".createAttribute(\"${names.name.lowercase()}\")"
-        return JsAttribute()
+        return applyMethods(call, JsAttribute(), this)
     }
-    fun attribute(name: JsValue<String>): JsAttribute {
+    fun attribute(name: JsValue<String>, call: (JsAttribute) -> Unit): Reference<DOM> {
         jsReturn += ".createAttribute($name)"
-        return JsAttribute()
+        return applyMethods(call, JsAttribute(), this)
     }
     fun cookies(nameAndValue: JsValue<String>): Reference<DOM> {
         jsReturn += ".cookie = $nameAndValue"
@@ -104,9 +104,9 @@ class HTMLElement: BrowserObject {
         jsReturn += ".textContent = ${newValue.toJs()}"
         return this.refer()
     }
-    fun clone(children: JsValue<Boolean> = DirectValue(true)): HTMLElement {
+    fun clone(children: JsValue<Boolean> = DirectValue(true), call: (HTMLElement) -> Unit): Reference<HTMLElement> {
         jsReturn += ".cloneNode(${children.toJs()})"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
     fun attribute(attribute: AttributeNames): JsValue<String> {
         jsReturn += ".getAttribute(\"${attribute.name.lowercase()}\")"
@@ -124,41 +124,41 @@ class HTMLElement: BrowserObject {
         jsReturn += ".setAttribute($attributeName, $attributeValue)"
         return this.refer()
     }
-    fun attributes(element: JsValue<HTMLElement>, attrbitues: JsValue<JsObject>): Reference<HTMLElement> {
-        jsReturn = "attributes($element, $attrbitues)"
+    fun attributes(element: JsValue<HTMLElement>, attributes: JsValue<JsObject>): Reference<HTMLElement> {
+        jsReturn = "attributes($element, $attributes)"
         return this.refer()
     }
-    fun parent(onlyElements: Boolean): HTMLElement {
+    fun parent(onlyElements: Boolean, call: (HTMLElement) -> Unit): Reference<HTMLElement> {
         jsReturn += ".parent${if (onlyElements) "Element" else "Node"}"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun children(): JsList<HTMLElement> {
+    fun children(call: (JsList<HTMLElement>) -> Unit): Reference<HTMLElement> {
         jsReturn += ".children"
-        return JsList(HTMLElement().asJsValue())
+        return applyMethods(call, JsList(HTMLElement().asJsValue()), this)
     }
-    fun sibling(next: Boolean): HTMLElement {
+    fun sibling(next: Boolean, call: (HTMLElement) -> Unit): Reference<HTMLElement> {
         jsReturn += ".${if (next) "next" else "previous"}Sibling"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun closest(id: JsValue<String>): HTMLElement {
+    fun closest(id: JsValue<String>, call: (HTMLElement) -> Unit): Reference<HTMLElement> {
         jsReturn += ".closest($id)"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
     fun matches(id: JsValue<String>): JsValue<Boolean> {
         jsReturn += ".matches($id)"
         return true.asJsValue()
     }
-    fun getRect(): JsObject {
+    fun getRect(call: (JsObject) -> Unit): Reference<HTMLElement> {
         jsReturn += ".getBoundingClientRect()"
-        return JsObject(mapOf())
+        return applyMethods(call, JsObject(mapOf()), this)
     }
-    fun getOffset(): JsObject {
+    fun getOffset(call: (JsObject) -> Unit): Reference<HTMLElement> {
         jsReturn += ".offset()"
-        return JsObject(mapOf())
+        return applyMethods(call, JsObject(mapOf()), this)
     }
-    fun getDimensions(): JsObject {
+    fun getDimensions(call: (JsObject) -> Unit): Reference<HTMLElement> {
         jsReturn += ".getBoundingClientRect()"
-        return JsObject(mapOf())
+        return applyMethods(call, JsObject(mapOf()), this)
     }
     fun style(id: JsValue<String>, value: JsValue<String>): Reference<HTMLElement> {
         jsReturn += ".style.$id = $value"
@@ -168,28 +168,29 @@ class HTMLElement: BrowserObject {
         jsReturn += ".style.$id"
         return "".asJsValue()
     }
-    fun selectAll(identifier: JsValue<String>): JsList<HTMLElement> {
+    fun selectAll(identifier: JsValue<String>, call: (JsList<HTMLElement>) -> Unit): Reference<HTMLElement> {
         jsReturn += ".querySelectorAll(${identifier.toJs()})"
-        return JsList(HTMLElement().asJsValue())
+        return applyMethods(call, JsList(HTMLElement().asJsValue()), this)
     }
-    fun before(child: JsValue<HTMLElement>, element: JsValue<HTMLElement>): HTMLElement {
+    fun before(child: JsValue<HTMLElement>, element: JsValue<HTMLElement>, call: (HTMLElement) -> Unit): Reference<HTMLElement> {
         jsReturn += ".insertBefore($child, $element)"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun replace(child: JsValue<HTMLElement>, element: JsValue<HTMLElement>): HTMLElement {
+    fun replace(child: JsValue<HTMLElement>, element: JsValue<HTMLElement>, call: (HTMLElement) -> Unit): Reference<HTMLElement> {
         jsReturn += ".replaceChild($child, $element)"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun remove() {
+    fun remove(): Reference<HTMLElement> {
         jsReturn += ".remove()"
+        return this.refer()
     }
-    fun remove(element: JsValue<HTMLElement>): HTMLElement {
+    fun remove(element: JsValue<HTMLElement>, call: (HTMLElement) -> Unit): Reference<HTMLElement> {
         jsReturn += ".removeChild($element)"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
-    fun add(element: JsValue<HTMLElement>): HTMLElement {
+    fun add(element: JsValue<HTMLElement>, call: (HTMLElement) -> Unit): Reference<HTMLElement> {
         jsReturn += ".appendChild($element)"
-        return HTMLElement()
+        return applyMethods(call, HTMLElement(), this)
     }
     fun put(element: JsValue<*>, type: PutType): Reference<HTMLElement> {
         jsReturn += ".${type.name.lowercase()}($element)"
@@ -222,101 +223,91 @@ class JsAttribute: Keyword {
     }
 }
 
-fun JavaScript.id(id: JsValue<String>, document: Variable<DOM>? = null): HTMLElement {
+fun JavaScript.id(id: JsValue<String>, document: Variable<DOM>? = null, call: (HTMLElement) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.id(id)
+    val elements = dom.id(id, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.cssClass(cssClass: JsValue<String>, document: Variable<DOM>? = null): HTMLElement {
+fun JavaScript.cssClass(cssClass: JsValue<String>, document: Variable<DOM>? = null, call: (HTMLElement) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.cssClass(cssClass)
+    val elements = dom.cssClass(cssClass, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.name(name: JsValue<String>, document: Variable<DOM>? = null): JsList<HTMLElement> {
+fun JavaScript.name(name: JsValue<String>, document: Variable<DOM>? = null, call: (JsList<HTMLElement>) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.name(name)
+    val elements = dom.name(name, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.tag(tag: JsValue<String>, document: Variable<DOM>? = null): JsList<HTMLElement> {
+fun JavaScript.tag(tag: JsValue<String>, document: Variable<DOM>? = null, call: (JsList<HTMLElement>) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.tag(tag)
+    val elements = dom.tag(tag, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.selectAll(id: JsValue<String>, document: Variable<DOM>? = null): JsList<HTMLElement> {
+fun JavaScript.selectAll(id: JsValue<String>, document: Variable<DOM>? = null, call: (JsList<HTMLElement>) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.selectAll(id)
+    val elements = dom.selectAll(id, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.select(id: JsValue<String>, document: Variable<DOM>? = null): HTMLElement {
+fun JavaScript.select(id: JsValue<String>, document: Variable<DOM>? = null, call: (HTMLElement) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.select(id)
+    val elements = dom.select(id, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.element(element: JsValue<Element>, document: Variable<DOM>? = null): HTMLElement {
+fun JavaScript.element(element: JsValue<Element>, document: Variable<DOM>? = null, call: (HTMLElement) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.element(element)
+    val elements = dom.element(element, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.fragment(document: Variable<DOM>? = null): BrowserObject {
+fun JavaScript.fragment(document: Variable<DOM>? = null, call: (BrowserObject) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.fragment()
+    val elements = dom.fragment(call)
     children.add(elements)
     return elements
 }
-fun JavaScript.elements(amount: JsValue<Int>, element: JsValue<Element>, document: Variable<DOM>? = null): BrowserObject {
+fun JavaScript.elements(amount: JsValue<Int>, element: JsValue<Element>, document: Variable<DOM>? = null, call: (BrowserObject) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.elements(amount, element)
+    val elements = dom.elements(amount, element, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.elements(amount: JsValue<Int>, element: JsValue<HTMLElement>, elementInsides: JsValue<String>, attribute: JsValue<JsObject>, document: Variable<DOM>? = null): BrowserObject {
+fun JavaScript.elements(amount: JsValue<Int>, element: JsValue<HTMLElement>, elementInsides: JsValue<String>, attribute: JsValue<JsObject>, document: Variable<DOM>? = null, call: (BrowserObject) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.elements(amount, element, elementInsides, attribute)
+    val elements = dom.elements(amount, element, elementInsides, attribute, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.body(document: Variable<DOM>? = null): HTMLElement {
+fun JavaScript.body(document: Variable<DOM>? = null, call: (HTMLElement) -> Unit): Reference<DOM> {
     val dom = DOM(document)
-    children.add(dom)
-    val elements = dom.body()
+    val elements = dom.body(call)
     children.add(elements)
     return elements
 }
-fun JavaScript.attribute(names: AttributeNames, document: Variable<DOM>? = null): JsAttribute {
+fun JavaScript.attribute(names: AttributeNames, document: Variable<DOM>? = null, call: (JsAttribute) -> Unit): Reference<DOM> {
     val dom = DOM(document)
     children.add(dom)
-    val elements = dom.attribute(names)
+    val elements = dom.attribute(names, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.attribute(name: JsValue<String>, document: Variable<DOM>? = null): JsAttribute {
+fun JavaScript.attribute(name: JsValue<String>, document: Variable<DOM>? = null, call: (JsAttribute) -> Unit): Reference<DOM> {
     val dom = DOM(document)
     children.add(dom)
-    val elements = dom.attribute(name)
+    val elements = dom.attribute(name, call)
     children.add(elements)
     return elements
 }
-fun JavaScript.cookies(nameAndValue: JsValue<String>, document: Variable<DOM>? = null) {
+fun JavaScript.cookies(nameAndValue: JsValue<String>, document: Variable<DOM>? = null): Reference<DOM> {
     val dom = DOM(document)
     children.add(dom)
     val elements = dom.cookies(nameAndValue)
+    return dom.refer()
 }
 fun JavaScript.cookies(document: Variable<DOM>? = null): JsValue<String> {
     val dom = DOM(document)
