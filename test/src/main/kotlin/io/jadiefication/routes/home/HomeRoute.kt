@@ -40,7 +40,7 @@ class HomeRoute : Page(target = "/") {
 
     override val javascript: JavaScript = Js(false) {
         // Data binding with reactive updates
-        data = setData("Welcome to Void Framework".asJsValue(), "data")
+        /*data = setData("Welcome to Void Framework".asJsValue(), "data")
 
         // DOM manipulation - add dynamic content
         id("features".asJsValue()).html(Div {
@@ -380,7 +380,11 @@ class HomeRoute : Page(target = "/") {
         // Add event listener for update title button
         id("update-title-button".asJsValue()).on(Events.CLICK.asJsValue()) {
             run(updateTitle, emptyJsValue())
-        }
+        }*/
+
+        open("localhost:8080/js/void.js".asJsValue(), "test".asJsValue(), call = {
+            it.alert("test".asJsValue())
+        })
     }
 
 
@@ -397,7 +401,7 @@ class HomeRoute : Page(target = "/") {
             }
         ) {
             H1 {
-                this.get(data)
+                //this.get(data)
             }
             Nav(
                 attribute {
