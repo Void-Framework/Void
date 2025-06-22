@@ -21,12 +21,12 @@ interface Keyword {
 
     fun <M : Keyword, N : Keyword> applyMethods(call: (M) -> Unit, element: M, objectToRefer: N): Reference<N> {
         call(element)
-        jsReturn += element
+        jsReturn += element.render()
         return objectToRefer.refer()
     }
     fun <M : Keyword, N : Keyword> applyNullableMethods(call: (M?) -> Unit, element: M?, objectToRefer: N): Reference<N> {
         call(element)
-        jsReturn += element
+        jsReturn += element?.render()
         return objectToRefer.refer()
     }
 }
