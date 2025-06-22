@@ -39,11 +39,11 @@ data class JsList<T>(
     }
     fun pop(call: (T?) -> Unit): Reference<JsList<T>> {
         jsReturn += ".pop()"
-        return applyMethods(call, null, this)
+        return applyNullableMethods(call, null, this)
     }
     fun shift(call: (T?) -> Unit): Reference<JsList<T>> {
         jsReturn += ".shift()"
-        return applyMethods(call, null, this)
+        return applyNullableMethods(call, null, this)
     }
     fun unshift(item: JsValue<T>): JsValue<Int> {
         jsReturn += ".unshift($item)"
@@ -91,7 +91,7 @@ data class JsList<T>(
     }
     fun get(index: JsValue<Int>, call: (T?) -> Unit): Reference<JsList<T>> {
         jsReturn += "[$index]"
-        return applyMethods(call, null, this)
+        return applyNullableMethods(call, null, this)
     }
     fun set(index: JsValue<Int>, value: JsValue<T>): Reference<JsList<T>> {
         jsReturn += "[$index] = $value"

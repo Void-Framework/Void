@@ -38,7 +38,7 @@ data class JsObject(val values: Map<String, JsValue<*>?>): JsDatastructure {
 
     fun value(key: JsValue<*>, call: (Any?) -> Unit): Reference<JsObject> {
         jsReturn += ".$key"
-        return applyMethods(call, null, this)
+        return applyNullableMethods(call, null, this)
     }
     fun value(key: String, value: JsValue<*>?): Reference<JsObject> {
         jsReturn += ".$key = $value"
