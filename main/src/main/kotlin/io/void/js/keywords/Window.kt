@@ -20,17 +20,21 @@ class Window(window: JsValue<*>? = null): Keyword {
         jsReturn += ".alert(${message ?: "\"\""})"
         return this.refer()
     }
-    fun open(url: JsValue<*>? = null, name: JsValue<String>? = null, specs: JsValue<*>? = null): Window {
+    fun open(url: JsValue<*>? = null, name: JsValue<String>? = null, specs: JsValue<*>? = null, call: (Window) -> Reference<Window>): Reference<Window> {
         jsReturn += ".open(${url ?: "\"\""}, ${name ?: "\"\""}, ${specs ?: "\"\""})"
-        return Window()
+        val window = Window()
+        jsReturn += call(window)
+        return this.refer()
     }
     fun confirm(message: JsValue<String>): JsValue<Boolean> {
         jsReturn += ".confirm($message)"
         return true.asJsValue()
     }
-    fun history(): History {
+    fun history(call: (History) -> Reference<History>): Reference<Window> {
         jsReturn += ".history"
-        return History()
+        val window = History()
+        jsReturn += call(window)
+        return this.refer()
     }
     fun href(url: JsValue<*>?): Reference<Window> {
         jsReturn += ".location.href = ${url ?: "\"\""}"
@@ -48,13 +52,17 @@ class Window(window: JsValue<*>? = null): Keyword {
         jsReturn += ".scrollTo($x, $y)"
         return this.refer()
     }
-    fun session(): Session {
+    fun session(call: (Session) -> Reference<Session>): Reference<Window> {
         jsReturn += ".sessionStorage"
-        return Session()
+        val window = Session()
+        jsReturn += call(window)
+        return this.refer()
     }
-    fun local(): Local {
+    fun local(call: (Local) -> Reference<Local>): Reference<Window> {
         jsReturn += ".localStorage"
-        return Local()
+        val window = Local()
+        jsReturn += call(window)
+        return this.refer()
     }
     fun timeout(function: JsValue<Function<Nothing>>, delay: Int = 0, args: JsValue<*>? = null): JsValue<Int> {
         jsReturn += ".setTimeout($function${if (delay != 0) ", $delay" else ""}${if (args != null) ", $args" else ""})"
@@ -99,24 +107,22 @@ fun JavaScript.alert(message: JsValue<String>, window: JsValue<*>? = null) {
     children.add(window)
     window.alert(message)
 }
-fun JavaScript.open(url: JsValue<*>? = null, name: JsValue<String>? = null, specs: JsValue<*>? = null, window: JsValue<*>? = null): Window {
+fun JavaScript.open(url: JsValue<*>? = null, name: JsValue<String>? = null, specs: JsValue<*>? = null, window: JsValue<*>? = null, call: (Window) -> Reference<Window>) {
     val window = Window(window)
     children.add(window)
-    val newWindow = window.open(url, name, specs)
+    val newWindow = window.open(url, name, specs, call)
     children.add(newWindow)
-    return newWindow
 }
 fun JavaScript.confirm(message: JsValue<String>, window: JsValue<*>? = null): JsValue<Boolean> {
     val window = Window(window)
     children.add(window)
     return window.confirm(message)
 }
-fun JavaScript.history(window: JsValue<*>? = null): History {
+fun JavaScript.history(window: JsValue<*>? = null, call: (History) -> Reference<History>) {
     val window = Window(window)
     children.add(window)
-    val history = window.history()
+    val history = window.history(call)
     children.add(history)
-    return history
 }
 fun JavaScript.href(url: JsValue<*>?, window: JsValue<*>? = null) {
     val window = Window(window)
@@ -138,19 +144,17 @@ fun JavaScript.scrollTo(x: JsValue<Int>, y: JsValue<Int>, window: JsValue<*>? = 
     children.add(window)
     window.scrollTo(x, y)
 }
-fun JavaScript.session(window: JsValue<*>? = null): Session {
+fun JavaScript.session(window: JsValue<*>? = null, call: (Session) -> Reference<Session>) {
     val window = Window(window)
     children.add(window)
-    val session = window.session()
+    val session = window.session(call)
     children.add(session)
-    return session
 }
-fun JavaScript.local(window: JsValue<*>? = null): Local {
+fun JavaScript.local(window: JsValue<*>? = null, call: (Local) -> Reference<Local>) {
     val window = Window(window)
     children.add(window)
-    val local = window.local()
+    val local = window.local(call)
     children.add(local)
-    return local
 }
 fun JavaScript.timeout(function: JsValue<Function<Nothing>>, delay: Int = 0, args: JsValue<*>? = null, window: JsValue<*>? = null): JsValue<Int> {
     val window = Window(window)

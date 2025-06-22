@@ -10,6 +10,10 @@ data class Reference<T: Keyword>(
     override fun render(): String {
         return keywordProvider().render()
     }
+
+    override fun toString(): String {
+        return render()
+    }
 }
 
 
