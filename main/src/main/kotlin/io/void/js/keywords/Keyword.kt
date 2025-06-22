@@ -18,4 +18,10 @@ interface Keyword {
     fun awaitRender(): String {
         return "await ${render()}"
     }
+
+    fun <M : Keyword, N : Keyword> applyMethods(call: (M) -> Unit, element: M, objectToRefer: N): Reference<N> {
+        call(element)
+        jsReturn += element
+        return objectToRefer.refer()
+    }
 }
