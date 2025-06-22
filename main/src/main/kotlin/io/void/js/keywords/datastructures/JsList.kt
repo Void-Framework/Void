@@ -37,13 +37,13 @@ data class JsList<T>(
         jsReturn += ".push($item)"
         return 0.asJsValue()
     }
-    fun pop(): T? {
+    fun pop(call: (T?) -> Unit): Reference<JsList<T>> {
         jsReturn += ".pop()"
-        return null
+        return applyMethods(call, null, this)
     }
-    fun shift(): T? {
+    fun shift(call: (T?) -> Unit): Reference<JsList<T>> {
         jsReturn += ".shift()"
-        return null
+        return applyMethods(call, null, this)
     }
     fun unshift(item: JsValue<T>): JsValue<Int> {
         jsReturn += ".unshift($item)"
@@ -61,7 +61,7 @@ data class JsList<T>(
             ""
         }
         })"
-        return this@JsList
+        return this
     }
     fun map(body: JavaScript.(List<FunctionVariable<*>>) -> Unit): Reference<JsList<T>> {
         jsReturn += ".map(${Lambda<Nothing>(
@@ -89,9 +89,9 @@ data class JsList<T>(
         jsReturn += ".includes($item)"
         return true.asJsValue()
     }
-    fun get(index: JsValue<Int>): T? {
+    fun get(index: JsValue<Int>, call: (T?) -> Unit): Reference<JsList<T>> {
         jsReturn += "[$index]"
-        return null
+        return applyMethods(call, null, this)
     }
     fun set(index: JsValue<Int>, value: JsValue<T>): Reference<JsList<T>> {
         jsReturn += "[$index] = $value"
