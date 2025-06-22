@@ -1,6 +1,7 @@
 package io.void.js.keywords.datastructures
 
 import io.void.js.JavaScript
+import io.void.js.keywords.Call
 import io.void.js.keywords.JsValue
 import io.void.js.keywords.Keyword
 import io.void.js.keywords.Reference
@@ -35,9 +36,9 @@ data class JsObject(val values: Map<String, JsValue<*>?>): JsDatastructure {
         return this
     }
 
-    fun value(key: JsValue<*>): JsValue<*>? {
+    fun value(key: JsValue<*>, call: (Any?) -> Unit): Reference<JsObject> {
         jsReturn += ".$key"
-        return null
+        return applyMethods(call, null, this)
     }
     fun value(key: String, value: JsValue<*>?): Reference<JsObject> {
         jsReturn += ".$key = $value"
@@ -56,25 +57,21 @@ data class ObjectsMethods(private val objectName: JsValue<JsObject>): Keyword {
         jsReturn = "delete $objectName.$key"
         return this.refer()
     }
-    fun keys(): JsList<String> {
+    fun keys(call: (JsList<String>) -> Unit): Reference<ObjectsMethods> {
         jsReturn += ".keys($objectName)"
-        val list = JsList(emptyJsValue() as JsValue<String>)
-        return list
+        return applyMethods(call, JsList(emptyJsValue() as JsValue<String>), this)
     }
-    fun values(): JsList<Any> {
+    fun values(call: (JsList<Any>) -> Unit): Reference<ObjectsMethods> {
         jsReturn += ".values($objectName)"
-        val list = JsList(emptyJsValue() as JsValue<Any>)
-        return list
+        return applyMethods(call, JsList(emptyJsValue() as JsValue<Any>), this)
     }
-    fun entries(): JsList<JsList<Any>> {
+    fun entries(call: (JsList<JsList<Any>>) -> Unit): Reference<ObjectsMethods> {
         jsReturn += ".entries($objectName)"
-        @Suppress("UNCHECKED_CAST")
-        val list = JsList(JsList(emptyJsValue() as JsValue<Any>).asJsValue())
-        return list
+        return applyMethods(call, JsList(JsList(emptyJsValue() as JsValue<Any>).asJsValue()), this)
     }
-    fun assign(source: JsValue<JsObject>): JsObject {
+    fun assign(source: JsValue<JsObject>, call: (JsObject) -> Unit): Reference<ObjectsMethods> {
         jsReturn += ".assign($objectName, $source)"
-        return JsObject(emptyMap())
+        return applyMethods(call, JsObject(emptyMap()), this)
     }
 }
 
@@ -91,25 +88,25 @@ fun JavaScript.delete(objectName: JsValue<JsObject>, key: String) {
     children.add(methods)
     methods.delete(key)
 }
-fun JavaScript.keys(objectName: JsValue<JsObject>): JsList<String> {
+fun JavaScript.keys(objectName: JsValue<JsObject>, call: (JsList<String>) -> Unit): Reference<ObjectsMethods> {
     val methods = ObjectsMethods(objectName)
     children.add(methods)
-    return methods.keys()
+    return methods.keys(call)
 }
-fun JavaScript.values(objectName: JsValue<JsObject>): JsList<Any> {
+fun JavaScript.values(objectName: JsValue<JsObject>, call: (JsList<Any>) -> Unit): Reference<ObjectsMethods> {
     val methods = ObjectsMethods(objectName)
     children.add(methods)
-    return methods.values()
+    return methods.values(call)
 }
-fun JavaScript.entries(objectName: JsValue<JsObject>): JsList<JsList<Any>> {
+fun JavaScript.entries(objectName: JsValue<JsObject>, call: (JsList<JsList<Any>>) -> Unit): Reference<ObjectsMethods> {
     val methods = ObjectsMethods(objectName)
     children.add(methods)
-    return methods.entries()
+    return methods.entries(call)
 }
-fun JavaScript.assign(objectName: JsValue<JsObject>, source: JsValue<JsObject>): JsObject {
+fun JavaScript.assign(objectName: JsValue<JsObject>, source: JsValue<JsObject>, call: (JsObject) -> Unit): Reference<ObjectsMethods> {
     val methods = ObjectsMethods(objectName)
     children.add(methods)
-    return methods.assign(source)
+    return methods.assign(source, call)
 }
 fun JavaScript.emptyObject(): JsObject {
     val set = JsObject(values = emptyMap()).emptyObject()

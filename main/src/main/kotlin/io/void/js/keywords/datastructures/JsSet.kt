@@ -27,7 +27,7 @@ data class JsSet<T>(val baseList: JsValue<T>): JsDatastructure {
 
     fun add(value: JsValue<T>): JsSet<T> {
         jsReturn += ".add($value)"
-        return this@JsSet
+        return this
     }
     fun has(value: JsValue<T>): JsValue<Boolean> {
         jsReturn += ".has($value)"
