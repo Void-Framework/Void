@@ -63,11 +63,11 @@ data class JsList<T>(
         })"
         return this
     }
-    fun reduce(body: JavaScript.(List<FunctionVariable<*>>) -> Unit, initialValue: JsValue<T>? = emptyJsValue() as JsValue<T>): Reference<JsList<T>> {
+    fun reduce(body: JavaScript.(List<FunctionVariable<*>>) -> Unit, initialValue: JsValue<T>? = null): Reference<JsList<T>> {
         jsReturn += ".reduce(${Lambda<Nothing>(
             _arguments = listOf(String.randomString(4)),
             _body = body
-        ).render()}, $initialValue)"
+        ).render()}, ${if (initialValue != null) ", $initialValue" else ""})"
         return this.refer()
     }
     fun map(body: JavaScript.(List<FunctionVariable<*>>) -> Unit): Reference<JsList<T>> {
