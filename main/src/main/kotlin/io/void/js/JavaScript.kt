@@ -20,7 +20,7 @@ sealed class JavaScript(open val runBeforeLoad: Boolean = false) {
         }
 
         val js = children.mapIndexed { index, keyword ->
-            val rendered = if (keyword.await) keyword.awaitRender() else keyword.render()
+            val rendered = if (keyword.typeOf) keyword.typeOfRender() else if (keyword.await) keyword.awaitRender() else keyword.render()
             if (!rendered.endsWith(";")) {
                 // Check if next line starts with a dot or is a function/class declaration
                 val nextLine = getNextLine(index, children)
