@@ -7,16 +7,13 @@
           <entry name="$PROJECT_DIR$/src/Html/Page/PageProcessor/PageProcessor.java" />
         </processorPath>
       </profile>
-      <profile name="PageProcessor" enabled="true" />
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="test" />
-        <module name="main" />
-      </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.8">
+      <module name="main" target="11" />
+      <module name="test" target="11" />
+      <module name="void-framework.buildSrc" target="24" />
+      <module name="void-framework.buildSrc.main" target="24" />
+      <module name="void-framework.buildSrc.test" target="24" />
       <module name="your-project-name" target="1.5" />
     </bytecodeTargetLevel>
   </component>

@@ -34,3 +34,6 @@ target
 /target/
 /main/src/main/java/main/test/
 /.idea/
+
+build
+.gradle
