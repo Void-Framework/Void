@@ -17,7 +17,7 @@ pluginManagement {
 
 dependencyResolutionManagement {
     // control repositories for project dependencies
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS) // optional, forbids repos in subprojects
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT) // optional, forbids repos in subprojects
     repositories {
         mavenLocal()
         mavenCentral()
@@ -31,5 +31,4 @@ rootProject.name = "void-framework"
 include(":test")
 include(":backend")
 
-include("frontend")
 include("frontend")
