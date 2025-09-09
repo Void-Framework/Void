@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":main"))
+    api(project(":backend"))
     api(libs.org.jetbrains.kotlin.kotlin.stdlib)
     api(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
