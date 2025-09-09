@@ -10,6 +10,7 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.HTMLTextAreaElement
+import org.w3c.dom.asList
 import org.w3c.dom.css.CSSStyleDeclaration
 import org.w3c.dom.css.CSSStyleSheet
 import org.w3c.dom.events.Event
@@ -124,5 +125,88 @@ class DOMWrapper(
             style()?.display = ""
         }
     }
+
+    fun find(selector: String): DOMWrapper =
+        DOMWrapper(elements.flatMap {
+            it.querySelectorAll(selector).asList().mapNotNull { it as? Element }
+        })
+
+    fun closest(selector: String): DOMWrapper =
+        DOMWrapper(elements.mapNotNull { it.closest(selector) })
+
+    @JsName("childByName")
+    fun children(selector: String? = null): DOMWrapper =
+        DOMWrapper(elements.flatMap { parent ->
+            val list = parent.children.asList()
+            if (selector != null) list.filter { it.matches(selector) } else list
+        })
+
+    @JsName("siblingByName")
+    fun siblings(selector: String? = null): DOMWrapper =
+        DOMWrapper(elements.flatMap { el ->
+            el.parentElement?.children?.asList()?.filter { it != el }?.let { list ->
+                if (selector != null) list.filter { it.matches(selector) } else list
+            } ?: emptyList()
+        })
+
+    fun next(): DOMWrapper =
+        DOMWrapper(elements.mapNotNull { it.nextElementSibling })
+
+    fun prev(): DOMWrapper =
+        DOMWrapper(elements.mapNotNull { it.previousElementSibling })
+
+    fun append(element: HTMLElement): DOMWrapper {
+        elements.forEach { it.appendChild(element.cloneNode(true)) }
+        return this
+    }
+
+    fun prepend(element: HTMLElement): DOMWrapper {
+        elements.forEach { it.insertBefore(element.cloneNode(true), it.firstChild) }
+        return this
+    }
+
+    fun before(element: HTMLElement): DOMWrapper {
+        elements.forEach { it.parentElement?.insertBefore(element.cloneNode(true), it) }
+        return this
+    }
+
+    fun after(element: HTMLElement): DOMWrapper {
+        elements.forEach { it.parentElement?.insertBefore(element.cloneNode(true), it.nextSibling) }
+        return this
+    }
+
+    fun addClass(name: String) {
+        elements.forEach { it.classList.add(name) }
+    }
+
+    fun removeClass(name: String) {
+        elements.forEach { it.classList.remove(name) }
+    }
+
+    fun toggleClass(name: String) {
+        elements.forEach { it.classList.toggle(name) }
+    }
+
+    fun one(event: String, handler: (Event) -> Unit) {
+        elements.forEach { el ->
+            val wrapper: (Event) -> Unit = {
+                handler(it)
+                el.removeEventListener(event, {})
+            }
+            el.addEventListener(event, wrapper)
+        }
+    }
+
+    fun trigger(event: String) {
+        elements.forEach { el ->
+            val ev = Event(event)
+            el.dispatchEvent(ev)
+        }
+    }
+
+    fun each(lambda: (Element, Int) -> Unit) {
+        elements.forEachIndexed { idx, el -> lambda(el, idx) }
+    }
+
 }
 
