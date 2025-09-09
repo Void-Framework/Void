@@ -14,4 +14,4 @@ dependencies {
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
 }
 
-description = "main"
+description = "backend"
