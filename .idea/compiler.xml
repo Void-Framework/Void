@@ -11,7 +11,6 @@
     <bytecodeTargetLevel target="1.8">
       <module name="main" target="11" />
       <module name="test" target="11" />
-      <module name="void-framework.backend" target="24" />
       <module name="void-framework.buildSrc" target="24" />
       <module name="void-framework.buildSrc.main" target="24" />
       <module name="void-framework.buildSrc.test" target="24" />

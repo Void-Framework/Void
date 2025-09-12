@@ -12,11 +12,12 @@ kotlin {
         browser {
             binaries.executable()
         }
+
     }
 }
 
 tasks.register<Copy>("exportFrontend") {
     dependsOn("browserProductionWebpack")
-    from("$buildDir/distributions/frontend.js")
+    from("$rootDir/build/js/packages/void-framework-frontend/kotlin")
     into("$rootDir/backend/src/main/resources/static/js")
 }
