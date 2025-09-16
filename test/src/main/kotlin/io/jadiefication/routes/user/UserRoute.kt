@@ -11,18 +11,20 @@ class UserRoute : DynamicPage<ContentType.Response>(target = "/users/{id}") {
     override val contentType: KClass<ContentType.Response> = ContentType.Response::class
 
     override fun content(): ContentType.Response {
-        val userId = request.target.split("/").last()
+        val userId = data["id"]
         
         // Validate userId is numeric
-        if (!userId.matches(Regex("\\d+"))) {
-            return ContentType.Response(
-                ResponseDTO(
-                status = 404,
-                statusText = "Not Found",
-                headers = mutableMapOf("Content-Type" to "application/json"),
-                body = """{"error": "Invalid user ID"}"""
-            )
-            )
+        userId?.matches(Regex("\\d+"))?.let {
+            if (!it) {
+                return ContentType.Response(
+                    ResponseDTO(
+                        status = 404,
+                        statusText = "Not Found",
+                        headers = mutableMapOf("Content-Type" to "application/json"),
+                        body = """{"error": "Invalid user ID"}"""
+                    )
+                )
+            }
         }
 
         return ContentType.Response(ResponseDTO.json(

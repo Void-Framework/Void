@@ -10,13 +10,13 @@ import io.void.html.page.content.ContentType
  * Example: /web/test/{a}
  *
  */
+
+typealias Path = String
+
 abstract class DynamicPage<T : ContentType>(target: String): Page<T>(target = target) {
 
-    internal fun check(requestDTO: RequestDTO): String? {
-        return if (requestDTO.target.contains(target.substringAfter("{"))) {
-            requestDTO.target.substringAfter(target.substringAfter("{"))
-        } else {
-            null
-        }
-    }
+    internal var _data = mutableMapOf<Path, String>()
+
+    val data: Map<Path, String> get() = _data
+
 }

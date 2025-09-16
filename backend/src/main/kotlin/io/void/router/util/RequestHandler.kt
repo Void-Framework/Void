@@ -7,40 +7,43 @@ import io.void.dto.http.ResponseDTO
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
-import io.void.router.Router
-import java.net.Socket
+import io.void.html.page.dynamic.Path
 import java.util.concurrent.ConcurrentHashMap
 
 internal interface RequestHandler {
     val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>>
 
     fun handleDynamic(requestDTO: RequestDTO): ResponseDTO? {
-        val target = requestDTO.target
-        val url = target.split('/')
+        val segmentRegex = Regex("""^\{([^{}]+)}$""")
+        val requestTarget = requestDTO.target
+        val url = requestTarget.split('/').toMutableList()
         if (url.contains("favicon.ico")) return null
         dynamicRoutes.forEach { (target, route) ->
-            var matches = true
-            target.forEachIndexed { i, pTarget ->
-                try {
-                    if (url[i] != pTarget) {
-                        if (pTarget != "{}") {
-                            matches = false
-                            return@forEachIndexed
-                        }
-                    }
-                } catch (_: Exception) {
+            val dynamics = mutableMapOf<Path, String>()
+            val mutableTarget = target.toMutableList()
+            url.trimTrailingEmpty()
+            mutableTarget.trimTrailingEmpty()
+            if (url.size != mutableTarget.size) {
+                return@forEach
+            }
+            url.forEachIndexed { i, segment ->
+                val targetValue = mutableTarget[i]
+                if (segment == targetValue) {
                     return@forEachIndexed
+                } else if (targetValue.matches(segmentRegex)) {
+                    val match = segmentRegex.matchEntire(targetValue)!!.groupValues[1]
+                    dynamics[match] = url[i]
+                } else {
+                    return@forEach
                 }
             }
 
-            if (matches) {
-                route.request = requestDTO
-                return route.content().let { content ->
-                    when (content) {
-                        is ContentType.Response -> content.response
-                        is ContentType.HtmlElements -> constructClassicResponse(page = route)
-                    }
-                }
+            route._data = dynamics
+            route.request = requestDTO
+
+            return when (route.contentType) {
+                ContentType.HtmlElements::class -> constructClassicResponse(route)
+                else -> (route.content() as ContentType.Response).response
             }
         }
         return null
@@ -83,4 +86,10 @@ internal interface RequestHandler {
             version = clientHandler.server.httpVersion
         )
     }
+}
+
+fun MutableList<String>.trimTrailingEmpty(): Boolean {
+    val hasEmptyTail = this.lastOrNull()?.isEmpty() == true
+    if (hasEmptyTail) removeAt(lastIndex)
+    return hasEmptyTail
 }
