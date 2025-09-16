@@ -7,19 +7,16 @@ import kotlin.reflect.full.findAnnotation
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Cacheable(val invalidationDurationInMillies: Int)
 
-internal abstract class Processor {
+internal object Processor {
 
-    companion object {
-
-        fun annotationProcessor(page: Page<*>) {
-            val cacheRoutes = mutableMapOf<Page<*>, Int>()
-            val cacheable = page::class.findAnnotation<Cacheable>()
-            if (cacheable != null) {
-                cacheRoutes[page] = cacheable.invalidationDurationInMillies
-            }
-
-            Cache.singleton.cacheRoute(cacheRoutes)
+    fun annotationProcessor(page: Page<*>) {
+        val cacheRoutes = mutableMapOf<Page<*>, Int>()
+        val cacheable = page::class.findAnnotation<Cacheable>()
+        if (cacheable != null) {
+            cacheRoutes[page] = cacheable.invalidationDurationInMillies
         }
+
+        Cache.cacheRoute(cacheRoutes)
     }
 }
 

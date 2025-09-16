@@ -7,11 +7,7 @@ import io.void.html.page.content.ContentType
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
 
-internal class Cache private constructor() {
-
-    companion object {
-        val singleton = Cache()
-    }
+internal object Cache {
 
     val cache: ConcurrentHashMap<String, ResponseDTO> = ConcurrentHashMap()
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
