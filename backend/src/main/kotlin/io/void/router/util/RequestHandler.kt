@@ -77,8 +77,8 @@ internal interface RequestHandler {
 
     fun handleCasual(page: Page<ContentType.HtmlElements>, clientHandler: ClientHandler, target: String) {
         val client = clientHandler.client
-        val response = if (Cache.singleton.cache.containsKey(target)) {
-            Cache.singleton.cache[target]!!
+        val response = if (Cache.cache.containsKey(target)) {
+            Cache.cache[target]!!
         } else {
             constructClassicResponse(
                 page = page,
