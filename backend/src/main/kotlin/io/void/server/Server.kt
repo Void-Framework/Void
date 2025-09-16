@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.net.ServerSocket
+import java.net.Socket
 import java.security.KeyStore
 import java.security.SecureRandom
 import java.util.concurrent.ExecutorService
@@ -54,9 +55,9 @@ class Server(private val router: Router, val httpVersion: Number = 1.1) {
                     } else {
                         scope.launch {
                             try {
-                                ClientHandler(client = client, server = this@Server).setRouter(router = router).start()
+                                client.handle(this@Server, router)
                             } catch (e: Exception) {
-                                ClientHandler(client = client, server = this@Server).error(e = e)
+                                client.error(this@Server, router, e)
                             }
                         }
                     }
@@ -89,9 +90,9 @@ class Server(private val router: Router, val httpVersion: Number = 1.1) {
                     client.startHandshake()
                     scope.launch {
                         try {
-                            ClientHandler(client = client, server = this@Server).setRouter(router = router).start()
+                            client.handle(this@Server, router)
                         } catch (e: Exception) {
-                            ClientHandler(client = client, server = this@Server).error(e = e)
+                            client.error(this@Server, router, e)
                         }
                     }
                 }
@@ -102,4 +103,12 @@ class Server(private val router: Router, val httpVersion: Number = 1.1) {
             }
         }.start()
     }
+}
+
+fun Socket.handle(server: Server, router: Router) {
+    ClientHandler(this, server, router).start()
+}
+
+fun Socket.error(server: Server, router: Router, exception: Exception) {
+    ClientHandler(this, server, router).error(exception)
 }

@@ -6,14 +6,7 @@ import io.void.router.Router
 import io.void.server.Server
 import java.net.Socket
 
-class ClientHandler(val client: Socket, val server: Server) {
-
-    private lateinit var router: Router
-
-    fun setRouter(router: Router): ClientHandler {
-        this.router = router
-        return this
-    }
+class ClientHandler(val client: Socket, val server: Server, val router: Router) {
 
     fun start() {
         try {
