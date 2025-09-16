@@ -90,13 +90,7 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
             nullPage = route
         }
         if (route is DynamicPage<*>) {
-            val target = route.target.split("/").toMutableList()
-            val newDynamic = "{}"
-            target.forEachIndexed { i, text ->
-                if (text.startsWith("{")) {
-                    target[i] = newDynamic
-                }
-            }
+            val target = route.target.split("/")
             dynamicRoutes[target] = route
         }
 
