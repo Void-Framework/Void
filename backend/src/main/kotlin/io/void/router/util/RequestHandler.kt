@@ -15,6 +15,7 @@ internal interface RequestHandler {
 
     fun handleDynamic(requestDTO: RequestDTO): ResponseDTO? {
         val segmentRegex = Regex("""^\{([^{}]+)}$""")
+        val optionalSegment = Regex("""^\{([^{}?]+)\?}$""")
         val requestTarget = requestDTO.target
         val url = requestTarget.split('/').toMutableList()
         if (url.contains("favicon.ico")) return null
@@ -24,7 +25,11 @@ internal interface RequestHandler {
             url.trimTrailingEmpty()
             mutableTarget.trimTrailingEmpty()
             if (url.size != mutableTarget.size) {
-                return@forEach
+                if (mutableTarget.last().matches(optionalSegment) && url.size + 1 == mutableTarget.size) {
+                    mutableTarget.removeLast()
+                } else {
+                    return@forEach
+                }
             }
             url.forEachIndexed { i, segment ->
                 val targetValue = mutableTarget[i]

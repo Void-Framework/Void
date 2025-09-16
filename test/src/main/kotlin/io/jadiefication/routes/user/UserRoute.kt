@@ -6,15 +6,16 @@ import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import kotlin.reflect.KClass
 
-class UserRoute : DynamicPage<ContentType.Response>(target = "/users/{id}") {
+class UserRoute : DynamicPage<ContentType.Response>(target = "/users/{id}/{name?}") {
     override var metadata: Metadata? = null
     override val contentType: KClass<ContentType.Response> = ContentType.Response::class
 
     override fun content(): ContentType.Response {
-        val userId = data["id"]
+        val userId = data["id"]!!
+        val name = data["name?"]
         
         // Validate userId is numeric
-        userId?.matches(Regex("\\d+"))?.let {
+        userId.matches(Regex("\\d+")).let {
             if (!it) {
                 return ContentType.Response(
                     ResponseDTO(
@@ -31,7 +32,7 @@ class UserRoute : DynamicPage<ContentType.Response>(target = "/users/{id}") {
             mutableMapOf(
                 "id" to userId,
                 "name" to "User $userId",
-                "email" to "user$userId@example.com",
+                "email" to "${name ?: "user"}$userId@example.com",
                 "createdAt" to System.currentTimeMillis()
             ),
             200,
