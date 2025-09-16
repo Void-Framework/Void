@@ -21,7 +21,7 @@ class Metadata internal constructor(page: Page<*>) {
     var robotRules: String = "noindex nofollow"
 
     var externalCss: MutableList<String>? = null
-    var externalJS: Map<String, Boolean>? = null
+    var externalJS: MutableMap<String, Boolean>? = null
     internal var style: UUID? = null
 
     fun render(): String {

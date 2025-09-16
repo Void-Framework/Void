@@ -5,6 +5,7 @@ import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.api.CssPage
+import io.void.api.JsPage
 import io.void.clienthandler.ClientHandler
 import io.void.generator.TailwindGen
 import io.void.html.exceptions.ExceptionPage
@@ -18,24 +19,36 @@ import io.void.router.util.MiddlewareTime
 import io.void.router.util.RequestHandler
 import io.void.router.util.RouteCheck
 import jdk.javadoc.internal.tool.resources.version
+import java.io.File
 import java.net.Socket
+import java.net.URLDecoder
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.jar.JarFile
 import kotlin.reflect.KClass
 
 class Router(private var middleware: List<Middleware>? = null): RouteCheck, RequestHandler {
 
-    init {
-        middleware = middleware?.sortedByDescending { it.priority }
-        TailwindGen.grabTailwind()
-
-    }
-
+    private val js = mutableSetOf<JsPage>()
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
     val styles: ConcurrentHashMap<String, Pair<UUID, String>> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private var exceptionPage = ExceptionPage(e = Exception())
     private var nullPage: Page<*>? = null
+
+    init {
+        middleware = middleware?.sortedByDescending { it.priority }
+        TailwindGen.grabTailwind()
+
+        val resourceFolder = "static/js"
+        val paths = listResourcePaths(resourceFolder)
+        paths.forEach { path ->
+            val content = readResourceText("/$path")
+            js.add(JsPage(UUID.randomUUID(), content))
+        }
+        js.forEach { addRoute(it) }
+
+    }
 
     private fun middlewareProcess(requestDTO: RequestDTO, type: MiddlewareTime): ResponseDTO? {
         middleware?.forEach {
@@ -65,6 +78,7 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
         if (route::class != CssPage::class) {
             if (route.contentType == ContentType.HtmlElements::class) {
                 TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
+                JsPage.addToMetadata(route, js.toList())
             }
         }
         Processor.annotationProcessor(page = route)
@@ -197,4 +211,38 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
             e.printStackTrace()
         }
     }
+}
+
+private fun listResourcePaths(folder: String): List<String> {
+    val cl = Thread.currentThread().contextClassLoader
+    val url = cl.getResource(folder) ?: return emptyList()
+    return when (url.protocol) {
+        "file" -> {
+            val root = File(url.toURI())
+            root.walkTopDown()
+                .filter { it.isFile && it.extension == ".js" }
+                .map { "$folder/" + it.relativeTo(root).invariantSeparatorsPath }
+                .toList()
+        }
+        "jar" -> {
+            val path = url.path
+            val jarPath = path.substringAfter("file:").substringBefore("!")
+            JarFile(URLDecoder.decode(jarPath, "UTF-8")).use { jar ->
+                jar.entries().asSequence()
+                    .map { it.name }
+                    .filter { it.startsWith("$folder/") && !it.endsWith("/") &&
+                            it.substringAfterLast('/').endsWith(".js", ignoreCase = true)
+                    }
+                    .toList()
+            }
+        }
+        else -> emptyList()
+    }
+}
+
+private fun readResourceText(path: String): String {
+    return Router::class.java.getResourceAsStream(path)
+        ?.bufferedReader()
+        ?.use { it.readText() }
+        ?: error("Missing resource: $path")
 }
