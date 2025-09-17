@@ -1,3 +1,5 @@
 package io.void.router.exceptions
 
-class RouteTargetUsedException(target: String): Exception("$target is already used in a different route")
+class RouteTargetUsedException(
+    target: String,
+) : Exception("$target is already used in a different route")

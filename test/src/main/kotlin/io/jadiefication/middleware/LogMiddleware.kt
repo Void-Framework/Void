@@ -4,13 +4,10 @@ import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.middleware.Middleware
 
-class LogMiddleware: Middleware {
-
+class LogMiddleware : Middleware {
     override val priority: Int = 0
 
-    override fun processBefore(requestDTO: RequestDTO): ResponseDTO? {
-        return null
-    }
+    override fun processBefore(requestDTO: RequestDTO): ResponseDTO? = null
 
     override fun processAfter(requestDTO: RequestDTO): ResponseDTO? {
         println(requestDTO)

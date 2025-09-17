@@ -4,7 +4,9 @@ import kotlin.reflect.full.memberProperties
 
 typealias JSONObject = Map<String, Any?>
 
-data class JSONDTO(val obj: JSONObject) {
+data class JSONDTO(
+    val obj: JSONObject,
+) {
     private val json = StringBuilder("{")
 
     private fun handleObject(value: Any): String {
@@ -32,8 +34,11 @@ data class JSONDTO(val obj: JSONObject) {
         return json.toString()
     }
 
-    private fun handleItem(key: String, value: Any?): String {
-        return when (value) {
+    private fun handleItem(
+        key: String,
+        value: Any?,
+    ): String =
+        when (value) {
             null -> "\"$key\": null"
             is String, Char -> "\"$key\": \"$value\""
             is Number, Boolean -> "\"$key\": $value"
@@ -41,9 +46,9 @@ data class JSONDTO(val obj: JSONObject) {
             is Iterable<*>, is Array<*> -> "\"$key\": [${handleLists(value)}]"
             else -> "\"$key\": {${handleObject(value)}}"
         }
-    }
-    private fun handleListItem(value: Any?): String {
-        return when (value) {
+
+    private fun handleListItem(value: Any?): String =
+        when (value) {
             null -> "null"
             is String, Char -> "\"$value\""
             is Number, Boolean -> "$value"
@@ -51,14 +56,14 @@ data class JSONDTO(val obj: JSONObject) {
             is Iterable<*>, is Array<*> -> "[${handleLists(value)}]"
             else -> "{${handleObject(value)}}"
         }
-    }
 
     private fun handleLists(value: Any): String {
-        val newValue = when (value) {
-            is Array<*> -> value.toList()
-            is Iterable<*> -> value
-            else -> emptyList()
-        }
+        val newValue =
+            when (value) {
+                is Array<*> -> value.toList()
+                is Iterable<*> -> value
+                else -> emptyList()
+            }
 
         return newValue.joinToString(", ") {
             handleListItem(it)
@@ -66,7 +71,10 @@ data class JSONDTO(val obj: JSONObject) {
     }
 }
 
-private fun <K, V> Map<K, V>.joinToString(separator: CharSequence, transform: ((K, V) -> CharSequence)): String {
+private fun <K, V> Map<K, V>.joinToString(
+    separator: CharSequence,
+    transform: ((K, V) -> CharSequence),
+): String {
     val builder = StringBuilder("")
     forEach { (key, value) ->
         builder.append("${transform(key, value)}$separator")

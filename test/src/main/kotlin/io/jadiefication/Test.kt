@@ -10,13 +10,13 @@ import io.void.server.Server
 val router = Router(listOf(LogMiddleware())).addRoutes(listOf(HomeRoute(), SetterRoute(), UserRoute()))
 
 fun main() {
-    val server = Server(
-        router = router
-    )
+    val server =
+        Server(
+            router = router,
+        )
 
     server.startHTTPServer(
         port = 8080,
-        routeToHTTPS = false
+        routeToHTTPS = false,
     )
-
 }

@@ -19,15 +19,16 @@ import org.w3c.dom.get
 @JsName("$")
 fun select(element: String): DOMWrapper {
     val nodeList = document.querySelectorAll(element)
-    val elements = (0 until nodeList.length).map { nodeList.item(it)!! }
-        .mapNotNull { it as? Element }
+    val elements =
+        (0 until nodeList.length)
+            .map { nodeList.item(it)!! }
+            .mapNotNull { it as? Element }
     return DOMWrapper(elements)
 }
 
 class DOMWrapper(
-    private val elements: List<Element>
+    private val elements: List<Element>,
 ) {
-
     fun text(text: String): DOMWrapper {
         elements.forEach { (it as? HTMLElement)?.innerText = text }
         return this
@@ -56,17 +57,21 @@ class DOMWrapper(
     }
 
     @JsName("valReturn")
-    var value: String? = when (val element = elements.firstOrNull()) {
-        is HTMLInputElement -> element.value
-        is HTMLTextAreaElement -> element.value
-        is HTMLSelectElement -> element.value
-        else -> null
-    }
+    var value: String? =
+        when (val element = elements.firstOrNull()) {
+            is HTMLInputElement -> element.value
+            is HTMLTextAreaElement -> element.value
+            is HTMLSelectElement -> element.value
+            else -> null
+        }
 
     fun attr(name: String): String? = elements.firstOrNull()?.getAttribute(name)
 
     @JsName("setAttr")
-    fun attr(name: String, value: String) {
+    fun attr(
+        name: String,
+        value: String,
+    ) {
         elements.forEach {
             it.setAttribute(name, value)
         }
@@ -81,7 +86,10 @@ class DOMWrapper(
     fun classes(): DOMTokenList? = elements.firstOrNull()?.classList
 
     @JsName("setProperty")
-    fun property(property: String, value: String) {
+    fun property(
+        property: String,
+        value: String,
+    ) {
         style()?.setProperty(property, value)
     }
 
@@ -90,13 +98,19 @@ class DOMWrapper(
     @JsName("getProperty")
     fun property(property: String): String? = style()?.getPropertyValue(property)
 
-    fun on(event: String, lambda: (Event) -> Unit) {
+    fun on(
+        event: String,
+        lambda: (Event) -> Unit,
+    ) {
         elements.forEach {
             it.addEventListener(event, lambda)
         }
     }
 
-    fun off(event: String, lambda: ((Event) -> Unit)? = null) {
+    fun off(
+        event: String,
+        lambda: ((Event) -> Unit)? = null,
+    ) {
         elements.forEach {
             it.removeEventListener(event, lambda)
         }
@@ -127,33 +141,36 @@ class DOMWrapper(
     }
 
     fun find(selector: String): DOMWrapper =
-        DOMWrapper(elements.flatMap {
-            it.querySelectorAll(selector).asList().mapNotNull { it as? Element }
-        })
+        DOMWrapper(
+            elements.flatMap {
+                it.querySelectorAll(selector).asList().mapNotNull { it as? Element }
+            },
+        )
 
-    fun closest(selector: String): DOMWrapper =
-        DOMWrapper(elements.mapNotNull { it.closest(selector) })
+    fun closest(selector: String): DOMWrapper = DOMWrapper(elements.mapNotNull { it.closest(selector) })
 
     @JsName("childByName")
     fun children(selector: String? = null): DOMWrapper =
-        DOMWrapper(elements.flatMap { parent ->
-            val list = parent.children.asList()
-            if (selector != null) list.filter { it.matches(selector) } else list
-        })
+        DOMWrapper(
+            elements.flatMap { parent ->
+                val list = parent.children.asList()
+                if (selector != null) list.filter { it.matches(selector) } else list
+            },
+        )
 
     @JsName("siblingByName")
     fun siblings(selector: String? = null): DOMWrapper =
-        DOMWrapper(elements.flatMap { el ->
-            el.parentElement?.children?.asList()?.filter { it != el }?.let { list ->
-                if (selector != null) list.filter { it.matches(selector) } else list
-            } ?: emptyList()
-        })
+        DOMWrapper(
+            elements.flatMap { el ->
+                el.parentElement?.children?.asList()?.filter { it != el }?.let { list ->
+                    if (selector != null) list.filter { it.matches(selector) } else list
+                } ?: emptyList()
+            },
+        )
 
-    fun next(): DOMWrapper =
-        DOMWrapper(elements.mapNotNull { it.nextElementSibling })
+    fun next(): DOMWrapper = DOMWrapper(elements.mapNotNull { it.nextElementSibling })
 
-    fun prev(): DOMWrapper =
-        DOMWrapper(elements.mapNotNull { it.previousElementSibling })
+    fun prev(): DOMWrapper = DOMWrapper(elements.mapNotNull { it.previousElementSibling })
 
     fun append(element: HTMLElement): DOMWrapper {
         elements.forEach { it.appendChild(element.cloneNode(true)) }
@@ -187,7 +204,10 @@ class DOMWrapper(
         elements.forEach { it.classList.toggle(name) }
     }
 
-    fun one(event: String, handler: (Event) -> Unit) {
+    fun one(
+        event: String,
+        handler: (Event) -> Unit,
+    ) {
         elements.forEach { el ->
             val wrapper: (Event) -> Unit = {
                 handler(it)
@@ -207,6 +227,4 @@ class DOMWrapper(
     fun each(lambda: (Element, Int) -> Unit) {
         elements.forEachIndexed { idx, el -> lambda(el, idx) }
     }
-
 }
-

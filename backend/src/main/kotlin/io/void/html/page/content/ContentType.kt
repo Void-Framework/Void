@@ -4,18 +4,18 @@ import io.void.dto.http.ResponseDTO
 import io.void.html.Element
 
 sealed class ContentType {
-
-    class HtmlElements internal constructor(): ContentType() {
+    class HtmlElements internal constructor() : ContentType() {
         lateinit var htmlElement: Element
 
-        constructor(element: Element): this() {
+        constructor(element: Element) : this() {
             htmlElement = element
         }
     }
-    class Response internal constructor(): ContentType() {
+
+    class Response internal constructor() : ContentType() {
         lateinit var response: ResponseDTO
 
-        constructor(responseDTO: ResponseDTO): this() {
+        constructor(responseDTO: ResponseDTO) : this() {
             response = responseDTO
         }
     }
