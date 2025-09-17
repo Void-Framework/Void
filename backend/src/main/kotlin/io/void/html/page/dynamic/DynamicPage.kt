@@ -16,10 +16,10 @@ typealias Path = String
  *
  * Example: /web/test/{a?}
  */
-abstract class DynamicPage<T : ContentType>(target: String): Page<T>(target = target) {
-
+abstract class DynamicPage<T : ContentType>(
+    target: String,
+) : Page<T>(target = target) {
     internal var _data = mutableMapOf<Path, String>()
 
     val data: Map<Path, String> get() = _data
-
 }

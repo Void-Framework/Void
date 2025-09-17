@@ -5,18 +5,21 @@ import io.void.html.SelfClosingElement
 import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 
-class Hr(vararg attributes: Attribute): SelfClosingElement("hr") {
+class Hr(
+    vararg attributes: Attribute,
+) : SelfClosingElement("hr") {
     override val allowedAttributes: List<AttributeNames> = listOf()
-
 
     init {
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Hr(vararg attribute: Attribute): Hr {
-        val Hr = Hr(
-            attributes = attribute
+fun Element.Hr(vararg attribute: Attribute): Hr {
+    val Hr =
+        Hr(
+            attributes = attribute,
         )
-        children!!.add(Hr)
-        return Hr
-    }
+    children!!.add(Hr)
+    return Hr
+}

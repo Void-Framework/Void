@@ -23,15 +23,20 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
 import javax.net.ssl.SSLSocket
 
-class Server(private val router: Router, val httpVersion: Number = 1.1) {
-
+class Server(
+    private val router: Router,
+    val httpVersion: Number = 1.1,
+) {
     private lateinit var socket: ServerSocket
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
     var isHTTPSOn = false
 
-    fun startHTTPServer(port: Int, routeToHTTPS: Boolean = false) {
+    fun startHTTPServer(
+        port: Int,
+        routeToHTTPS: Boolean = false,
+    ) {
         Thread {
             try {
                 socket = ServerSocket(port)
@@ -40,14 +45,15 @@ class Server(private val router: Router, val httpVersion: Number = 1.1) {
                     if (routeToHTTPS) {
                         if (isHTTPSOn) {
                             ResponseDTO.build(
-                                response = ResponseDTO(
-                                    status = 301,
-                                    statusText = "Moved Permanently",
-                                    headers = mutableMapOf("Location" to "https://${client.inetAddress.hostName}"),
-                                    body = ""
-                                ),
+                                response =
+                                    ResponseDTO(
+                                        status = 301,
+                                        statusText = "Moved Permanently",
+                                        headers = mutableMapOf("Location" to "https://${client.inetAddress.hostName}"),
+                                        body = "",
+                                    ),
                                 outputStream = client.getOutputStream(),
-                                version = httpVersion
+                                version = httpVersion,
                             )
                         } else {
                             throw HTTPSNotOnException()
@@ -70,7 +76,12 @@ class Server(private val router: Router, val httpVersion: Number = 1.1) {
         }.start()
     }
 
-    fun startHTTPSServer(port: Int, password: String, file: File, needsAuth: Boolean) {
+    fun startHTTPSServer(
+        port: Int,
+        password: String,
+        file: File,
+        needsAuth: Boolean,
+    ) {
         Thread {
             val paswd = password.toCharArray()
             try {
@@ -105,10 +116,17 @@ class Server(private val router: Router, val httpVersion: Number = 1.1) {
     }
 }
 
-fun Socket.handle(server: Server, router: Router) {
+fun Socket.handle(
+    server: Server,
+    router: Router,
+) {
     ClientHandler(this, server, router).start()
 }
 
-fun Socket.error(server: Server, router: Router, exception: Exception) {
+fun Socket.error(
+    server: Server,
+    router: Router,
+    exception: Exception,
+) {
     ClientHandler(this, server, router).error(exception)
 }

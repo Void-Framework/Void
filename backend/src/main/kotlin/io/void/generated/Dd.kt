@@ -6,7 +6,10 @@ import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class Dd(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "dd") {
+class Dd(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "dd") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
 
@@ -14,12 +17,17 @@ class Dd(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Dd(vararg attribute: Attribute, _children: Element.() -> Unit): Dd {
-        val Dd = Dd(
+fun Element.Dd(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): Dd {
+    val Dd =
+        Dd(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(Dd)
-        return Dd
-    }
+    children!!.add(Dd)
+    return Dd
+}

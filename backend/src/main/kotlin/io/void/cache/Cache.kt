@@ -8,7 +8,6 @@ import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
 
 internal object Cache {
-
     val cache: ConcurrentHashMap<String, ResponseDTO> = ConcurrentHashMap()
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
@@ -26,17 +25,22 @@ internal object Cache {
         val (page, duration) = route
         if (page.contentType != ContentType.Response::class) {
             val metadata = page.metadata
-            cache[page.target] = ResponseDTO(
-                status = 200,
-                statusText = "All is well",
-                headers = mutableMapOf(
-                    "Content-Type" to "text/html"
-                ),
-                body = """<!doctype html><html>
-                <head>${metadata?.render() ?: ""}</head>
-                <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
-                </html>""".trimIndent()
-            )
+            cache[page.target] =
+                ResponseDTO(
+                    status = 200,
+                    statusText = "All is well",
+                    headers =
+                        mutableMapOf(
+                            "Content-Type" to "text/html",
+                        ),
+                    body =
+                        """
+                        <!doctype html><html>
+                        <head>${metadata?.render() ?: ""}</head>
+                        <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
+                        </html>
+                        """.trimIndent(),
+                )
         } else {
             cache[page.target] = (page.content() as ContentType.Response).response
         }

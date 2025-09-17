@@ -54,41 +54,51 @@ internal interface RequestHandler {
         return null
     }
 
-    fun <T : Page<*>> constructClassicResponse(page: T): ResponseDTO {
-        return ResponseDTO(
+    fun <T : Page<*>> constructClassicResponse(page: T): ResponseDTO =
+        ResponseDTO(
             status = 200,
             statusText = "All is well",
             headers = mutableMapOf("Content-Type" to "text/html"),
-            body = """<!doctype html><html>
+            body =
+                """
+                <!doctype html><html>
                 <head>${page.metadata?.render() ?: ""}</head>
                 <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
-                </html>""".trimIndent()
+                </html>
+                """.trimIndent(),
         )
-    }
 
-    fun handleResponse(page: Page<ContentType.Response>, clientHandler: ClientHandler) {
+    fun handleResponse(
+        page: Page<ContentType.Response>,
+        clientHandler: ClientHandler,
+    ) {
         val client = clientHandler.client
         ResponseDTO.build(
             response = page.content().response,
             outputStream = client.getOutputStream(),
-            version = clientHandler.server.httpVersion
+            version = clientHandler.server.httpVersion,
         )
     }
 
-    fun handleCasual(page: Page<ContentType.HtmlElements>, clientHandler: ClientHandler, target: String) {
+    fun handleCasual(
+        page: Page<ContentType.HtmlElements>,
+        clientHandler: ClientHandler,
+        target: String,
+    ) {
         val client = clientHandler.client
-        val response = if (Cache.cache.containsKey(target)) {
-            Cache.cache[target]!!
-        } else {
-            constructClassicResponse(
-                page = page,
-            )
-        }
+        val response =
+            if (Cache.cache.containsKey(target)) {
+                Cache.cache[target]!!
+            } else {
+                constructClassicResponse(
+                    page = page,
+                )
+            }
 
         ResponseDTO.build(
             response = response,
             outputStream = client.getOutputStream(),
-            version = clientHandler.server.httpVersion
+            version = clientHandler.server.httpVersion,
         )
     }
 }

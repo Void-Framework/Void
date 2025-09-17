@@ -6,7 +6,10 @@ import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class Dialog(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "dialog") {
+class Dialog(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "dialog") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.OPEN)
 
@@ -14,12 +17,17 @@ class Dialog(vararg attributes: Attribute, function: Element.() -> Unit): Elemen
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Dialog(vararg attribute: Attribute, _children: Element.() -> Unit): Dialog {
-        val Dialog = Dialog(
+fun Element.Dialog(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): Dialog {
+    val Dialog =
+        Dialog(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(Dialog)
-        return Dialog
-    }
+    children!!.add(Dialog)
+    return Dialog
+}

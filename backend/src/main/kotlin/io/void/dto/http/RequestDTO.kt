@@ -9,10 +9,17 @@ import java.io.InputStreamReader
 import java.net.Socket
 import java.util.*
 
-data class RequestDTO(var method: Method, var target: String, var headers: Map<String, String>, var body: String) {
-
+data class RequestDTO(
+    val method: Method,
+    val target: String,
+    val headers: Map<String, String>,
+    val body: String,
+) {
     companion object {
-        fun parse(inputStream: InputStream, clientHandler: ClientHandler): RequestDTO {
+        internal fun parse(
+            inputStream: InputStream,
+            clientHandler: ClientHandler,
+        ): RequestDTO {
             val headers: MutableMap<String, String> = mutableMapOf()
             val method: Method
             val path: String
@@ -22,19 +29,19 @@ data class RequestDTO(var method: Method, var target: String, var headers: Map<S
                 if (line.size < 2) throw IllegalArgumentException("Invalid request line")
                 method = Method.valueOf(line[0].uppercase(Locale.getDefault()))
             } catch (e: Exception) {
-                Router().error(clientHandler, e)
-                return RequestDTO(
-                    method = Method.GET,
-                    target = "/",
-                    headers = headers,
+                clientHandler.router.error(clientHandler, e)
+                return buildRequest {
+                    this.method = Method.GET
+                    target = "/"
+                    this.headers.putAll(headers)
                     body = ""
-                ) // Provide a default request
+                } // Provide a default request
             }
             path = line[1]
 
             var headerLine: String?
             while ((reader.readLine().also { headerLine = it }) != null && headerLine!!.isNotEmpty()) {
-                val header = headerLine!!.split(": ", limit = 2)
+                val header = headerLine.split(": ", limit = 2)
                 if (header.size == 2) headers[header[0]] = header[1]
             }
 
@@ -46,14 +53,34 @@ data class RequestDTO(var method: Method, var target: String, var headers: Map<S
                 body.append(charArray)
             }
 
-            val requestDTO = RequestDTO(
-                method = method,
-                target = path,
-                headers = headers,
-                body = body.toString()
-            )
+            val requestDTO: RequestDTO =
+                buildRequest {
+                    this.method = method
+                    this.target = path
+                    this.headers.putAll(headers)
+                    this.body = body.toString()
+                }
 
             return requestDTO
         }
     }
+}
+
+class RequestBuilder {
+    var method: Method = Method.GET
+    var target: String = "/"
+    val headers: MutableMap<String, String> = mutableMapOf()
+    var body: String = ""
+
+    fun build(): RequestDTO = RequestDTO(method, target, headers.toMap(), body)
+}
+
+fun buildRequest(builder: RequestBuilder.() -> Unit): RequestDTO {
+    val build = RequestBuilder()
+    build.builder()
+    return build.build()
+}
+
+fun RequestBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
+    headers.block()
 }

@@ -1,8 +1,8 @@
 package io.jadiefication.routes.user
 
 import io.void.dto.http.ResponseDTO
-import io.void.html.page.dynamic.DynamicPage
 import io.void.html.page.content.ContentType
+import io.void.html.page.dynamic.DynamicPage
 import io.void.html.page.metadata.Metadata
 import kotlin.reflect.KClass
 
@@ -13,7 +13,7 @@ class UserRoute : DynamicPage<ContentType.Response>(target = "/users/{id}/{name?
     override fun content(): ContentType.Response {
         val userId = data["id"]!!
         val name = data["name?"]
-        
+
         // Validate userId is numeric
         userId.matches(Regex("\\d+")).let {
             if (!it) {
@@ -22,21 +22,23 @@ class UserRoute : DynamicPage<ContentType.Response>(target = "/users/{id}/{name?
                         status = 404,
                         statusText = "Not Found",
                         headers = mutableMapOf("Content-Type" to "application/json"),
-                        body = """{"error": "Invalid user ID"}"""
-                    )
+                        body = """{"error": "Invalid user ID"}""",
+                    ),
                 )
             }
         }
 
-        return ContentType.Response(ResponseDTO.json(
-            mutableMapOf(
-                "id" to userId,
-                "name" to "User $userId",
-                "email" to "${name ?: "user"}$userId@example.com",
-                "createdAt" to System.currentTimeMillis()
+        return ContentType.Response(
+            ResponseDTO.json(
+                mutableMapOf(
+                    "id" to userId,
+                    "name" to "User $userId",
+                    "email" to "${name ?: "user"}$userId@example.com",
+                    "createdAt" to System.currentTimeMillis(),
+                ),
+                200,
+                "OK",
             ),
-            200,
-            "OK"
-        ))
+        )
     }
 }

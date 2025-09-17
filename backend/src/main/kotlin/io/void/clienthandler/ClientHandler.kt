@@ -6,17 +6,21 @@ import io.void.router.Router
 import io.void.server.Server
 import java.net.Socket
 
-class ClientHandler(val client: Socket, val server: Server, val router: Router) {
-
+class ClientHandler(
+    val client: Socket,
+    val server: Server,
+    val router: Router,
+) {
     fun start() {
         try {
-            val request = RequestDTO.parse(
-                inputStream = client.getInputStream(),
-                clientHandler = this
-            )
+            val request =
+                RequestDTO.parse(
+                    inputStream = client.getInputStream(),
+                    clientHandler = this,
+                )
             this.router.route(
                 requestDTO = request,
-                clientHandler = this
+                clientHandler = this,
             )
         } catch (e: Exception) {
             error(e)
@@ -31,7 +35,7 @@ class ClientHandler(val client: Socket, val server: Server, val router: Router) 
             ResponseDTO.build(
                 response = response,
                 outputStream = client.getOutputStream(),
-                version = server.httpVersion
+                version = server.httpVersion,
             )
             return
         }

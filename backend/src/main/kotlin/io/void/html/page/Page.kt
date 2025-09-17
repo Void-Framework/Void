@@ -6,8 +6,9 @@ import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import kotlin.reflect.KClass
 
-abstract class Page<T : ContentType>(open val target: String) {
-
+abstract class Page<T : ContentType>(
+    open val target: String,
+) {
     val classAttributes: MutableMap<Element, List<String>> = mutableMapOf()
 
     lateinit var request: RequestDTO
