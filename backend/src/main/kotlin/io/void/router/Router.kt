@@ -7,6 +7,8 @@ import io.void.clienthandler.ClientHandler
 import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildResponse
+import io.void.dto.http.headers
 import io.void.generator.TailwindGen
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.exceptions.IExceptionPage
@@ -18,28 +20,25 @@ import io.void.router.page.INullRoutePage
 import io.void.router.util.MiddlewareTime
 import io.void.router.util.RequestHandler
 import io.void.router.util.RouteCheck
-import jdk.javadoc.internal.tool.resources.version
 import java.io.File
-import java.net.Socket
 import java.net.URLDecoder
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarFile
-import kotlin.reflect.KClass
 
-class Router(
-    private var middleware: List<Middleware>? = null,
-) : RouteCheck,
+class Router : RouteCheck,
     RequestHandler {
+    private var internalMiddleware: List<Middleware> = emptyList()
+    val middleware = mutableSetOf<Middleware>()
+    
     private val js = mutableSetOf<JsPage>()
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
-    val styles: ConcurrentHashMap<String, Pair<UUID, String>> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private var exceptionPage = ExceptionPage(e = Exception())
     private var nullPage: Page<*>? = null
 
     init {
-        middleware = middleware?.sortedByDescending { it.priority }
+        recomputeMiddlewareSnapshot()
         TailwindGen.grabTailwind()
 
         val resourceFolder = "static/js"
@@ -51,11 +50,15 @@ class Router(
         js.forEach { addRoute(it) }
     }
 
+    private fun recomputeMiddlewareSnapshot() {
+        internalMiddleware = middleware.sortedByDescending { it.priority }
+    }
+
     private fun middlewareProcess(
         requestDTO: RequestDTO,
         type: MiddlewareTime,
     ): ResponseDTO? {
-        middleware?.forEach {
+        internalMiddleware.forEach {
             val newResponse =
                 when (type) {
                     MiddlewareTime.BEFORE -> it.processBefore(requestDTO)
@@ -69,7 +72,7 @@ class Router(
     }
 
     fun middlewareHandleError(e: Exception): ResponseDTO? {
-        middleware?.forEach {
+        internalMiddleware.forEach {
             val newResponse = it.handleError(e)
             if (newResponse != null) {
                 return newResponse
@@ -78,7 +81,6 @@ class Router(
         return null
     }
 
-    // Add a function to add routes without finding the annotations
     fun addRoute(route: Page<*>): Router {
         if (route::class != CssPage::class) {
             if (route.contentType == ContentType.HtmlElements::class) {
@@ -148,23 +150,22 @@ class Router(
                         when (nullPage!!.contentType) {
                             response -> (nullPage!!.content() as ContentType.Response).response
                             else ->
-                                ResponseDTO(
-                                    status = 404,
-                                    statusText = page.statusText,
-                                    headers = page.headers,
-                                    body = "<!doctype html><html><head>${nullPage!!.metadata?.render()}</head><body>${(nullPage!!.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>",
-                                )
+                                buildResponse {
+                                    status = 404
+                                    statusText = page.statusText
+                                    headers = page.headers.toMutableMap()
+                                    body = "<!doctype html><html><head>${nullPage!!.metadata?.render()}</head><body>${(nullPage!!.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+                                }
                         }
                     } else {
-                        ResponseDTO(
-                            status = 404,
-                            statusText = "Not Found",
-                            headers =
-                                mutableMapOf(
-                                    "Content-Type" to "text/html",
-                                ),
-                            body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>",
-                        )
+                        buildResponse {
+                            status = 404
+                            statusText = "Not Found"
+                            headers {
+                                put("Content-Type", "text/html")
+                            }
+                            body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>"
+                        }
                     }
             ResponseDTO.build(
                 response = response,
@@ -205,16 +206,18 @@ class Router(
         }
         ResponseDTO.build(
             response =
-                ResponseDTO(
-                    status = statusCode ?: 500,
-                    statusText = statusMessage ?: "Server Error",
-                    headers =
-                        headers ?: mutableMapOf(
-                            "Content-Type" to "text/html",
-                            "Connection" to "close",
-                        ),
-                    body = exceptionPage.page,
-                ),
+                buildResponse {
+                    status = statusCode ?: 500
+                    statusText = statusMessage ?: "Server Error"
+                    headers {
+                        put("Content-Type", "text/html")
+                        put("Connection", "close")
+                    }
+                    headers?.let {
+                        this.headers = it.toMutableMap()
+                    }
+                    body = exceptionPage.page
+                },
             outputStream = client.getOutputStream(),
             version = clientHandler.server.httpVersion,
         )
@@ -261,3 +264,8 @@ private fun readResourceText(path: String): String =
         ?.bufferedReader()
         ?.use { it.readText() }
         ?: error("Missing resource: $path")
+
+fun router(builder: Router.() -> Unit): Router {
+    val router = Router().apply(builder)
+    return router
+}
