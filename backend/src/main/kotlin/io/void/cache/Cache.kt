@@ -2,6 +2,8 @@ package io.void.cache
 
 import io.void.cache.exception.CacheException
 import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildResponse
+import io.void.dto.http.headers
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import kotlinx.coroutines.*
@@ -26,21 +28,20 @@ internal object Cache {
         if (page.contentType != ContentType.Response::class) {
             val metadata = page.metadata
             cache[page.target] =
-                ResponseDTO(
-                    status = 200,
-                    statusText = "All is well",
-                    headers =
-                        mutableMapOf(
-                            "Content-Type" to "text/html",
-                        ),
+                buildResponse {
+                    status = 200
+                    statusText = "All is well"
+                    headers {
+                        put("Content-Type", "text/html")
+                    }
                     body =
                         """
                         <!doctype html><html>
                         <head>${metadata?.render() ?: ""}</head>
                         <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
                         </html>
-                        """.trimIndent(),
-                )
+                        """.trimIndent()
+                }
         } else {
             cache[page.target] = (page.content() as ContentType.Response).response
         }

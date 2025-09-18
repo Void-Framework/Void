@@ -2,6 +2,8 @@ package io.void.server
 
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildResponse
+import io.void.dto.http.headers
 import io.void.generator.TailwindGen
 import io.void.router.Router
 import io.void.server.exception.HTTPSNotOnException
@@ -46,12 +48,14 @@ class Server(
                         if (isHTTPSOn) {
                             ResponseDTO.build(
                                 response =
-                                    ResponseDTO(
-                                        status = 301,
-                                        statusText = "Moved Permanently",
-                                        headers = mutableMapOf("Location" to "https://${client.inetAddress.hostName}"),
-                                        body = "",
-                                    ),
+                                    buildResponse {
+                                        status = 301
+                                        statusText = "Moved Permanently"
+                                        headers {
+                                            put("Location", "https://${client.inetAddress.hostName}")
+                                        }
+                                        body = ""
+                                    },
                                 outputStream = client.getOutputStream(),
                                 version = httpVersion,
                             )

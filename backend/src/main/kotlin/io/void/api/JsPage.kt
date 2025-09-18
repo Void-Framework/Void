@@ -2,6 +2,8 @@ package io.void.api
 
 import io.void.api.method.Method
 import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildResponse
+import io.void.dto.http.headers
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
@@ -21,22 +23,19 @@ internal class JsPage(
     override fun content(): ContentType.Response =
         ContentType.Response(
             if (request.method == Method.GET) {
-                ResponseDTO(
-                    status = 200,
-                    statusText = "All is Well",
-                    headers =
-                        mutableMapOf(
-                            "Content-Type" to "text/js",
-                        ),
-                    body = body,
-                )
+                buildResponse {
+                    status = 200
+                    statusText = "All is Well"
+                    headers {
+                        put("Content-Type", "text/js")
+                    }
+                    body = this@JsPage.body
+                }
             } else {
-                ResponseDTO(
-                    status = 405,
-                    statusText = "Method not allowed",
-                    headers = mutableMapOf(),
-                    body = "",
-                )
+                buildResponse {
+                    status = 405
+                    statusText = "Method not allowed"
+                }
             },
         )
 

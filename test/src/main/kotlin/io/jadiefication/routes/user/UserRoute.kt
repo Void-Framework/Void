@@ -1,6 +1,8 @@
 package io.jadiefication.routes.user
 
 import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildResponse
+import io.void.dto.http.headers
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.html.page.metadata.Metadata
@@ -18,12 +20,14 @@ class UserRoute : DynamicPage<ContentType.Response>(target = "/users/{id}/{name?
         userId.matches(Regex("\\d+")).let {
             if (!it) {
                 return ContentType.Response(
-                    ResponseDTO(
-                        status = 404,
-                        statusText = "Not Found",
-                        headers = mutableMapOf("Content-Type" to "application/json"),
-                        body = """{"error": "Invalid user ID"}""",
-                    ),
+                    buildResponse {
+                        status = 404
+                        statusText = "Not Found"
+                        headers {
+                            put("Content-Type", "application/json")
+                        }
+                        body = """{"error": "Invalid user ID"}"""
+                    }
                 )
             }
         }
