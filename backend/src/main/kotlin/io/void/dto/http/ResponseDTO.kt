@@ -5,15 +5,21 @@ import java.io.OutputStream
 import java.io.PrintWriter
 import kotlin.reflect.full.memberProperties
 
-typealias Headers = MutableMap<String, String>
-typealias JSON = MutableMap<String, Any?>
+typealias Headers = Map<String, String>
+typealias JSON = Map<String, Any?>
 
 data class ResponseDTO(
     val status: Int,
     val statusText: String,
-    val headers: Headers,
     val body: String,
 ) {
+    private val _headers = mutableMapOf<String, String>()
+    var headers: Headers
+        get() = _headers
+        set(value) {
+            _headers.putAll(value)
+        }
+
     companion object {
         internal fun build(
             response: ResponseDTO,
@@ -25,7 +31,7 @@ data class ResponseDTO(
 
             val responseBody = response.body
             if (!response.headers.containsKey("Content-Length")) {
-                response.headers["Content-Length"] = responseBody.toByteArray().size.toString()
+                response._headers["Content-Length"] = responseBody.toByteArray().size.toString()
             }
 
             for ((key, value) in response.headers.entries) {
@@ -124,12 +130,14 @@ data class ResponseDTO(
 
             jsonBuilder.append("}")
 
-            return ResponseDTO(
-                status = statusInt,
-                statusText = statusMessage,
-                headers = mutableMapOf("Content-Type" to "application/json"),
-                body = jsonBuilder.toString(),
-            )
+            return buildResponse {
+                status = statusInt
+                statusText = statusMessage
+                headers {
+                    put("Content-Type", "application/json")
+                }
+                body = jsonBuilder.toString()
+            }
         }
     }
 }
@@ -137,10 +145,10 @@ data class ResponseDTO(
 class ResponseBuilder {
     var status: Int = 200
     var statusText: String = "All is well!"
-    val headers: MutableMap<String, String> = mutableMapOf()
+    var headers: MutableMap<String, String> = mutableMapOf()
     var body: String = ""
 
-    fun build(): ResponseDTO = ResponseDTO(status, statusText, headers, body)
+    fun build(): ResponseDTO = ResponseDTO(status, statusText, body).apply { headers = this@ResponseBuilder.headers }
 }
 
 fun buildResponse(builder: ResponseBuilder.() -> Unit): ResponseDTO {
@@ -149,6 +157,6 @@ fun buildResponse(builder: ResponseBuilder.() -> Unit): ResponseDTO {
     return build.build()
 }
 
-fun ResponseBuilder.headers(block: Headers.() -> Unit) {
+fun ResponseBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
 }
