@@ -2,6 +2,7 @@ package io.jadiefication.routes.setter
 
 import io.void.api.method.Method
 import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildResponse
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
@@ -48,12 +49,10 @@ class SetterRoute :
                         "All is fine",
                     )
                 } else {
-                    ResponseDTO(
-                        status = 405,
-                        statusText = "Method not allowed",
-                        headers = mutableMapOf(),
-                        body = "",
-                    )
+                    buildResponse {
+                        status = 405
+                        statusText = "Method not allowed"
+                    }
                 },
         )
 }

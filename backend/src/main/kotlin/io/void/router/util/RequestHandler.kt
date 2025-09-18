@@ -4,6 +4,8 @@ import io.void.cache.Cache
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildResponse
+import io.void.dto.http.headers
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
@@ -55,18 +57,20 @@ internal interface RequestHandler {
     }
 
     fun <T : Page<*>> constructClassicResponse(page: T): ResponseDTO =
-        ResponseDTO(
-            status = 200,
-            statusText = "All is well",
-            headers = mutableMapOf("Content-Type" to "text/html"),
+        buildResponse {
+            status = 200
+            statusText = "All is well"
+            headers {
+                put("Content-Type", "text/html")
+            }
             body =
                 """
                 <!doctype html><html>
                 <head>${page.metadata?.render() ?: ""}</head>
                 <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
                 </html>
-                """.trimIndent(),
-        )
+                """.trimIndent()
+        }
 
     fun handleResponse(
         page: Page<ContentType.Response>,
