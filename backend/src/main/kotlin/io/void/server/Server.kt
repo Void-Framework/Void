@@ -1,18 +1,14 @@
 package io.void.server
 
 import io.void.clienthandler.ClientHandler
-import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
-import io.void.generator.TailwindGen
 import io.void.router.Router
-import io.void.router.toResult
 import io.void.router.util.MiddlewareTime
 import io.void.server.exception.HTTPSNotOnException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.io.File
@@ -21,8 +17,6 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.security.KeyStore
 import java.security.SecureRandom
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
@@ -37,6 +31,12 @@ class Server internal constructor(
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
     var isHTTPSOn = false
+    var onServerSocketError: (Exception) -> Unit = {
+        it.printStackTrace()
+    }
+    var onServerSocketClose: (ServerSocket) -> Unit = {
+        it.close()
+    }
 
     internal fun startHTTPServer(
         port: Int,
@@ -76,9 +76,9 @@ class Server internal constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                onServerSocketError(e)
             } finally {
-                socket.close()
+                onServerSocketClose(socket)
             }
         }.start()
     }
@@ -115,9 +115,9 @@ class Server internal constructor(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                onServerSocketError(e)
             } finally {
-                socket.close()
+                onServerSocketClose(socket)
             }
         }.start()
     }
@@ -131,9 +131,17 @@ class ServerBuilder {
     var file: File? = null
     var needsAuth: Boolean? = null
     var routeToHTTPS: Boolean = false
+    var onServerSocketError: (Exception) -> Unit = {
+        it.printStackTrace()
+    }
+    var onServerSocketClose: (ServerSocket) -> Unit = {
+        it.close()
+    }
 
     fun build(): Server {
         val server = Server(router, httpVersion)
+        server.onServerSocketError = onServerSocketError
+        server.onServerSocketClose = onServerSocketClose
         if (file != null) {
             server.startHTTPSServer(port, password!!, file!!, needsAuth!!)
             if (routeToHTTPS) server.startHTTPServer(port, true)
