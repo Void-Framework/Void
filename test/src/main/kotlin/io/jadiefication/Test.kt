@@ -7,24 +7,20 @@ import io.jadiefication.routes.user.UserRoute
 import io.void.router.Router
 import io.void.router.router
 import io.void.server.Server
-
-val router = router {
-    middleware.add(LogMiddleware())
-    addRoutes(listOf(
-        HomeRoute(),
-        SetterRoute(),
-        UserRoute()
-    ))
-}
+import io.void.server.server
 
 fun main() {
     val server =
-        Server(
-            router = router,
-        )
-
-    server.startHTTPServer(
-        port = 8080,
-        routeToHTTPS = false,
-    )
+        server {
+            this.router = router {
+                middleware.add(LogMiddleware())
+                addRoutes(listOf(
+                    HomeRoute(),
+                    SetterRoute(),
+                    UserRoute()
+                ))
+            }
+            this.port = 8080
+            this.routeToHTTPS = false
+        }
 }

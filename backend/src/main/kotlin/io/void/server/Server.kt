@@ -25,7 +25,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
 import javax.net.ssl.SSLSocket
 
-class Server(
+class Server internal constructor(
     private val router: Router,
     val httpVersion: Number = 1.1,
 ) {
@@ -35,7 +35,7 @@ class Server(
     private val context: SSLContext = SSLContext.getInstance("TLS")
     var isHTTPSOn = false
 
-    fun startHTTPServer(
+    internal fun startHTTPServer(
         port: Int,
         routeToHTTPS: Boolean = false,
     ) {
@@ -80,7 +80,7 @@ class Server(
         }.start()
     }
 
-    fun startHTTPSServer(
+    internal fun startHTTPSServer(
         port: Int,
         password: String,
         file: File,
@@ -118,6 +118,33 @@ class Server(
             }
         }.start()
     }
+}
+
+class ServerBuilder {
+    var port: Int = 8080
+    var httpVersion: Number = 1.1
+    lateinit var router: Router
+    var password: String? = null
+    var file: File? = null
+    var needsAuth: Boolean? = null
+    var routeToHTTPS: Boolean = false
+
+    fun build(): Server {
+        val server = Server(router, httpVersion)
+        if (file != null) {
+            server.startHTTPSServer(port, password!!, file!!, needsAuth!!)
+            if (routeToHTTPS) server.startHTTPServer(port, true)
+        } else {
+            server.startHTTPServer(port)
+        }
+        return server
+    }
+}
+
+fun server(builder: ServerBuilder.() -> Unit): Server {
+    val sBuilder = ServerBuilder()
+    sBuilder.builder()
+    return sBuilder.build()
 }
 
 fun Socket.handle(
