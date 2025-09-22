@@ -90,3 +90,12 @@ class Metadata internal constructor(
         }
     }
 }
+
+fun metadata(
+    builder: Metadata.() -> Unit,
+    page: Page<*>
+): Metadata {
+    val metadata = Metadata(page)
+    metadata.apply(builder)
+    return metadata
+}
