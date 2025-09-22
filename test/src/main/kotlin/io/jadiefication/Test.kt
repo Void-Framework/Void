@@ -12,15 +12,13 @@ import io.void.server.server
 fun main() {
     val server =
         server {
-            this.router = router {
-                middleware.add(LogMiddleware())
-                addRoutes(listOf(
-                    HomeRoute(),
-                    SetterRoute(),
-                    UserRoute()
-                ))
+            router = router {
+                +LogMiddleware()
+                +HomeRoute()
+                +SetterRoute()
+                +UserRoute()
             }
-            this.port = 8080
-            this.routeToHTTPS = false
+            port = 8080
+            routeToHTTPS = false
         }
 }

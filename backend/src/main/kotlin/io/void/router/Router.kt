@@ -50,6 +50,14 @@ class Router : RouteCheck,
         js.forEach { addRoute(it) }
     }
 
+    operator fun Page<*>.unaryPlus() {
+        addRoute(this)
+    }
+    operator fun Middleware.unaryPlus() {
+        middleware.add(this)
+        recomputeMiddlewareSnapshot()
+    }
+
     private fun recomputeMiddlewareSnapshot() {
         internalMiddleware = middleware.sortedByDescending { it.priority }
     }
@@ -81,7 +89,7 @@ class Router : RouteCheck,
         return null
     }
 
-    fun addRoute(route: Page<*>): Router {
+    internal fun addRoute(route: Page<*>): Router {
         if (route::class != CssPage::class) {
             if (route.contentType == ContentType.HtmlElements::class) {
                 TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
@@ -104,7 +112,7 @@ class Router : RouteCheck,
         return this
     }
 
-    fun addRoutes(routes: List<Page<*>>): Router {
+    internal fun addRoutes(routes: List<Page<*>>): Router {
         routes.forEach {
             addRoute(route = it)
         }
