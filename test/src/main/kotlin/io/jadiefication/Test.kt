@@ -1,9 +1,9 @@
 package io.jadiefication
 
 import io.jadiefication.middleware.LogMiddleware
-import io.jadiefication.routes.home.HomeRoute
-import io.jadiefication.routes.setter.SetterRoute
-import io.jadiefication.routes.user.UserRoute
+import io.jadiefication.routes.home.homeRoute
+import io.jadiefication.routes.setter.setterRoute
+import io.jadiefication.routes.user.userRoute
 import io.void.router.Router
 import io.void.router.router
 import io.void.server.Server
@@ -14,9 +14,9 @@ fun main() {
         server {
             router = router {
                 +LogMiddleware()
-                +HomeRoute()
-                +SetterRoute()
-                +UserRoute()
+                +homeRoute
+                +setterRoute
+                +userRoute
             }
             port = 8080
             routeToHTTPS = false
