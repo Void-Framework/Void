@@ -7,7 +7,7 @@ import io.void.dto.http.headers
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
-import io.void.html.page.metadata.MetadataHandler
+import io.void.html.page.metadata.metadata
 import java.util.UUID
 import kotlin.reflect.KClass
 
@@ -46,9 +46,9 @@ internal class JsPage(
         ) {
             if (page.metadata == null) {
                 page.metadata =
-                    MetadataHandler.create(page = page, builder = {
+                    metadata(page) {
                         externalJS = mutableMapOf(jsPage.target to true)
-                    })
+                    }
             } else {
                 val meta = page.metadata!!
                 if (meta.externalJS == null) {

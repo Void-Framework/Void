@@ -5,7 +5,7 @@ import io.void.html.Element
 import io.void.html.attributes.AttributeNames
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
-import io.void.html.page.metadata.MetadataHandler
+import io.void.html.page.metadata.metadata
 import io.void.router.Router
 import java.io.BufferedReader
 import java.io.InputStream
@@ -113,9 +113,9 @@ object TailwindGen {
     ) {
         if (page.metadata == null) {
             page.metadata =
-                MetadataHandler.create(page = page, builder = {
+                metadata(page) {
                     style = uuid
-                })
+                }
         } else {
             page.metadata!!.style = uuid
         }
