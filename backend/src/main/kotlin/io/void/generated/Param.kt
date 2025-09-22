@@ -5,18 +5,21 @@ import io.void.html.SelfClosingElement
 import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 
-class Param(vararg attributes: Attribute): SelfClosingElement("param") {
+class Param(
+    vararg attributes: Attribute,
+) : SelfClosingElement("param") {
     override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.NAME, AttributeNames.VALUE)
-
 
     init {
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Param(vararg attribute: Attribute): Param {
-        val Param = Param(
-            attributes = attribute
+fun Element.Param(vararg attribute: Attribute): Param {
+    val Param =
+        Param(
+            attributes = attribute,
         )
-        children!!.add(Param)
-        return Param
-    }
+    children!!.add(Param)
+    return Param
+}

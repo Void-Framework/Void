@@ -1,12 +1,15 @@
 package io.void.router
 
+import io.void.api.CssPage
+import io.void.api.JsPage
 import io.void.cache.Processor
+import io.void.clienthandler.ClientHandler
 import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
-import io.void.api.CssPage
-import io.void.api.JsPage
-import io.void.clienthandler.ClientHandler
+import io.void.dto.http.buildRequest
+import io.void.dto.http.buildResponse
+import io.void.dto.http.headers
 import io.void.generator.TailwindGen
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.exceptions.IExceptionPage
@@ -18,26 +21,26 @@ import io.void.router.page.INullRoutePage
 import io.void.router.util.MiddlewareTime
 import io.void.router.util.RequestHandler
 import io.void.router.util.RouteCheck
-import jdk.javadoc.internal.tool.resources.version
 import java.io.File
-import java.net.Socket
 import java.net.URLDecoder
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarFile
-import kotlin.reflect.KClass
 
-class Router(private var middleware: List<Middleware>? = null): RouteCheck, RequestHandler {
+class Router :
+    RouteCheck,
+    RequestHandler {
+    private var internalMiddleware: List<Middleware> = emptyList()
+    val middleware = mutableSetOf<Middleware>()
 
     private val js = mutableSetOf<JsPage>()
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
-    val styles: ConcurrentHashMap<String, Pair<UUID, String>> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private var exceptionPage = ExceptionPage(e = Exception())
     private var nullPage: Page<*>? = null
 
     init {
-        middleware = middleware?.sortedByDescending { it.priority }
+        recomputeMiddlewareSnapshot()
         TailwindGen.grabTailwind()
 
         val resourceFolder = "static/js"
@@ -47,15 +50,31 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
             js.add(JsPage(UUID.randomUUID(), content))
         }
         js.forEach { addRoute(it) }
-
     }
 
-    private fun middlewareProcess(requestDTO: RequestDTO, type: MiddlewareTime): ResponseDTO? {
-        middleware?.forEach {
-            val newResponse = when (type) {
-                MiddlewareTime.BEFORE -> it.processBefore(requestDTO)
-                MiddlewareTime.AFTER -> it.processAfter(requestDTO)
-            }
+    operator fun Page<*>.unaryPlus() {
+        addRoute(this)
+    }
+
+    operator fun Middleware.unaryPlus() {
+        middleware.add(this)
+        recomputeMiddlewareSnapshot()
+    }
+
+    private fun recomputeMiddlewareSnapshot() {
+        internalMiddleware = middleware.sortedByDescending { it.priority }
+    }
+
+    internal fun middlewareProcess(
+        requestDTO: Result<RequestDTO>,
+        type: MiddlewareTime,
+    ): ResponseDTO? {
+        internalMiddleware.forEach {
+            val newResponse =
+                when (type) {
+                    MiddlewareTime.BEFORE -> it.processBefore(requestDTO)
+                    MiddlewareTime.AFTER -> it.processAfter(requestDTO)
+                }
             if (newResponse != null) {
                 return newResponse
             }
@@ -63,20 +82,10 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
         return null
     }
 
-    fun middlewareHandleError(e: Exception): ResponseDTO? {
-        middleware?.forEach {
-            val newResponse = it.handleError(e)
-            if (newResponse != null) {
-                return newResponse
-            }
-        }
-        return null
-    }
-
-    //Add a function to add routes without finding the annotations
-    fun addRoute(route: Page<*>): Router {
+    internal fun addRoute(route: Page<*>): Router {
         if (route::class != CssPage::class) {
             if (route.contentType == ContentType.HtmlElements::class) {
+                route.request = buildRequest { }
                 TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
                 JsPage.addToMetadata(route, js.toList())
             }
@@ -97,21 +106,24 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
         return this
     }
 
-    fun addRoutes(routes: List<Page<*>>): Router {
+    internal fun addRoutes(routes: List<Page<*>>): Router {
         routes.forEach {
             addRoute(route = it)
         }
         return this
     }
 
-    fun route(requestDTO: RequestDTO, clientHandler: ClientHandler) {
+    fun route(
+        requestDTO: RequestDTO,
+        clientHandler: ClientHandler,
+    ) {
         val client = clientHandler.client
-        val response = middlewareProcess(requestDTO, MiddlewareTime.BEFORE)
+        val response = middlewareProcess(requestDTO.toResult(), MiddlewareTime.BEFORE)
         if (response != null) {
             ResponseDTO.build(
                 response = response,
                 outputStream = client.getOutputStream(),
-                version = clientHandler.server.httpVersion
+                version = clientHandler.server.httpVersion,
             )
             return
         }
@@ -122,59 +134,66 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
             if (page.content() is ContentType.Response) {
                 handleResponse(
                     page = page as Page<ContentType.Response>,
-                    clientHandler = clientHandler
+                    clientHandler = clientHandler,
                 )
             } else {
                 handleCasual(
                     page = page as Page<ContentType.HtmlElements>,
                     clientHandler = clientHandler,
-                    target = target
+                    target = target,
                 )
             }
         } else {
-            val response = handleDynamic(requestDTO)
-                ?: if (nullPage != null) {
-                    val response = ContentType.Response::class
-                    val page = nullPage as INullRoutePage
-                    when (nullPage!!.contentType) {
-                        response -> (nullPage!!.content() as ContentType.Response).response
-                        else -> ResponseDTO(
-                            status = 404,
-                            statusText = page.statusText,
-                            headers = page.headers,
-                            body = "<!doctype html><html><head>${nullPage!!.metadata?.render()}</head><body>${(nullPage!!.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
-                        )
+            val response =
+                handleDynamic(requestDTO)
+                    ?: if (nullPage != null) {
+                        val response = ContentType.Response::class
+                        val page = nullPage as INullRoutePage
+                        when (nullPage!!.contentType) {
+                            response -> (nullPage!!.content() as ContentType.Response).response
+                            else ->
+                                buildResponse {
+                                    status = 404
+                                    statusText = page.statusText
+                                    headers = page.headers.toMutableMap()
+                                    body =
+                                        "<!doctype html><html><head>${nullPage!!.metadata?.render()}</head><body>${(nullPage!!.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+                                }
+                        }
+                    } else {
+                        buildResponse {
+                            status = 404
+                            statusText = "Not Found"
+                            headers {
+                                put("Content-Type", "text/html")
+                            }
+                            body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>"
+                        }
                     }
-                } else {
-                    ResponseDTO(
-                        status = 404,
-                        statusText = "Not Found",
-                        headers = mutableMapOf(
-                            "Content-Type" to "text/html",
-                        ),
-                        body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>"
-                    )
-                }
             ResponseDTO.build(
                 response = response,
                 outputStream = client.getOutputStream(),
-                version = clientHandler.server.httpVersion
+                version = clientHandler.server.httpVersion,
             )
-            val lateResponse = middlewareProcess(
-                requestDTO = requestDTO,
-                type = MiddlewareTime.AFTER
-            )
+            val lateResponse =
+                middlewareProcess(
+                    requestDTO = requestDTO.toResult(),
+                    type = MiddlewareTime.AFTER,
+                )
             if (lateResponse != null) {
                 ResponseDTO.build(
                     response = lateResponse,
                     outputStream = client.getOutputStream(),
-                    version = clientHandler.server.httpVersion
+                    version = clientHandler.server.httpVersion,
                 )
             }
         }
     }
 
-    fun error(clientHandler: ClientHandler, e: Exception) {
+    fun error(
+        clientHandler: ClientHandler,
+        e: Exception,
+    ) {
         val client = clientHandler.client
         exceptionPage.e = e
         var statusCode: Int? = null
@@ -187,18 +206,23 @@ class Router(private var middleware: List<Middleware>? = null): RouteCheck, Requ
             statusMessage = exceptionPage.newPage.statusMessage
             headers = exceptionPage.newPage.headers
         } catch (_: Exception) {
-
         }
         ResponseDTO.build(
-            response = ResponseDTO(status = statusCode ?: 500,
-                statusText = statusMessage ?: "Server Error",
-                headers = headers ?: mutableMapOf(
-                    "Content-Type" to "text/html",
-                    "Connection" to "close"
-                ),
-                body = exceptionPage.page),
+            response =
+                buildResponse {
+                    status = statusCode ?: 500
+                    statusText = statusMessage ?: "Server Error"
+                    headers {
+                        put("Content-Type", "text/html")
+                        put("Connection", "close")
+                    }
+                    headers?.let {
+                        this.headers = it.toMutableMap()
+                    }
+                    body = exceptionPage.page
+                },
             outputStream = client.getOutputStream(),
-            version = clientHandler.server.httpVersion
+            version = clientHandler.server.httpVersion,
         )
 
         if (log) {
@@ -213,7 +237,8 @@ private fun listResourcePaths(folder: String): List<String> {
     return when (url.protocol) {
         "file" -> {
             val root = File(url.toURI())
-            root.walkTopDown()
+            root
+                .walkTopDown()
                 .filter { it.isFile && it.extension == ".js" }
                 .map { "$folder/" + it.relativeTo(root).invariantSeparatorsPath }
                 .toList()
@@ -222,21 +247,32 @@ private fun listResourcePaths(folder: String): List<String> {
             val path = url.path
             val jarPath = path.substringAfter("file:").substringBefore("!")
             JarFile(URLDecoder.decode(jarPath, "UTF-8")).use { jar ->
-                jar.entries().asSequence()
+                jar
+                    .entries()
+                    .asSequence()
                     .map { it.name }
-                    .filter { it.startsWith("$folder/") && !it.endsWith("/") &&
+                    .filter {
+                        it.startsWith("$folder/") && !it.endsWith("/") &&
                             it.substringAfterLast('/').endsWith(".js", ignoreCase = true)
-                    }
-                    .toList()
+                    }.toList()
             }
         }
         else -> emptyList()
     }
 }
 
-private fun readResourceText(path: String): String {
-    return Router::class.java.getResourceAsStream(path)
+private fun readResourceText(path: String): String =
+    Router::class.java
+        .getResourceAsStream(path)
         ?.bufferedReader()
         ?.use { it.readText() }
         ?: error("Missing resource: $path")
+
+fun router(builder: Router.() -> Unit): Router {
+    val router = Router().apply(builder)
+    return router
 }
+
+fun <T> T.toResult(): Result<T> = Result.success(this)
+
+fun <T> Exception.toResult(): Result<T> = Result.failure<T>(this)

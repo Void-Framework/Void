@@ -15,9 +15,12 @@ fun main(args: Array<String>) {
     } else {
         throw NoOutputException()
     }
-    val resourceFile = object {}.javaClass.getResource("/elements.json")
-        ?.let { File(it.toURI()) }
-        ?: throw IllegalStateException("Could not find elements.json resource file")
+    val resourceFile =
+        object {}
+            .javaClass
+            .getResource("/elements.json")
+            ?.let { File(it.toURI()) }
+            ?: throw IllegalStateException("Could not find elements.json resource file")
 
     val content = Files.readAllLines(resourceFile.toPath())
     var currentLine = ""
@@ -28,7 +31,7 @@ fun main(args: Array<String>) {
             currentLine += line
         } else {
             processedLines.add(currentLine)
-            currentLine = ""  // Reset currentLine after processing
+            currentLine = "" // Reset currentLine after processing
         }
     }
     // Don't forget to add the last line if it doesn't end with "},":
@@ -40,7 +43,10 @@ fun main(args: Array<String>) {
     makeFiles(output, codeFiles)
 }
 
-fun makeFiles(parent: File, content: MutableMap<String, String>) {
+fun makeFiles(
+    parent: File,
+    content: MutableMap<String, String>,
+) {
     if (!File(parent.path).exists()) {
         File(parent.path).mkdir()
     }
@@ -55,12 +61,22 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
     val codeFiles = mutableMapOf<String, String>()
 
     lines.forEach { line ->
-        val kotlinCode = StringBuilder("package io.void.generated\n\nimport io.void.html.attributes.Attribute\nimport io.void.html.attributes.AttributeNames\nimport io.void.generated.*\nimport kotlin.reflect.KClass\n")
+        val kotlinCode =
+            StringBuilder(
+                "package io.void.generated\n\nimport io.void.html.attributes.Attribute\nimport io.void.html.attributes.AttributeNames\nimport io.void.generated.*\nimport kotlin.reflect.KClass\n",
+            )
         val startLength = kotlinCode.length
         val attributeBuilder = StringBuilder("")
         val name = line.substringBefore("\":").substringAfter("\"").capitalize()
         val type = line.substringAfter("\"contentModel\": \"").substringBefore("\"").capitalize()
-        val attributes = line.substringAfter("\"attributes\": [").substringBefore("]").split(", ").map { it.replace("\"", "").uppercase() }.toList()
+        val attributes =
+            line
+                .substringAfter(
+                    "\"attributes\": [",
+                ).substringBefore("]")
+                .split(", ")
+                .map { it.replace("\"", "").uppercase() }
+                .toList()
         if (attributes.isNotEmpty()) {
             attributes.forEach { attribute ->
                 if (attribute.isNotBlank()) {
@@ -74,20 +90,32 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
         when (type) {
             "Normal" -> {
                 val HElement = name.startsWith("h", true) && name[name.length - 1].digitToIntOrNull() != null
-                kotlinCode.append("\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = \"${name.lowercase()}\")${if (HElement) {
-                    ", HElement"
-                } else {
-                    ""
-                }
-                } {\n")
-                kotlinCode.insert(startLength, "import io.void.html.Element\nimport io.void.html.ElementWithChildren\n${if (HElement) {
-                    "import io.void.html.HElement\n"
-                } else {
-                    ""
-                }
-                }")
+                kotlinCode.append(
+                    "\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = \"${name.lowercase()}\")${if (HElement) {
+                        ", HElement"
+                    } else {
+                        ""
+                    }
+                    } {\n",
+                )
+                kotlinCode.insert(
+                    startLength,
+                    "import io.void.html.Element\nimport io.void.html.ElementWithChildren\n${if (HElement) {
+                        "import io.void.html.HElement\n"
+                    } else {
+                        ""
+                    }
+                    }",
+                )
                 val childrenBuilder = StringBuilder("null")
-                val acceptedChildren = line.substringAfter("\"acceptedChildren\": [").substringBefore("]").split(", ").map { it.replace("\"", "") }.toList()
+                val acceptedChildren =
+                    line
+                        .substringAfter(
+                            "\"acceptedChildren\": [",
+                        ).substringBefore("]")
+                        .split(", ")
+                        .map { it.replace("\"", "") }
+                        .toList()
                 if (acceptedChildren.isNotEmpty()) {
                     if (acceptedChildren[0].isNotBlank()) {
                         childrenBuilder.setLength(0)
@@ -101,7 +129,9 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
                         childrenBuilder.setLength(childrenBuilder.length - 2)
                     }
                 }
-                kotlinCode.append("    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf($childrenBuilder)\n")
+                kotlinCode.append(
+                    "    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf($childrenBuilder)\n",
+                )
             }
             "Void" -> {
                 kotlinCode.append("\nclass $name(vararg attributes: Attribute): SelfClosingElement(\"${name.lowercase()}\") {\n")
@@ -115,15 +145,16 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
         when (type) {
             "Normal" -> {
                 kotlinCode.append("    init {\n        this.apply(function)\n        addAttributes(*attributes)\n    }\n\n")
-                extension = "    fun Element.${name.capitalize()}(vararg attribute: Attribute, _children: Element.() -> Unit): ${name.capitalize()} {\n" +
-                                  "        val ${name.capitalize()} = ${name.capitalize()}(\n            attributes = attribute,\n            function = _children\n        )\n" +
-                                  "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n"
+                extension =
+                    "    fun Element.${name.capitalize()}(vararg attribute: Attribute, _children: Element.() -> Unit): ${name.capitalize()} {\n" +
+                    "        val ${name.capitalize()} = ${name.capitalize()}(\n            attributes = attribute,\n            function = _children\n        )\n" +
+                    "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n"
             }
             "Void" -> {
                 kotlinCode.append("\n    init {\n        addAttributes(*attributes)\n    }\n\n")
                 extension = "    fun Element.${name.capitalize()}(vararg attribute: Attribute): ${name.capitalize()} {\n" +
-                        "        val ${name.capitalize()} = ${name.capitalize()}(\n            attributes = attribute\n        )\n" +
-                        "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n"
+                    "        val ${name.capitalize()} = ${name.capitalize()}(\n            attributes = attribute\n        )\n" +
+                    "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n"
             }
         }
 
@@ -135,8 +166,7 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
     return codeFiles
 }
 
-fun String.capitalize(): String {
-    return this.replaceFirstChar {
+fun String.capitalize(): String =
+    this.replaceFirstChar {
         it.uppercase()
     }
-}

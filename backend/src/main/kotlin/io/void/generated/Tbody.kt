@@ -6,7 +6,10 @@ import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class Tbody(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "tbody") {
+class Tbody(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "tbody") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(Tr::class)
     override val allowedAttributes: List<AttributeNames> = listOf()
 
@@ -14,12 +17,17 @@ class Tbody(vararg attributes: Attribute, function: Element.() -> Unit): Element
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Tbody(vararg attribute: Attribute, _children: Element.() -> Unit): Tbody {
-        val Tbody = Tbody(
+fun Element.Tbody(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): Tbody {
+    val Tbody =
+        Tbody(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(Tbody)
-        return Tbody
-    }
+    children!!.add(Tbody)
+    return Tbody
+}

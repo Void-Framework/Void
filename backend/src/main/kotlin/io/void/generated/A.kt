@@ -6,20 +6,36 @@ import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class A(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "a") {
+class A(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "a") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.HREF, AttributeNames.TARGET, AttributeNames.REL, AttributeNames.DOWNLOAD, AttributeNames.HREFLANG, AttributeNames.TYPE)
+    override val allowedAttributes: List<AttributeNames> =
+        listOf(
+            AttributeNames.HREF,
+            AttributeNames.TARGET,
+            AttributeNames.REL,
+            AttributeNames.DOWNLOAD,
+            AttributeNames.HREFLANG,
+            AttributeNames.TYPE,
+        )
 
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.A(vararg attribute: Attribute, _children: Element.() -> Unit): A {
-        val A = A(
+fun Element.A(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): A {
+    val A =
+        A(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(A)
-        return A
-    }
+    children!!.add(A)
+    return A
+}

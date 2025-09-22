@@ -6,7 +6,10 @@ import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class Rt(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "rt") {
+class Rt(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "rt") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
 
@@ -14,12 +17,17 @@ class Rt(vararg attributes: Attribute, function: Element.() -> Unit): ElementWit
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Rt(vararg attribute: Attribute, _children: Element.() -> Unit): Rt {
-        val Rt = Rt(
+fun Element.Rt(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): Rt {
+    val Rt =
+        Rt(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(Rt)
-        return Rt
-    }
+    children!!.add(Rt)
+    return Rt
+}

@@ -1,22 +1,33 @@
 package io.jadiefication
 
-import io.jadiefication.middleware.LogMiddleware
-import io.jadiefication.routes.home.HomeRoute
-import io.jadiefication.routes.setter.SetterRoute
-import io.jadiefication.routes.user.UserRoute
+import io.jadiefication.routes.home.homeRoute
+import io.jadiefication.routes.setter.setterRoute
+import io.jadiefication.routes.user.userRoute
+import io.void.middleware.middleware
 import io.void.router.Router
+import io.void.router.router
 import io.void.server.Server
-
-val router = Router(listOf(LogMiddleware())).addRoutes(listOf(HomeRoute(), SetterRoute(), UserRoute()))
+import io.void.server.server
 
 fun main() {
-    val server = Server(
-        router = router
-    )
-
-    server.startHTTPServer(
-        port = 8080,
-        routeToHTTPS = false
-    )
-
+    val server =
+        server {
+            router =
+                router {
+                    +middleware {
+                        after = { result ->
+                            result.fold(
+                                onSuccess = { println(it) },
+                                onFailure = { println(it) },
+                            )
+                            null
+                        }
+                        +homeRoute
+                        +setterRoute
+                        +userRoute
+                    }
+                    port = 8080
+                    routeToHTTPS = false
+                }
+        }
 }
