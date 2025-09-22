@@ -38,7 +38,6 @@ class Server internal constructor(
     var onServerSocketClose: (ServerSocket) -> Unit = {
         it.close()
     }
-    private val readyLatch = CountDownLatch(1)
 
     fun startHTTPServer(
         port: Int,
@@ -47,7 +46,6 @@ class Server internal constructor(
         Thread {
             try {
                 socket = ServerSocket(port)
-                readyLatch.countDown()
                 while (socket.isBound) {
                     val client = socket.accept()
                     if (routeToHTTPS) {
@@ -106,7 +104,6 @@ class Server internal constructor(
                 val server = factory.createServerSocket(port) as SSLServerSocket
                 isHTTPSOn = true
                 server.needClientAuth = needsAuth
-                readyLatch.countDown()
                 while (server.isBound) {
                     val client = server.accept() as SSLSocket
                     client.startHandshake()
@@ -124,10 +121,6 @@ class Server internal constructor(
                 onServerSocketClose(socket)
             }
         }.start()
-    }
-
-    fun waitUntilReady() {
-        readyLatch.await()
     }
 }
 
