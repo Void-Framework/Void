@@ -11,11 +11,16 @@ interface Middleware {
     fun processAfter(requestDTO: Result<RequestDTO>): ResponseDTO?
 }
 
-fun middleware(priority: Int = 0, block: MiddlewareBuilder.() -> Unit): Middleware =
+fun middleware(
+    priority: Int = 0,
+    block: MiddlewareBuilder.() -> Unit,
+): Middleware =
     object : Middleware {
         override val priority = priority
         private val builder = MiddlewareBuilder().apply(block)
+
         override fun processBefore(requestDTO: Result<RequestDTO>) = builder.before(requestDTO)
+
         override fun processAfter(requestDTO: Result<RequestDTO>) = builder.after(requestDTO)
     }
 

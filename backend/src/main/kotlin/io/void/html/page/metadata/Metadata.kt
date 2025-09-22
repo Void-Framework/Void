@@ -93,7 +93,7 @@ class Metadata internal constructor(
 
 fun metadata(
     page: Page<*>,
-    builder: Metadata.() -> Unit
+    builder: Metadata.() -> Unit,
 ): Metadata {
     val metadata = Metadata(page)
     metadata.apply(builder)

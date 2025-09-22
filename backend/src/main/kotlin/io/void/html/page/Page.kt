@@ -20,18 +20,26 @@ abstract class Page<T : ContentType>(
     abstract fun content(): T
 }
 
-fun htmlRoute(path: String, metadata: Metadata.() -> Unit, block: ContentType.HtmlElements.() -> Unit): Page<ContentType.HtmlElements> =
+fun htmlRoute(
+    path: String,
+    metadata: Metadata.() -> Unit,
+    block: ContentType.HtmlElements.() -> Unit,
+): Page<ContentType.HtmlElements> =
     object : Page<ContentType.HtmlElements>(target = path) {
-        private val _metadata = metadata(this) {  }.apply(metadata)
+        private val _metadata = metadata(this) { }.apply(metadata)
         override var metadata: Metadata? = _metadata
         override val contentType = ContentType.HtmlElements::class
+
         override fun content() = ContentType.HtmlElements().apply(block)
     }
 
-fun jsonRoute(path: String, block: () -> ResponseDTO): Page<ContentType.Response> =
+fun jsonRoute(
+    path: String,
+    block: () -> ResponseDTO,
+): Page<ContentType.Response> =
     object : Page<ContentType.Response>(target = path) {
         override var metadata: Metadata? = null
         override val contentType = ContentType.Response::class
+
         override fun content() = ContentType.Response(block())
     }
-

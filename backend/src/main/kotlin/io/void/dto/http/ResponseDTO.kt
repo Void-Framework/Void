@@ -49,17 +49,21 @@ data class ResponseDTO(
             }
         }
 
-        private fun generateJson(key: String, value: Any?): String? {
+        private fun generateJson(
+            key: String,
+            value: Any?,
+        ): String? {
             when (value) {
                 null -> return "\"$key\":null,"
                 is Boolean, is Number -> return "\"$key\":$value,"
                 is String -> return "\"$key\":\"$value\","
                 is Array<*>, is Iterable<*> -> {
-                    val items = when (value) {
-                        is Array<*> -> value.toList()
-                        is Collection<*> -> value.toList()
-                        else -> emptyList()
-                    }
+                    val items =
+                        when (value) {
+                            is Array<*> -> value.toList()
+                            is Collection<*> -> value.toList()
+                            else -> emptyList()
+                        }
                     val arrayBuilder = StringBuilder("[")
                     items.forEach {
                         when (it) {
@@ -105,20 +109,32 @@ data class ResponseDTO(
             }
         }
 
-        private fun generateObjectJson(key: String, value: Any): String {
+        private fun generateObjectJson(
+            key: String,
+            value: Any,
+        ): String {
             val objectBuilder = StringBuilder("\"$key\":{")
-            objectBuilder.append("${
-                generateJson(value::class.memberProperties.associate {
-                    it.name to it.getter.call(
-                        value
+            objectBuilder.append(
+                "${
+                    generateJson(
+                        value::class.memberProperties.associate {
+                            it.name to
+                                it.getter.call(
+                                    value,
+                                )
+                        },
                     )
-                })
-            }}")
+                }}",
+            )
             return objectBuilder.toString()
         }
 
         @Deprecated("Builder is broken", ReplaceWith("JSONDTO"), DeprecationLevel.WARNING)
-        fun json(entries: JSON, statusInt: Int, statusMessage: String): ResponseDTO {
+        fun json(
+            entries: JSON,
+            statusInt: Int,
+            statusMessage: String,
+        ): ResponseDTO {
             val jsonBuilder = StringBuilder("{")
 
             entries.forEach { (key, value) ->

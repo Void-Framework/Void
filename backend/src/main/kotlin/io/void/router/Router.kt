@@ -26,11 +26,12 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarFile
 
-class Router : RouteCheck,
+class Router :
+    RouteCheck,
     RequestHandler {
     private var internalMiddleware: List<Middleware> = emptyList()
     val middleware = mutableSetOf<Middleware>()
-    
+
     private val js = mutableSetOf<JsPage>()
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
@@ -53,6 +54,7 @@ class Router : RouteCheck,
     operator fun Page<*>.unaryPlus() {
         addRoute(this)
     }
+
     operator fun Middleware.unaryPlus() {
         middleware.add(this)
         recomputeMiddlewareSnapshot()
@@ -152,7 +154,8 @@ class Router : RouteCheck,
                                     status = 404
                                     statusText = page.statusText
                                     headers = page.headers.toMutableMap()
-                                    body = "<!doctype html><html><head>${nullPage!!.metadata?.render()}</head><body>${(nullPage!!.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+                                    body =
+                                        "<!doctype html><html><head>${nullPage!!.metadata?.render()}</head><body>${(nullPage!!.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
                                 }
                         }
                     } else {
@@ -269,4 +272,5 @@ fun router(builder: Router.() -> Unit): Router {
 }
 
 fun <T> T.toResult(): Result<T> = Result.success(this)
+
 fun <T> Exception.toResult(): Result<T> = Result.failure<T>(this)
