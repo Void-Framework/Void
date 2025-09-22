@@ -31,7 +31,10 @@ class ClientHandler(
         }
     }
 
-    fun error(e: Exception, time: MiddlewareTime) {
+    fun error(
+        e: Exception,
+        time: MiddlewareTime,
+    ) {
         val response = router.middlewareProcess(e.toResult(), time)
         if (response != null) {
             ResponseDTO.build(

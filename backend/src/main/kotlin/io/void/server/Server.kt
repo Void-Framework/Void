@@ -158,7 +158,10 @@ fun server(builder: ServerBuilder.() -> Unit): Server {
     return sBuilder.build()
 }
 
-fun simpleServer(port: Int = 8080, builder: Router.() -> Unit): Server {
+fun simpleServer(
+    port: Int = 8080,
+    builder: Router.() -> Unit,
+): Server {
     val router = Router()
     router.builder()
     val server = Server(router)

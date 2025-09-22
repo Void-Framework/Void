@@ -12,21 +12,22 @@ import io.void.server.server
 fun main() {
     val server =
         server {
-            router = router {
-                +middleware {
-                    after = { result ->
-                        result.fold(
-                            onSuccess = { println(it) },
-                            onFailure = { println(it) }
-                        )
-                        null
+            router =
+                router {
+                    +middleware {
+                        after = { result ->
+                            result.fold(
+                                onSuccess = { println(it) },
+                                onFailure = { println(it) },
+                            )
+                            null
+                        }
+                        +homeRoute
+                        +setterRoute
+                        +userRoute
                     }
-                    +homeRoute
-                    +setterRoute
-                    +userRoute
+                    port = 8080
+                    routeToHTTPS = false
                 }
-                port = 8080
-                routeToHTTPS = false
-            }
         }
 }
