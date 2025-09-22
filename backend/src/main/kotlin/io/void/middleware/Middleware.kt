@@ -6,24 +6,20 @@ import io.void.dto.http.ResponseDTO
 interface Middleware {
     val priority: Int
 
-    fun processBefore(requestDTO: RequestDTO): ResponseDTO?
+    fun processBefore(requestDTO: Result<RequestDTO>): ResponseDTO?
 
-    fun processAfter(requestDTO: RequestDTO): ResponseDTO?
-
-    fun handleError(e: Exception): ResponseDTO?
+    fun processAfter(requestDTO: Result<RequestDTO>): ResponseDTO?
 }
 
 fun middleware(priority: Int = 0, block: MiddlewareBuilder.() -> Unit): Middleware =
     object : Middleware {
         override val priority = priority
         private val builder = MiddlewareBuilder().apply(block)
-        override fun processBefore(requestDTO: RequestDTO) = builder.before(requestDTO)
-        override fun processAfter(requestDTO: RequestDTO) = builder.after(requestDTO)
-        override fun handleError(e: Exception) = builder.onError(e)
+        override fun processBefore(requestDTO: Result<RequestDTO>) = builder.before(requestDTO)
+        override fun processAfter(requestDTO: Result<RequestDTO>) = builder.after(requestDTO)
     }
 
 class MiddlewareBuilder {
-    var before: (RequestDTO) -> ResponseDTO? = { null }
-    var after: (RequestDTO) -> ResponseDTO? = { null }
-    var onError: (Exception) -> ResponseDTO? = { null }
+    var before: (Result<RequestDTO>) -> ResponseDTO? = { null }
+    var after: (Result<RequestDTO>) -> ResponseDTO? = { null }
 }

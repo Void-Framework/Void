@@ -62,8 +62,8 @@ class Router : RouteCheck,
         internalMiddleware = middleware.sortedByDescending { it.priority }
     }
 
-    private fun middlewareProcess(
-        requestDTO: RequestDTO,
+    internal fun middlewareProcess(
+        requestDTO: Result<RequestDTO>,
         type: MiddlewareTime,
     ): ResponseDTO? {
         internalMiddleware.forEach {
@@ -72,16 +72,6 @@ class Router : RouteCheck,
                     MiddlewareTime.BEFORE -> it.processBefore(requestDTO)
                     MiddlewareTime.AFTER -> it.processAfter(requestDTO)
                 }
-            if (newResponse != null) {
-                return newResponse
-            }
-        }
-        return null
-    }
-
-    fun middlewareHandleError(e: Exception): ResponseDTO? {
-        internalMiddleware.forEach {
-            val newResponse = it.handleError(e)
             if (newResponse != null) {
                 return newResponse
             }
@@ -124,7 +114,7 @@ class Router : RouteCheck,
         clientHandler: ClientHandler,
     ) {
         val client = clientHandler.client
-        val response = middlewareProcess(requestDTO, MiddlewareTime.BEFORE)
+        val response = middlewareProcess(requestDTO.toResult(), MiddlewareTime.BEFORE)
         if (response != null) {
             ResponseDTO.build(
                 response = response,
@@ -182,7 +172,7 @@ class Router : RouteCheck,
             )
             val lateResponse =
                 middlewareProcess(
-                    requestDTO = requestDTO,
+                    requestDTO = requestDTO.toResult(),
                     type = MiddlewareTime.AFTER,
                 )
             if (lateResponse != null) {
@@ -277,3 +267,6 @@ fun router(builder: Router.() -> Unit): Router {
     val router = Router().apply(builder)
     return router
 }
+
+fun <T> T.toResult(): Result<T> = Result.success(this)
+fun <T> Exception.toResult(): Result<T> = Result.failure<T>(this)
