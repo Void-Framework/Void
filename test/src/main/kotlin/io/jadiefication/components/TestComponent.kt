@@ -1,7 +1,6 @@
 package io.jadiefication.components
 
 import io.void.generated.*
-import io.void.html.CustomElement
 import io.void.html.Element
 import io.void.html.Fractal
 import io.void.html.attributes.AttributeNames
@@ -9,8 +8,8 @@ import io.void.html.attributes.attribute
 import io.void.html.loop
 import java.net.URL
 
-class TestComponent : CustomElement() {
-    override val element: Element =
+fun Element.testComponent(): Fractal {
+    val testComponent = Fractal {
         Div(
             attribute =
                 arrayOf(
@@ -62,10 +61,7 @@ class TestComponent : CustomElement() {
                 Br()
             }
         }
-}
-
-fun Element.testComponent(): TestComponent {
-    val testComponent = TestComponent()
+    }
     children!!.add(testComponent)
     return testComponent
 }
