@@ -40,7 +40,7 @@ class Server internal constructor(
     }
     private val readyLatch = CountDownLatch(1)
 
-    internal fun startHTTPServer(
+    fun startHTTPServer(
         port: Int,
         routeToHTTPS: Boolean = false,
     ) {
@@ -86,7 +86,7 @@ class Server internal constructor(
         }.start()
     }
 
-    internal fun startHTTPSServer(
+    fun startHTTPSServer(
         port: Int,
         password: String,
         file: File,
