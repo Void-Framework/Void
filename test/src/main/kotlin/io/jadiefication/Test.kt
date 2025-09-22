@@ -14,14 +14,19 @@ fun main() {
         server {
             router = router {
                 +middleware {
-                    after = { println(it); null }
-                    onError = { println(it); null }
+                    after = { result ->
+                        result.fold(
+                            onSuccess = { println(it) },
+                            onFailure = { println(it) }
+                        )
+                        null
+                    }
+                    +homeRoute
+                    +setterRoute
+                    +userRoute
                 }
-                +homeRoute
-                +setterRoute
-                +userRoute
+                port = 8080
+                routeToHTTPS = false
             }
-            port = 8080
-            routeToHTTPS = false
         }
 }

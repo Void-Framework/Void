@@ -3,6 +3,8 @@ package io.void.clienthandler
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.router.Router
+import io.void.router.toResult
+import io.void.router.util.MiddlewareTime
 import io.void.server.Server
 import java.net.Socket
 
@@ -29,8 +31,8 @@ class ClientHandler(
         }
     }
 
-    fun error(e: Exception) {
-        val response = router.middlewareHandleError(e)
+    fun error(e: Exception, time: MiddlewareTime) {
+        val response = router.middlewareProcess(e.toResult(), time)
         if (response != null) {
             ResponseDTO.build(
                 response = response,

@@ -1,11 +1,14 @@
 package io.void.server
 
 import io.void.clienthandler.ClientHandler
+import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.generator.TailwindGen
 import io.void.router.Router
+import io.void.router.toResult
+import io.void.router.util.MiddlewareTime
 import io.void.server.exception.HTTPSNotOnException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -167,5 +170,5 @@ fun Socket.error(
     router: Router,
     exception: Exception,
 ) {
-    ClientHandler(this, server, router).error(exception)
+    ClientHandler(this, server, router).error(exception, MiddlewareTime.BEFORE)
 }
