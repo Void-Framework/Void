@@ -85,7 +85,7 @@ class Router :
     internal fun addRoute(route: Page<*>): Router {
         if (route::class != CssPage::class) {
             if (route.contentType == ContentType.HtmlElements::class) {
-                route.request = buildRequest {  }
+                route.request = buildRequest { }
                 TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
                 JsPage.addToMetadata(route, js.toList())
             }
