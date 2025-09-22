@@ -7,7 +7,6 @@ import io.void.dto.http.headers
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
-import io.void.html.page.metadata.MetadataHandler
 import java.util.*
 import kotlin.reflect.KClass
 
