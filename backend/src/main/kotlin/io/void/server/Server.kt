@@ -17,6 +17,7 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.security.KeyStore
 import java.security.SecureRandom
+import java.util.concurrent.CountDownLatch
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
@@ -37,6 +38,7 @@ class Server internal constructor(
     var onServerSocketClose: (ServerSocket) -> Unit = {
         it.close()
     }
+    private val readyLatch = CountDownLatch(1)
 
     internal fun startHTTPServer(
         port: Int,
@@ -45,6 +47,7 @@ class Server internal constructor(
         Thread {
             try {
                 socket = ServerSocket(port)
+                readyLatch.countDown()
                 while (socket.isBound) {
                     val client = socket.accept()
                     if (routeToHTTPS) {
@@ -103,6 +106,7 @@ class Server internal constructor(
                 val server = factory.createServerSocket(port) as SSLServerSocket
                 isHTTPSOn = true
                 server.needClientAuth = needsAuth
+                readyLatch.countDown()
                 while (server.isBound) {
                     val client = server.accept() as SSLSocket
                     client.startHandshake()
@@ -121,6 +125,10 @@ class Server internal constructor(
             }
         }.start()
     }
+
+    fun waitUntilReady() {
+        readyLatch.await()
+    }
 }
 
 class ServerBuilder {
@@ -137,16 +145,19 @@ class ServerBuilder {
     var onServerSocketClose: (ServerSocket) -> Unit = {
         it.close()
     }
+    var autoStart: Boolean = true
 
     fun build(): Server {
         val server = Server(router, httpVersion)
         server.onServerSocketError = onServerSocketError
         server.onServerSocketClose = onServerSocketClose
-        if (file != null) {
-            server.startHTTPSServer(port, password!!, file!!, needsAuth!!)
-            if (routeToHTTPS) server.startHTTPServer(port, true)
-        } else {
-            server.startHTTPServer(port)
+        if (autoStart) {
+            if (file != null) {
+                server.startHTTPSServer(port, password!!, file!!, needsAuth!!)
+                if (routeToHTTPS) server.startHTTPServer(port, true)
+            } else {
+                server.startHTTPServer(port)
+            }
         }
         return server
     }
