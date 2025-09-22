@@ -1,9 +1,9 @@
 package io.jadiefication
 
-import io.jadiefication.middleware.LogMiddleware
 import io.jadiefication.routes.home.homeRoute
 import io.jadiefication.routes.setter.setterRoute
 import io.jadiefication.routes.user.userRoute
+import io.void.middleware.middleware
 import io.void.router.Router
 import io.void.router.router
 import io.void.server.Server
@@ -13,7 +13,10 @@ fun main() {
     val server =
         server {
             router = router {
-                +LogMiddleware()
+                +middleware {
+                    after = { println(it); null }
+                    onError = { println(it); null }
+                }
                 +homeRoute
                 +setterRoute
                 +userRoute
