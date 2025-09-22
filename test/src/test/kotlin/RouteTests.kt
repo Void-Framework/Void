@@ -1,10 +1,12 @@
 package test
 
-import io.jadiefication.routes.home.HomeRoute
-import io.jadiefication.routes.setter.SetterRoute
-import io.jadiefication.routes.user.UserRoute
+import io.jadiefication.routes.home.homeRoute
+import io.jadiefication.routes.setter.setterRoute
+import io.jadiefication.routes.user.userRoute
 import io.void.router.Router
+import io.void.router.router
 import io.void.server.Server
+import io.void.server.server
 import kotlinx.coroutines.*
 import org.json.JSONObject
 import org.junit.jupiter.api.AfterAll
@@ -34,19 +36,19 @@ class RouteTests {
 
     @BeforeAll
     fun setup() {
-        val router =
-            Router().addRoutes(
-                listOf(
-                    HomeRoute(),
-                    SetterRoute(),
-                    UserRoute(), // Add the dynamic route
-                ),
-            )
-        server = Server(router = router)
-
+        server =
+            server {
+                router =
+                    router {
+                        +homeRoute
+                        +setterRoute
+                        +userRoute
+                    }
+                autoStart = false
+            }
         serverJob =
             scope.launch {
-                server.startHTTPServer(port = port)
+                server.startHTTPServer(port)
             }
 
         // Wait for server to start and be ready

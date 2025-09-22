@@ -7,6 +7,7 @@ import io.void.clienthandler.ClientHandler
 import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildRequest
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.generator.TailwindGen
@@ -84,6 +85,7 @@ class Router :
     internal fun addRoute(route: Page<*>): Router {
         if (route::class != CssPage::class) {
             if (route.contentType == ContentType.HtmlElements::class) {
+                route.request = buildRequest {  }
                 TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
                 JsPage.addToMetadata(route, js.toList())
             }
