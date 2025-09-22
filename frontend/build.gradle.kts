@@ -12,7 +12,6 @@ kotlin {
         browser {
             binaries.executable()
         }
-
     }
 }
 

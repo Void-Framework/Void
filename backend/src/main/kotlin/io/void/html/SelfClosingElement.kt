@@ -1,7 +1,8 @@
 package io.void.html
 
-abstract class SelfClosingElement internal constructor(override var name: String): Element(name) {
-
+abstract class SelfClosingElement internal constructor(
+    override var name: String,
+) : Element(name) {
     override val children: MutableList<Element>? = null
 
     override fun render(): String {

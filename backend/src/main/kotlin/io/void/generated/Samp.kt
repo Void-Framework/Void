@@ -6,7 +6,10 @@ import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class Samp(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "samp") {
+class Samp(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "samp") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
 
@@ -14,12 +17,17 @@ class Samp(vararg attributes: Attribute, function: Element.() -> Unit): ElementW
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Samp(vararg attribute: Attribute, _children: Element.() -> Unit): Samp {
-        val Samp = Samp(
+fun Element.Samp(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): Samp {
+    val Samp =
+        Samp(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(Samp)
-        return Samp
-    }
+    children!!.add(Samp)
+    return Samp
+}

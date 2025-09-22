@@ -1,7 +1,6 @@
 package io.void.api.method
 
 enum class Method {
-
     GET,
     HEAD,
     POST,
@@ -10,5 +9,5 @@ enum class Method {
     CONNECT,
     OPTIONS,
     TRACE,
-    PATCH
+    PATCH,
 }

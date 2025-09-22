@@ -6,7 +6,10 @@ import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class Section(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "section") {
+class Section(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "section") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
 
@@ -14,12 +17,17 @@ class Section(vararg attributes: Attribute, function: Element.() -> Unit): Eleme
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Section(vararg attribute: Attribute, _children: Element.() -> Unit): Section {
-        val Section = Section(
+fun Element.Section(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): Section {
+    val Section =
+        Section(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(Section)
-        return Section
-    }
+    children!!.add(Section)
+    return Section
+}
