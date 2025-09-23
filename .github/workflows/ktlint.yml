@@ -1,0 +1,37 @@
+name: Ktlint Weekly Auto-Fix
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # every Sunday at midnight UTC
+  workflow_dispatch: # allow manual runs too
+
+jobs:
+  ktlint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # built-in, works with PRs
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Run ktlint format
+        run: ./gradlew ktlintFormat
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ktlint-fixes
+          commit-message: "chore: apply ktlint auto-fixes"
+          title: "chore: apply ktlint auto-fixes"
+          body: |
+            This PR applies automatic `ktlintFormat` fixes.
+          labels: ktlint, automated-pr
+          assignees: jade
