@@ -6,7 +6,10 @@ import io.void.html.attributes.Attribute
 import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class Pre(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "pre") {
+class Pre(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "pre") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
     override val allowedAttributes: List<AttributeNames> = listOf()
 
@@ -14,12 +17,17 @@ class Pre(vararg attributes: Attribute, function: Element.() -> Unit): ElementWi
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Pre(vararg attribute: Attribute, _children: Element.() -> Unit): Pre {
-        val Pre = Pre(
+fun Element.Pre(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): Pre {
+    val Pre =
+        Pre(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(Pre)
-        return Pre
-    }
+    children!!.add(Pre)
+    return Pre
+}

@@ -1,6 +1,8 @@
 package io.void.html.attributes
 
-enum class AttributeNames(val dataTypes: AttributeTypes) {
+enum class AttributeNames(
+    val dataTypes: AttributeTypes,
+) {
     ACCEPT(AttributeTypes.STRING),
     ACCEPT_CHARSET(AttributeTypes.STRING),
     ACCESSKEY(AttributeTypes.STRING),
@@ -106,5 +108,5 @@ enum class AttributeNames(val dataTypes: AttributeTypes) {
     USEMAP(AttributeTypes.STRING),
     VALUE(AttributeTypes.STRING),
     WIDTH(AttributeTypes.INTEGER),
-    WRAP(AttributeTypes.STRING);
+    WRAP(AttributeTypes.STRING),
 }

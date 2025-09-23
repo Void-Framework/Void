@@ -4,6 +4,8 @@ import io.void.cache.Cache
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildResponse
+import io.void.dto.http.headers
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
@@ -54,41 +56,53 @@ internal interface RequestHandler {
         return null
     }
 
-    fun <T : Page<*>> constructClassicResponse(page: T): ResponseDTO {
-        return ResponseDTO(
-            status = 200,
-            statusText = "All is well",
-            headers = mutableMapOf("Content-Type" to "text/html"),
-            body = """<!doctype html><html>
+    fun <T : Page<*>> constructClassicResponse(page: T): ResponseDTO =
+        buildResponse {
+            status = 200
+            statusText = "All is well"
+            headers {
+                put("Content-Type", "text/html")
+            }
+            body =
+                """
+                <!doctype html><html>
                 <head>${page.metadata?.render() ?: ""}</head>
                 <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
-                </html>""".trimIndent()
-        )
-    }
+                </html>
+                """.trimIndent()
+        }
 
-    fun handleResponse(page: Page<ContentType.Response>, clientHandler: ClientHandler) {
+    fun handleResponse(
+        page: Page<ContentType.Response>,
+        clientHandler: ClientHandler,
+    ) {
         val client = clientHandler.client
         ResponseDTO.build(
             response = page.content().response,
             outputStream = client.getOutputStream(),
-            version = clientHandler.server.httpVersion
+            version = clientHandler.server.httpVersion,
         )
     }
 
-    fun handleCasual(page: Page<ContentType.HtmlElements>, clientHandler: ClientHandler, target: String) {
+    fun handleCasual(
+        page: Page<ContentType.HtmlElements>,
+        clientHandler: ClientHandler,
+        target: String,
+    ) {
         val client = clientHandler.client
-        val response = if (Cache.singleton.cache.containsKey(target)) {
-            Cache.singleton.cache[target]!!
-        } else {
-            constructClassicResponse(
-                page = page,
-            )
-        }
+        val response =
+            if (Cache.cache.containsKey(target)) {
+                Cache.cache[target]!!
+            } else {
+                constructClassicResponse(
+                    page = page,
+                )
+            }
 
         ResponseDTO.build(
             response = response,
             outputStream = client.getOutputStream(),
-            version = clientHandler.server.httpVersion
+            version = clientHandler.server.httpVersion,
         )
     }
 }

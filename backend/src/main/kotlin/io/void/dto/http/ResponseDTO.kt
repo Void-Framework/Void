@@ -1,28 +1,37 @@
 package io.void.dto.http
 
+import io.void.api.method.Method
 import java.io.OutputStream
 import java.io.PrintWriter
 import kotlin.reflect.full.memberProperties
 
-typealias JSON = MutableMap<String, Any?>
-typealias Headers = MutableMap<String, String>
+typealias Headers = Map<String, String>
+typealias JSON = Map<String, Any?>
 
-data class ResponseDTO(var status: Int, var statusText: String, var headers: Headers, var body: String) {
-
-    companion object {
-        private fun generateJson(keyAndValue: Map<String, Any?>) {
-            keyAndValue.forEach {
-                generateJson(it.key, it.value)
-            }
+data class ResponseDTO(
+    val status: Int,
+    val statusText: String,
+    val body: String,
+) {
+    private val _headers = mutableMapOf<String, String>()
+    var headers: Headers
+        get() = _headers
+        set(value) {
+            _headers.putAll(value)
         }
 
-        fun build(response: ResponseDTO, outputStream: OutputStream, version: Number = 1.1)  {
+    companion object {
+        internal fun build(
+            response: ResponseDTO,
+            outputStream: OutputStream,
+            version: Number = 1.1,
+        ) {
             val writer = PrintWriter(outputStream, true)
             writer.println("HTTP/$version ${response.status} ${response.statusText}")
 
             val responseBody = response.body
             if (!response.headers.containsKey("Content-Length")) {
-                response.headers["Content-Length"] = responseBody.toByteArray().size.toString()
+                response._headers["Content-Length"] = responseBody.toByteArray().size.toString()
             }
 
             for ((key, value) in response.headers.entries) {
@@ -34,17 +43,27 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
             writer.flush()
         }
 
-        private fun generateJson(key: String, value: Any?): String? {
+        private fun generateJson(keyAndValue: Map<String, Any?>) {
+            keyAndValue.forEach {
+                generateJson(it.key, it.value)
+            }
+        }
+
+        private fun generateJson(
+            key: String,
+            value: Any?,
+        ): String? {
             when (value) {
                 null -> return "\"$key\":null,"
                 is Boolean, is Number -> return "\"$key\":$value,"
                 is String -> return "\"$key\":\"$value\","
                 is Array<*>, is Iterable<*> -> {
-                    val items = when (value) {
-                        is Array<*> -> value.toList()
-                        is Collection<*> -> value.toList()
-                        else -> emptyList()
-                    }
+                    val items =
+                        when (value) {
+                            is Array<*> -> value.toList()
+                            is Collection<*> -> value.toList()
+                            else -> emptyList()
+                        }
                     val arrayBuilder = StringBuilder("[")
                     items.forEach {
                         when (it) {
@@ -90,20 +109,32 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
             }
         }
 
-        private fun generateObjectJson(key: String, value: Any): String {
+        private fun generateObjectJson(
+            key: String,
+            value: Any,
+        ): String {
             val objectBuilder = StringBuilder("\"$key\":{")
-            objectBuilder.append("${
-                generateJson(value::class.memberProperties.associate {
-                    it.name to it.getter.call(
-                        value
+            objectBuilder.append(
+                "${
+                    generateJson(
+                        value::class.memberProperties.associate {
+                            it.name to
+                                it.getter.call(
+                                    value,
+                                )
+                        },
                     )
-                })
-            }}")
+                }}",
+            )
             return objectBuilder.toString()
         }
 
         @Deprecated("Builder is broken", ReplaceWith("JSONDTO"), DeprecationLevel.WARNING)
-        fun json(entries: JSON, statusInt: Int, statusMessage: String): ResponseDTO {
+        fun json(
+            entries: JSON,
+            statusInt: Int,
+            statusMessage: String,
+        ): ResponseDTO {
             val jsonBuilder = StringBuilder("{")
 
             entries.forEach { (key, value) ->
@@ -115,12 +146,33 @@ data class ResponseDTO(var status: Int, var statusText: String, var headers: Hea
 
             jsonBuilder.append("}")
 
-            return ResponseDTO(
-                status = statusInt,
-                statusText = statusMessage,
-                headers = mutableMapOf("Content-Type" to "application/json"),
-                body = jsonBuilder.toString(),
-            )
+            return buildResponse {
+                status = statusInt
+                statusText = statusMessage
+                headers {
+                    put("Content-Type", "application/json")
+                }
+                body = jsonBuilder.toString()
+            }
         }
     }
+}
+
+class ResponseBuilder {
+    var status: Int = 200
+    var statusText: String = "All is well!"
+    var headers: MutableMap<String, String> = mutableMapOf()
+    var body: String = ""
+
+    fun build(): ResponseDTO = ResponseDTO(status, statusText, body).apply { headers = this@ResponseBuilder.headers }
+}
+
+fun buildResponse(builder: ResponseBuilder.() -> Unit): ResponseDTO {
+    val build = ResponseBuilder()
+    build.builder()
+    return build.build()
+}
+
+fun ResponseBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
+    headers.block()
 }

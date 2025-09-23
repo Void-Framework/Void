@@ -6,8 +6,9 @@ import kotlin.reflect.KClass
 
 internal interface HElement
 
-abstract class ElementWithChildren internal constructor(override val name: String): Element(name) {
-
+abstract class ElementWithChildren internal constructor(
+    override val name: String,
+) : Element(name) {
     abstract val acceptedChildren: MutableList<KClass<out Element>?>
 
     override fun render(): String {
@@ -28,12 +29,12 @@ abstract class ElementWithChildren internal constructor(override val name: Strin
                 if (!isAccepted(child)) {
                     if (child is Fractal) {
                         throw FragmentChildNotAllowedException(
-                            parent = this
+                            parent = this,
                         )
                     } else {
                         throw ChildNotAllowedException(
                             child = child,
-                            parent = this
+                            parent = this,
                         )
                     }
                 }
