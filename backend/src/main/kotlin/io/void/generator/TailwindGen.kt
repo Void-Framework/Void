@@ -7,10 +7,6 @@ import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.metadata
 import io.void.router.Router
-import java.io.BufferedReader
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.StringReader
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -18,13 +14,16 @@ import java.net.http.HttpResponse
 import java.util.*
 
 object TailwindGen {
-    private lateinit var resourceFile: String
+    private var resourceFile: String = ""
     private val client =
         HttpClient
             .newBuilder()
-            .version(HttpClient.Version.HTTP_1_1) // Forces HTTP/2
+            .version(HttpClient.Version.HTTP_1_1)
             .build()
 
+    /**
+     * Fetch tailwind css and store raw content. Call once at startup or when you want to refresh.
+     */
     internal fun grabTailwind() {
         val request =
             HttpRequest
@@ -33,156 +32,143 @@ object TailwindGen {
                 .GET()
                 .build()
         val cResponse = client.send(request, HttpResponse.BodyHandlers.ofString())
-        val body = cResponse.body()
-        resourceFile = formatCss(body)
+        resourceFile = cResponse.body()
     }
 
-    private fun formatCss(css: String): String {
-        // Normalize whitespace and break into tokens
-        val spaced =
-            css
-                .replace("{", "{\n")
-                .replace("}", "\n}\n")
-                .replace(";", ";\n")
+    /**
+     * Recursively collect classes found on element trees into page.classAttributes (keeps your original method).
+     */
+    private fun putInTailwind(element: Element, page: Page<*>) {
+        if (element.attributes.containsKey(AttributeNames.CLASS)) {
+            page.classAttributes[element] = element.attributes[AttributeNames.CLASS]!!.split("\\s+".toRegex())
+        }
+        element.children?.forEach {
+            putInTailwind(it, page)
+        }
+    }
 
-        val lines = spaced.lines()
+    private fun handleElements(element: Element, page: Page<ContentType.HtmlElements>) {
+        // reuse putInTailwind to populate page.classAttributes
+        putInTailwind(element, page)
+        element.children?.forEach { child ->
+            putInTailwind(child, page)
+        }
+    }
+
+    /**
+     * Normalize and escape classes to the form they appear in the tailwind CSS.
+     * e.g. "hover:bg-red-500" -> ".hover\:bg-red-500"
+     */
+    private fun normalizeClassToSelector(className: String): String {
+        // basic escapes that Tailwind uses in CSS: colon and slash become backslash-escaped
+        // also escape other characters commonly used in class tokens that may appear escaped in compiled CSS
+        val escaped = className
+            .replace(":", "\\:")
+            .replace("/", "\\/")
+            .replace(".", "\\.")
+            .replace("[", "\\[")
+            .replace("]", "\\]")
+        return ".$escaped"
+    }
+
+    /**
+     * Extract selectors that match any of the used class selectors.
+     * This uses two passes: non-media top-level rules, and media blocks.
+     */
+    private fun extractUsedCssBlocks(rawCss: String, usedClassSelectors: Set<String>): String {
         val sb = StringBuilder()
-        var indentLevel = 0
 
-        for (rawLine in lines) {
-            val line = rawLine.trim()
-            if (line.isEmpty()) continue
+        // 1) include some global rules always (html, body, *, ::before, ::after)
+        val globalRegex = Regex("""(^|[\s,])(?:html|body|\*|::before|::after)[^{]*\{[^}]*\}""", RegexOption.DOT_MATCHES_ALL)
+        for (m in globalRegex.findAll(rawCss)) {
+            sb.append(m.value).append("\n")
+        }
 
-            // Adjust indent for closing brace
-            if (line == "}") indentLevel--
+        // 2) non-media rules (selectors with a single declaration block)
+        // This will match selector blocks that are not part of an @media at the top-level.
+        val ruleRegex = Regex("""([^{@][^{}]*?)\{([^{}]*?)\}""", RegexOption.DOT_MATCHES_ALL)
+        for (m in ruleRegex.findAll(rawCss)) {
+            val selectorBlock = m.groupValues[1].trim()
+            val selectors = selectorBlock.split(",").map { it.trim() }
 
-            // Append indented line
-            sb
-                .append("    ".repeat(indentLevel))
-                .append(line)
-                .append("\n")
+            if (selectors.any { usedClassSelectors.contains(it) }) {
+                sb.append(m.value).append("\n")
+            }
+        }
 
-            // Increase indent after opening brace
-            if (line.endsWith("{")) indentLevel++
+
+        // 3) media query blocks — include whole block if any used selector appears inside it
+        val mediaRegex = Regex("""@media[^{]+\{(?:(?:[^{}]|\{[^{}]*\})*)\}""", RegexOption.DOT_MATCHES_ALL)
+        for (m in mediaRegex.findAll(rawCss)) {
+            val mediaBlock = m.value
+            if (usedClassSelectors.any { mediaBlock.contains(it) }) {
+                sb.append(mediaBlock).append("\n")
+            }
         }
 
         return sb.toString()
     }
 
-    private fun putInTailwind(
-        element: Element,
-        page: Page<*>,
-    ) {
-        if (element.attributes.containsKey(AttributeNames.CLASS)) {
-            page.classAttributes[element] = element.attributes[AttributeNames.CLASS]!!.split(" ")
-        }
-        element.children?.forEach {
-            putInTailwind(it, page)
-        }
-    }
-
-    private fun handleElements(
-        element: Element,
-        page: Page<ContentType.HtmlElements>,
-    ) {
-        if (element.attributes.containsKey(AttributeNames.CLASS)) {
-            putInTailwind(element, page)
-        }
-        element.children?.forEach {
-            putInTailwind(it, page)
-        }
-    }
-
-    private fun handleClasses(page: Page<ContentType.HtmlElements>): MutableSet<String> {
-        val attributes = mutableSetOf<String>()
-        page.classAttributes.forEach { (_, attribute) ->
-            attribute.forEach {
-                if (it.contains(":")) {
-                    attributes.add(".${it.substringBefore(":")}\\:${it.substringAfter(":")}:${it.substringBefore(":")}")
-                } else {
-                    attributes.add(".$it")
+    /**
+     * Produce the set of class selectors we should scan for in the CSS.
+     * E.g. "border-gray-400" -> ".border-gray-400"
+     *       "hover:bg-red-500" -> ".hover\:bg-red-500"
+     */
+    private fun collectClassSelectors(page: Page<ContentType.HtmlElements>): Set<String> {
+        val classes = mutableSetOf<String>()
+        page.classAttributes.forEach { (_, list) ->
+            list.forEach { raw ->
+                val trimmed = raw.trim()
+                if (trimmed.isNotEmpty()) {
+                    classes.add(normalizeClassToSelector(trimmed))
                 }
             }
         }
-        return attributes
+        return classes
     }
 
-    private fun handleMetadataAdding(
-        page: Page<ContentType.HtmlElements>,
-        uuid: UUID,
-    ) {
+    private fun handleMetadataAdding(page: Page<ContentType.HtmlElements>, uuid: UUID) {
         if (page.metadata == null) {
-            page.metadata =
-                metadata(page) {
-                    style = uuid
-                }
+            page.metadata = metadata(page) {
+                style = uuid
+            }
         } else {
             page.metadata!!.style = uuid
         }
     }
 
-    internal fun processTailwind(
-        page: Page<ContentType.HtmlElements>,
-        router: Router,
-    ) {
+    /**
+     * Main entry: gather classes from page, extract only matching Tailwind blocks, register route.
+     */
+    internal fun processTailwind(page: Page<ContentType.HtmlElements>, router: Router) {
+        if (resourceFile.isBlank()) {
+            // if not fetched yet, attempt to fetch — keep it simple
+            try {
+                grabTailwind()
+            } catch (e: Exception) {
+                // fail silently but return so we don't crash the server
+                return
+            }
+        }
+
+        // populate page.classAttributes map
         handleElements(page.content().htmlElement, page)
-        val attributes = handleClasses(page)
 
-        var currentLine = ""
-        val processedLines = mutableListOf<String>()
-
-        BufferedReader(StringReader(resourceFile)).use { reader ->
-            reader.lines().forEach { line ->
-                if (!line.endsWith("}")) {
-                    currentLine += line
-                } else {
-                    processedLines.add("$currentLine    }")
-                    currentLine = "" // Reset currentLine after processing
-                }
-            }
-            // Don't forget to add the last line if it doesn't end with "}":
-            if (currentLine.isNotEmpty()) {
-                processedLines.add(currentLine)
-            }
+        val classSelectors = collectClassSelectors(page)
+        if (classSelectors.isEmpty()) {
+            // nothing used — still assign empty css to avoid missing route behavior
+            val uuid = UUID.randomUUID()
+            router.addRoute(CssPage(uuid, ""))
+            handleMetadataAdding(page, uuid)
+            return
         }
 
-        // Don't forget to add the last line if it doesn't end with "},":
-        if (currentLine.isNotEmpty()) {
-            processedLines.add(currentLine)
-        }
+        // Extract used blocks (base rules + media queries)
+        val finalCss = extractUsedCssBlocks(resourceFile, classSelectors)
 
-        val newProcessedLines = filterLines(processedLines, attributes)
-
+        // Generate UUID, register route, and attach to page metadata
         val uuid = UUID.randomUUID()
-        val css = newProcessedLines.joinToString().filter { it != ',' }
-        router.addRoute(CssPage(uuid, css))
+        router.addRoute(CssPage(uuid, finalCss))
         handleMetadataAdding(page, uuid)
-    }
-
-    private fun filterLines(
-        processedLines: MutableList<String>,
-        attributes: MutableSet<String>,
-    ): List<String> {
-        return processedLines
-            .filter { line ->
-                if (line.startsWith("::after") || line.startsWith("::before") ||
-                    line.startsWith("html") || line.startsWith("body") || line.startsWith("*")
-                ) {
-                    line
-                }
-                attributes.any { attribute ->
-                    return@any if (line.contains("@media")) {
-                        line.substringAfter("{").substringBefore("{").trim() == attribute
-                    } else {
-                        line.substringBefore("{").trim() == attribute
-                    }
-                }
-            }.map {
-                if (it.contains("@media")) {
-                    return@map "$it}"
-                } else {
-                    return@map it
-                }
-            }
     }
 }
