@@ -3,9 +3,10 @@ package io.void.html.exceptions
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 
-data class ExceptionPage(var e: Exception) {
-
-    internal constructor(page: IExceptionPage): this(Exception()) {
+data class ExceptionPage(
+    var e: Exception,
+) {
+    internal constructor(page: IExceptionPage) : this(Exception()) {
         newPage = page
         val response = ContentType.Response::class
         when ((page as Page<*>).contentType) {
@@ -15,7 +16,8 @@ data class ExceptionPage(var e: Exception) {
     }
 
     lateinit var newPage: IExceptionPage
-    var page = "<!doctype html><html>" +
+    var page =
+        "<!doctype html><html>" +
             "<head>" +
             "  <style>" +
             "#__next-dev-overlay {\n" +
@@ -88,7 +90,7 @@ data class ExceptionPage(var e: Exception) {
             "      </div>\n" +
             "      <div class=\"stack-trace\">\n" +
             "        <pre>\n" +
-            "          ${e.stackTrace.joinToString("\n")}\n"+
+            "          ${e.stackTrace.joinToString("\n")}\n" +
             "        </pre>\n" +
             "      </div>\n" +
             "    </div>\n" +

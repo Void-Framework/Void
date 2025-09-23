@@ -6,5 +6,5 @@ enum class AttributeTypes {
     BOOLEAN,
     INTEGER,
     NUMBER,
-    URL
+    URL,
 }
