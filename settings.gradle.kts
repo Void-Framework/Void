@@ -8,8 +8,8 @@ pluginManagement {
     // repositories used to resolve Gradle plugins (kotlin("jvm") etc.)
     repositories {
         mavenLocal()
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
         // add any private plugin repo here:
         // maven { url = uri("https://my.company.repo/plugins") }
     }
@@ -32,3 +32,5 @@ include(":test")
 include(":backend")
 
 include("frontend")
+
+includeBuild("gradle-plugin")
