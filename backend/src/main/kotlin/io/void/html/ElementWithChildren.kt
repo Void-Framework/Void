@@ -12,9 +12,9 @@ abstract class ElementWithChildren internal constructor(
     abstract val acceptedChildren: MutableList<KClass<out Element>?>
 
     override fun render(): String {
-        var attrs: String = ""
-        attributes.entries.forEach { (name, value) ->
-            attrs += "${name.name.lowercase()}=\"$value\" "
+        var attrs = ""
+        attributes.forEach { (name, value) ->
+            attrs += "${name.lowercase()}=\"$value\" "
         }
         /**
          * If the first value in the array is null it means the element can accept any children.

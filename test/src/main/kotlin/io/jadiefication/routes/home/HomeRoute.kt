@@ -4,8 +4,6 @@ import io.jadiefication.components.testComponent
 import io.void.cache.Cacheable
 import io.void.generated.*
 import io.void.html.Fractal
-import io.void.html.attributes.AttributeNames
-import io.void.html.attributes.attribute
 import io.void.html.page.htmlRoute
 import java.net.URL
 
@@ -21,176 +19,69 @@ val homeRoute =
         val buttonClasses = "bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-300"
 
         return@htmlRoute Main(
-            attribute {
-                name = AttributeNames.CLASS
-                value = containerClasses
-            },
+            "class" to containerClasses,
         ) {
             Header(
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = "text-center mb-12"
-                },
+                "class" to "text-center mb-12",
             ) {
-                H1 {
-                    Fractal("Welcome to Void Framework")
-                }
+                H1 { Fractal("Welcome to Void Framework") }
                 Nav(
-                    attribute {
-                        name = AttributeNames.CLASS
-                        value = "flex justify-center gap-4 mt-4"
-                    },
+                    "class" to "flex justify-center gap-4 mt-4",
                 ) {
                     A(
-                        attribute {
-                            name = AttributeNames.HREF
-                            value = "#features"
-                        },
-                        attribute {
-                            name = AttributeNames.CLASS
-                            value = linkClasses
-                        },
+                        "href" to "#features",
+                        "class" to linkClasses,
                     ) { Fractal("Features ") }
 
                     A(
-                        attribute {
-                            name = AttributeNames.HREF
-                            value = "#docs"
-                        },
-                        attribute {
-                            name = AttributeNames.CLASS
-                            value = linkClasses
-                        },
+                        "href" to "#docs",
+                        "class" to linkClasses,
                     ) { Fractal("Documentation") }
                 }
             }
 
             Section(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "features"
-                },
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = sectionClasses
-                },
+                "id" to "features",
+                "class" to sectionClasses,
             ) {
-                H2(
-                    attribute {
-                        name = AttributeNames.CLASS
-                        value = headingClasses
-                    },
-                ) { Fractal("Framework Features") }
+                H2("class" to headingClasses) { Fractal("Framework Features") }
 
-                Article(
-                    attribute {
-                        name = AttributeNames.CLASS
-                        value = cardClasses
-                    },
-                ) {
-                    H3(
-                        attribute {
-                            name = AttributeNames.CLASS
-                            value = subheadingClasses
-                        },
-                    ) { Fractal("Type-Safe HTML DSL") }
-
+                Article("class" to cardClasses) {
+                    H3("class" to subheadingClasses) { Fractal("Type-Safe HTML DSL") }
                     P { Fractal("Build your UI with a fully type-safe Kotlin DSL") }
                 }
             }
 
             Section(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "docs"
-                },
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = sectionClasses
-                },
+                "id" to "docs",
+                "class" to sectionClasses,
             ) {
-                H2(
-                    attribute {
-                        name = AttributeNames.CLASS
-                        value = headingClasses
-                    },
-                ) { Fractal("Documentation") }
+                H2("class" to headingClasses) { Fractal("Documentation") }
 
-                Div(
-                    attribute {
-                        name = AttributeNames.CLASS
-                        value = "grid grid-cols-1 md:grid-cols-2 gap-4"
-                    },
-                ) {
-                    Article(
-                        attribute {
-                            name = AttributeNames.CLASS
-                            value = cardClasses
-                        },
-                    ) {
-                        H3(
-                            attribute {
-                                name = AttributeNames.CLASS
-                                value = subheadingClasses
-                            },
-                        ) { Fractal("Getting Started") }
-
+                Div("class" to "grid grid-cols-1 md:grid-cols-2 gap-4") {
+                    Article("class" to cardClasses) {
+                        H3("class" to subheadingClasses) { Fractal("Getting Started") }
                         P { Fractal("Quick start guide for new projects") }
-
-                        Button(
-                            attribute {
-                                name = AttributeNames.CLASS
-                                value = buttonClasses
-                            },
-                        ) { Fractal("Learn More") }
+                        Button("class" to buttonClasses) { Fractal("Learn More") }
                     }
 
-                    Article(
-                        attribute {
-                            name = AttributeNames.CLASS
-                            value = cardClasses
-                        },
-                    ) {
-                        H3(
-                            attribute {
-                                name = AttributeNames.CLASS
-                                value = subheadingClasses
-                            },
-                        ) { Fractal("API Reference") }
-
+                    Article("class" to cardClasses) {
+                        H3("class" to subheadingClasses) { Fractal("API Reference") }
                         P { Fractal("Complete API documentation") }
 
                         A(
-                            attribute {
-                                name = AttributeNames.HREF
-                                value = URL("https://github.com/Jadiefication/void-framework")
-                            },
-                            attribute {
-                                name = AttributeNames.TARGET
-                                value = "_blank"
-                            },
-                            attribute {
-                                name = AttributeNames.REL
-                                value = "noopener"
-                            },
-                            attribute {
-                                name = AttributeNames.CLASS
-                                value = buttonClasses
-                            },
+                            "href" to URL("https://github.com/Jadiefication/void-framework").toString(),
+                            "target" to "_blank",
+                            "rel" to "noopener",
+                            "class" to buttonClasses,
                         ) { Fractal("View on GitHub") }
                     }
                 }
             }
 
             Footer(
-                attribute {
-                    name = AttributeNames.ID
-                    value = "footer"
-                },
-                attribute {
-                    name = AttributeNames.CLASS
-                    value = "text-center mt-12 text-gray-600"
-                },
+                "id" to "footer",
+                "class" to "text-center mt-12 text-gray-600",
             ) {
                 P { Fractal("© 2023 Void Framework. All rights reserved.") }
 

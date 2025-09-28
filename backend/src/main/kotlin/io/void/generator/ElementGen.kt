@@ -63,30 +63,11 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
     lines.forEach { line ->
         val kotlinCode =
             StringBuilder(
-                "package io.void.generated\n\nimport io.void.html.attributes.Attribute\nimport io.void.html.attributes.AttributeNames\nimport io.void.generated.*\nimport kotlin.reflect.KClass\n",
+                "package io.void.generated\n\nimport io.void.html.Attribute\nimport io.void.html.attributes.AttributeNames\nimport io.void.generated.*\nimport kotlin.reflect.KClass\n",
             )
         val startLength = kotlinCode.length
-        val attributeBuilder = StringBuilder("")
         val name = line.substringBefore("\":").substringAfter("\"").capitalize()
         val type = line.substringAfter("\"contentModel\": \"").substringBefore("\"").capitalize()
-        val attributes =
-            line
-                .substringAfter(
-                    "\"attributes\": [",
-                ).substringBefore("]")
-                .split(", ")
-                .map { it.replace("\"", "").uppercase() }
-                .toList()
-        if (attributes.isNotEmpty()) {
-            attributes.forEach { attribute ->
-                if (attribute.isNotBlank()) {
-                    attributeBuilder.append("AttributeNames.$attribute, ")
-                }
-            }
-            if (attributeBuilder.isNotEmpty()) {
-                attributeBuilder.setLength(attributeBuilder.length - 2)
-            }
-        }
         when (type) {
             "Normal" -> {
                 val HElement = name.startsWith("h", true) && name[name.length - 1].digitToIntOrNull() != null
@@ -139,9 +120,8 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
             }
             else -> throw UnsupportedOperationException()
         }
-        kotlinCode.append("    override val allowedAttributes: List<AttributeNames> = listOf($attributeBuilder)\n\n")
 
-        var extension: String = ""
+        var extension = ""
         when (type) {
             "Normal" -> {
                 kotlinCode.append("    init {\n        this.apply(function)\n        addAttributes(*attributes)\n    }\n\n")
