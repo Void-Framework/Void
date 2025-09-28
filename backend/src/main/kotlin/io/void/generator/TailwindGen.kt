@@ -2,7 +2,6 @@ package io.void.generator
 
 import io.void.api.CssPage
 import io.void.html.Element
-import io.void.html.attributes.AttributeNames
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.metadata
@@ -39,8 +38,8 @@ object TailwindGen {
      * Recursively collect classes found on element trees into page.classAttributes (keeps your original method).
      */
     private fun putInTailwind(element: Element, page: Page<*>) {
-        if (element.attributes.containsKey(AttributeNames.CLASS)) {
-            page.classAttributes[element] = element.attributes[AttributeNames.CLASS]!!.split("\\s+".toRegex())
+        if (element.attributes.containsKey("class")) {
+            page.classAttributes[element] = element.attributes["class"].split("\\s+".toRegex())
         }
         element.children?.forEach {
             putInTailwind(it, page)
@@ -171,4 +170,10 @@ object TailwindGen {
         router.addRoute(CssPage(uuid, finalCss))
         handleMetadataAdding(page, uuid)
     }
+}
+
+fun <T> List<Pair<T, *>>.containsKey(key: T): Boolean = any { it.first == key }
+
+operator fun <N, M> List<Pair<N, M>>.get(key: N): M {
+    return first { it.first == key }.second
 }
