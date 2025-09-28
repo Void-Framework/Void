@@ -1,33 +1,22 @@
 package io.void.generated
 
+import io.void.html.Attribute
 import io.void.html.Element
 import io.void.html.ElementWithChildren
-import io.void.html.attributes.Attribute
-import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
-class Template(
-    vararg attributes: Attribute,
-    function: Element.() -> Unit,
-) : ElementWithChildren(name = "template") {
+class Template(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "template") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-    override val allowedAttributes: List<AttributeNames> = listOf()
-
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
-}
 
-fun Element.Template(
-    vararg attribute: Attribute,
-    _children: Element.() -> Unit,
-): Template {
-    val Template =
-        Template(
+}    fun Element.Template(vararg attribute: Attribute, _children: Element.() -> Unit): Template {
+        val Template = Template(
             attributes = attribute,
-            function = _children,
+            function = _children
         )
-    children!!.add(Template)
-    return Template
-}
+        children!!.add(Template)
+        return Template
+    }
