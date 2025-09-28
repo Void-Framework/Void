@@ -21,11 +21,27 @@ Then, add the local path to your build tool configuration.
 ## Usage 💻
 Here's a quick example to get started in Kotlin:
 ```kotlin
-val router = Router().addRoutes(HomeRoute())
-
 fun main() {
-    val server = Server(router = router)
-    server.startServer(8080)
+    val server =
+        server {
+            router =
+                router {
+                    +middleware {
+                        after = { result ->
+                            result.fold(
+                                onSuccess = { println(it) },
+                                onFailure = { println(it) },
+                            )
+                            null
+                        }
+                        +homeRoute
+                        +setterRoute
+                        +userRoute
+                    }
+                    port = 8080
+                    routeToHTTPS = false
+                }
+        }
 }
 ```
 
