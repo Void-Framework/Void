@@ -32,8 +32,6 @@ class Router :
     RequestHandler {
     private var internalMiddleware: List<Middleware> = emptyList()
     val middleware = mutableSetOf<Middleware>()
-
-    private val js = mutableSetOf<JsPage>()
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private var exceptionPage = ExceptionPage(e = Exception())
@@ -42,14 +40,6 @@ class Router :
     init {
         recomputeMiddlewareSnapshot()
         TailwindGen.grabTailwind()
-
-        val resourceFolder = "static/js"
-        val paths = listResourcePaths(resourceFolder)
-        paths.forEach { path ->
-            val content = readResourceText("/$path")
-            js.add(JsPage(UUID.randomUUID(), content))
-        }
-        js.forEach { addRoute(it) }
     }
 
     operator fun Page<*>.unaryPlus() {
@@ -87,7 +77,6 @@ class Router :
             if (route.contentType == ContentType.HtmlElements::class) {
                 route.request = buildRequest { }
                 TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
-                JsPage.addToMetadata(route, js.toList())
             }
         }
         Processor.annotationProcessor(page = route)
@@ -260,13 +249,6 @@ private fun listResourcePaths(folder: String): List<String> {
         else -> emptyList()
     }
 }
-
-private fun readResourceText(path: String): String =
-    Router::class.java
-        .getResourceAsStream(path)
-        ?.bufferedReader()
-        ?.use { it.readText() }
-        ?: error("Missing resource: $path")
 
 fun router(builder: Router.() -> Unit): Router {
     val router = Router().apply(builder)
