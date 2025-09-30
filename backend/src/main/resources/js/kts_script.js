@@ -1,10 +1,30 @@
 function sendRequest(el, method, url, opts = {}) {
     const targetSelector = el.getAttribute("kts-target");
     const swap = el.getAttribute("kts-swap") || "innerHTML";
-    const headers = el.getAttribute("kts-headers");
+    const headersAttr = el.getAttribute("kts-headers");
     const indicator = el.getAttribute("kts-indicator");
 
-    // Show indicator if provided
+    const defaultHeaders = {
+        "KTS-Request": "true",
+        "KTS-Method": method.toUpperCase(),
+        "KTS-Trigger": el.id || "",
+        "KTS-Target": targetSelector || "",
+        "KTS-Confirm": el.getAttribute("kts-confirm") || "",
+    };
+
+    // Merge user-defined headers
+    let customHeaders = {};
+    if (headersAttr) {
+        try {
+            customHeaders = JSON.parse(headersAttr);
+        } catch (e) {
+            console.warn("Invalid kts-headers JSON", e);
+        }
+    }
+
+    const headers = { ...defaultHeaders, ...customHeaders };
+
+    // Show indicator if specified
     if (indicator) {
         const indEl = document.querySelector(indicator);
         if (indEl) indEl.style.display = "block";
@@ -12,7 +32,7 @@ function sendRequest(el, method, url, opts = {}) {
 
     fetch(url, {
         method: method.toUpperCase(),
-        headers: headers ? JSON.parse(headers) : {},
+        headers: headers,
         body: opts.body || null
     })
         .then(resp => resp.text())
@@ -20,11 +40,20 @@ function sendRequest(el, method, url, opts = {}) {
             if (targetSelector) {
                 const target = document.querySelector(targetSelector);
                 if (target) {
-                    if (swap === "innerHTML") target.innerHTML = html;
-                    else if (swap === "outerHTML") target.outerHTML = html;
-                    else if (swap === "beforeend") target.insertAdjacentHTML("beforeend", html);
-                    else if (swap === "afterbegin") target.insertAdjacentHTML("afterbegin", html);
-                    else target.innerHTML = html; // fallback
+                    switch (swap) {
+                        case "innerHTML":
+                            target.innerHTML = html;
+                            break;
+                        case "outerHTML":
+                            target.outerHTML = html;
+                            break;
+                        case "beforeend":
+                        case "afterbegin":
+                            target.insertAdjacentHTML(swap, html);
+                            break;
+                        default:
+                            target.innerHTML = html;
+                    }
                 }
             }
         })
@@ -45,16 +74,12 @@ function processElement(el) {
                 const method = attr.name.replace("kts-", "");
                 const url = attr.value;
 
-                // default trigger is click
                 const trigger = el.getAttribute("kts-trigger") || "click";
 
                 if (trigger === "load") {
-                    // fire immediately on page load
                     sendRequest(el, method, url);
                 } else {
-                    // bind to event
                     el.addEventListener(trigger, () => {
-                        // confirm support
                         const confirmMsg = el.getAttribute("kts-confirm");
                         if (confirmMsg && !window.confirm(confirmMsg)) return;
 
@@ -68,11 +93,8 @@ function processElement(el) {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("*").forEach(el => {
-        for (let attr of el.attributes) {
-            if (attr.name.startsWith("kts-")) {
-                processElement(el);
-                break; // only need to process once
-            }
+        if ([...el.attributes].some(attr => attr.name.startsWith("kts-"))) {
+            processElement(el);
         }
     });
 });
