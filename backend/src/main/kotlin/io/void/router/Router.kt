@@ -11,6 +11,7 @@ import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildRequest
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
+import io.void.dto.http.writeHTTP
 import io.void.generator.TailwindGen
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.exceptions.IExceptionPage
@@ -126,10 +127,9 @@ class Router :
         val client = clientHandler.client
         val response = middlewareProcess(requestDTO.toResult(), MiddlewareTime.BEFORE)
         if (response != null) {
-            ResponseDTO.build(
+            client.getOutputStream().writeHTTP(
                 response = response,
-                outputStream = client.getOutputStream(),
-                version = clientHandler.server.httpVersion,
+                version = clientHandler.server.httpVersion
             )
             return
         }
@@ -192,10 +192,9 @@ class Router :
                             body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>"
                         }
                     }
-            ResponseDTO.build(
+            client.getOutputStream().writeHTTP(
                 response = response,
-                outputStream = client.getOutputStream(),
-                version = clientHandler.server.httpVersion,
+                version = clientHandler.server.httpVersion
             )
             val lateResponse =
                 middlewareProcess(
@@ -203,10 +202,9 @@ class Router :
                     type = MiddlewareTime.AFTER,
                 )
             if (lateResponse != null) {
-                ResponseDTO.build(
+                client.getOutputStream().writeHTTP(
                     response = lateResponse,
-                    outputStream = client.getOutputStream(),
-                    version = clientHandler.server.httpVersion,
+                    version = clientHandler.server.httpVersion
                 )
             }
         }
@@ -229,22 +227,20 @@ class Router :
             headers = exceptionPage.newPage.headers
         } catch (_: Exception) {
         }
-        ResponseDTO.build(
-            response =
-                buildResponse {
-                    status = statusCode ?: 500
-                    statusText = statusMessage ?: "Server Error"
-                    headers {
-                        put("Content-Type", "text/html")
-                        put("Connection", "close")
-                    }
-                    headers?.let {
-                        this.headers = it.toMutableMap()
-                    }
-                    body = exceptionPage.page
-                },
-            outputStream = client.getOutputStream(),
-            version = clientHandler.server.httpVersion,
+        client.getOutputStream().writeHTTP(
+            response = buildResponse {
+                status = statusCode ?: 500
+                statusText = statusMessage ?: "Server Error"
+                headers {
+                    put("Content-Type", "text/html")
+                    put("Connection", "close")
+                }
+                headers?.let {
+                    this.headers = it.toMutableMap()
+                }
+                body = exceptionPage.page
+            },
+            version = clientHandler.server.httpVersion
         )
 
         if (log) {
