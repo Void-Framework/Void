@@ -7,6 +7,7 @@ import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
+import io.void.dto.http.writeHTTP
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
@@ -78,10 +79,9 @@ internal interface RequestHandler {
         clientHandler: ClientHandler,
     ) {
         val client = clientHandler.client
-        ResponseDTO.build(
+        client.getOutputStream().writeHTTP(
             response = page.content().response,
-            outputStream = client.getOutputStream(),
-            version = clientHandler.server.httpVersion,
+            version = clientHandler.server.httpVersion
         )
     }
 
@@ -100,10 +100,9 @@ internal interface RequestHandler {
                 )
             }
 
-        ResponseDTO.build(
+        client.getOutputStream().writeHTTP(
             response = response,
-            outputStream = client.getOutputStream(),
-            version = clientHandler.server.httpVersion,
+            version = clientHandler.server.httpVersion
         )
     }
 
@@ -123,10 +122,9 @@ internal interface RequestHandler {
                         (page.content() as ContentType.HtmlElements).htmlElement.render().trimIndent()
             }
         }
-        ResponseDTO.build(
+        client.getOutputStream().writeHTTP(
             response = response,
-            outputStream = client.getOutputStream(),
-            version = clientHandler.server.httpVersion,
+            version = clientHandler.server.httpVersion
         )
     }
 }

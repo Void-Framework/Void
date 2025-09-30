@@ -21,28 +21,6 @@ data class ResponseDTO(
         }
 
     companion object {
-        internal fun build(
-            response: ResponseDTO,
-            outputStream: OutputStream,
-            version: Number = 1.1,
-        ) {
-            val writer = PrintWriter(outputStream, true)
-            writer.println("HTTP/$version ${response.status} ${response.statusText}")
-
-            val responseBody = response.body
-            if (!response.headers.containsKey("Content-Length")) {
-                response._headers["Content-Length"] = responseBody.toByteArray().size.toString()
-            }
-
-            for ((key, value) in response.headers.entries) {
-                writer.println("$key: $value")
-            }
-            writer.println()
-            writer.println(response.body)
-
-            writer.flush()
-        }
-
         private fun generateJson(keyAndValue: Map<String, Any?>) {
             keyAndValue.forEach {
                 generateJson(it.key, it.value)
@@ -156,6 +134,8 @@ data class ResponseDTO(
             }
         }
     }
+
+    internal operator fun set(headerName: String, headerValue: String) = _headers.put(headerName, headerValue)
 }
 
 class ResponseBuilder {
@@ -175,4 +155,22 @@ fun buildResponse(builder: ResponseBuilder.() -> Unit): ResponseDTO {
 
 fun ResponseBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
+}
+
+fun OutputStream.writeHTTP(response: ResponseDTO, version: Number) {
+    val writer = PrintWriter(this, true)
+    writer.println("HTTP/$version ${response.status} ${response.statusText}")
+
+    val responseBody = response.body
+    if (!response.headers.containsKey("Content-Length")) {
+        response["Content-Length"] = responseBody.toByteArray().size.toString()
+    }
+
+    for ((key, value) in response.headers.entries) {
+        writer.println("$key: $value")
+    }
+    writer.println()
+    writer.println(response.body)
+
+    writer.flush()
 }

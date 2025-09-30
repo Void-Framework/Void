@@ -4,6 +4,7 @@ import io.void.clienthandler.ClientHandler
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
+import io.void.dto.http.writeHTTP
 import io.void.router.Router
 import io.void.router.util.MiddlewareTime
 import io.void.server.exception.HTTPSNotOnException
@@ -50,18 +51,16 @@ class Server internal constructor(
                     val client = socket.accept()
                     if (routeToHTTPS) {
                         if (isHTTPSOn) {
-                            ResponseDTO.build(
-                                response =
-                                    buildResponse {
-                                        status = 301
-                                        statusText = "Moved Permanently"
-                                        headers {
-                                            put("Location", "https://${client.inetAddress.hostName}")
-                                        }
-                                        body = ""
-                                    },
-                                outputStream = client.getOutputStream(),
-                                version = httpVersion,
+                            client.getOutputStream().writeHTTP(
+                                response = buildResponse {
+                                    status = 301
+                                    statusText = "Moved Permanently"
+                                    headers {
+                                        put("Location", "https://${client.inetAddress.hostName}")
+                                    }
+                                    body = ""
+                                },
+                                version = httpVersion
                             )
                         } else {
                             throw HTTPSNotOnException()
