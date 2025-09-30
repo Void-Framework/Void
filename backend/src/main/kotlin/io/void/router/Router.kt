@@ -140,8 +140,8 @@ class Router :
             val rootElement = (routes[route]!!.content() as? ContentType.HtmlElements)?.htmlElement
             val triggerId = requestDTO["KTS-Trigger"]
             val targetId = requestDTO["KTS-Target"]
-            val trigger = triggerId?.let { rootElement?.findElement("#$it") }
-            val target = targetId?.let { rootElement?.findElement("#$it") }
+            val trigger = triggerId?.let { rootElement?.findElement(it) }
+            val target = targetId?.let { rootElement?.findElement(it) }
             page._target = target
             page._trigger = trigger
             page.request = requestDTO

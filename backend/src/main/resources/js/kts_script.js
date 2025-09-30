@@ -7,7 +7,7 @@ function sendRequest(el, method, url, opts = {}) {
     const defaultHeaders = {
         "KTS-Request": "true",
         "KTS-Method": method.toUpperCase(),
-        "KTS-Trigger": el.id || "",
+        "KTS-Trigger": "#" + el.id || "",
         "KTS-Target": targetSelector || "",
         "KTS-Confirm": el.getAttribute("kts-confirm") || "",
         "KTS-Route": window.location.pathname,
