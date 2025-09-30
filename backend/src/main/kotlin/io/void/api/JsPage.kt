@@ -27,7 +27,8 @@ internal class JsPage(
                     status = 200
                     statusText = "All is Well"
                     headers {
-                        put("Content-Type", "text/js")
+                        put("Content-Type", "text/javascript")
+                        put("X-Content-Type-Options", "nosniff")
                     }
                     body = this@JsPage.body
                 }
