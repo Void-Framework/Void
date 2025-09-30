@@ -5,18 +5,27 @@ import io.void.html.Element
 import io.void.html.ElementWithChildren
 import kotlin.reflect.KClass
 
-class Blockquote(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "blockquote") {
+class Blockquote(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "blockquote") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Blockquote(vararg attribute: Attribute, _children: Element.() -> Unit): Blockquote {
-        val Blockquote = Blockquote(
+fun Element.Blockquote(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): Blockquote {
+    val Blockquote =
+        Blockquote(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(Blockquote)
-        return Blockquote
-    }
+    children!!.add(Blockquote)
+    return Blockquote
+}

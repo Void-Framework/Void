@@ -118,10 +118,11 @@ val homeRoute =
         }
     }
 
-val ktsHelloRoute = ktsRoute("/kts-hello") { request, trigger, target ->
-    Div("class" to "bg-green-50 p-2 rounded") {
-        H3 { Fractal("Hello from KTS!") }
-        P { Fractal("Trigger ID: ${trigger?.get("id")}") }
-        P { Fractal("Target ID: ${target?.get("id")}") }
+val ktsHelloRoute =
+    ktsRoute("/kts-hello") { request, trigger, target ->
+        Div("class" to "bg-green-50 p-2 rounded") {
+            H3 { Fractal("Hello from KTS!") }
+            P { Fractal("Trigger ID: ${trigger?.get("id")}") }
+            P { Fractal("Target ID: ${target?.get("id")}") }
+        }
     }
-}

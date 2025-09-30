@@ -37,7 +37,10 @@ object TailwindGen {
     /**
      * Recursively collect classes found on element trees into page.classAttributes (keeps your original method).
      */
-    private fun putInTailwind(element: Element, page: Page<*>) {
+    private fun putInTailwind(
+        element: Element,
+        page: Page<*>,
+    ) {
         if (element.attributes.containsKey("class")) {
             page.classAttributes[element] = element.attributes["class"].split("\\s+".toRegex())
         }
@@ -46,7 +49,10 @@ object TailwindGen {
         }
     }
 
-    private fun handleElements(element: Element, page: Page<ContentType.HtmlElements>) {
+    private fun handleElements(
+        element: Element,
+        page: Page<ContentType.HtmlElements>,
+    ) {
         // reuse putInTailwind to populate page.classAttributes
         putInTailwind(element, page)
         element.children?.forEach { child ->
@@ -61,12 +67,13 @@ object TailwindGen {
     private fun normalizeClassToSelector(className: String): String {
         // basic escapes that Tailwind uses in CSS: colon and slash become backslash-escaped
         // also escape other characters commonly used in class tokens that may appear escaped in compiled CSS
-        val escaped = className
-            .replace(":", "\\:")
-            .replace("/", "\\/")
-            .replace(".", "\\.")
-            .replace("[", "\\[")
-            .replace("]", "\\]")
+        val escaped =
+            className
+                .replace(":", "\\:")
+                .replace("/", "\\/")
+                .replace(".", "\\.")
+                .replace("[", "\\[")
+                .replace("]", "\\]")
         return ".$escaped"
     }
 
@@ -74,7 +81,10 @@ object TailwindGen {
      * Extract selectors that match any of the used class selectors.
      * This uses two passes: non-media top-level rules, and media blocks.
      */
-    private fun extractUsedCssBlocks(rawCss: String, usedClassSelectors: Set<String>): String {
+    private fun extractUsedCssBlocks(
+        rawCss: String,
+        usedClassSelectors: Set<String>,
+    ): String {
         val sb = StringBuilder()
 
         // 1) include some global rules always (html, body, *, ::before, ::after)
@@ -94,7 +104,6 @@ object TailwindGen {
                 sb.append(m.value).append("\n")
             }
         }
-
 
         // 3) media query blocks — include whole block if any used selector appears inside it
         val mediaRegex = Regex("""@media[^{]+\{(?:(?:[^{}]|\{[^{}]*\})*)\}""", RegexOption.DOT_MATCHES_ALL)
@@ -126,11 +135,15 @@ object TailwindGen {
         return classes
     }
 
-    private fun handleMetadataAdding(page: Page<ContentType.HtmlElements>, uuid: UUID) {
+    private fun handleMetadataAdding(
+        page: Page<ContentType.HtmlElements>,
+        uuid: UUID,
+    ) {
         if (page.metadata == null) {
-            page.metadata = metadata(page) {
-                style = uuid
-            }
+            page.metadata =
+                metadata(page) {
+                    style = uuid
+                }
         } else {
             page.metadata!!.style = uuid
         }
@@ -139,7 +152,10 @@ object TailwindGen {
     /**
      * Main entry: gather classes from page, extract only matching Tailwind blocks, register route.
      */
-    internal fun processTailwind(page: Page<ContentType.HtmlElements>, router: Router) {
+    internal fun processTailwind(
+        page: Page<ContentType.HtmlElements>,
+        router: Router,
+    ) {
         if (resourceFile.isBlank()) {
             // if not fetched yet, attempt to fetch — keep it simple
             try {
@@ -174,6 +190,4 @@ object TailwindGen {
 
 fun <T> List<Pair<T, *>>.containsKey(key: T): Boolean = any { it.first == key }
 
-operator fun <N, M> List<Pair<N, M>>.get(key: N): M {
-    return first { it.first == key }.second
-}
+operator fun <N, M> List<Pair<N, M>>.get(key: N): M = first { it.first == key }.second

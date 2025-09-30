@@ -4,16 +4,19 @@ import io.void.html.Attribute
 import io.void.html.Element
 import io.void.html.SelfClosingElement
 
-class Menuitem(vararg attributes: Attribute): SelfClosingElement("menuitem") {
-
+class Menuitem(
+    vararg attributes: Attribute,
+) : SelfClosingElement("menuitem") {
     init {
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Menuitem(vararg attribute: Attribute): Menuitem {
-        val Menuitem = Menuitem(
-            attributes = attribute
+fun Element.Menuitem(vararg attribute: Attribute): Menuitem {
+    val Menuitem =
+        Menuitem(
+            attributes = attribute,
         )
-        children!!.add(Menuitem)
-        return Menuitem
-    }
+    children!!.add(Menuitem)
+    return Menuitem
+}

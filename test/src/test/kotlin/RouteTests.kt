@@ -25,6 +25,7 @@ import sun.security.x509.CertificateSerialNumber
 import sun.security.x509.CertificateVersion
 import sun.security.x509.X509CertInfo
 import java.io.File
+import java.math.BigInteger
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -32,22 +33,21 @@ import java.net.http.HttpResponse
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.SecureRandom
+import java.security.Security
+import java.security.cert.X509Certificate
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.*
 import java.util.Date
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import java.math.BigInteger
-import java.util.*
-import java.security.Security
-import java.security.cert.X509Certificate
-import javax.net.ssl.X509TrustManager
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RouteTests {
@@ -61,17 +61,19 @@ class RouteTests {
     private var httpsServerJob: Job? = null
     private var redirectServerJob: Job? = null
 
-    private val client = HttpClient
-        .newBuilder()
-        .version(HttpClient.Version.HTTP_1_1)
-        .build()
+    private val client =
+        HttpClient
+            .newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
+            .build()
 
     // Unsafe SSL client for testing HTTPS (don't use in production)
-    private val httpsClient = HttpClient
-        .newBuilder()
-        .version(HttpClient.Version.HTTP_1_1)
-        .sslContext(createUnsafeSSLContext())
-        .build()
+    private val httpsClient =
+        HttpClient
+            .newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
+            .sslContext(createUnsafeSSLContext())
+            .build()
 
     @BeforeAll
     fun setup() {
@@ -96,21 +98,23 @@ class RouteTests {
 
     @Test
     fun `test server builder with custom configuration`() {
-        val customServer = server {
-            port = 9999
-            httpVersion = 2.0
-            router = router {
-                +homeRoute
+        val customServer =
+            server {
+                port = 9999
+                httpVersion = 2.0
+                router =
+                    router {
+                        +homeRoute
+                    }
+                autoStart = false
+                onServerSocketError = { exception ->
+                    println("Custom error handler: ${exception.message}")
+                }
+                onServerSocketClose = { socket ->
+                    println("Custom close handler called")
+                    socket.close()
+                }
             }
-            autoStart = false
-            onServerSocketError = { exception ->
-                println("Custom error handler: ${exception.message}")
-            }
-            onServerSocketClose = { socket ->
-                println("Custom close handler called")
-                socket.close()
-            }
-        }
 
         assertEquals(2.0, customServer.httpVersion)
         assertFalse(customServer.isHTTPSOn)
@@ -123,18 +127,19 @@ class RouteTests {
 
         Thread {
             try {
-                val simple = simpleServer(testPort) {
-                    +jsonRoute("/test") { request ->
-                        buildResponse {
-                            status = 200
-                            statusText = "OK"
-                            body = """{"message": "Simple server test", "path": "${request.target}"}"""
-                            headers {
-                                put("Content-Type", "application/json")
+                val simple =
+                    simpleServer(testPort) {
+                        +jsonRoute("/test") { request ->
+                            buildResponse {
+                                status = 200
+                                statusText = "OK"
+                                body = """{"message": "Simple server test", "path": "${request.target}"}"""
+                                headers {
+                                    put("Content-Type", "application/json")
+                                }
                             }
                         }
                     }
-                }
                 serverCreated = true
             } catch (e: Exception) {
                 // Port might be in use, that's okay for this test
@@ -179,14 +184,15 @@ class RouteTests {
         var errorCaught = false
         var errorMessage = ""
 
-        val testServer = server {
-            router = router { +homeRoute }
-            autoStart = false
-            onServerSocketError = { exception ->
-                errorCaught = true
-                errorMessage = exception.message ?: "Unknown error"
+        val testServer =
+            server {
+                router = router { +homeRoute }
+                autoStart = false
+                onServerSocketError = { exception ->
+                    errorCaught = true
+                    errorMessage = exception.message ?: "Unknown error"
+                }
             }
-        }
 
         // Try to start server on already used port to trigger error
         Thread {
@@ -217,11 +223,12 @@ class RouteTests {
         }
 
         try {
-            val connection = HttpRequest
-                .newBuilder()
-                .uri(URI.create("https://localhost:$httpsPort/"))
-                .GET()
-                .build()
+            val connection =
+                HttpRequest
+                    .newBuilder()
+                    .uri(URI.create("https://localhost:$httpsPort/"))
+                    .GET()
+                    .build()
 
             val response = httpsClient.send(connection, HttpResponse.BodyHandlers.ofString())
             assertEquals(200, response.statusCode())
@@ -241,16 +248,23 @@ class RouteTests {
         }
 
         try {
-            val connection = HttpRequest
-                .newBuilder()
-                .uri(URI.create("http://localhost:$redirectPort/"))
-                .GET()
-                .build()
+            val connection =
+                HttpRequest
+                    .newBuilder()
+                    .uri(URI.create("http://localhost:$redirectPort/"))
+                    .GET()
+                    .build()
 
             val response = client.send(connection, HttpResponse.BodyHandlers.ofString())
             assertEquals(301, response.statusCode())
             assertTrue(response.headers().firstValue("Location").isPresent)
-            assertTrue(response.headers().firstValue("Location").get().startsWith("https://"))
+            assertTrue(
+                response
+                    .headers()
+                    .firstValue("Location")
+                    .get()
+                    .startsWith("https://"),
+            )
         } catch (e: Exception) {
             println("Redirect test failed: ${e.message}")
         }
@@ -320,12 +334,13 @@ class RouteTests {
 
     @Test
     fun `test dynamic route pattern matching works correctly`() {
-        val testCases = listOf(
-            "123" to 200,
-            "456" to 200,
-            "abc" to 404,
-            "" to 404,
-        )
+        val testCases =
+            listOf(
+                "123" to 200,
+                "456" to 200,
+                "abc" to 404,
+                "" to 404,
+            )
 
         testCases.forEach { (userId, expectedStatus) ->
             val connection = createConnectionGET("/users/$userId")
@@ -354,24 +369,27 @@ class RouteTests {
 
     @Test
     fun `test various HTTP methods`() {
-        val methods = mapOf(
-            "GET" to HttpRequest.Builder::GET,
-            "POST" to { builder: HttpRequest.Builder ->
-                builder.POST(HttpRequest.BodyPublishers.ofString("{}"))
-            },
-            "PUT" to { builder: HttpRequest.Builder ->
-                builder.PUT(HttpRequest.BodyPublishers.ofString("{}"))
-            },
-            "DELETE" to HttpRequest.Builder::DELETE,
-            "HEAD" to { builder: HttpRequest.Builder ->
-                builder.method("HEAD", HttpRequest.BodyPublishers.noBody())
-            }
-        )
+        val methods =
+            mapOf(
+                "GET" to HttpRequest.Builder::GET,
+                "POST" to { builder: HttpRequest.Builder ->
+                    builder.POST(HttpRequest.BodyPublishers.ofString("{}"))
+                },
+                "PUT" to { builder: HttpRequest.Builder ->
+                    builder.PUT(HttpRequest.BodyPublishers.ofString("{}"))
+                },
+                "DELETE" to HttpRequest.Builder::DELETE,
+                "HEAD" to { builder: HttpRequest.Builder ->
+                    builder.method("HEAD", HttpRequest.BodyPublishers.noBody())
+                },
+            )
 
         methods.forEach { (method, requestBuilder) ->
             try {
-                val request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:$httpPort/"))
+                val request =
+                    HttpRequest
+                        .newBuilder()
+                        .uri(URI.create("http://localhost:$httpPort/"))
                 requestBuilder(request)
                 val response = client.send(request.build(), HttpResponse.BodyHandlers.ofString())
 
@@ -397,8 +415,10 @@ class RouteTests {
             val endTime = System.currentTimeMillis()
 
             val responseTime = endTime - startTime
-            assertTrue(responseTime < maxResponseTime,
-                "Response time $responseTime ms exceeded limit of $maxResponseTime ms")
+            assertTrue(
+                responseTime < maxResponseTime,
+                "Response time $responseTime ms exceeded limit of $maxResponseTime ms",
+            )
         }
     }
 
@@ -434,18 +454,21 @@ class RouteTests {
     // ===== HELPER METHODS =====
 
     private fun setupHttpServer() {
-        server = server {
-            port = httpPort
-            router = router {
-                +homeRoute
-                +setterRoute
-                +userRoute
+        server =
+            server {
+                port = httpPort
+                router =
+                    router {
+                        +homeRoute
+                        +setterRoute
+                        +userRoute
+                    }
+                autoStart = false
             }
-            autoStart = false
-        }
-        serverJob = scope.launch {
-            server.startHTTPServer(httpPort)
-        }
+        serverJob =
+            scope.launch {
+                server.startHTTPServer(httpPort)
+            }
     }
 
     private fun setupHttpsServerIfKeystoreExists() {
@@ -456,30 +479,33 @@ class RouteTests {
             tempFile.writeBytes(keystoreBytes)
 
             // Use a single server instance that handles both HTTP redirect and HTTPS
-            httpsServer = server {
-                port = redirectPort        // HTTP port for redirect
-                httpsPort = httpsPort      // HTTPS port
-                router = router {
-                    +homeRoute
-                    +setterRoute
-                    +userRoute
+            httpsServer =
+                server {
+                    port = redirectPort // HTTP port for redirect
+                    httpsPort = httpsPort // HTTPS port
+                    router =
+                        router {
+                            +homeRoute
+                            +setterRoute
+                            +userRoute
+                        }
+                    password = "changeit"
+                    file = tempFile
+                    needsAuth = false
+                    routeToHTTPS = true // Enable redirect
+                    autoStart = false
                 }
-                password = "changeit"
-                file = tempFile
-                needsAuth = false
-                routeToHTTPS = true        // Enable redirect
-                autoStart = false
-            }
 
-            httpsServerJob = scope.launch {
-                httpsServer.startHTTPSServer(httpsPort, "changeit", tempFile, false)
-            }
+            httpsServerJob =
+                scope.launch {
+                    httpsServer.startHTTPSServer(httpsPort, "changeit", tempFile, false)
+                }
 
             // Start the HTTP redirect server
-            redirectServerJob = scope.launch {
-                httpsServer.startHTTPServer(redirectPort, true)
-            }
-
+            redirectServerJob =
+                scope.launch {
+                    httpsServer.startHTTPServer(redirectPort, true)
+                }
         } catch (e: Exception) {
             println("In-memory HTTPS setup failed: ${e.message}")
         }
@@ -505,22 +531,25 @@ class RouteTests {
         val now = Instant.now()
         val subject = X500Name("CN=localhost,OU=Test,O=Test,L=Test,ST=Test,C=US")
 
-        val certBuilder = JcaX509v3CertificateBuilder(
-            subject, // issuer
-            BigInteger.valueOf(System.currentTimeMillis()), // serial number
-            Date.from(now), // not before
-            Date.from(now.plusSeconds(365 * 24 * 3600)), // not after (1 year)
-            subject, // subject
-            keyPair.public // public key
-        )
+        val certBuilder =
+            JcaX509v3CertificateBuilder(
+                subject, // issuer
+                BigInteger.valueOf(System.currentTimeMillis()), // serial number
+                Date.from(now), // not before
+                Date.from(now.plusSeconds(365 * 24 * 3600)), // not after (1 year)
+                subject, // subject
+                keyPair.public, // public key
+            )
 
-        val signer = JcaContentSignerBuilder("SHA256withRSA")
-            .setProvider("BC")
-            .build(keyPair.private)
+        val signer =
+            JcaContentSignerBuilder("SHA256withRSA")
+                .setProvider("BC")
+                .build(keyPair.private)
 
-        val certificate = JcaX509CertificateConverter()
-            .setProvider("BC")
-            .getCertificate(certBuilder.build(signer))
+        val certificate =
+            JcaX509CertificateConverter()
+                .setProvider("BC")
+                .getCertificate(certBuilder.build(signer))
 
         // Create keystore and add the certificate
         val keystore = KeyStore.getInstance("PKCS12")
@@ -529,34 +558,41 @@ class RouteTests {
             "testkey",
             keyPair.private,
             "changeit".toCharArray(),
-            arrayOf(certificate)
+            arrayOf(certificate),
         )
 
         return keystore
     }
 
-    private fun createConnectionGET(path: String): HttpRequest {
-        return HttpRequest
+    private fun createConnectionGET(path: String): HttpRequest =
+        HttpRequest
             .newBuilder()
             .uri(URI.create("http://localhost:$httpPort$path"))
             .GET()
             .build()
-    }
 
-    private fun createConnectionPOST(path: String): HttpRequest {
-        return HttpRequest
+    private fun createConnectionPOST(path: String): HttpRequest =
+        HttpRequest
             .newBuilder()
             .uri(URI.create("http://localhost:$httpPort$path"))
             .POST(HttpRequest.BodyPublishers.ofString(""))
             .build()
-    }
 
     private fun createUnsafeSSLContext(): SSLContext {
-        val trustAllCertificates = object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
-            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
-            override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
-        }
+        val trustAllCertificates =
+            object : X509TrustManager {
+                override fun checkClientTrusted(
+                    chain: Array<X509Certificate>,
+                    authType: String,
+                ) {}
+
+                override fun checkServerTrusted(
+                    chain: Array<X509Certificate>,
+                    authType: String,
+                ) {}
+
+                override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
+            }
 
         val sslContext = SSLContext.getInstance("TLS")
         sslContext.init(null, arrayOf<TrustManager>(trustAllCertificates), null)

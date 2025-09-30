@@ -9,9 +9,8 @@ import io.void.html.page.metadata.metadata
 import kotlin.reflect.KClass
 
 abstract class KtsPage(
-    override val target: String
+    override val target: String,
 ) : Page<ContentType.HtmlElements>(target) {
-
     override val contentType: KClass<ContentType.HtmlElements> = ContentType.HtmlElements::class
     override var metadata: Metadata? = null
     internal var _trigger: Element? = null

@@ -19,11 +19,12 @@ abstract class Element internal constructor(
     }
 
     fun findElement(query: String): Element? {
-        val attr = when (query[0]) {
-            '#' -> "id"
-            '.' -> "class"
-            else -> return null
-        }
+        val attr =
+            when (query[0]) {
+                '#' -> "id"
+                '.' -> "class"
+                else -> return null
+            }
         val attrValue = query.substring(1)
 
         if (attributes.any { it.first == attr && it.second == attrValue }) return this
@@ -57,90 +58,83 @@ fun Element.kts(block: KtsBuilder.() -> Unit): Element {
     return this
 }
 
-class KtsBuilder(private val element: Element) {
-
+class KtsBuilder(
+    private val element: Element,
+) {
     // --- Requests ---
-    fun on(url: String, method: Method) =
-        element.attributes.add("kts-${method.name.lowercase()}" to url)
+    fun on(
+        url: String,
+        method: Method,
+    ) = element.attributes.add("kts-${method.name.lowercase()}" to url)
 
-    fun target(selector: String) =
-        element.attributes.add("kts-target" to selector)
+    fun target(selector: String) = element.attributes.add("kts-target" to selector)
 
-    fun swap(strategy: String) =
-        element.attributes.add("kts-swap" to strategy)
+    fun swap(strategy: String) = element.attributes.add("kts-swap" to strategy)
 
-    fun trigger(event: String) =
-        element.attributes.add("kts-trigger" to event)
+    fun trigger(event: String) = element.attributes.add("kts-trigger" to event)
 
-    fun include(selector: String) =
-        element.attributes.add("kts-include" to selector)
+    fun include(selector: String) = element.attributes.add("kts-include" to selector)
 
-    fun params(value: String) =
-        element.attributes.add("kts-params" to value)
+    fun params(value: String) = element.attributes.add("kts-params" to value)
 
-    fun vals(json: String) =
-        element.attributes.add("kts-vals" to json)
+    fun vals(json: String) = element.attributes.add("kts-vals" to json)
 
     fun headers(values: Headers) =
-        element.attributes.add("kts-headers" to values.entries.joinToString(
-            prefix = "{", postfix = "}"
-        ) { "\"${it.key}\": \"${it.value}\"" })
-
+        element.attributes.add(
+            "kts-headers" to
+                values.entries.joinToString(
+                    prefix = "{",
+                    postfix = "}",
+                ) { "\"${it.key}\": \"${it.value}\"" },
+        )
 
     fun request(dto: RequestDTO) =
         element.attributes.add(
-            "kts-request" to buildString {
-                append("{")
-                append("\"method\":\"${dto.method.name}\",")
-                append("\"target\":\"${dto.target}\"")
-                if (dto.headers.isNotEmpty()) {
-                    append(",\"headers\":{")
-                    append(dto.headers.entries.joinToString(",") {
-                        "\"${it.key}\":\"${it.value}\""
-                    })
+            "kts-request" to
+                buildString {
+                    append("{")
+                    append("\"method\":\"${dto.method.name}\",")
+                    append("\"target\":\"${dto.target}\"")
+                    if (dto.headers.isNotEmpty()) {
+                        append(",\"headers\":{")
+                        append(
+                            dto.headers.entries.joinToString(",") {
+                                "\"${it.key}\":\"${it.value}\""
+                            },
+                        )
+                        append("}")
+                    }
+                    if (dto.body.isNotEmpty()) {
+                        append(",\"body\":\"${dto.body}\"")
+                    }
                     append("}")
-                }
-                if (dto.body.isNotEmpty()) {
-                    append(",\"body\":\"${dto.body}\"")
-                }
-                append("}")
-            }
+                },
         )
 
-    fun encoding(value: String) =
-        element.attributes.add("kts-encoding" to value)
+    fun encoding(value: String) = element.attributes.add("kts-encoding" to value)
 
-    fun select(selector: String) =
-        element.attributes.add("kts-select" to selector)
+    fun select(selector: String) = element.attributes.add("kts-select" to selector)
 
-    fun swapOob(value: String) =
-        element.attributes.add("kts-swap-oob" to value)
+    fun swapOob(value: String) = element.attributes.add("kts-swap-oob" to value)
 
-    fun confirm(message: String) =
-        element.attributes.add("kts-confirm" to message)
+    fun confirm(message: String) = element.attributes.add("kts-confirm" to message)
 
-    fun disable() =
-        element.attributes.add("kts-disable" to "true")
+    fun disable() = element.attributes.add("kts-disable" to "true")
 
-    fun disabledElt(selector: String) =
-        element.attributes.add("kts-disabled-elt" to selector)
+    fun disabledElt(selector: String) = element.attributes.add("kts-disabled-elt" to selector)
 
-    fun disinherit(value: String) =
-        element.attributes.add("kts-disinherit" to value)
+    fun disinherit(value: String) = element.attributes.add("kts-disinherit" to value)
 
-    fun boost(enable: Boolean = true) =
-        element.attributes.add("kts-boost" to enable.toString())
+    fun boost(enable: Boolean = true) = element.attributes.add("kts-boost" to enable.toString())
 
-    fun history(value: String) =
-        element.attributes.add("kts-history" to value)
+    fun history(value: String) = element.attributes.add("kts-history" to value)
 
-    fun historyElt(selector: String) =
-        element.attributes.add("kts-history-elt" to selector)
+    fun historyElt(selector: String) = element.attributes.add("kts-history-elt" to selector)
 
-    fun ext(name: String) =
-        element.attributes.add("kts-ext" to name)
+    fun ext(name: String) = element.attributes.add("kts-ext" to name)
 
-    fun onEvent(event: String, script: String) =
-        element.attributes.add("kts-on:$event" to script)
+    fun onEvent(
+        event: String,
+        script: String,
+    ) = element.attributes.add("kts-on:$event" to script)
 }
-
