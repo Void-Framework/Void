@@ -64,6 +64,8 @@ data class RequestDTO(
             return requestDTO
         }
     }
+
+    operator fun get(headerName: String): String? = headers[headerName]
 }
 
 class RequestBuilder {
