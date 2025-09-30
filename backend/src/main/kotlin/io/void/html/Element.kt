@@ -27,3 +27,14 @@ fun Element.loop(
         }
     return fragment
 }
+
+fun Element.kts(block: KtsBuilder.() -> Unit): Element {
+    KtsBuilder(this).apply(block)
+    return this
+}
+
+class KtsBuilder(private val element: Element) {
+    fun get(url: String) = element.attributes.add("kts-get" to url)
+    fun target(selector: String) = element.attributes.add("kts-target" to selector)
+    fun swap(strategy: String) = element.attributes.add("kts-swap" to strategy)
+}
