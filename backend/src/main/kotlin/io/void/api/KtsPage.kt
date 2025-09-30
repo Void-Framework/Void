@@ -1,9 +1,11 @@
 package io.void.api
 
+import io.void.dto.http.RequestDTO
 import io.void.html.Element
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
+import io.void.html.page.metadata.metadata
 import kotlin.reflect.KClass
 
 abstract class KtsPage(
@@ -19,3 +21,13 @@ abstract class KtsPage(
     val targetElement: Element?
         get() = _target
 }
+
+fun ktsRoute(
+    path: String,
+    block: (RequestDTO, Element?, Element?) -> Element,
+): KtsPage =
+    object : KtsPage(target = path) {
+        override val contentType = ContentType.HtmlElements::class
+
+        override fun content() = ContentType.HtmlElements(block(request, trigger, targetElement), metadata(this) {})
+    }
