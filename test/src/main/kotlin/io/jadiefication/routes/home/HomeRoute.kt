@@ -1,9 +1,13 @@
 package io.jadiefication.routes.home
 
 import io.jadiefication.components.testComponent
+import io.void.api.ktsRoute
+import io.void.api.method.Method
 import io.void.cache.Cacheable
 import io.void.generated.*
+import io.void.generator.get
 import io.void.html.Fractal
+import io.void.html.kts
 import io.void.html.page.htmlRoute
 import java.net.URL
 
@@ -89,7 +93,35 @@ val homeRoute =
                     Fractal("Built with ")
                     Code { Fractal("Kotlin") }
                 }
-                testComponent()
+
+                Section("id" to "kts-test", "class" to sectionClasses) {
+                    H2("class" to headingClasses) { Fractal("KTS Test Section") }
+
+                    Button("class" to buttonClasses, "id" to "kts-btn") {
+                        Fractal("Say Hello via KTS")
+
+                        // Use your DSL
+                        kts {
+                            on("/kts-hello", Method.POST)
+                            target("#kts-target")
+                            swap("innerHTML")
+                            trigger("click")
+                            confirm("Are you sure you want to send the request?")
+                        }
+                    }
+
+                    Div("id" to "kts-target", "class" to cardClasses) {
+                        Fractal("KTS Response will appear here")
+                    }
+                }
             }
         }
     }
+
+val ktsHelloRoute = ktsRoute("/kts-hello") { request, trigger, target ->
+    Div("class" to "bg-green-50 p-2 rounded") {
+        H3 { Fractal("Hello from KTS!") }
+        P { Fractal("Trigger ID: ${trigger?.attributes?.get("id")}") }
+        P { Fractal("Target ID: ${target?.attributes?.get("id")}") }
+    }
+}
