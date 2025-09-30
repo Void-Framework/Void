@@ -7,10 +7,10 @@ import io.void.dto.http.headers
 import io.void.dto.http.writeHTTP
 import io.void.router.Router
 import io.void.router.util.MiddlewareTime
-import io.void.server.exception.HTTPSNotOnException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
@@ -29,6 +29,7 @@ class Server internal constructor(
     val httpVersion: Number = 1.1,
 ) {
     private lateinit var socket: ServerSocket
+    private lateinit var httpsSocket: SSLServerSocket
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
@@ -50,20 +51,8 @@ class Server internal constructor(
                 while (socket.isBound) {
                     val client = socket.accept()
                     if (routeToHTTPS) {
-                        if (isHTTPSOn) {
-                            client.getOutputStream().writeHTTP(
-                                response = buildResponse {
-                                    status = 301
-                                    statusText = "Moved Permanently"
-                                    headers {
-                                        put("Location", "https://${client.inetAddress.hostName}")
-                                    }
-                                    body = ""
-                                },
-                                version = httpVersion
-                            )
-                        } else {
-                            throw HTTPSNotOnException()
+                        scope.launch {
+                            waitForHTTPSAndRedirect(client)
                         }
                     } else {
                         scope.launch {
@@ -100,11 +89,11 @@ class Server internal constructor(
                 context.init(kmf.keyManagers, null, SecureRandom())
                 val factory = context.serverSocketFactory
 
-                val server = factory.createServerSocket(port) as SSLServerSocket
+                httpsSocket = factory.createServerSocket(port) as SSLServerSocket
                 isHTTPSOn = true
-                server.needClientAuth = needsAuth
-                while (server.isBound) {
-                    val client = server.accept() as SSLSocket
+                httpsSocket.needClientAuth = needsAuth
+                while (httpsSocket.isBound) {
+                    val client = httpsSocket.accept() as SSLSocket
                     client.startHandshake()
                     scope.launch {
                         try {
@@ -121,10 +110,41 @@ class Server internal constructor(
             }
         }.start()
     }
+
+    fun isHTTPSServerRunning(): Boolean {
+        return isHTTPSOn && ::httpsSocket.isInitialized && httpsSocket.isBound && !httpsSocket.isClosed
+    }
+
+    private suspend fun waitForHTTPSAndRedirect(client: Socket) {
+        try {
+            // Keep checking until HTTPS is available
+            while (!isHTTPSServerRunning()) {
+                delay(1000)
+            }
+
+            // Send redirect once HTTPS is ready
+            client.getOutputStream().writeHTTP(
+                response = buildResponse {
+                    status = 301
+                    statusText = "Moved Permanently"
+                    headers {
+                        put("Location", "https://${client.inetAddress.hostName}")
+                    }
+                    body = ""
+                },
+                version = httpVersion
+            )
+        } catch (e: Exception) {
+            client.close()
+        } finally {
+            runCatching { client.close() }
+        }
+    }
 }
 
 class ServerBuilder {
     var port: Int = 8080
+    var httpsPort: Int = 8081
     var httpVersion: Number = 1.1
     lateinit var router: Router
     var password: String? = null
@@ -145,7 +165,7 @@ class ServerBuilder {
         server.onServerSocketClose = onServerSocketClose
         if (autoStart) {
             if (file != null) {
-                server.startHTTPSServer(port, password!!, file!!, needsAuth!!)
+                server.startHTTPSServer(httpsPort, password!!, file!!, needsAuth!!)
                 if (routeToHTTPS) server.startHTTPServer(port, true)
             } else {
                 server.startHTTPServer(port)
