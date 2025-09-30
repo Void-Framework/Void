@@ -5,18 +5,27 @@ import io.void.html.Element
 import io.void.html.ElementWithChildren
 import kotlin.reflect.KClass
 
-class Details(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "details") {
+class Details(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "details") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Details(vararg attribute: Attribute, _children: Element.() -> Unit): Details {
-        val Details = Details(
+fun Element.Details(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): Details {
+    val Details =
+        Details(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(Details)
-        return Details
-    }
+    children!!.add(Details)
+    return Details
+}

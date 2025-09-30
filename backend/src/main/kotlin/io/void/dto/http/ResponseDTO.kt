@@ -135,7 +135,10 @@ data class ResponseDTO(
         }
     }
 
-    internal operator fun set(headerName: String, headerValue: String) = _headers.put(headerName, headerValue)
+    internal operator fun set(
+        headerName: String,
+        headerValue: String,
+    ) = _headers.put(headerName, headerValue)
 }
 
 class ResponseBuilder {
@@ -157,7 +160,10 @@ fun ResponseBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
 }
 
-fun OutputStream.writeHTTP(response: ResponseDTO, version: Number) {
+fun OutputStream.writeHTTP(
+    response: ResponseDTO,
+    version: Number,
+) {
     val writer = PrintWriter(this, true)
     writer.println("HTTP/$version ${response.status} ${response.statusText}")
 

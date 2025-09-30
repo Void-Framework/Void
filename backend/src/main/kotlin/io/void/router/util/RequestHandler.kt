@@ -81,7 +81,7 @@ internal interface RequestHandler {
         val client = clientHandler.client
         client.getOutputStream().writeHTTP(
             response = page.content().response,
-            version = clientHandler.server.httpVersion
+            version = clientHandler.server.httpVersion,
         )
     }
 
@@ -102,11 +102,14 @@ internal interface RequestHandler {
 
         client.getOutputStream().writeHTTP(
             response = response,
-            version = clientHandler.server.httpVersion
+            version = clientHandler.server.httpVersion,
         )
     }
 
-    fun handleKts(page: KtsPage, clientHandler: ClientHandler) {
+    fun handleKts(
+        page: KtsPage,
+        clientHandler: ClientHandler,
+    ) {
         val client = clientHandler.client
         val response =
             if (Cache.cache.containsKey(page.target)) {
@@ -120,11 +123,11 @@ internal interface RequestHandler {
                     }
                     body =
                         (page.content() as ContentType.HtmlElements).htmlElement.render().trimIndent()
+                }
             }
-        }
         client.getOutputStream().writeHTTP(
             response = response,
-            version = clientHandler.server.httpVersion
+            version = clientHandler.server.httpVersion,
         )
     }
 }

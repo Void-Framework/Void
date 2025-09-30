@@ -111,9 +111,7 @@ class Server internal constructor(
         }.start()
     }
 
-    fun isHTTPSServerRunning(): Boolean {
-        return isHTTPSOn && ::httpsSocket.isInitialized && httpsSocket.isBound && !httpsSocket.isClosed
-    }
+    fun isHTTPSServerRunning(): Boolean = isHTTPSOn && ::httpsSocket.isInitialized && httpsSocket.isBound && !httpsSocket.isClosed
 
     private suspend fun waitForHTTPSAndRedirect(client: Socket) {
         try {
@@ -124,15 +122,16 @@ class Server internal constructor(
 
             // Send redirect once HTTPS is ready
             client.getOutputStream().writeHTTP(
-                response = buildResponse {
-                    status = 301
-                    statusText = "Moved Permanently"
-                    headers {
-                        put("Location", "https://${client.inetAddress.hostName}")
-                    }
-                    body = ""
-                },
-                version = httpVersion
+                response =
+                    buildResponse {
+                        status = 301
+                        statusText = "Moved Permanently"
+                        headers {
+                            put("Location", "https://${client.inetAddress.hostName}")
+                        }
+                        body = ""
+                    },
+                version = httpVersion,
             )
         } catch (e: Exception) {
             client.close()

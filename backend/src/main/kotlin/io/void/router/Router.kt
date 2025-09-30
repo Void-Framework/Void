@@ -129,7 +129,7 @@ class Router :
         if (response != null) {
             client.getOutputStream().writeHTTP(
                 response = response,
-                version = clientHandler.server.httpVersion
+                version = clientHandler.server.httpVersion,
             )
             return
         }
@@ -147,7 +147,7 @@ class Router :
             page.request = requestDTO
             handleKts(
                 page = page,
-                clientHandler = clientHandler
+                clientHandler = clientHandler,
             )
         }
         if (routes.containsKey(target)) {
@@ -194,7 +194,7 @@ class Router :
                     }
             client.getOutputStream().writeHTTP(
                 response = response,
-                version = clientHandler.server.httpVersion
+                version = clientHandler.server.httpVersion,
             )
             val lateResponse =
                 middlewareProcess(
@@ -204,7 +204,7 @@ class Router :
             if (lateResponse != null) {
                 client.getOutputStream().writeHTTP(
                     response = lateResponse,
-                    version = clientHandler.server.httpVersion
+                    version = clientHandler.server.httpVersion,
                 )
             }
         }
@@ -228,19 +228,20 @@ class Router :
         } catch (_: Exception) {
         }
         client.getOutputStream().writeHTTP(
-            response = buildResponse {
-                status = statusCode ?: 500
-                statusText = statusMessage ?: "Server Error"
-                headers {
-                    put("Content-Type", "text/html")
-                    put("Connection", "close")
-                }
-                headers?.let {
-                    this.headers = it.toMutableMap()
-                }
-                body = exceptionPage.page
-            },
-            version = clientHandler.server.httpVersion
+            response =
+                buildResponse {
+                    status = statusCode ?: 500
+                    statusText = statusMessage ?: "Server Error"
+                    headers {
+                        put("Content-Type", "text/html")
+                        put("Connection", "close")
+                    }
+                    headers?.let {
+                        this.headers = it.toMutableMap()
+                    }
+                    body = exceptionPage.page
+                },
+            version = clientHandler.server.httpVersion,
         )
 
         if (log) {
@@ -288,7 +289,10 @@ fun <T> T.toResult(): Result<T> = Result.success(this)
 
 fun <T> Exception.toResult(): Result<T> = Result.failure<T>(this)
 
-fun readResourceText(path: String, clazz: Class<*>): String =
+fun readResourceText(
+    path: String,
+    clazz: Class<*>,
+): String =
     clazz
         .getResourceAsStream(path)
         ?.bufferedReader()

@@ -5,18 +5,27 @@ import io.void.html.Element
 import io.void.html.ElementWithChildren
 import kotlin.reflect.KClass
 
-class Bdo(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = "bdo") {
+class Bdo(
+    vararg attributes: Attribute,
+    function: Element.() -> Unit,
+) : ElementWithChildren(name = "bdo") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+
     init {
         this.apply(function)
         addAttributes(*attributes)
     }
+}
 
-}    fun Element.Bdo(vararg attribute: Attribute, _children: Element.() -> Unit): Bdo {
-        val Bdo = Bdo(
+fun Element.Bdo(
+    vararg attribute: Attribute,
+    _children: Element.() -> Unit,
+): Bdo {
+    val Bdo =
+        Bdo(
             attributes = attribute,
-            function = _children
+            function = _children,
         )
-        children!!.add(Bdo)
-        return Bdo
-    }
+    children!!.add(Bdo)
+    return Bdo
+}

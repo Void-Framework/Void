@@ -40,7 +40,7 @@ class ClientHandler(
         if (response != null) {
             client.getOutputStream().writeHTTP(
                 response = response,
-                version = server.httpVersion
+                version = server.httpVersion,
             )
             return
         }
