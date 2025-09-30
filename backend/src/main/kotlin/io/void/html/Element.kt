@@ -17,6 +17,24 @@ abstract class Element internal constructor(
     fun addAttributes(vararg _attributes: Attribute) {
         attributes.addAll(_attributes)
     }
+
+    fun findElement(query: String): Element? {
+        val attr = when (query[0]) {
+            '#' -> "id"
+            '.' -> "class"
+            else -> return null
+        }
+        val attrValue = query.substring(1)
+
+        if (attributes.any { it.first == attr && it.second == attrValue }) return this
+
+        children?.forEach { child ->
+            val found = child.findElement(query)
+            if (found != null) return found
+        }
+
+        return null
+    }
 }
 
 fun Element.loop(
