@@ -3,7 +3,7 @@ package io.void.router
 import io.void.api.CssPage
 import io.void.api.JsPage
 import io.void.api.KtsPage
-import io.void.cache.Processor
+import io.void.cache.CacheProcessor
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
@@ -92,11 +92,11 @@ class Router :
             }
             if (route is KtsPage) {
                 ktsResponsePages[route.target] = route
-                Processor.annotationProcessor(page = route)
+                CacheProcessor.processCacheables(page = route)
                 return this
             }
         }
-        Processor.annotationProcessor(page = route)
+        CacheProcessor.processCacheables(page = route)
         handleTargetChecking(route, routes)
         if (route is IExceptionPage) {
             exceptionPage = ExceptionPage(page = route)

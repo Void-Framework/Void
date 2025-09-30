@@ -93,7 +93,7 @@ internal interface RequestHandler {
         val client = clientHandler.client
         val response =
             if (Cache.cache.containsKey(target)) {
-                Cache.cache[target]!!
+                Cache[target]!!
             } else {
                 constructClassicResponse(
                     page = page,
@@ -111,7 +111,7 @@ internal interface RequestHandler {
         val client = clientHandler.client
         val response =
             if (Cache.cache.containsKey(page.target)) {
-                Cache.cache[page.target]!!
+                Cache[page.target]!!
             } else {
                 buildResponse {
                     status = 200

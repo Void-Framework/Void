@@ -10,7 +10,7 @@ import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
 
 internal object Cache {
-    val cache: ConcurrentHashMap<String, ResponseDTO> = ConcurrentHashMap()
+    internal val cache: ConcurrentHashMap<String, ResponseDTO> = ConcurrentHashMap()
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     internal fun cacheRoute(routes: Map<Page<*>, Int>) {
@@ -62,4 +62,6 @@ internal object Cache {
             }
         }
     }
+
+    operator fun get(route: String): ResponseDTO? = cache[route]
 }

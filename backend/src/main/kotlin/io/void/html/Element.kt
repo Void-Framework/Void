@@ -35,6 +35,8 @@ abstract class Element internal constructor(
 
         return null
     }
+
+    operator fun get(attrName: String): String? = attributes.firstOrNull { it.first == attrName }?.second
 }
 
 fun Element.loop(
