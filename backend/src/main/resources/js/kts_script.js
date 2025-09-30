@@ -10,6 +10,7 @@ function sendRequest(el, method, url, opts = {}) {
         "KTS-Trigger": el.id || "",
         "KTS-Target": targetSelector || "",
         "KTS-Confirm": el.getAttribute("kts-confirm") || "",
+        "KTS-Route": window.location.pathname,
     };
 
     // Merge user-defined headers
