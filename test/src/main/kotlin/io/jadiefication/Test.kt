@@ -1,6 +1,7 @@
 package io.jadiefication
 
 import io.jadiefication.routes.home.homeRoute
+import io.jadiefication.routes.home.ktsHelloRoute
 import io.jadiefication.routes.setter.setterRoute
 import io.jadiefication.routes.user.userRoute
 import io.void.middleware.middleware
@@ -25,6 +26,7 @@ fun main() {
                         +homeRoute
                         +setterRoute
                         +userRoute
+                        +ktsHelloRoute
                     }
                     port = 8080
                     routeToHTTPS = false
