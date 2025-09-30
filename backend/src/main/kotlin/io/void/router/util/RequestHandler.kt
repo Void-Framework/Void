@@ -1,5 +1,6 @@
 package io.void.router.util
 
+import io.void.api.KtsPage
 import io.void.cache.Cache
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.RequestDTO
@@ -99,6 +100,29 @@ internal interface RequestHandler {
                 )
             }
 
+        ResponseDTO.build(
+            response = response,
+            outputStream = client.getOutputStream(),
+            version = clientHandler.server.httpVersion,
+        )
+    }
+
+    fun handleKts(page: KtsPage, clientHandler: ClientHandler) {
+        val client = clientHandler.client
+        val response =
+            if (Cache.cache.containsKey(page.target)) {
+                Cache.cache[page.target]!!
+            } else {
+                buildResponse {
+                    status = 200
+                    statusText = "All is well"
+                    headers {
+                        put("Content-Type", "text/html")
+                    }
+                    body =
+                        (page.content() as ContentType.HtmlElements).htmlElement.render().trimIndent()
+            }
+        }
         ResponseDTO.build(
             response = response,
             outputStream = client.getOutputStream(),

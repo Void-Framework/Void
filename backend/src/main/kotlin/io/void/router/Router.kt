@@ -2,6 +2,7 @@ package io.void.router
 
 import io.void.api.CssPage
 import io.void.api.JsPage
+import io.void.api.KtsPage
 import io.void.cache.Processor
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.Headers
@@ -38,6 +39,7 @@ class Router :
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private var exceptionPage = ExceptionPage(e = Exception())
     private var nullPage: Page<*>? = null
+    private val ktsResponsePages = mutableMapOf<String, KtsPage>()
 
     init {
         recomputeMiddlewareSnapshot()
@@ -88,6 +90,11 @@ class Router :
                 TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
                 JsPage.addToMetadata(route, js.toList())
             }
+            if (route is KtsPage) {
+                ktsResponsePages[route.target] = route
+                Processor.annotationProcessor(page = route)
+                return this
+            }
         }
         Processor.annotationProcessor(page = route)
         handleTargetChecking(route, routes)
@@ -127,6 +134,22 @@ class Router :
             return
         }
         val target = requestDTO.target
+        if (requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target)) {
+            val page = ktsResponsePages[target] as KtsPage
+            val route = requestDTO.headers["KTS-Route"]!!
+            val rootElement = (routes[route]!!.content() as? ContentType.HtmlElements)?.htmlElement
+            val triggerId = requestDTO["KTS-Trigger"]
+            val targetId = requestDTO["KTS-Target"]
+            val trigger = triggerId?.let { rootElement?.findElement("#$it") }
+            val target = targetId?.let { rootElement?.findElement("#$it") }
+            page._target = target
+            page._trigger = trigger
+            page.request = requestDTO
+            handleKts(
+                page = page,
+                clientHandler = clientHandler
+            )
+        }
         if (routes.containsKey(target)) {
             val page = routes[target]
             page!!.request = requestDTO
