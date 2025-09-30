@@ -48,7 +48,7 @@ class Router :
 
         val paths = listResourcePaths("js")
         paths.forEach { path ->
-            val content = readResourceText("/$path")
+            val content = readResourceText("/$path", this::class.java)
             js.add(JsPage(UUID.randomUUID(), content))
         }
         js.forEach { addRoute(it) }
@@ -288,8 +288,8 @@ fun <T> T.toResult(): Result<T> = Result.success(this)
 
 fun <T> Exception.toResult(): Result<T> = Result.failure<T>(this)
 
-private fun readResourceText(path: String): String =
-    Router::class.java
+fun readResourceText(path: String, clazz: Class<*>): String =
+    clazz
         .getResourceAsStream(path)
         ?.bufferedReader()
         ?.use { it.readText() }
