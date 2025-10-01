@@ -1,9 +1,8 @@
 package io.void.generated
 
+import io.void.html.Attribute
 import io.void.html.Element
 import io.void.html.ElementWithChildren
-import io.void.html.attributes.Attribute
-import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
 class A(
@@ -11,15 +10,6 @@ class A(
     function: Element.() -> Unit,
 ) : ElementWithChildren(name = "a") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-    override val allowedAttributes: List<AttributeNames> =
-        listOf(
-            AttributeNames.HREF,
-            AttributeNames.TARGET,
-            AttributeNames.REL,
-            AttributeNames.DOWNLOAD,
-            AttributeNames.HREFLANG,
-            AttributeNames.TYPE,
-        )
 
     init {
         this.apply(function)

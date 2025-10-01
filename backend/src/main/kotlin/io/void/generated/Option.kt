@@ -1,9 +1,8 @@
 package io.void.generated
 
+import io.void.html.Attribute
 import io.void.html.Element
 import io.void.html.ElementWithChildren
-import io.void.html.attributes.Attribute
-import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
 class Option(
@@ -11,7 +10,6 @@ class Option(
     function: Element.() -> Unit,
 ) : ElementWithChildren(name = "option") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-    override val allowedAttributes: List<AttributeNames> = listOf(AttributeNames.VALUE, AttributeNames.DISABLED, AttributeNames.SELECTED)
 
     init {
         this.apply(function)

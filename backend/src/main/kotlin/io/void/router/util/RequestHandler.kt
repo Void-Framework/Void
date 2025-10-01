@@ -1,11 +1,13 @@
 package io.void.router.util
 
+import io.void.api.KtsPage
 import io.void.cache.Cache
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
+import io.void.dto.http.writeHTTP
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
@@ -77,9 +79,8 @@ internal interface RequestHandler {
         clientHandler: ClientHandler,
     ) {
         val client = clientHandler.client
-        ResponseDTO.build(
+        client.getOutputStream().writeHTTP(
             response = page.content().response,
-            outputStream = client.getOutputStream(),
             version = clientHandler.server.httpVersion,
         )
     }
@@ -92,16 +93,40 @@ internal interface RequestHandler {
         val client = clientHandler.client
         val response =
             if (Cache.cache.containsKey(target)) {
-                Cache.cache[target]!!
+                Cache[target]!!
             } else {
                 constructClassicResponse(
                     page = page,
                 )
             }
 
-        ResponseDTO.build(
+        client.getOutputStream().writeHTTP(
             response = response,
-            outputStream = client.getOutputStream(),
+            version = clientHandler.server.httpVersion,
+        )
+    }
+
+    fun handleKts(
+        page: KtsPage,
+        clientHandler: ClientHandler,
+    ) {
+        val client = clientHandler.client
+        val response =
+            if (Cache.cache.containsKey(page.target)) {
+                Cache[page.target]!!
+            } else {
+                buildResponse {
+                    status = 200
+                    statusText = "All is well"
+                    headers {
+                        put("Content-Type", "text/html")
+                    }
+                    body =
+                        (page.content() as ContentType.HtmlElements).htmlElement.render().trimIndent()
+                }
+            }
+        client.getOutputStream().writeHTTP(
+            response = response,
             version = clientHandler.server.httpVersion,
         )
     }

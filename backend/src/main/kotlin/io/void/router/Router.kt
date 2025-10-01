@@ -2,7 +2,8 @@ package io.void.router
 
 import io.void.api.CssPage
 import io.void.api.JsPage
-import io.void.cache.Processor
+import io.void.api.KtsPage
+import io.void.cache.CacheProcessor
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
@@ -10,6 +11,7 @@ import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildRequest
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
+import io.void.dto.http.writeHTTP
 import io.void.generator.TailwindGen
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.exceptions.IExceptionPage
@@ -38,15 +40,15 @@ class Router :
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
     private var exceptionPage = ExceptionPage(e = Exception())
     private var nullPage: Page<*>? = null
+    private val ktsResponsePages = mutableMapOf<String, KtsPage>()
 
     init {
         recomputeMiddlewareSnapshot()
         TailwindGen.grabTailwind()
 
-        val resourceFolder = "static/js"
-        val paths = listResourcePaths(resourceFolder)
+        val paths = listResourcePaths("js")
         paths.forEach { path ->
-            val content = readResourceText("/$path")
+            val content = readResourceText("/$path", this::class.java)
             js.add(JsPage(UUID.randomUUID(), content))
         }
         js.forEach { addRoute(it) }
@@ -89,8 +91,13 @@ class Router :
                 TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
                 JsPage.addToMetadata(route, js.toList())
             }
+            if (route is KtsPage) {
+                ktsResponsePages[route.target] = route
+                CacheProcessor.processCacheables(page = route)
+                return this
+            }
         }
-        Processor.annotationProcessor(page = route)
+        CacheProcessor.processCacheables(page = route)
         handleTargetChecking(route, routes)
         if (route is IExceptionPage) {
             exceptionPage = ExceptionPage(page = route)
@@ -120,14 +127,29 @@ class Router :
         val client = clientHandler.client
         val response = middlewareProcess(requestDTO.toResult(), MiddlewareTime.BEFORE)
         if (response != null) {
-            ResponseDTO.build(
+            client.getOutputStream().writeHTTP(
                 response = response,
-                outputStream = client.getOutputStream(),
                 version = clientHandler.server.httpVersion,
             )
             return
         }
         val target = requestDTO.target
+        if (requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target)) {
+            val page = ktsResponsePages[target] as KtsPage
+            val route = requestDTO.headers["KTS-Route"]!!
+            val rootElement = (routes[route]!!.content() as? ContentType.HtmlElements)?.htmlElement
+            val triggerId = requestDTO["KTS-Trigger"]
+            val targetId = requestDTO["KTS-Target"]
+            val trigger = triggerId?.let { rootElement?.findElement(it) }
+            val target = targetId?.let { rootElement?.findElement(it) }
+            page._target = target
+            page._trigger = trigger
+            page.request = requestDTO
+            handleKts(
+                page = page,
+                clientHandler = clientHandler,
+            )
+        }
         if (routes.containsKey(target)) {
             val page = routes[target]
             page!!.request = requestDTO
@@ -170,9 +192,8 @@ class Router :
                             body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>"
                         }
                     }
-            ResponseDTO.build(
+            client.getOutputStream().writeHTTP(
                 response = response,
-                outputStream = client.getOutputStream(),
                 version = clientHandler.server.httpVersion,
             )
             val lateResponse =
@@ -181,9 +202,8 @@ class Router :
                     type = MiddlewareTime.AFTER,
                 )
             if (lateResponse != null) {
-                ResponseDTO.build(
+                client.getOutputStream().writeHTTP(
                     response = lateResponse,
-                    outputStream = client.getOutputStream(),
                     version = clientHandler.server.httpVersion,
                 )
             }
@@ -207,7 +227,7 @@ class Router :
             headers = exceptionPage.newPage.headers
         } catch (_: Exception) {
         }
-        ResponseDTO.build(
+        client.getOutputStream().writeHTTP(
             response =
                 buildResponse {
                     status = statusCode ?: 500
@@ -221,7 +241,6 @@ class Router :
                     }
                     body = exceptionPage.page
                 },
-            outputStream = client.getOutputStream(),
             version = clientHandler.server.httpVersion,
         )
 
@@ -261,13 +280,6 @@ private fun listResourcePaths(folder: String): List<String> {
     }
 }
 
-private fun readResourceText(path: String): String =
-    Router::class.java
-        .getResourceAsStream(path)
-        ?.bufferedReader()
-        ?.use { it.readText() }
-        ?: error("Missing resource: $path")
-
 fun router(builder: Router.() -> Unit): Router {
     val router = Router().apply(builder)
     return router
@@ -276,3 +288,13 @@ fun router(builder: Router.() -> Unit): Router {
 fun <T> T.toResult(): Result<T> = Result.success(this)
 
 fun <T> Exception.toResult(): Result<T> = Result.failure<T>(this)
+
+fun readResourceText(
+    path: String,
+    clazz: Class<*>,
+): String =
+    clazz
+        .getResourceAsStream(path)
+        ?.bufferedReader()
+        ?.use { it.readText() }
+        ?: error("Missing resource: $path")

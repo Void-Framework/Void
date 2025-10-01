@@ -1,9 +1,8 @@
 package io.void.generated
 
+import io.void.html.Attribute
 import io.void.html.Element
 import io.void.html.ElementWithChildren
-import io.void.html.attributes.Attribute
-import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
 class Table(
@@ -12,7 +11,6 @@ class Table(
 ) : ElementWithChildren(name = "table") {
     override val acceptedChildren: MutableList<KClass<out Element>?> =
         mutableListOf(Caption::class, Colgroup::class, Thead::class, Tbody::class, Tfoot::class, Tr::class)
-    override val allowedAttributes: List<AttributeNames> = listOf()
 
     init {
         this.apply(function)
