@@ -1,10 +1,9 @@
 package io.void.generated
 
+import io.void.html.Attribute
 import io.void.html.Element
 import io.void.html.ElementWithChildren
 import io.void.html.HElement
-import io.void.html.attributes.Attribute
-import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
 class H2(
@@ -43,8 +42,6 @@ class H2(
             Var::class,
             Wbr::class,
         )
-    override val allowedAttributes: List<AttributeNames> =
-        listOf(AttributeNames.ID, AttributeNames.CLASS, AttributeNames.STYLE, AttributeNames.DIR, AttributeNames.LANG, AttributeNames.TITLE)
 
     init {
         this.apply(function)

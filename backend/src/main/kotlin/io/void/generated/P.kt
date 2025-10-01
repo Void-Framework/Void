@@ -1,9 +1,8 @@
 package io.void.generated
 
+import io.void.html.Attribute
 import io.void.html.Element
 import io.void.html.ElementWithChildren
-import io.void.html.attributes.Attribute
-import io.void.html.attributes.AttributeNames
 import kotlin.reflect.KClass
 
 class P(
@@ -41,7 +40,6 @@ class P(
             Time::class,
             Var::class,
         )
-    override val allowedAttributes: List<AttributeNames> = listOf()
 
     init {
         this.apply(function)

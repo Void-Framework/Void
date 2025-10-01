@@ -3,40 +3,17 @@ package io.jadiefication.components
 import io.void.generated.*
 import io.void.html.Element
 import io.void.html.Fractal
-import io.void.html.attributes.AttributeNames
-import io.void.html.attributes.attribute
 import io.void.html.loop
-import java.net.URL
 
 fun Element.testComponent(): Fractal {
     val testComponent =
         Fractal {
-            Div(
-                attribute =
-                    arrayOf(
-                        attribute {
-                            name = AttributeNames.CLASS
-                            value = "section"
-                        },
-                    ),
-            ) {
+            Div("class" to "section") {
                 H2 {
                     A(
-                        attribute =
-                            arrayOf(
-                                attribute {
-                                    name = AttributeNames.HREF
-                                    value = URL("https://example.com")
-                                },
-                                attribute {
-                                    name = AttributeNames.TARGET
-                                    value = "_blank"
-                                },
-                                attribute {
-                                    name = AttributeNames.REL
-                                    value = "noopener"
-                                },
-                            ),
+                        "href" to "https://example.com",
+                        "target" to "_blank",
+                        "rel" to "noopener",
                     ) {
                         Fractal(_text = "Click Me Title")
                     }
@@ -49,16 +26,12 @@ fun Element.testComponent(): Fractal {
                 }
 
                 listOf("test", "test").forEach {
-                    H1 {
-                        Fractal(it)
-                    }
+                    H1 { Fractal(it) }
                     Br()
                 }
 
                 loop(0..3) {
-                    H1 {
-                        Fractal("HELP $it")
-                    }
+                    H1 { Fractal("HELP $it") }
                     Br()
                 }
             }
