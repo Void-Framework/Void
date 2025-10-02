@@ -20,6 +20,7 @@ import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.middleware.Middleware
 import io.void.router.page.INullRoutePage
+import io.void.router.page.PageHandler
 import io.void.router.util.MiddlewareTime
 import io.void.router.util.RequestHandler
 import io.void.router.util.RouteCheck
@@ -247,6 +248,12 @@ class Router :
         if (log) {
             e.printStackTrace()
         }
+    }
+
+    fun on(path: String): PageHandler {
+        val page = PageHandler(path)
+        addRoute(page)
+        return page
     }
 }
 
