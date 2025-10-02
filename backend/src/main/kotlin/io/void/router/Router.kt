@@ -18,7 +18,9 @@ import io.void.html.exceptions.IExceptionPage
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
-import io.void.middleware.Middleware
+import io.void.middleware.Relay
+import io.void.middleware.RelayAfter
+import io.void.middleware.RelayBefore
 import io.void.router.page.INullRoutePage
 import io.void.router.page.PageHandler
 import io.void.router.util.MiddlewareTime
@@ -33,8 +35,8 @@ import java.util.jar.JarFile
 class Router :
     RouteCheck,
     RequestHandler {
-    private var internalMiddleware: List<Middleware> = emptyList()
-    val middleware = mutableSetOf<Middleware>()
+    private var internalRelay: List<Relay> = emptyList()
+    val relay = mutableSetOf<Relay>()
 
     private val js = mutableSetOf<JsPage>()
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
@@ -59,24 +61,24 @@ class Router :
         addRoute(this)
     }
 
-    operator fun Middleware.unaryPlus() {
-        middleware.add(this)
+    operator fun Relay.unaryPlus() {
+        relay.add(this)
         recomputeMiddlewareSnapshot()
     }
 
     private fun recomputeMiddlewareSnapshot() {
-        internalMiddleware = middleware.sortedByDescending { it.priority }
+        internalRelay = relay.sortedByDescending { it.priority }
     }
 
     internal fun middlewareProcess(
         requestDTO: Result<RequestDTO>,
         type: MiddlewareTime,
     ): ResponseDTO? {
-        internalMiddleware.forEach {
+        internalRelay.forEach {
             val newResponse =
                 when (type) {
-                    MiddlewareTime.BEFORE -> it.processBefore(requestDTO)
-                    MiddlewareTime.AFTER -> it.processAfter(requestDTO)
+                    MiddlewareTime.BEFORE -> (it as? RelayBefore)?.processBefore(requestDTO)
+                    MiddlewareTime.AFTER -> (it as? RelayAfter)?.processAfter(requestDTO)
                 }
             if (newResponse != null) {
                 return newResponse

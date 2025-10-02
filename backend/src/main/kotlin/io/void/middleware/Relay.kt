@@ -3,28 +3,50 @@ package io.void.middleware
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 
-interface Middleware {
+interface Relay {
     val priority: Int
+}
+
+interface RelayBefore : Relay {
 
     fun processBefore(requestDTO: Result<RequestDTO>): ResponseDTO?
+}
+
+interface RelayAfter : Relay {
 
     fun processAfter(requestDTO: Result<RequestDTO>): ResponseDTO?
 }
 
-fun middleware(
+fun relayBefore(
     priority: Int = 0,
-    block: MiddlewareBuilder.() -> Unit,
-): Middleware =
-    object : Middleware {
+    block: (Result<RequestDTO>) -> ResponseDTO?,
+): RelayBefore =
+    object : RelayBefore {
         override val priority = priority
-        private val builder = MiddlewareBuilder().apply(block)
+        private val builder = RelayBeforeBuilder().apply {
+            before = block
+        }
 
         override fun processBefore(requestDTO: Result<RequestDTO>) = builder.before(requestDTO)
+    }
+
+fun relayAfter(
+    priority: Int = 0,
+    block: (Result<RequestDTO>) -> ResponseDTO?,
+): RelayAfter =
+    object : RelayAfter {
+        override val priority = priority
+        private val builder = RelayAfterBuilder().apply {
+            after = block
+        }
 
         override fun processAfter(requestDTO: Result<RequestDTO>) = builder.after(requestDTO)
     }
 
-class MiddlewareBuilder {
+class RelayBeforeBuilder {
     var before: (Result<RequestDTO>) -> ResponseDTO? = { null }
+}
+
+class RelayAfterBuilder {
     var after: (Result<RequestDTO>) -> ResponseDTO? = { null }
 }
