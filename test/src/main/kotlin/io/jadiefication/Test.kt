@@ -6,11 +6,7 @@ import io.jadiefication.routes.setter.setterRoute
 import io.jadiefication.routes.user.userRoute
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
-import io.void.middleware.middleware
-import io.void.router.Router
-import io.void.router.router
-import io.void.server.Server
-import io.void.server.server
+import io.void.middleware.relayAfter
 import io.void.server.simpleServer
 
 fun main() {
@@ -58,14 +54,12 @@ fun main() {
         }*/
 
     val server = simpleServer {
-        +middleware {
-            after = { result ->
-                result.fold(
-                    onSuccess = { println(it) },
-                    onFailure = { println(it) },
-                )
-                null
-            }
+        +relayAfter { result ->
+            result.fold(
+                onSuccess = { println(it) },
+                onFailure = { println(it) },
+            )
+            null
         }
         +homeRoute
         +setterRoute
