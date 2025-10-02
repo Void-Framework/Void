@@ -22,13 +22,13 @@ class PageHandler(
         return ContentType.Response(responses[request.method]?.invoke(request) ?: emptyResponse())
     }
 
-    fun get(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.GET] = body }
-    fun post(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.POST] = body }
-    fun head(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.HEAD] = body }
-    fun put(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.PUT] = body }
-    fun delete(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.DELETE] = body }
-    fun connect(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.CONNECT] = body }
-    fun options(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.OPTIONS] = body }
-    fun trace(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.TRACE] = body }
-    fun patch(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.PATCH] = body }
+    infix fun GET(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.GET] = body }
+    infix fun POST(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.POST] = body }
+    infix fun HEAD(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.HEAD] = body }
+    infix fun PUT(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.PUT] = body }
+    infix fun DELETE(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.DELETE] = body }
+    infix fun CONNECT(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.CONNECT] = body }
+    infix fun OPTIONS(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.OPTIONS] = body }
+    infix fun TRACE(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.TRACE] = body }
+    infix fun PATCH(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.PATCH] = body }
 }

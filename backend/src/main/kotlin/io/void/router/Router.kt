@@ -251,9 +251,13 @@ class Router :
     }
 
     fun on(path: String): PageHandler {
-        val page = PageHandler(path)
-        addRoute(page)
-        return page
+        return if (routes.containsKey(path)) {
+            routes[path] as PageHandler
+        } else {
+            val page = PageHandler(path)
+            addRoute(page)
+            page
+        }
     }
 }
 
