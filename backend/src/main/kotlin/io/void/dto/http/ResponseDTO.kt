@@ -180,3 +180,5 @@ fun OutputStream.writeHTTP(
 
     writer.flush()
 }
+
+fun emptyResponse(): ResponseDTO = buildResponse {  }
