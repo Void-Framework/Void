@@ -4,7 +4,6 @@
 
 plugins {
     `java-library`
-    `maven-publish`
     kotlin("jvm") version "2.2.10"
 
     id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
@@ -13,17 +12,6 @@ plugins {
 group = "io.jadiefication"
 version = "1.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
-
-publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
-    }
-}
-
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
