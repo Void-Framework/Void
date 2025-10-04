@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "io.jadiefication"
-version = "0.5"
+version = "1.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 publishing {
