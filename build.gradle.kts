@@ -32,14 +32,3 @@ tasks.withType<JavaCompile> {
 tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
 }
-
-publishing {
-    publications {
-        create<MavenPublication>("mavenKotlin") {
-            from(components["kotlin"])
-            groupId = "com.github.Jadiefication"
-            artifactId = "Void"
-            version = project.version.toString()
-        }
-    }
-}

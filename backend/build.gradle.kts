@@ -4,6 +4,7 @@
 
 plugins {
     kotlin("jvm")
+    `maven-publish`
 }
 
 dependencies {
@@ -15,3 +16,14 @@ dependencies {
 }
 
 description = "backend"
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenKotlin") {
+            from(components["kotlin"])
+            groupId = "com.github.Jadiefication"
+            artifactId = "Void"
+            version = project.version.toString()
+        }
+    }
+}
