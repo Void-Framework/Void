@@ -20,6 +20,11 @@ publishing {
     }
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
@@ -32,6 +37,9 @@ publishing {
     publications {
         create<MavenPublication>("mavenKotlin") {
             from(components["kotlin"])
+            groupId = "com.github.Jadiefication"
+            artifactId = "Void"
+            version = project.version.toString()
         }
     }
 }
