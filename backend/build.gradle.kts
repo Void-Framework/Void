@@ -25,7 +25,9 @@ description = "backend"
 publishing {
     publications {
         create<MavenPublication>("mavenKotlin") {
-            from(components["kotlin"])
+            artifact(tasks["jar"])
+            artifact(tasks["sourcesJar"])
+            artifact(tasks["javadocJar"])
             groupId = "com.github.Jadiefication"
             artifactId = "Void"
             version = project.version.toString()
