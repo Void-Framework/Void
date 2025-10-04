@@ -30,7 +30,7 @@ publishing {
             artifact(tasks["javadocJar"])
             groupId = "com.github.Jadiefication"
             artifactId = "Void"
-            version = project.version.toString()
+            version = rootProject.version.toString()
         }
     }
 }
