@@ -263,7 +263,7 @@ class Router :
     }
 }
 
-private fun listResourcePaths(folder: String): List<String> {
+fun listResourcePaths(folder: String): List<String> {
     val cl = Thread.currentThread().contextClassLoader
     val url = cl.getResource(folder) ?: return emptyList()
     return when (url.protocol) {
