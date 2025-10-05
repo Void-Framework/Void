@@ -11,7 +11,7 @@ typealias JSON = Map<String, Any?>
 data class ResponseDTO(
     val status: Int,
     val statusText: String,
-    val body: String,
+    val body: ResponseBody<*>,
 ) {
     private val _headers = mutableMapOf<String, String>()
     var headers: Headers
@@ -141,22 +141,46 @@ data class ResponseDTO(
     ) = _headers.put(headerName, headerValue)
 }
 
-class ResponseBuilder {
-    var status: Int = 200
-    var statusText: String = "All is well!"
-    var headers: MutableMap<String, String> = mutableMapOf()
-    var body: String = ""
-
-    fun build(): ResponseDTO = ResponseDTO(status, statusText, body).apply { headers = this@ResponseBuilder.headers }
+interface ResponseBuilder<T> {
+    var status: Int
+    var statusText: String
+    var headers: MutableMap<String, String>
+    var body: T
 }
 
-fun buildResponse(builder: ResponseBuilder.() -> Unit): ResponseDTO {
-    val build = ResponseBuilder()
+class StringResponseBuilder : ResponseBuilder<String> {
+    override var status: Int = 200
+    override var statusText: String = "All is well!"
+    override var headers: MutableMap<String, String> = mutableMapOf()
+    override var body: String = ""
+
+    fun build(): ResponseDTO = ResponseDTO(status, statusText, ResponseBody.StringBody(body)).apply { headers = this@StringResponseBuilder.headers }
+}
+
+class ByteResponseBuilder : ResponseBuilder<ByteArray> {
+    override var status: Int = 200
+    override var statusText: String = "All is well!"
+    override var headers: MutableMap<String, String> = mutableMapOf()
+    override var body: ByteArray = ByteArray(1)
+
+    fun build(): ResponseDTO = ResponseDTO(status, statusText, ResponseBody.ByteArrayBody(body)).apply { headers = this@ByteResponseBuilder.headers }
+}
+
+inline fun <reified T> buildResponse(builder: ResponseBuilder<T>.() -> Unit): ResponseDTO {
+    val build: ResponseBuilder<T> = when (T::class) {
+        String::class -> StringResponseBuilder() as ResponseBuilder<T>
+        ByteArray::class -> ByteResponseBuilder() as ResponseBuilder<T>
+        else -> throw IllegalArgumentException("Unsupported response type: ${T::class}")
+    }
     build.builder()
-    return build.build()
+    return when (build) {
+        is StringResponseBuilder -> build.build()
+        is ByteResponseBuilder -> build.build()
+        else -> throw IllegalStateException("Unknown builder type")
+    }
 }
 
-fun ResponseBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
+fun ResponseBuilder<*>.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
 }
 
@@ -169,7 +193,10 @@ fun OutputStream.writeHTTP(
 
     val responseBody = response.body
     if (!response.headers.containsKey("Content-Length")) {
-        response["Content-Length"] = responseBody.toByteArray().size.toString()
+        when (responseBody) {
+            is ResponseBody.StringBody -> response["Content-Length"] = responseBody.body.toByteArray().size.toString()
+            else -> response["Content-Length"] = (responseBody.body as ByteArray).size.toString()
+        }
     }
 
     for ((key, value) in response.headers.entries) {
@@ -181,4 +208,9 @@ fun OutputStream.writeHTTP(
     writer.flush()
 }
 
-fun emptyResponse(): ResponseDTO = buildResponse {  }
+fun emptyResponse(): ResponseDTO = buildResponse<String> {  }
+
+sealed class ResponseBody<T>(open val body: T) {
+    class StringBody internal constructor(override val body: String) : ResponseBody<String>(body)
+    class ByteArrayBody internal constructor(override val body: ByteArray) : ResponseBody<ByteArray>(body)
+}
