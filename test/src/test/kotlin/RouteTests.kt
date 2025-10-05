@@ -21,9 +21,6 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import sun.security.x509.CertificateSerialNumber
-import sun.security.x509.CertificateVersion
-import sun.security.x509.X509CertInfo
 import java.io.File
 import java.math.BigInteger
 import java.net.URI
@@ -32,13 +29,10 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.security.KeyPairGenerator
 import java.security.KeyStore
-import java.security.SecureRandom
 import java.security.Security
 import java.security.cert.X509Certificate
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.*
-import java.util.Date
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext

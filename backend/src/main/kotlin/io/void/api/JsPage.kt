@@ -1,14 +1,13 @@
 package io.void.api
 
 import io.void.api.method.Method
-import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import io.void.html.page.metadata.metadata
-import java.util.UUID
+import java.util.*
 import kotlin.reflect.KClass
 
 internal class JsPage(

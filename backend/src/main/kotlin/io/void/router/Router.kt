@@ -5,13 +5,7 @@ import io.void.api.JsPage
 import io.void.api.KtsPage
 import io.void.cache.CacheProcessor
 import io.void.clienthandler.ClientHandler
-import io.void.dto.http.Headers
-import io.void.dto.http.RequestDTO
-import io.void.dto.http.ResponseDTO
-import io.void.dto.http.buildRequest
-import io.void.dto.http.buildResponse
-import io.void.dto.http.headers
-import io.void.dto.http.writeHTTP
+import io.void.dto.http.*
 import io.void.generator.TailwindGen
 import io.void.html.exceptions.ExceptionPage
 import io.void.html.exceptions.IExceptionPage
@@ -252,15 +246,14 @@ class Router :
         }
     }
 
-    fun on(path: String): PageHandler {
-        return if (routes.containsKey(path)) {
+    fun on(path: String): PageHandler =
+        if (routes.containsKey(path)) {
             routes[path] as PageHandler
         } else {
             val page = PageHandler(path)
             addRoute(page)
             page
         }
-    }
 }
 
 fun listResourcePaths(folder: String): List<String> {

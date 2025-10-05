@@ -53,27 +53,31 @@ fun main() {
                 }
         }*/
 
-    val server = simpleServer {
-        +relayAfter { result ->
-            result.fold(
-                onSuccess = { println(it) },
-                onFailure = { println(it) },
-            )
-            null
-        }
-        +homeRoute
-        +setterRoute
-        +userRoute
-        +ktsHelloRoute
-        on("/hello") GET { req -> buildResponse {
-            status = 200
-            statusText = "OK"
-            headers {
-                put("Content-Type", "text/plain")
+    val server =
+        simpleServer {
+            +relayAfter { result ->
+                result.fold(
+                    onSuccess = { println(it) },
+                    onFailure = { println(it) },
+                )
+                null
             }
-            body = "Hello, ${req.headers["User-Agent"] ?: "stranger"}!"
-        } }
-        on("/hello") POST { req -> buildResponse {
+            +homeRoute
+            +setterRoute
+            +userRoute
+            +ktsHelloRoute
+            on("/hello") GET { req ->
+                buildResponse {
+                    status = 200
+                    statusText = "OK"
+                    headers {
+                        put("Content-Type", "text/plain")
+                    }
+                    body = "Hello, ${req.headers["User-Agent"] ?: "stranger"}!"
+                }
+            }
+            on("/hello") POST { req ->
+                buildResponse {
                     status = 201
                     statusText = "Created"
                     headers {
@@ -82,5 +86,5 @@ fun main() {
                     body = """{ "message": "You posted: ${req.body}" }"""
                 }
             }
-    }
+        }
 }

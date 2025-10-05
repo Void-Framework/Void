@@ -1,24 +1,18 @@
 package io.void.server
 
 import io.void.clienthandler.ClientHandler
-import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.dto.http.writeHTTP
 import io.void.router.Router
 import io.void.router.util.MiddlewareTime
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileInputStream
 import java.net.ServerSocket
 import java.net.Socket
 import java.security.KeyStore
 import java.security.SecureRandom
-import java.util.concurrent.CountDownLatch
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket

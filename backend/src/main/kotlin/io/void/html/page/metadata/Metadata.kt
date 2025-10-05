@@ -2,9 +2,8 @@ package io.void.html.page.metadata
 
 import io.void.html.page.Page
 import java.net.InetAddress
-import java.net.URL
 import java.nio.charset.Charset
-import java.util.UUID
+import java.util.*
 
 class Metadata internal constructor(
     page: Page<*>,
