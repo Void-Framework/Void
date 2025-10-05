@@ -216,7 +216,7 @@ fun OutputStream.writeHTTP(
         writer.println("$key: $value")
     }
     writer.println()
-    writer.println(response.body)
+    writer.println(response.body.body)
 
     writer.flush()
 }
