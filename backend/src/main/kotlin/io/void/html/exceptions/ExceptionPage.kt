@@ -17,8 +17,9 @@ data class ExceptionPage(
     }
 
     lateinit var newPage: IExceptionPage
-    var page: ResponseBody<*> = ResponseBody.StringBody(
-        "<!doctype html><html>" +
+    var page: ResponseBody<*> =
+        ResponseBody.StringBody(
+            "<!doctype html><html>" +
                 "<head>" +
                 "  <style>" +
                 "#__next-dev-overlay {\n" +
@@ -98,6 +99,6 @@ data class ExceptionPage(
                 "  </div>\n" +
                 "</div>" +
                 "</body>" +
-                "</html>"
-    )
+                "</html>",
+        )
 }

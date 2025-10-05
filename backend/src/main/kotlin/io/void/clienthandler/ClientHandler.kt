@@ -1,7 +1,6 @@
 package io.void.clienthandler
 
 import io.void.dto.http.RequestDTO
-import io.void.dto.http.ResponseDTO
 import io.void.dto.http.writeHTTP
 import io.void.router.Router
 import io.void.router.toResult

@@ -1,7 +1,6 @@
 package io.void.api
 
 import io.void.api.method.Method
-import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.html.page.Page

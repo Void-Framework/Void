@@ -2,11 +2,9 @@ package io.void.dto.http
 
 import io.void.api.method.Method
 import io.void.clienthandler.ClientHandler
-import io.void.router.Router
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.net.Socket
 import java.util.*
 
 data class RequestDTO(

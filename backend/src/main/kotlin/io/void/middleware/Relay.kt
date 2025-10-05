@@ -8,12 +8,10 @@ interface Relay {
 }
 
 interface RelayBefore : Relay {
-
     fun processBefore(requestDTO: Result<RequestDTO>): ResponseDTO?
 }
 
 interface RelayAfter : Relay {
-
     fun processAfter(requestDTO: Result<RequestDTO>): ResponseDTO?
 }
 
@@ -23,9 +21,10 @@ fun relayBefore(
 ): RelayBefore =
     object : RelayBefore {
         override val priority = priority
-        private val builder = RelayBeforeBuilder().apply {
-            before = block
-        }
+        private val builder =
+            RelayBeforeBuilder().apply {
+                before = block
+            }
 
         override fun processBefore(requestDTO: Result<RequestDTO>) = builder.before(requestDTO)
     }
@@ -36,9 +35,10 @@ fun relayAfter(
 ): RelayAfter =
     object : RelayAfter {
         override val priority = priority
-        private val builder = RelayAfterBuilder().apply {
-            after = block
-        }
+        private val builder =
+            RelayAfterBuilder().apply {
+                after = block
+            }
 
         override fun processAfter(requestDTO: Result<RequestDTO>) = builder.after(requestDTO)
     }

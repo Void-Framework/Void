@@ -1,6 +1,5 @@
 package io.void.dto.http
 
-import io.void.api.method.Method
 import java.io.OutputStream
 import java.io.PrintWriter
 import kotlin.reflect.full.memberProperties
@@ -154,7 +153,11 @@ class StringResponseBuilder : ResponseBuilder<String> {
     override var headers: MutableMap<String, String> = mutableMapOf()
     override var body: String = ""
 
-    fun build(): ResponseDTO = ResponseDTO(status, statusText, ResponseBody.StringBody(body)).apply { headers = this@StringResponseBuilder.headers }
+    fun build(): ResponseDTO =
+        ResponseDTO(status, statusText, ResponseBody.StringBody(body)).apply {
+            headers =
+                this@StringResponseBuilder.headers
+        }
 }
 
 class ByteResponseBuilder : ResponseBuilder<ByteArray> {
@@ -163,15 +166,20 @@ class ByteResponseBuilder : ResponseBuilder<ByteArray> {
     override var headers: MutableMap<String, String> = mutableMapOf()
     override var body: ByteArray = ByteArray(1)
 
-    fun build(): ResponseDTO = ResponseDTO(status, statusText, ResponseBody.ByteArrayBody(body)).apply { headers = this@ByteResponseBuilder.headers }
+    fun build(): ResponseDTO =
+        ResponseDTO(status, statusText, ResponseBody.ByteArrayBody(body)).apply {
+            headers =
+                this@ByteResponseBuilder.headers
+        }
 }
 
 inline fun <reified T> buildResponse(builder: ResponseBuilder<T>.() -> Unit): ResponseDTO {
-    val build: ResponseBuilder<T> = when (T::class) {
-        String::class -> StringResponseBuilder() as ResponseBuilder<T>
-        ByteArray::class -> ByteResponseBuilder() as ResponseBuilder<T>
-        else -> throw IllegalArgumentException("Unsupported response type: ${T::class}")
-    }
+    val build: ResponseBuilder<T> =
+        when (T::class) {
+            String::class -> StringResponseBuilder() as ResponseBuilder<T>
+            ByteArray::class -> ByteResponseBuilder() as ResponseBuilder<T>
+            else -> throw IllegalArgumentException("Unsupported response type: ${T::class}")
+        }
     build.builder()
     return when (build) {
         is StringResponseBuilder -> build.build()
@@ -194,7 +202,12 @@ fun OutputStream.writeHTTP(
     val responseBody = response.body
     if (!response.headers.containsKey("Content-Length")) {
         when (responseBody) {
-            is ResponseBody.StringBody -> response["Content-Length"] = responseBody.body.toByteArray().size.toString()
+            is ResponseBody.StringBody ->
+                response["Content-Length"] =
+                    responseBody.body
+                        .toByteArray()
+                        .size
+                        .toString()
             else -> response["Content-Length"] = (responseBody.body as ByteArray).size.toString()
         }
     }
@@ -208,9 +221,16 @@ fun OutputStream.writeHTTP(
     writer.flush()
 }
 
-fun emptyResponse(): ResponseDTO = buildResponse<String> {  }
+fun emptyResponse(): ResponseDTO = buildResponse<String> { }
 
-sealed class ResponseBody<T>(open val body: T) {
-    class StringBody internal constructor(override val body: String) : ResponseBody<String>(body)
-    class ByteArrayBody internal constructor(override val body: ByteArray) : ResponseBody<ByteArray>(body)
+sealed class ResponseBody<T>(
+    open val body: T,
+) {
+    class StringBody internal constructor(
+        override val body: String,
+    ) : ResponseBody<String>(body)
+
+    class ByteArrayBody internal constructor(
+        override val body: ByteArray,
+    ) : ResponseBody<ByteArray>(body)
 }
