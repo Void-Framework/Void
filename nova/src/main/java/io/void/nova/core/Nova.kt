@@ -18,23 +18,57 @@ class Nova(
         maximumPoolSize = poolSize
     })
 
-    fun <T> useConnection(block: (Connection) -> T): T {
+    override fun <T> useConnection(block: (Connection) -> T): T {
         pool.connection.use { conn ->
             return block(conn)
         }
     }
 
-    override fun executeQuery(query: PreparedStatement, vararg params: Any): ResultSet {
-        params.forEachIndexed { index, value ->
-            query.setObject(index + 1, value)
+    override fun executeQuery(query: String, vararg params: Any): Result<ResultSet> {
+        return useConnection {
+            try {
+                val result = it.prepareStatement(query).use { statement ->
+                    params.forEachIndexed { i, value -> statement.setObject(i + 1, value) }
+                    statement.executeQuery().use { result ->
+                        result.toResult()
+                    }
+                }
+                return@useConnection result
+            } catch (e: Exception) {
+                return@useConnection e.toResult()
+            }
         }
-        return query.executeQuery()
     }
 
-    override fun executeUpdate(query: PreparedStatement, vararg params: Any): Int {
-        params.forEachIndexed { index, value ->
-            query.setObject(index + 1, value)
+    override fun executeUpdate(query: String, vararg params: Any): Result<Int> {
+        return useConnection {
+            try {
+                val result = it.prepareStatement(query).use { statement ->
+                    params.forEachIndexed { i, value -> statement.setObject(i + 1, value) }
+                    statement.executeUpdate().toResult()
+                }
+                return@useConnection result
+            } catch (e: Exception) {
+                return@useConnection e.toResult()
+            }
         }
-        return query.executeUpdate()
+    }
+
+    override fun <T> transaction(block: (Connection) -> T): Result<T> {
+        pool.connection.use { conn ->
+            conn.autoCommit = false
+            try {
+                val result = block(conn)
+                conn.commit()
+                return result.toResult()
+            } catch (e: Exception) {
+                conn.rollback()
+                return e.toResult()
+            }
+        }
     }
 }
+
+fun <T> T.toResult(): Result<T> = Result.success(this)
+
+fun <T> Exception.toResult(): Result<T> = Result.failure<T>(this)
