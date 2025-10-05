@@ -11,13 +11,13 @@ class Metadata internal constructor(
 ) {
     var title: String = "Void Page"
     var description: String = "This is the default description of a Void page"
-    var favicon: Pair<URL, String>? = null
+    var favicon: Pair<String, String>? = null
     var keywords: List<String> = listOf()
     var charset: Charset = Charsets.UTF_8
     var copyright: Pair<String, String> = "Void" to "© 2025 Void Page"
-    var og: Pair<Triple<String, String, URL>, URL> =
-        Triple(title, description, URL("https://picsum.photos/seed/example/300/200")) to
-            URL("http://${InetAddress.getLocalHost().hostAddress}${page.target}")
+    var og: Pair<Triple<String, String, String>, String> =
+        Triple(title, description, "https://picsum.photos/seed/example/300/200") to
+            "http://${InetAddress.getLocalHost().hostAddress}${page.target}"
     var siteVerification: String? = null
     var canonical: String = "http://${InetAddress.getLocalHost().hostAddress}/"
     var themeColor: String = "#ffffff"
@@ -42,8 +42,8 @@ class Metadata internal constructor(
             meta("copyright", copyright.second) +
             metaOG("title", og.first.first) +
             metaOG("description", og.first.second) +
-            metaOG("image", og.first.third.toString()) +
-            metaOG("url", og.second.toString()) +
+            metaOG("image", og.first.third) +
+            metaOG("url", og.second) +
             if (siteVerification != null) {
                 meta("google-site-verification", siteVerification!!)
             } else {
