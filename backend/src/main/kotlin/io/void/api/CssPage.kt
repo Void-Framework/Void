@@ -31,7 +31,7 @@ internal class CssPage(
                     this.body = this@CssPage.body
                 }
             } else {
-                buildResponse {
+                buildResponse<String> {
                     status = 405
                     statusText = "Method not allowed"
                 }

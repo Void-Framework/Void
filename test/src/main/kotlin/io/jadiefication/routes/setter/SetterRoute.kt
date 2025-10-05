@@ -35,7 +35,7 @@ val setterRoute =
                 "All is fine",
             )
         } else {
-            buildResponse {
+            buildResponse<String> {
                 status = 405
                 statusText = "Method not allowed"
             }

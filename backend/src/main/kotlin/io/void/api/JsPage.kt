@@ -33,7 +33,7 @@ internal class JsPage(
                     body = this@JsPage.body
                 }
             } else {
-                buildResponse {
+                buildResponse<String> {
                     status = 405
                     statusText = "Method not allowed"
                 }
