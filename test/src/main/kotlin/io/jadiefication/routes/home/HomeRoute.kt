@@ -114,7 +114,7 @@ val homeRoute =
                 }
             }
         }
-    }
+    }("style.css")
 
 val ktsHelloRoute =
     ktsRoute("/kts-hello") { request, trigger, target ->
