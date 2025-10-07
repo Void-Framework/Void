@@ -34,29 +34,16 @@ object TailwindGen {
         resourceFile = cResponse.body()
     }
 
-    /**
-     * Recursively collect classes found on element trees into page.classAttributes (keeps your original method).
-     */
-    private fun putInTailwind(
-        element: Element,
-        page: Page<*>,
-    ) {
-        if (element.attributes.containsKey("class")) {
-            page.classAttributes[element] = element.attributes["class"].split("\\s+".toRegex())
-        }
-        element.children?.forEach {
-            putInTailwind(it, page)
-        }
-    }
-
     private fun handleElements(
         element: Element,
         page: Page<ContentType.HtmlElements>,
     ) {
         // reuse putInTailwind to populate page.classAttributes
-        putInTailwind(element, page)
-        element.children?.forEach { child ->
-            putInTailwind(child, page)
+        if (element.attributes.containsKey("class")) {
+            page.classAttributes[element] = element.attributes["class"].split("\\s+".toRegex())
+        }
+        element.children?.forEach {
+            handleElements(it, page)
         }
     }
 
