@@ -3,6 +3,7 @@ package io.void.html
 import io.void.api.method.Method
 import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
+import io.void.generated.Div
 import java.util.UUID
 
 typealias Attribute = Pair<String, String>
@@ -92,12 +93,7 @@ class KtsBuilder(
         element.attributes["kts-confirm"] = message
     }
 
-    fun indicator(selector: Element) {
-        element.attributes["kts-indicator"] = selector["id"] ?: run {
-            val uuid = UUID.randomUUID()
-            selector["id"] = uuid.toString()
-            uuid.toString()
-        }
-        element.children?.add(selector)
+    fun indicator(selector: String) {
+        element.attributes["kts-indicator"] = selector
     }
 }
