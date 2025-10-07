@@ -105,11 +105,16 @@ val homeRoute =
                             swap("innerHTML")
                             trigger("click")
                             confirm("Are you sure you want to send the request?")
+                            indicator("#loading")
                         }
                     }
 
                     Div("id" to "kts-target", "class" to cardClasses) {
                         Fractal("KTS Response will appear here")
+                    }
+
+                    Div("class" to "hidden", "id" to "loading") {
+                        Fractal("Loading...")
                     }
                 }
             }
@@ -118,6 +123,7 @@ val homeRoute =
 
 val ktsHelloRoute =
     ktsRoute("/kts-hello") { request, trigger, target ->
+        Thread.sleep(1000)
         Div("class" to "bg-green-50 p-2 rounded") {
             H3 { Fractal("Hello from KTS!") }
             P { Fractal("Trigger ID: ${trigger?.get("id")}") }

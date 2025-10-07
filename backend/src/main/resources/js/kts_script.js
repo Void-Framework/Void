@@ -29,7 +29,11 @@ function sendRequest(el, method, url, opts = {}) {
     if (indicator) {
         const indEl = document.querySelector(indicator);
         if (targetSelector && indEl) {
-            setTargetHtml(targetSelector, indEl.cloneNode(true).outerHTML, swap);
+            const clone = indEl.cloneNode(true)
+            if (clone instanceof Element) {
+                clone.setAttribute("class", clone.getAttribute("class").replace("hidden", ""));
+                setTargetHtml(targetSelector, clone.outerHTML, swap);
+            }
         }
     }
 
