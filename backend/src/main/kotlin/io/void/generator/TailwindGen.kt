@@ -42,7 +42,7 @@ object TailwindGen {
         page: Page<*>,
     ) {
         if (element.attributes.containsKey("class")) {
-            page.classAttributes[element] = element.attributes["class"].split("\\s+".toRegex())
+            page.classAttributes[element] = element["class"]?.split("\\s+".toRegex())!!
         }
         element.children?.forEach {
             putInTailwind(it, page)

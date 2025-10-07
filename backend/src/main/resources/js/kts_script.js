@@ -28,7 +28,9 @@ function sendRequest(el, method, url, opts = {}) {
     // Show indicator if specified
     if (indicator) {
         const indEl = document.querySelector(indicator);
-        if (indEl) indEl.style.display = "block";
+        if (targetSelector && indEl) {
+            setTargetHtml(targetSelector, indEl.cloneNode(true).outerHTML, swap);
+        }
     }
 
     fetch(url, {
@@ -39,23 +41,7 @@ function sendRequest(el, method, url, opts = {}) {
         .then(resp => resp.text())
         .then(html => {
             if (targetSelector) {
-                const target = document.querySelector(targetSelector);
-                if (target) {
-                    switch (swap) {
-                        case "innerHTML":
-                            target.innerHTML = html;
-                            break;
-                        case "outerHTML":
-                            target.outerHTML = html;
-                            break;
-                        case "beforeend":
-                        case "afterbegin":
-                            target.insertAdjacentHTML(swap, html);
-                            break;
-                        default:
-                            target.innerHTML = html;
-                    }
-                }
+                setTargetHtml(targetSelector, html, swap)
             }
         })
         .finally(() => {
@@ -65,6 +51,26 @@ function sendRequest(el, method, url, opts = {}) {
                 if (indEl) indEl.style.display = "none";
             }
         });
+}
+
+function setTargetHtml(selector, newHtml, swap) {
+    const target = document.querySelector(selector);
+    if (target) {
+        switch (swap) {
+            case "innerHTML":
+                target.innerHTML = newHtml;
+                break;
+            case "outerHTML":
+                target.outerHTML = newHtml;
+                break;
+            case "beforeend":
+            case "afterbegin":
+                target.insertAdjacentHTML(swap, newHtml);
+                break;
+            default:
+                target.innerHTML = newHtml;
+        }
+    }
 }
 
 function processElement(el) {
