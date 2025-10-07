@@ -68,9 +68,7 @@ object TailwindGen {
      * Extract selectors that match any of the used class selectors.
      * This uses two passes: non-media top-level rules, and media blocks.
      */
-    private fun extractUsedCssBlocks(
-        usedClassSelectors: Set<String>,
-    ): String {
+    private fun extractUsedCssBlocks(usedClassSelectors: Set<String>): String {
         val sb = StringBuilder()
 
         // 1) include some global rules always (html, body, *, ::before, ::after)
@@ -99,8 +97,6 @@ object TailwindGen {
                 sb.append(mediaBlock).append("\n")
             }
         }
-
-
 
         return sb.toString()
     }
