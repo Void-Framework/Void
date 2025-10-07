@@ -69,21 +69,20 @@ object TailwindGen {
      * This uses two passes: non-media top-level rules, and media blocks.
      */
     private fun extractUsedCssBlocks(
-        rawCss: String,
         usedClassSelectors: Set<String>,
     ): String {
         val sb = StringBuilder()
 
         // 1) include some global rules always (html, body, *, ::before, ::after)
         val globalRegex = Regex("""(^|[\s,])(?:html|body|\*|::before|::after)[^{]*\{[^}]*\}""", RegexOption.DOT_MATCHES_ALL)
-        for (m in globalRegex.findAll(rawCss)) {
+        for (m in globalRegex.findAll(resourceFile)) {
             sb.append(m.value).append("\n")
         }
 
         // 2) non-media rules (selectors with a single declaration block)
         // This will match selector blocks that are not part of an @media at the top-level.
         val ruleRegex = Regex("""([^{@][^{}]*?)\{([^{}]*?)\}""", RegexOption.DOT_MATCHES_ALL)
-        for (m in ruleRegex.findAll(rawCss)) {
+        for (m in ruleRegex.findAll(resourceFile)) {
             val selectorBlock = m.groupValues[1].trim()
             val selectors = selectorBlock.split(",").map { it.trim() }
 
@@ -94,12 +93,14 @@ object TailwindGen {
 
         // 3) media query blocks — include whole block if any used selector appears inside it
         val mediaRegex = Regex("""@media[^{]+\{(?:(?:[^{}]|\{[^{}]*\})*)\}""", RegexOption.DOT_MATCHES_ALL)
-        for (m in mediaRegex.findAll(rawCss)) {
+        for (m in mediaRegex.findAll(resourceFile)) {
             val mediaBlock = m.value
             if (usedClassSelectors.any { mediaBlock.contains(it) }) {
                 sb.append(mediaBlock).append("\n")
             }
         }
+
+
 
         return sb.toString()
     }
@@ -158,15 +159,11 @@ object TailwindGen {
 
         val classSelectors = collectClassSelectors(page)
         if (classSelectors.isEmpty()) {
-            // nothing used — still assign empty css to avoid missing route behavior
-            val uuid = UUID.randomUUID()
-            router.addRoute(CssPage(uuid, ""))
-            handleMetadataAdding(page, uuid)
             return
         }
 
         // Extract used blocks (base rules + media queries)
-        val finalCss = extractUsedCssBlocks(resourceFile, classSelectors)
+        val finalCss = extractUsedCssBlocks(classSelectors)
 
         // Generate UUID, register route, and attach to page metadata
         val uuid = UUID.randomUUID()
