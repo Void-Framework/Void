@@ -41,9 +41,10 @@ abstract class Page<T : ContentType>(
             router.addRoute(CssPage(uuid, readResourceText(it)))
             val path = "/css/$uuid/styles.css"
             metadata = metadata ?: metadata(this) { externalCss = mutableListOf(path) }
-            metadata!!.externalCss = (metadata!!.externalCss ?: mutableListOf()).apply {
-                add(path)
-            }
+            metadata!!.externalCss =
+                (metadata!!.externalCss ?: mutableListOf()).apply {
+                    add(path)
+                }
         }
     }
 }

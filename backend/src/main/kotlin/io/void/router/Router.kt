@@ -306,12 +306,11 @@ fun readResourceText(
         ?.use { it.readText() }
         ?: error("Missing resource: $path")
 
-fun readResourceText(
-    path: String
-): String =
-    Thread.currentThread().contextClassLoader
+fun readResourceText(path: String): String =
+    Thread
+        .currentThread()
+        .contextClassLoader
         .getResourceAsStream(path)
         ?.bufferedReader()
         ?.use { it.readText() }
         ?: error("Missing resource: $path")
-
