@@ -82,6 +82,7 @@ class Router :
     }
 
     internal fun addRoute(route: Page<*>): Router {
+        route.router = this
         if (route::class != CssPage::class) {
             if (route.contentType == ContentType.HtmlElements::class) {
                 route.request = buildRequest { }
@@ -264,7 +265,7 @@ fun listResourcePaths(folder: String): List<String> {
             val root = File(url.toURI())
             root
                 .walkTopDown()
-                .filter { it.isFile && it.extension == ".js" }
+                .filter { it.isFile }
                 .map { "$folder/" + it.relativeTo(root).invariantSeparatorsPath }
                 .toList()
         }
@@ -277,8 +278,7 @@ fun listResourcePaths(folder: String): List<String> {
                     .asSequence()
                     .map { it.name }
                     .filter {
-                        it.startsWith("$folder/") && !it.endsWith("/") &&
-                            it.substringAfterLast('/').endsWith(".js", ignoreCase = true)
+                        it.startsWith("$folder/") && !it.endsWith("/")
                     }.toList()
             }
         }

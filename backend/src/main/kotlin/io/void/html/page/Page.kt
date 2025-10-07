@@ -1,11 +1,17 @@
 package io.void.html.page
 
+import io.void.api.CssPage
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.html.Element
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import io.void.html.page.metadata.metadata
+import io.void.router.Router
+import io.void.router.listResourcePaths
+import io.void.router.readResourceText
+import java.util.UUID
+import kotlin.io.path.Path
 import kotlin.reflect.KClass
 
 abstract class Page<T : ContentType>(
@@ -16,8 +22,24 @@ abstract class Page<T : ContentType>(
     lateinit var request: RequestDTO
     abstract val contentType: KClass<T>
     abstract var metadata: Metadata?
+    internal lateinit var router: Router
 
     abstract fun content(): T
+
+    operator fun invoke(vararg cssFileName: String): Page<T> {
+        listResourcePaths("css").forEach {
+            if (it.split("/").last() in cssFileName) {
+                val uuid = UUID.randomUUID()
+                router.addRoute(CssPage(uuid, readResourceText(it, this::class.java)))
+                val path = "/css/$uuid/styles.css"
+                metadata = metadata ?: metadata(this) { externalCss = mutableListOf(path) }
+                metadata!!.externalCss = (metadata!!.externalCss ?: mutableListOf()).apply {
+                    add(path)
+                }
+            }
+        }
+        return this
+    }
 }
 
 fun htmlRoute(
