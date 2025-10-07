@@ -22,23 +22,29 @@ abstract class Page<T : ContentType>(
     lateinit var request: RequestDTO
     abstract val contentType: KClass<T>
     abstract var metadata: Metadata?
-    internal lateinit var router: Router
+    private val cssFiles = mutableListOf<String>()
 
     abstract fun content(): T
 
     operator fun invoke(vararg cssFileName: String): Page<T> {
         listResourcePaths("css").forEach {
             if (it.split("/").last() in cssFileName) {
-                val uuid = UUID.randomUUID()
-                router.addRoute(CssPage(uuid, readResourceText(it, this::class.java)))
-                val path = "/css/$uuid/styles.css"
-                metadata = metadata ?: metadata(this) { externalCss = mutableListOf(path) }
-                metadata!!.externalCss = (metadata!!.externalCss ?: mutableListOf()).apply {
-                    add(path)
-                }
+                cssFiles.add(it)
             }
         }
         return this
+    }
+
+    internal fun addCssToRouter(router: Router) {
+        cssFiles.forEach {
+            val uuid = UUID.randomUUID()
+            router.addRoute(CssPage(uuid, readResourceText(it)))
+            val path = "/css/$uuid/styles.css"
+            metadata = metadata ?: metadata(this) { externalCss = mutableListOf(path) }
+            metadata!!.externalCss = (metadata!!.externalCss ?: mutableListOf()).apply {
+                add(path)
+            }
+        }
     }
 }
 

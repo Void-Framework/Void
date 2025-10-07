@@ -12,6 +12,7 @@ import io.void.html.exceptions.IExceptionPage
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
+import io.void.html.page.dynamic.Path
 import io.void.middleware.Relay
 import io.void.middleware.RelayAfter
 import io.void.middleware.RelayBefore
@@ -82,7 +83,7 @@ class Router :
     }
 
     internal fun addRoute(route: Page<*>): Router {
-        route.router = this
+        route.addCssToRouter(this)
         if (route::class != CssPage::class) {
             if (route.contentType == ContentType.HtmlElements::class) {
                 route.request = buildRequest { }
@@ -304,3 +305,13 @@ fun readResourceText(
         ?.bufferedReader()
         ?.use { it.readText() }
         ?: error("Missing resource: $path")
+
+fun readResourceText(
+    path: String
+): String =
+    Thread.currentThread().contextClassLoader
+        .getResourceAsStream(path)
+        ?.bufferedReader()
+        ?.use { it.readText() }
+        ?: error("Missing resource: $path")
+
