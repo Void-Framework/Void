@@ -7,9 +7,12 @@ import io.void.generated.*
 import io.void.html.Fractal
 import io.void.html.kts
 import io.void.html.page.htmlRoute
+import io.void.stream.Stream
+import io.void.stream.Streamable
 import java.net.URL
 
 @Cacheable(invalidationDurationInMillies = 0)
+@Streamable
 val homeRoute =
     htmlRoute("/", {}) {
         val containerClasses = "container mx-auto px-4 py-8"
@@ -92,6 +95,7 @@ val homeRoute =
                     Code { Fractal("Kotlin") }
                 }
 
+                @Stream
                 Section("id" to "kts-test", "class" to sectionClasses) {
                     H2("class" to headingClasses) { Fractal("KTS Test Section") }
 
