@@ -216,9 +216,18 @@ fun OutputStream.writeHTTP(
         writer.println("$key: $value")
     }
     writer.println()
-    writer.println(response.body.body)
-
     writer.flush()
+
+    when (val body = response.body) {
+        is ResponseBody.StringBody -> {
+            writer.print(body.body)
+            writer.flush()
+        }
+        is ResponseBody.ByteArrayBody -> {
+            this.write(body.body)
+            this.flush()
+        }
+    }
 }
 
 fun emptyResponse(): ResponseDTO = buildResponse<String> { }
