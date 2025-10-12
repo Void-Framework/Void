@@ -25,8 +25,9 @@ class Metadata internal constructor(
     var externalCss: MutableList<String>? = null
     var externalJS: MutableMap<String, Boolean>? = null
     internal var style: UUID? = null
+    val rawTags = mutableListOf<String>()
 
-    fun render(): String {
+    internal fun render(): String {
         handleStyles()
         return "<title>$title</title>" +
             meta("description", description) +
@@ -63,12 +64,12 @@ class Metadata internal constructor(
             if (externalJS != null) {
                 var js = ""
                 externalJS!!.forEach { (link, deferer) ->
-                    js += "<script src=\"$link\" ${if (deferer) "defer" else ""}></script>"
+                    js += "<script src=\"$link\" ${if (deferer) "defer" else ""}></script>\n"
                 }
                 js
             } else {
                 ""
-            }
+            } + rawTags.joinToString("\n")
     }
 
     private fun meta(
