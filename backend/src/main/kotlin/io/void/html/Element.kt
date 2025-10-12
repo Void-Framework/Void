@@ -3,6 +3,8 @@ package io.void.html
 import io.void.api.method.Method
 import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
+import io.void.generated.Div
+import io.void.generated.H2
 
 typealias Attribute = Pair<String, String>
 
@@ -40,6 +42,10 @@ abstract class Element internal constructor(
     operator fun get(attrName: String): String? = attributes.firstOrNull { it.first == attrName }?.second
 
     override fun toString(): String = render()
+
+    operator fun String.unaryPlus() {
+        children!!.add(Fractal(this))
+    }
 }
 
 fun Element.loop(
@@ -53,6 +59,30 @@ fun Element.loop(
             }
         }
     return fragment
+}
+
+fun Element.Container(
+    vararg attrs: Pair<String, String>,
+    content: Element.() -> Unit
+) = Div("class" to "container mx-auto px-4", *attrs, _children = content)
+
+fun Element.Flex(
+    vararg attrs: Pair<String, String>,
+    content: Element.() -> Unit
+) = Div("class" to "flex items-center", *attrs, _children = content)
+
+fun Element.Center(
+    vararg attrs: Pair<String, String>,
+    content: Element.() -> Unit
+) = Div("class" to "flex justify-center items-center", *attrs, _children = content)
+
+fun Element.Section(
+    title: String,
+    vararg attrs: Pair<String, String>,
+    content: Element.() -> Unit
+) = Div("class" to "mb-12", *attrs) {
+    H2("class" to "text-2xl font-semibold mb-4") { Fractal(title) }
+    content()
 }
 
 fun Element.kts(block: KtsBuilder.() -> Unit): Element {
