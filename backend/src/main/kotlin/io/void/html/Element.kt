@@ -38,6 +38,8 @@ abstract class Element internal constructor(
     }
 
     operator fun get(attrName: String): String? = attributes.firstOrNull { it.first == attrName }?.second
+
+    override fun toString(): String = render()
 }
 
 fun Element.loop(
