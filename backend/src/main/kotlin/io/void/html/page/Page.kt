@@ -81,7 +81,7 @@ fun jsonRoute(
 
 fun exceptionPage(
     metadata: Metadata.() -> Unit,
-    block: ExceptionPage<ContentType.HtmlElements>.(Exception) -> Element
+    block: ExceptionPage<ContentType.HtmlElements>.(Exception) -> Element,
 ): ExceptionPage<ContentType.HtmlElements> =
     object : ExceptionPage<ContentType.HtmlElements>() {
         private val _metadata = metadata(this) { }.apply(metadata)
@@ -91,9 +91,7 @@ fun exceptionPage(
         override fun content() = ContentType.HtmlElements(block(exception), _metadata)
     }
 
-fun exceptionPage(
-    block: ExceptionPage<ContentType.Response>.(Exception) -> ResponseDTO
-): ExceptionPage<ContentType.Response> =
+fun exceptionPage(block: ExceptionPage<ContentType.Response>.(Exception) -> ResponseDTO): ExceptionPage<ContentType.Response> =
     object : ExceptionPage<ContentType.Response>() {
         override var metadata: Metadata? = null
         override val contentType = ContentType.Response::class
@@ -103,7 +101,7 @@ fun exceptionPage(
 
 fun notFoundPage(
     metadata: Metadata.() -> Unit,
-    block: NotFoundPage<ContentType.HtmlElements>.(RequestDTO) -> Element
+    block: NotFoundPage<ContentType.HtmlElements>.(RequestDTO) -> Element,
 ): NotFoundPage<ContentType.HtmlElements> =
     object : NotFoundPage<ContentType.HtmlElements>() {
         private val _metadata = metadata(this) { }.apply(metadata)
@@ -113,9 +111,7 @@ fun notFoundPage(
         override fun content() = ContentType.HtmlElements(block(request), _metadata)
     }
 
-fun notFoundPage(
-    block: NotFoundPage<ContentType.Response>.(RequestDTO) -> ResponseDTO
-): NotFoundPage<ContentType.Response> =
+fun notFoundPage(block: NotFoundPage<ContentType.Response>.(RequestDTO) -> ResponseDTO): NotFoundPage<ContentType.Response> =
     object : NotFoundPage<ContentType.Response>() {
         override var metadata: Metadata? = null
         override val contentType = ContentType.Response::class
