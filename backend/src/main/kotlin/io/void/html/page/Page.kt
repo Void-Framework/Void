@@ -49,6 +49,10 @@ abstract class Page<T : ContentType>(
     }
 }
 
+abstract class ExceptionPage<T : ContentType> : Page<T>("") {
+    lateinit var exception: Exception
+}
+
 fun htmlRoute(
     path: String,
     metadata: Metadata.() -> Unit,
@@ -71,4 +75,24 @@ fun jsonRoute(
         override val contentType = ContentType.Response::class
 
         override fun content() = ContentType.Response(block(request))
+    }
+
+fun exceptionPage(
+    block: ExceptionPage<ContentType.HtmlElements>.(Exception) -> Element
+): ExceptionPage<ContentType.HtmlElements> =
+    object : ExceptionPage<ContentType.HtmlElements>() {
+        override var metadata: Metadata? = null
+        override val contentType = ContentType.HtmlElements::class
+
+        override fun content() = ContentType.HtmlElements(block(exception), this.metadata!!)
+    }
+
+fun exceptionPage(
+    block: ExceptionPage<ContentType.Response>.(Exception) -> ResponseDTO
+): ExceptionPage<ContentType.Response> =
+    object : ExceptionPage<ContentType.Response>() {
+        override var metadata: Metadata? = null
+        override val contentType = ContentType.Response::class
+
+        override fun content() = ContentType.Response(block(exception))
     }
