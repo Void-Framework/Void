@@ -78,13 +78,15 @@ fun jsonRoute(
     }
 
 fun exceptionPage(
+    metadata: Metadata.() -> Unit,
     block: ExceptionPage<ContentType.HtmlElements>.(Exception) -> Element
 ): ExceptionPage<ContentType.HtmlElements> =
     object : ExceptionPage<ContentType.HtmlElements>() {
-        override var metadata: Metadata? = null
+        private val _metadata = metadata(this) { }.apply(metadata)
+        override var metadata: Metadata? = _metadata
         override val contentType = ContentType.HtmlElements::class
 
-        override fun content() = ContentType.HtmlElements(block(exception), this.metadata!!)
+        override fun content() = ContentType.HtmlElements(block(exception), _metadata)
     }
 
 fun exceptionPage(
