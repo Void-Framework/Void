@@ -7,12 +7,12 @@ import io.void.cache.CacheProcessor
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.*
 import io.void.generator.TailwindGen
-import io.void.html.exceptions.ExceptionPage
-import io.void.html.exceptions.IExceptionPage
+import io.void.html.page.ExceptionPage
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.html.page.dynamic.Path
+import io.void.html.page.exceptionPage
 import io.void.middleware.Relay
 import io.void.middleware.RelayAfter
 import io.void.middleware.RelayBefore
@@ -36,7 +36,97 @@ class Router :
     private val js = mutableSetOf<JsPage>()
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
-    private var exceptionPage = ExceptionPage(e = Exception())
+    private var exceptionPage: ExceptionPage<*> = exceptionPage { e ->
+        return@exceptionPage buildResponse {
+            status = 500
+            statusText = "Server Error"
+            headers {
+                put("Content-Type", "text/html")
+                put("Connection", "close")
+            }
+            body = "<!doctype html><html>" +
+                    "<head>" +
+                    "  <style>" +
+                    "#__next-dev-overlay {\n" +
+                    "  position: fixed;\n" +
+                    "  top: 0;\n" +
+                    "  left: 0;\n" +
+                    "  width: 100%;\n" +
+                    "  height: 100%;\n" +
+                    "  background: rgba(0, 0, 0, 0.8);\n" +
+                    "  color: #fff;\n" +
+                    "  font-family: system-ui, sans-serif;\n" +
+                    "  z-index: 2147483647; /* Ensures it stays on top */\n" +
+                    "}\n" +
+                    "\n" +
+                    "/* Main overlay styling */\n" +
+                    ".overlay {\n" +
+                    "  max-width: 800px;\n" +
+                    "  margin: 50px auto;\n" +
+                    "  background: #1e1e1e;\n" +
+                    "  padding: 20px;\n" +
+                    "  border-radius: 4px;\n" +
+                    "  box-shadow: 0 2px 10px rgba(0,0,0,0.3);\n" +
+                    "}\n" +
+                    "\n" +
+                    "/* Header section with title and close button */\n" +
+                    ".overlay__header {\n" +
+                    "  display: flex;\n" +
+                    "  justify-content: space-between;\n" +
+                    "  align-items: center;\n" +
+                    "  margin-bottom: 15px;\n" +
+                    "}\n" +
+                    "\n" +
+                    ".overlay__title {\n" +
+                    "  font-size: 1.5em;\n" +
+                    "  font-weight: bold;\n" +
+                    "}\n" +
+                    "\n" +
+                    ".overlay__close {\n" +
+                    "  background: transparent;\n" +
+                    "  border: none;\n" +
+                    "  font-size: 1.5em;\n" +
+                    "  color: #fff;\n" +
+                    "  cursor: pointer;\n" +
+                    "}\n" +
+                    "\n" +
+                    "/* Styling for the error message and stack trace */\n" +
+                    ".overlay__content {\n" +
+                    "  color: #FF4C4C;\n" +
+                    "}\n" +
+                    ".error-message pre,\n" +
+                    ".stack-trace pre {\n" +
+                    "  margin: 0;\n" +
+                    "  padding: 10px;\n" +
+                    "  overflow: auto;\n" +
+                    "  background: #2d2d2d;\n" +
+                    "  border-radius: 4px;\n" +
+                    "  font-size: 0.9em;\n" +
+                    "}" +
+                    "  </style>" +
+                    "</head>" +
+                    "<body>" +
+                    "<div id=\"__next-dev-overlay\">\n" +
+                    "  <div class=\"overlay\">\n" +
+                    "    <div class=\"overlay__header\">\n" +
+                    "      <span class=\"overlay__title\">${e::class.simpleName}: ${e.localizedMessage}</span>\n" +
+                    "    </div>\n" +
+                    "    <div class=\"overlay__content\">\n" +
+                    "      <div class=\"error-message\">\n" +
+                    "        <pre>${e::class.simpleName}: ${e.localizedMessage}</pre>\n" +
+                    "      </div>\n" +
+                    "      <div class=\"stack-trace\">\n" +
+                    "        <pre>\n" +
+                    "          ${e.stackTrace.joinToString("\n")}\n" +
+                    "        </pre>\n" +
+                    "      </div>\n" +
+                    "    </div>\n" +
+                    "  </div>\n" +
+                    "</div>" +
+                    "</body>" +
+                    "</html>"
+        }
+    }
     private var nullPage: Page<*>? = null
     private val ktsResponsePages = mutableMapOf<String, KtsPage>()
 
@@ -97,13 +187,15 @@ class Router :
             }
         }
         CacheProcessor.processCacheables(page = route)
-        handleTargetChecking(route, routes)
-        if (route is IExceptionPage) {
-            exceptionPage = ExceptionPage(page = route)
+        if (route is ExceptionPage) {
+            exceptionPage = route
+            return this
         }
         if (route is INullRoutePage) {
             nullPage = route
+            return this
         }
+        handleTargetChecking(route, routes)
         if (route is DynamicPage<*>) {
             val target = route.target.split("/")
             dynamicRoutes[target] = route
@@ -214,37 +306,29 @@ class Router :
         e: Exception,
     ) {
         val client = clientHandler.client
-        exceptionPage.e = e
-        var statusCode: Int? = null
-        var log = true
-        var statusMessage: String? = null
-        var headers: Headers? = null
-        try {
-            statusCode = exceptionPage.newPage.statusCode
-            log = exceptionPage.newPage.logException
-            statusMessage = exceptionPage.newPage.statusMessage
-            headers = exceptionPage.newPage.headers
-        } catch (_: Exception) {
-        }
-        client.getOutputStream().writeHTTP(
-            response =
-                buildResponse {
-                    status = statusCode ?: 500
-                    statusText = statusMessage ?: "Server Error"
+        exceptionPage.exception = e
+        when (val content = exceptionPage.content()) {
+            is ContentType.Response -> client.getOutputStream().writeHTTP(
+                response = content.response,
+                version = clientHandler.server.httpVersion,
+            )
+            is ContentType.HtmlElements -> client.getOutputStream().writeHTTP(
+                response = buildResponse {
+                    status = 200
+                    statusText = "All is well"
                     headers {
                         put("Content-Type", "text/html")
-                        put("Connection", "close")
                     }
-                    headers?.let {
-                        this.headers = it.toMutableMap()
-                    }
-                    body = exceptionPage.page
+                    body =
+                        """
+                <!doctype html><html>
+                <head>${content.metadata.render()}</head>
+                <body>${content.htmlElement.render()}</body>
+                </html>
+                """.trimIndent()
                 },
-            version = clientHandler.server.httpVersion,
-        )
-
-        if (log) {
-            e.printStackTrace()
+                version = clientHandler.server.httpVersion
+            )
         }
     }
 
