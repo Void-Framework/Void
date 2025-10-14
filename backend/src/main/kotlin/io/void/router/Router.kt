@@ -182,7 +182,10 @@ class Router :
                                         put("Connection", "close")
                                     }
                                     body =
-                                        "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${(RouteCheck.nullPage.content() as ContentType.HtmlElements).htmlElement.render()}</body></html>"
+                                        "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${(
+                                            RouteCheck.nullPage
+                                                .content() as ContentType.HtmlElements
+                                        ).htmlElement.render()}</body></html>"
                                 }
                         }
                     }
@@ -211,28 +214,31 @@ class Router :
         val client = clientHandler.client
         RouteCheck.exceptionPage.exception = e
         when (val content = RouteCheck.exceptionPage.content()) {
-            is ContentType.Response -> client.getOutputStream().writeHTTP(
-                response = content.response,
-                version = clientHandler.server.httpVersion,
-            )
-            is ContentType.HtmlElements -> client.getOutputStream().writeHTTP(
-                response = buildResponse {
-                    status = 500
-                    statusText = "Server Error"
-                    headers {
-                        put("Content-Type", "text/html")
-                        put("Connection", "close")
-                    }
-                    body =
-                        """
-                <!doctype html><html>
-                <head>${content.metadata.render()}</head>
-                <body>${content.htmlElement.render()}</body>
-                </html>
-                """.trimIndent()
-                },
-                version = clientHandler.server.httpVersion
-            )
+            is ContentType.Response ->
+                client.getOutputStream().writeHTTP(
+                    response = content.response,
+                    version = clientHandler.server.httpVersion,
+                )
+            is ContentType.HtmlElements ->
+                client.getOutputStream().writeHTTP(
+                    response =
+                        buildResponse {
+                            status = 500
+                            statusText = "Server Error"
+                            headers {
+                                put("Content-Type", "text/html")
+                                put("Connection", "close")
+                            }
+                            body =
+                                """
+                                <!doctype html><html>
+                                <head>${content.metadata.render()}</head>
+                                <body>${content.htmlElement.render()}</body>
+                                </html>
+                                """.trimIndent()
+                        },
+                    version = clientHandler.server.httpVersion,
+                )
         }
     }
 

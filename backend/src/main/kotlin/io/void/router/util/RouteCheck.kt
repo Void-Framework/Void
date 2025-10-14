@@ -28,15 +28,16 @@ internal interface RouteCheck {
     }
 
     companion object {
-        internal var exceptionPage: ExceptionPage<*> = exceptionPage { e ->
-            return@exceptionPage buildResponse {
-                status = 500
-                statusText = "Server Error"
-                headers {
-                    put("Content-Type", "text/html")
-                    put("Connection", "close")
-                }
-                body = "<!doctype html><html>" +
+        internal var exceptionPage: ExceptionPage<*> =
+            exceptionPage { e ->
+                return@exceptionPage buildResponse {
+                    status = 500
+                    statusText = "Server Error"
+                    headers {
+                        put("Content-Type", "text/html")
+                        put("Connection", "close")
+                    }
+                    body = "<!doctype html><html>" +
                         "<head>" +
                         "  <style>" +
                         "#__next-dev-overlay {\n" +
@@ -117,79 +118,80 @@ internal interface RouteCheck {
                         "</div>" +
                         "</body>" +
                         "</html>"
-            }
-        }
-        internal var nullPage: NotFoundPage<*> = notFoundPage { request ->
-            return@notFoundPage buildResponse {
-                status = 404
-                statusText = "Not Found"
-                headers {
-                    put("Content-Type", "text/html")
-                    put("Connection", "close")
                 }
-                body = """
-            <!doctype html>
-            <html lang="en">
-            <head>
-                <meta charset="utf-8">
-                <title>404 | Page Not Found</title>
-                <style>
-                    body {
-                        margin: 0;
-                        height: 100vh;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-family: system-ui, sans-serif;
-                        background: #0f0f0f;
-                        color: #e5e5e5;
-                    }
-                    .container {
-                        text-align: center;
-                        padding: 2rem;
-                        max-width: 600px;
-                    }
-                    h1 {
-                        font-size: 5rem;
-                        margin-bottom: 0.5rem;
-                        color: #ff5555;
-                    }
-                    p {
-                        margin: 0.5rem 0 1.5rem;
-                        color: #aaa;
-                    }
-                    a {
-                        color: #61dafb;
-                        text-decoration: none;
-                        font-weight: 600;
-                        border: 1px solid #61dafb;
-                        border-radius: 6px;
-                        padding: 0.5rem 1rem;
-                        transition: 0.2s;
-                    }
-                    a:hover {
-                        background: #61dafb;
-                        color: #0f0f0f;
-                    }
-                    .path {
-                        font-size: 0.85rem;
-                        opacity: 0.7;
-                        margin-top: 1rem;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>404</h1>
-                    <p>The page you're looking for could not be found.</p>
-                    <a href="/">Return Home</a>
-                    <div class="path">Requested: ${request.target}</div>
-                </div>
-            </body>
-            </html>
-        """.trimIndent()
             }
-        }
-
+        internal var nullPage: NotFoundPage<*> =
+            notFoundPage { request ->
+                return@notFoundPage buildResponse {
+                    status = 404
+                    statusText = "Not Found"
+                    headers {
+                        put("Content-Type", "text/html")
+                        put("Connection", "close")
+                    }
+                    body =
+                        """
+                        <!doctype html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="utf-8">
+                            <title>404 | Page Not Found</title>
+                            <style>
+                                body {
+                                    margin: 0;
+                                    height: 100vh;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-family: system-ui, sans-serif;
+                                    background: #0f0f0f;
+                                    color: #e5e5e5;
+                                }
+                                .container {
+                                    text-align: center;
+                                    padding: 2rem;
+                                    max-width: 600px;
+                                }
+                                h1 {
+                                    font-size: 5rem;
+                                    margin-bottom: 0.5rem;
+                                    color: #ff5555;
+                                }
+                                p {
+                                    margin: 0.5rem 0 1.5rem;
+                                    color: #aaa;
+                                }
+                                a {
+                                    color: #61dafb;
+                                    text-decoration: none;
+                                    font-weight: 600;
+                                    border: 1px solid #61dafb;
+                                    border-radius: 6px;
+                                    padding: 0.5rem 1rem;
+                                    transition: 0.2s;
+                                }
+                                a:hover {
+                                    background: #61dafb;
+                                    color: #0f0f0f;
+                                }
+                                .path {
+                                    font-size: 0.85rem;
+                                    opacity: 0.7;
+                                    margin-top: 1rem;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container">
+                                <h1>404</h1>
+                                <p>The page you're looking for could not be found.</p>
+                                <a href="/">Return Home</a>
+                                <div class="path">Requested: ${request.target}</div>
+                            </div>
+                        </body>
+                        </html>
+                        """.trimIndent()
+                }
+            }
     }
 }
