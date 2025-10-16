@@ -52,7 +52,7 @@ abstract class Page<T : ContentType>(
 fun htmlRoute(
     path: String,
     metadata: Metadata.() -> Unit,
-    block: (RequestDTO) -> Element,
+    block: Page<ContentType.HtmlElements>.(RequestDTO) -> Element,
 ): Page<ContentType.HtmlElements> =
     object : Page<ContentType.HtmlElements>(target = path) {
         private val _metadata = metadata(this) { }.apply(metadata)
@@ -64,7 +64,7 @@ fun htmlRoute(
 
 fun jsonRoute(
     path: String,
-    block: (RequestDTO) -> ResponseDTO,
+    block: Page<ContentType.Response>.(RequestDTO) -> ResponseDTO,
 ): Page<ContentType.Response> =
     object : Page<ContentType.Response>(target = path) {
         override var metadata: Metadata? = null
