@@ -26,6 +26,8 @@ abstract class DynamicPage<T : ContentType>(
     internal var _data = mutableMapOf<Path, String>()
 
     val data: Map<Path, String> get() = _data
+
+    operator fun get(segment: Path) = data[segment]
 }
 
 fun dynamicJsonRoute(
