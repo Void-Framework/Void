@@ -7,6 +7,7 @@ import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import io.void.html.page.metadata.metadata
+import kotlin.reflect.KClass
 
 typealias Path = String
 
@@ -32,19 +33,19 @@ abstract class DynamicPage<T : ContentType>(
 
 fun dynamicJsonRoute(
     path: String,
-    block: Map<String, String?>.(RequestDTO) -> ResponseDTO,
+    block: DynamicPage<ContentType.Response>.(RequestDTO) -> ResponseDTO,
 ): DynamicPage<ContentType.Response> =
     object : DynamicPage<ContentType.Response>(target = path) {
         override var metadata: Metadata? = null
         override val contentType = ContentType.Response::class
 
-        override fun content() = ContentType.Response(block(data, request))
+        override fun content() = ContentType.Response(block(request))
     }
 
 fun dynamicHtmlRoute(
     path: String,
     metadata: Metadata.() -> Unit,
-    block: (RequestDTO) -> Element,
+    block: DynamicPage<ContentType.HtmlElements>.(RequestDTO) -> Element,
 ): DynamicPage<ContentType.HtmlElements> =
     object : DynamicPage<ContentType.HtmlElements>(target = path) {
         private val _metadata = metadata(this) { }.apply(metadata)
