@@ -1,7 +1,6 @@
 package io.void.html
 
 import io.void.api.method.Method
-import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
 
 typealias Attribute = Pair<String, String>
@@ -79,7 +78,7 @@ class KtsBuilder(
 
     fun vals(json: String) = element.attributes.add("kts-vals" to json)
 
-    fun headers(values: Headers) =
+    fun headers(values: MutableMap<String, String>) =
         element.attributes.add(
             "kts-headers" to
                 values.entries.joinToString(
