@@ -4,20 +4,14 @@ import java.io.OutputStream
 import java.io.PrintWriter
 import kotlin.reflect.full.memberProperties
 
-typealias Headers = Map<String, String>
 typealias JSON = Map<String, Any?>
 
 data class ResponseDTO(
-    val status: Int,
-    val statusText: String,
-    val body: ResponseBody<*>,
+    var status: Int,
+    var statusText: String,
+    var body: ResponseBody<*>,
 ) {
-    private val _headers = mutableMapOf<String, String>()
-    var headers: Headers
-        get() = _headers
-        set(value) {
-            _headers.putAll(value)
-        }
+    var headers = mutableMapOf<String, String>()
 
     companion object {
         private fun generateJson(keyAndValue: Map<String, Any?>) {
@@ -137,7 +131,7 @@ data class ResponseDTO(
     internal operator fun set(
         headerName: String,
         headerValue: String,
-    ) = _headers.put(headerName, headerValue)
+    ) = headers.put(headerName, headerValue)
 }
 
 interface ResponseBuilder<T> {
