@@ -7,12 +7,15 @@ import io.void.html.Element
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import io.void.html.page.metadata.metadata
+import io.void.middleware.Relay
+import io.void.middleware.RelayAfter
+import io.void.middleware.RelayBefore
 import io.void.router.Router
 import io.void.router.listResourcePaths
 import io.void.router.readResourceText
 import java.util.UUID
-import kotlin.io.path.Path
 import kotlin.reflect.KClass
+import kotlin.reflect.full.createInstance
 
 abstract class Page<T : ContentType>(
     open val target: String,
@@ -23,6 +26,8 @@ abstract class Page<T : ContentType>(
     abstract val contentType: KClass<T>
     abstract var metadata: Metadata?
     private val cssFiles = mutableListOf<String>()
+    internal val relaysBefore = mutableListOf<Relay>()
+    internal val relaysAfter = mutableListOf<Relay>()
 
     abstract fun content(): T
 
@@ -45,6 +50,38 @@ abstract class Page<T : ContentType>(
                 (metadata!!.externalCss ?: mutableListOf()).apply {
                     add(path)
                 }
+        }
+    }
+
+    fun before(relay: KClass<Relay>) {
+        relaysBefore.add(relay.createInstance())
+    }
+
+    fun before(relay: Relay) {
+        relaysBefore.add(relay)
+    }
+
+    fun after(relay: KClass<Relay>) {
+        relaysAfter.add(relay.createInstance())
+    }
+
+    fun after(relay: Relay) {
+        relaysAfter.add(relay)
+    }
+
+    internal fun middlewareProcessBefore(requestDTO: Result<RequestDTO>): ResponseDTO? {
+        relaysBefore.forEach {
+            val newResponse = (it as? RelayBefore)?.processBefore(requestDTO)
+            if (newResponse != null) {
+                return newResponse
+            }
+        }
+        return null
+    }
+
+    internal fun middlewareProcessAfter(response: Result<ResponseDTO>) {
+        relaysBefore.forEach {
+            (it as? RelayAfter)?.processAfter(response)
         }
     }
 }
