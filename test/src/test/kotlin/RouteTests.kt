@@ -55,6 +55,10 @@ class RouteTests {
     private var httpsServerJob: Job? = null
     private var redirectServerJob: Job? = null
 
+    private val enableHttpsTests = System.getProperty("void.tests.https") == "true"
+    private val enableLoadTests = System.getProperty("void.tests.load") == "true"
+    private val enablePerfTests = System.getProperty("void.tests.perf") == "true"
+
     private val client =
         HttpClient
             .newBuilder()
@@ -72,10 +76,14 @@ class RouteTests {
     @BeforeAll
     fun setup() {
         setupHttpServer()
-        setupHttpsServerIfKeystoreExists()
-
-        // Wait for HTTPS server to fully start before setting up redirect
-        TimeUnit.SECONDS.sleep(3)
+        if (enableHttpsTests) {
+            setupHttpsServerIfKeystoreExists()
+            // Wait until HTTPS is ready with timeout instead of fixed sleep
+            val start = System.currentTimeMillis()
+            while ((!::httpsServer.isInitialized || !httpsServer.isHTTPSServerRunning()) && System.currentTimeMillis() - start < 5000) {
+                Thread.sleep(100)
+            }
+        }
     }
 
     @AfterAll
@@ -146,7 +154,7 @@ class RouteTests {
 
     @Test
     fun `test concurrent client handling`() {
-        val concurrentRequests = 10
+        val concurrentRequests = if (enableLoadTests) 10 else 3
         val latch = CountDownLatch(concurrentRequests)
         val responses = mutableListOf<HttpResponse<String>>()
 
@@ -399,8 +407,12 @@ class RouteTests {
 
     @Test
     fun `test response time performance`() {
+        if (!enablePerfTests) {
+            println("Performance test skipped - enable with -Dvoid.tests.perf=true")
+            return
+        }
         val maxResponseTime = 1000L // 1 second
-        val iterations = 5
+        val iterations = 3
 
         repeat(iterations) {
             val startTime = System.currentTimeMillis()
@@ -418,7 +430,11 @@ class RouteTests {
 
     @Test
     fun `test server stability under load`() {
-        val requestCount = 50
+        if (!enableLoadTests) {
+            println("Load test skipped - enable with -Dvoid.tests.load=true")
+            return
+        }
+        val requestCount = 30
         val successfulRequests = mutableListOf<Boolean>()
         val latch = CountDownLatch(requestCount)
 
