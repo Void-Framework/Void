@@ -3,10 +3,10 @@ package io.jadiefication.routes.user
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
-import io.void.html.page.dynamic.dynamicJsonRoute
+import io.void.html.page.dynamic.dynamicApiRoute
 
 val userRoute =
-    dynamicJsonRoute("/users/{id}/{name?}") {
+    dynamicApiRoute("/users/{id}/{name?}") {
         val userId = this["id"]!!
         val name = this["name?"]
         if (!userId.matches(Regex("\\d+"))) {

@@ -99,7 +99,7 @@ fun htmlRoute(
         override fun content() = ContentType.HtmlElements(block(request), _metadata)
     }
 
-fun jsonRoute(
+fun apiRoute(
     path: String,
     block: Page<ContentType.Response>.(RequestDTO) -> ResponseDTO,
 ): Page<ContentType.Response> =
