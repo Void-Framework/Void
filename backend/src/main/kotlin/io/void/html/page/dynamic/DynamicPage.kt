@@ -7,7 +7,6 @@ import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import io.void.html.page.metadata.metadata
-import kotlin.reflect.KClass
 
 typealias Path = String
 
@@ -33,7 +32,7 @@ abstract class DynamicPage<T : ContentType>(
 
 inline fun <reified T : Any> DynamicPage<*>.path(name: String): T? = data[name] as? T
 
-fun dynamicJsonRoute(
+fun dynamicApiRoute(
     path: String,
     block: DynamicPage<ContentType.Response>.(RequestDTO) -> ResponseDTO,
 ): DynamicPage<ContentType.Response> =

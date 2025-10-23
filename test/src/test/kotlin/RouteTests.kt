@@ -5,7 +5,7 @@ import io.jadiefication.routes.setter.setterRoute
 import io.jadiefication.routes.user.userRoute
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
-import io.void.html.page.jsonRoute
+import io.void.html.page.apiRoute
 import io.void.router.router
 import io.void.server.Server
 import io.void.server.server
@@ -131,7 +131,7 @@ class RouteTests {
             try {
                 val simple =
                     simpleServer(testPort) {
-                        +jsonRoute("/test") { request ->
+                        +apiRoute("/test") { request ->
                             buildResponse {
                                 status = 200
                                 statusText = "OK"
