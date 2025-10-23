@@ -31,6 +31,8 @@ abstract class DynamicPage<T : ContentType>(
     operator fun get(segment: Path) = data[segment]
 }
 
+inline fun <reified T : Any> DynamicPage<*>.path(name: String): T? = data[name] as? T
+
 fun dynamicJsonRoute(
     path: String,
     block: DynamicPage<ContentType.Response>.(RequestDTO) -> ResponseDTO,
