@@ -133,7 +133,16 @@ class Router :
             )
             return
         }
-        val target = requestDTO.target
+        val target = requestDTO.target.substringBefore('?')
+        val query = requestDTO.target
+            .substringAfter("?", "")
+            .split("&")
+            .mapNotNull {
+                val parts = it.split("=", limit = 2)
+                if (parts.size == 2) parts[0] to parts[1] else null
+            }
+            .toMap()
+
         if (requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target)) {
             val page = ktsResponsePages[target] as KtsPage
             val route = requestDTO.headers["KTS-Route"]!!
