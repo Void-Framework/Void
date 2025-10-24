@@ -7,22 +7,22 @@ import io.void.html.page.jsonRoute
 // This demonstrates how RequestDTO.target can be used to parse queries for jsonRoute
 val echoRoute =
     jsonRoute("/echo") { request ->
-        val query = request.target
-            .substringAfter("?", "")
-            .split("&")
-            .mapNotNull {
-                val parts = it.split("=", limit = 2)
-                if (parts.size == 2) parts[0] to parts[1] else null
-            }
-            .toMap()
+        val query =
+            request.target
+                .substringAfter("?", "")
+                .split("&")
+                .mapNotNull {
+                    val parts = it.split("=", limit = 2)
+                    if (parts.size == 2) parts[0] to parts[1] else null
+                }.toMap()
 
         ResponseDTO.json(
             mapOf(
                 "path" to request.target.substringBefore("?"),
                 "query" to query,
-                "hasQuery" to query.isNotEmpty()
+                "hasQuery" to query.isNotEmpty(),
             ),
             200,
-            "OK"
+            "OK",
         )
     }

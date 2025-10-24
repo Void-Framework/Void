@@ -1,11 +1,11 @@
 package test
 
+import io.jadiefication.routes.echo.echoRoute
 import io.jadiefication.routes.home.homeRoute
+import io.jadiefication.routes.search.searchRootRoute
+import io.jadiefication.routes.search.searchRoute
 import io.jadiefication.routes.setter.setterRoute
 import io.jadiefication.routes.user.userRoute
-import io.jadiefication.routes.echo.echoRoute
-import io.jadiefication.routes.search.searchRoute
-import io.jadiefication.routes.search.searchRootRoute
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.html.page.jsonRoute
@@ -452,7 +452,12 @@ class RouteTests {
 
     @Test
     fun `test echo route returns query map`() {
-        val request = HttpRequest.newBuilder().uri(URI.create("http://localhost:$httpPort/echo?foo=bar&num=42")).GET().build()
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/echo?foo=bar&num=42"))
+                .GET()
+                .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
         val json = JSONObject(response.body())
@@ -467,7 +472,12 @@ class RouteTests {
     fun `test url encoded values are not decoded by server`() {
         val encoded = "hello%20world%2Bplus"
         val unicode = "%E2%9C%93" // checkmark
-        val request = HttpRequest.newBuilder().uri(URI.create("http://localhost:$httpPort/echo?q=$encoded&u=$unicode")).GET().build()
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/echo?q=$encoded&u=$unicode"))
+                .GET()
+                .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
         val query = JSONObject(response.body()).getJSONObject("query")
@@ -477,7 +487,12 @@ class RouteTests {
 
     @Test
     fun `test duplicate keys last value wins`() {
-        val request = HttpRequest.newBuilder().uri(URI.create("http://localhost:$httpPort/echo?x=1&x=2&x=3")).GET().build()
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/echo?x=1&x=2&x=3"))
+                .GET()
+                .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
         val query = JSONObject(response.body()).getJSONObject("query")
@@ -486,7 +501,12 @@ class RouteTests {
 
     @Test
     fun `test missing value is ignored but empty value kept`() {
-        val request = HttpRequest.newBuilder().uri(URI.create("http://localhost:$httpPort/echo?a=&b")).GET().build()
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/echo?a=&b"))
+                .GET()
+                .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
         val query = JSONObject(response.body()).getJSONObject("query")
@@ -497,7 +517,12 @@ class RouteTests {
 
     @Test
     fun `test dynamic search route with optional segment and queries`() {
-        val request = HttpRequest.newBuilder().uri(URI.create("http://localhost:$httpPort/search/books?q=kotlin&sort=asc")).GET().build()
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/search/books?q=kotlin&sort=asc"))
+                .GET()
+                .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
         val json = JSONObject(response.body())
@@ -510,7 +535,12 @@ class RouteTests {
 
     @Test
     fun `test dynamic search route without optional segment`() {
-        val request = HttpRequest.newBuilder().uri(URI.create("http://localhost:$httpPort/search?q=latest")).GET().build()
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/search?q=latest"))
+                .GET()
+                .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
         val json = JSONObject(response.body())
