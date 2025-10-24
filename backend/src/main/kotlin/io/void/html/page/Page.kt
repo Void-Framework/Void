@@ -23,6 +23,7 @@ abstract class Page<T : ContentType>(
     abstract val contentType: KClass<T>
     abstract var metadata: Metadata?
     private val cssFiles = mutableListOf<String>()
+    lateinit var queries: Map<String, String>
 
     abstract fun content(): T
 
