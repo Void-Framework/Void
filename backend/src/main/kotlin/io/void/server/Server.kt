@@ -61,7 +61,9 @@ class Server internal constructor(
             } catch (e: Exception) {
                 onServerSocketError(e)
             } finally {
-                onServerSocketClose(socket)
+                if (::socket.isInitialized) {
+                    onServerSocketClose(socket)
+                }
             }
         }.start()
     }
