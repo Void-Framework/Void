@@ -13,7 +13,10 @@ import java.util.concurrent.ConcurrentHashMap
 internal interface RequestHandler {
     val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>>
 
-    fun handleDynamic(requestDTO: RequestDTO, query: Map<String, String>): ResponseDTO? {
+    fun handleDynamic(
+        requestDTO: RequestDTO,
+        query: Map<String, String>,
+    ): ResponseDTO? {
         val segmentRegex = Regex("""^\{([^{}]+)}$""")
         val optionalSegment = Regex("""^\{([^{}?]+)\?}$""")
         val requestTarget = requestDTO.target
