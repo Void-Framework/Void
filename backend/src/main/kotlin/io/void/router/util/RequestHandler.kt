@@ -13,7 +13,10 @@ import java.util.concurrent.ConcurrentHashMap
 internal interface RequestHandler {
     val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>>
 
-    fun handleDynamic(requestDTO: RequestDTO): ResponseDTO? {
+    fun handleDynamic(
+        requestDTO: RequestDTO,
+        query: Map<String, String>,
+    ): ResponseDTO? {
         val segmentRegex = Regex("""^\{([^{}]+)}$""")
         val optionalSegment = Regex("""^\{([^{}?]+)\?}$""")
         val requestTarget = requestDTO.target
@@ -45,6 +48,7 @@ internal interface RequestHandler {
 
             route._data = dynamics
             route.request = requestDTO
+            route.queries = query
 
             return when (route.contentType) {
                 ContentType.HtmlElements::class -> constructClassicResponse(route)

@@ -12,9 +12,6 @@ import io.void.html.page.NotFoundPage
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
-import io.void.html.page.dynamic.Path
-import io.void.html.page.exceptionPage
-import io.void.html.page.notFoundPage
 import io.void.middleware.Relay
 import io.void.middleware.RelayAfter
 import io.void.middleware.RelayBefore
@@ -133,9 +130,19 @@ class Router :
             )
             return
         }
-        val target = requestDTO.target
+        val target = requestDTO.target.substringBefore('?')
+        val query =
+            requestDTO.target
+                .substringAfter("?", "")
+                .split("&")
+                .mapNotNull {
+                    val parts = it.split("=", limit = 2)
+                    if (parts.size == 2) parts[0] to parts[1] else null
+                }.toMap()
+
         if (requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target)) {
             val page = ktsResponsePages[target] as KtsPage
+            page.queries = query
             val route = requestDTO.headers["KTS-Route"]!!
             val rootElement = (routes[route]!!.content() as? ContentType.HtmlElements)?.htmlElement
             val triggerId = requestDTO["KTS-Trigger"]
@@ -152,7 +159,8 @@ class Router :
         }
         if (routes.containsKey(target)) {
             val page = routes[target]
-            page!!.request = requestDTO
+            page!!.queries = query
+            page.request = requestDTO
             if (page.content() is ContentType.Response) {
                 handleResponse(
                     page = page as Page<ContentType.Response>,
@@ -167,12 +175,14 @@ class Router :
             }
         } else {
             val response =
-                handleDynamic(requestDTO)
+                handleDynamic(requestDTO, query)
                     ?: run {
                         val response = ContentType.Response::class
                         val page = RouteCheck.nullPage
-                        when (RouteCheck.nullPage.contentType) {
-                            response -> (RouteCheck.nullPage.content() as ContentType.Response).response
+                        page.queries = query
+                        page.request = requestDTO
+                        when (page.contentType) {
+                            response -> (page.content() as ContentType.Response).response
                             else ->
                                 buildResponse {
                                     status = 404

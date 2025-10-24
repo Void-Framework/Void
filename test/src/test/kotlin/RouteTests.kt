@@ -1,6 +1,9 @@
 package test
 
+import io.jadiefication.routes.echo.echoRoute
 import io.jadiefication.routes.home.homeRoute
+import io.jadiefication.routes.search.searchRootRoute
+import io.jadiefication.routes.search.searchRoute
 import io.jadiefication.routes.setter.setterRoute
 import io.jadiefication.routes.user.userRoute
 import io.void.dto.http.buildResponse
@@ -141,7 +144,7 @@ class RouteTests {
         }.start()
 
         Thread.sleep(100)
-        assertTrue(serverCreated || true) // Test passes if server creation doesn't throw
+        assertTrue(true) // Test passes if server creation doesn't throw
     }
 
     @Test
@@ -445,6 +448,114 @@ class RouteTests {
         assertTrue(successRate > 0.9, "Success rate should be > 90%, was ${successRate * 100}%")
     }
 
+    // ===== QUERY TESTS =====
+
+    @Test
+    fun `test echo route returns query map`() {
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/echo?foo=bar&num=42"))
+                .GET()
+                .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        assertEquals(200, response.statusCode())
+        val json = JSONObject(response.body())
+        assertEquals("/echo", json.getString("path"))
+        assertTrue(json.getBoolean("hasQuery"))
+        val queryObj = json.getJSONObject("query")
+        assertEquals("bar", queryObj.getString("foo"))
+        assertEquals("42", queryObj.getString("num"))
+    }
+
+    @Test
+    fun `test url encoded values are not decoded by server`() {
+        val encoded = "hello%20world%2Bplus"
+        val unicode = "%E2%9C%93" // checkmark
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/echo?q=$encoded&u=$unicode"))
+                .GET()
+                .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        assertEquals(200, response.statusCode())
+        val query = JSONObject(response.body()).getJSONObject("query")
+        assertEquals(encoded, query.getString("q"))
+        assertEquals(unicode, query.getString("u"))
+    }
+
+    @Test
+    fun `test duplicate keys last value wins`() {
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/echo?x=1&x=2&x=3"))
+                .GET()
+                .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        assertEquals(200, response.statusCode())
+        val query = JSONObject(response.body()).getJSONObject("query")
+        assertEquals("3", query.getString("x"))
+    }
+
+    @Test
+    fun `test missing value is ignored but empty value kept`() {
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/echo?a=&b"))
+                .GET()
+                .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        assertEquals(200, response.statusCode())
+        val query = JSONObject(response.body()).getJSONObject("query")
+        assertTrue(query.has("a"))
+        assertEquals("", query.getString("a"))
+        assertFalse(query.has("b"))
+    }
+
+    @Test
+    fun `test dynamic search route with optional segment and queries`() {
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/search/books?q=kotlin&sort=asc"))
+                .GET()
+                .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        assertEquals(200, response.statusCode())
+        val json = JSONObject(response.body())
+        assertEquals("/search/books", json.getString("path"))
+        assertEquals("books", json.optString("category", null))
+        val query = json.getJSONObject("query")
+        assertEquals("kotlin", query.getString("q"))
+        assertEquals("asc", query.getString("sort"))
+    }
+
+    @Test
+    fun `test dynamic search route without optional segment`() {
+        val request =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort/search?q=latest"))
+                .GET()
+                .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+        assertEquals(200, response.statusCode())
+        val json = JSONObject(response.body())
+        assertEquals("/search", json.getString("path"))
+        assertTrue(json.isNull("category") || json.optString("category", null) == null)
+        val query = json.getJSONObject("query")
+        assertEquals("latest", query.getString("q"))
+    }
+
+    @Test
+    fun `test 404 still returned for unknown route with query`() {
+        val response = client.send(createConnectionGET("/nope?x=1&y=2"), HttpResponse.BodyHandlers.ofString())
+        assertEquals(404, response.statusCode())
+    }
+
     // ===== HELPER METHODS =====
 
     private fun setupHttpServer() {
@@ -456,6 +567,9 @@ class RouteTests {
                         +homeRoute
                         +setterRoute
                         +userRoute
+                        +echoRoute
+                        +searchRoute
+                        +searchRootRoute
                     }
                 autoStart = false
             }
@@ -482,6 +596,9 @@ class RouteTests {
                             +homeRoute
                             +setterRoute
                             +userRoute
+                            +echoRoute
+                            +searchRoute
+                            +searchRootRoute
                         }
                     password = "changeit"
                     file = tempFile
