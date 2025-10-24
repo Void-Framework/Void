@@ -144,7 +144,7 @@ class RouteTests {
         }.start()
 
         Thread.sleep(100)
-        assertTrue(serverCreated || true) // Test passes if server creation doesn't throw
+        assertTrue(true) // Test passes if server creation doesn't throw
     }
 
     @Test
