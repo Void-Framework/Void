@@ -28,6 +28,7 @@ abstract class Page<T : ContentType>(
     private val cssFiles = mutableListOf<String>()
     internal val relaysBefore = mutableListOf<Relay>()
     internal val relaysAfter = mutableListOf<Relay>()
+    lateinit var queries: Map<String, String>
 
     abstract fun content(): T
 
@@ -86,6 +87,12 @@ abstract class Page<T : ContentType>(
     }
 }
 
+abstract class ExceptionPage<T : ContentType> : Page<T>("") {
+    lateinit var exception: Exception
+}
+
+abstract class NotFoundPage<T : ContentType> : Page<T>("")
+
 fun htmlRoute(
     path: String,
     metadata: Metadata.() -> Unit,
@@ -104,6 +111,46 @@ fun apiRoute(
     block: Page<ContentType.Response>.(RequestDTO) -> ResponseDTO,
 ): Page<ContentType.Response> =
     object : Page<ContentType.Response>(target = path) {
+        override var metadata: Metadata? = null
+        override val contentType = ContentType.Response::class
+
+        override fun content() = ContentType.Response(block(request))
+    }
+
+fun exceptionPage(
+    metadata: Metadata.() -> Unit,
+    block: ExceptionPage<ContentType.HtmlElements>.(Exception) -> Element,
+): ExceptionPage<ContentType.HtmlElements> =
+    object : ExceptionPage<ContentType.HtmlElements>() {
+        private val _metadata = metadata(this) { }.apply(metadata)
+        override var metadata: Metadata? = _metadata
+        override val contentType = ContentType.HtmlElements::class
+
+        override fun content() = ContentType.HtmlElements(block(exception), _metadata)
+    }
+
+fun exceptionPage(block: ExceptionPage<ContentType.Response>.(Exception) -> ResponseDTO): ExceptionPage<ContentType.Response> =
+    object : ExceptionPage<ContentType.Response>() {
+        override var metadata: Metadata? = null
+        override val contentType = ContentType.Response::class
+
+        override fun content() = ContentType.Response(block(exception))
+    }
+
+fun notFoundPage(
+    metadata: Metadata.() -> Unit,
+    block: NotFoundPage<ContentType.HtmlElements>.(RequestDTO) -> Element,
+): NotFoundPage<ContentType.HtmlElements> =
+    object : NotFoundPage<ContentType.HtmlElements>() {
+        private val _metadata = metadata(this) { }.apply(metadata)
+        override var metadata: Metadata? = _metadata
+        override val contentType = ContentType.HtmlElements::class
+
+        override fun content() = ContentType.HtmlElements(block(request), _metadata)
+    }
+
+fun notFoundPage(block: NotFoundPage<ContentType.Response>.(RequestDTO) -> ResponseDTO): NotFoundPage<ContentType.Response> =
+    object : NotFoundPage<ContentType.Response>() {
         override var metadata: Metadata? = null
         override val contentType = ContentType.Response::class
 

@@ -7,15 +7,14 @@ import io.void.cache.CacheProcessor
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.*
 import io.void.generator.TailwindGen
-import io.void.html.exceptions.ExceptionPage
-import io.void.html.exceptions.IExceptionPage
+import io.void.html.page.ExceptionPage
+import io.void.html.page.NotFoundPage
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.middleware.Relay
 import io.void.middleware.RelayAfter
 import io.void.middleware.RelayBefore
-import io.void.router.page.INullRoutePage
 import io.void.router.page.PageHandler
 import io.void.router.util.RequestHandler
 import io.void.router.util.RouteCheck
@@ -34,8 +33,6 @@ class Router :
     private val js = mutableSetOf<JsPage>()
     private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
-    private var exceptionPage = ExceptionPage(e = Exception())
-    private var nullPage: Page<*>? = null
     private val ktsResponsePages = mutableMapOf<String, KtsPage>()
 
     init {
@@ -94,13 +91,15 @@ class Router :
             }
         }
         CacheProcessor.processCacheables(page = route)
+        if (route is ExceptionPage) {
+            RouteCheck.exceptionPage = route
+            return this
+        }
+        if (route is NotFoundPage) {
+            RouteCheck.nullPage = route
+            return this
+        }
         handleTargetChecking(route, routes)
-        if (route is IExceptionPage) {
-            exceptionPage = ExceptionPage(page = route)
-        }
-        if (route is INullRoutePage) {
-            nullPage = route
-        }
         if (route is DynamicPage<*>) {
             val target = route.target.split("/")
             dynamicRoutes[target] = route
@@ -121,11 +120,20 @@ class Router :
         clientHandler: ClientHandler,
     ) {
         val client = clientHandler.client
-        val target = requestDTO.target
+        val target = requestDTO.target.substringBefore('?')
+        val query =
+            requestDTO.target
+                .substringAfter("?", "")
+                .split("&")
+                .mapNotNull {
+                    val parts = it.split("=", limit = 2)
+                    if (parts.size == 2) parts[0] to parts[1] else null
+                }.toMap()
         val response =
             when {
                 requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target) -> {
                     val page = ktsResponsePages[target] as KtsPage
+                    page.queries = query
                     val route = requestDTO.headers["KTS-Route"]!!
                     val rootElement = (routes[route]!!.content() as? ContentType.HtmlElements)?.htmlElement
                     val triggerId = requestDTO["KTS-Trigger"]
@@ -142,6 +150,7 @@ class Router :
 
                 routes.containsKey(target) -> {
                     val page = routes[target]!!
+                    page.queries = query
                     page.request = requestDTO
 
                     page.middlewareProcessBefore(requestDTO.toResult())
@@ -153,36 +162,34 @@ class Router :
                 }
 
                 else -> {
-                    handleDynamic(requestDTO)
-                        ?: if (nullPage != null) {
-                            val page = nullPage as INullRoutePage
-                            nullPage?.middlewareProcessBefore(requestDTO.toResult())
-                                ?: when (nullPage!!.contentType) {
-                                    ContentType.Response::class -> (nullPage!!.content() as ContentType.Response).response
+                    handleDynamic(requestDTO, query)
+                        ?: run {
+                            val page = RouteCheck.nullPage
+                            page.queries = query
+                            page.request = requestDTO
+                            page.middlewareProcessBefore(requestDTO.toResult())
+                                ?: when (page.contentType) {
+                                    ContentType.Response::class -> (page!!.content() as ContentType.Response).response
                                     else ->
                                         buildResponse {
                                             status = 404
-                                            statusText = page.statusText
-                                            headers = page.headers.toMutableMap()
+                                            statusText = "Not Found"
+                                            headers {
+                                                put("Content-Type", "text/html")
+                                                put("Connection", "close")
+                                            }
                                             body =
-                                                "<!doctype html><html><head>${nullPage!!.metadata?.render()}</head><body>${(
-                                                    nullPage!!
-                                                        .content() as ContentType.HtmlElements
-                                                ).htmlElement.render()}</body></html>"
+                                                "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${(
+                                                        RouteCheck.nullPage
+                                                            .content() as ContentType.HtmlElements
+                                                        ).htmlElement.render()}</body></html>"
                                         }
                                 }
-                        } else {
-                            buildResponse {
-                                status = 404
-                                statusText = "Not Found"
-                                headers { put("Content-Type", "text/html") }
-                                body = "<!doctype html><html><body><h1>No Route Found!</h1></body></html>"
-                            }
                         }
                 }
             }
 
-        val page = ktsResponsePages[target] ?: routes[target] ?: nullPage as? Page<*>
+        val page = ktsResponsePages[target] ?: routes[target] ?: RouteCheck.nullPage as? Page<*>
         page?.middlewareProcessAfter(response.toResult())
 
         middlewareProcessAfter(
@@ -199,37 +206,33 @@ class Router :
         e: Exception,
     ) {
         val client = clientHandler.client
-        exceptionPage.e = e
-        var statusCode: Int? = null
-        var log = true
-        var statusMessage: String? = null
-        var headers: MutableMap<String, String>? = null
-        try {
-            statusCode = exceptionPage.newPage.statusCode
-            log = exceptionPage.newPage.logException
-            statusMessage = exceptionPage.newPage.statusMessage
-            headers = exceptionPage.newPage.headers
-        } catch (_: Exception) {
-        }
-        client.getOutputStream().writeHTTP(
-            response =
-                buildResponse {
-                    status = statusCode ?: 500
-                    statusText = statusMessage ?: "Server Error"
-                    headers {
-                        put("Content-Type", "text/html")
-                        put("Connection", "close")
-                    }
-                    headers?.let {
-                        this.headers = it.toMutableMap()
-                    }
-                    body = exceptionPage.page
-                },
-            version = clientHandler.server.httpVersion,
-        )
-
-        if (log) {
-            e.printStackTrace()
+        RouteCheck.exceptionPage.exception = e
+        when (val content = RouteCheck.exceptionPage.content()) {
+            is ContentType.Response ->
+                client.getOutputStream().writeHTTP(
+                    response = content.response,
+                    version = clientHandler.server.httpVersion,
+                )
+            is ContentType.HtmlElements ->
+                client.getOutputStream().writeHTTP(
+                    response =
+                        buildResponse {
+                            status = 500
+                            statusText = "Server Error"
+                            headers {
+                                put("Content-Type", "text/html")
+                                put("Connection", "close")
+                            }
+                            body =
+                                """
+                                <!doctype html><html>
+                                <head>${content.metadata.render()}</head>
+                                <body>${content.htmlElement.render()}</body>
+                                </html>
+                                """.trimIndent()
+                        },
+                    version = clientHandler.server.httpVersion,
+                )
         }
     }
 
