@@ -25,6 +25,9 @@ Void is a small, unopinionated framework you can embed into your app. It provide
 Quick links
 - Security policy: SECURITY.md
 - Roadmap/TODO: TODO.md
+- Contributing guide: CONTRIBUTING.md
+- Code of Conduct: CODE_OF_CONDUCT.md
+- Support: SUPPORT.md
 - License: MIT (LICENSE)
 
 ## Get started
