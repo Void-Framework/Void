@@ -175,6 +175,15 @@ object TailwindGen {
     }
 }
 
+/**
+ * Returns true if any pair in this list has its first component equal to [key].
+ *
+ * Useful for treating a List of Pair as a lightweight map in small utilities.
+ * Runs in O(n).
+ */
 fun <T> List<Pair<T, *>>.containsKey(key: T): Boolean = any { it.first == key }
 
+/**
+ * Retrieves the second component for the first pair whose first component equals [key].
+ */
 operator fun <N, M> List<Pair<N, M>>.get(key: N): M = first { it.first == key }.second
