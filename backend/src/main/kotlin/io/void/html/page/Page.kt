@@ -53,19 +53,19 @@ abstract class Page<T : ContentType>(
         }
     }
 
-    fun before(relay: KClass<Relay>) {
+    fun before(relay: KClass<RelayBefore>) {
         relaysBefore.add(relay.createInstance())
     }
 
-    fun before(relay: Relay) {
+    fun before(relay: RelayBefore) {
         relaysBefore.add(relay)
     }
 
-    fun after(relay: KClass<Relay>) {
+    fun after(relay: KClass<RelayAfter>) {
         relaysAfter.add(relay.createInstance())
     }
 
-    fun after(relay: Relay) {
+    fun after(relay: RelayAfter) {
         relaysAfter.add(relay)
     }
 
