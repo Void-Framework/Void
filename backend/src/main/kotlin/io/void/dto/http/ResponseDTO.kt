@@ -7,6 +7,7 @@ import kotlin.reflect.full.memberProperties
 
 /** JSON key/value map used by legacy JSON builder utilities. */
 typealias JSON = Map<String, Any?>
+
 /** Mutable map of HTTP header names to values. */
 typealias Headers = MutableMap<String, String>
 
