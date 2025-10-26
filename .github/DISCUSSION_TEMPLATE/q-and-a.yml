@@ -1,0 +1,48 @@
+name: Q&A
+description: Ask a question and get help from the community
+# The discussion category must exist in the repository settings (Discussions > Categories)
+category: Q&A
+labels:
+  - question
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to ask a question!
+        Please search existing Discussions and Issues before posting.
+
+  - type: input
+    id: void-version
+    attributes:
+      label: Void version
+      description: Which version of Void are you using? (e.g., 1.1.0)
+      placeholder: 1.x.x
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: JVM/OS details (e.g., Java 17, macOS 14.5)
+      placeholder: Java 17, Ubuntu 24.04
+    validations:
+      required: false
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: Be as specific as possible. Include code snippets or routes when helpful.
+      placeholder: |
+        I’m trying to render a page with Tailwind classes but only some styles show up...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Links to related examples, repos, or prior discussions
+    validations:
+      required: false
