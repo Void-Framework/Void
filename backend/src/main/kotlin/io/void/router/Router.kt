@@ -180,9 +180,9 @@ class Router :
                                             }
                                             body =
                                                 "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${(
-                                                        RouteCheck.nullPage
-                                                            .content() as ContentType.HtmlElements
-                                                        ).htmlElement.render()}</body></html>"
+                                                    RouteCheck.nullPage
+                                                        .content() as ContentType.HtmlElements
+                                                ).htmlElement.render()}</body></html>"
                                         }
                                 }
                         }

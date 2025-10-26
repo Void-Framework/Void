@@ -11,7 +11,7 @@ val searchRoute =
         ResponseDTO.json(
             mapOf(
                 "category" to category,
-                "path" to target.substringBefore("?"),
+                "path" to request.target.substringBefore("?"),
                 "query" to queries,
             ),
             200,
