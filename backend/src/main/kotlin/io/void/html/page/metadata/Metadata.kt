@@ -5,6 +5,12 @@ import java.net.InetAddress
 import java.nio.charset.Charset
 import java.util.*
 
+/**
+ * Describes HTML document metadata for a [Page]: title, description, icons, social tags,
+ * canonical URL, theme color, robots, external CSS/JS, and arbitrary raw tags.
+ *
+ * Instances are normally created via [metadata] DSL and rendered into the <head> by the router.
+ */
 class Metadata internal constructor(
     page: Page<*>,
 ) {
@@ -27,6 +33,7 @@ class Metadata internal constructor(
     internal var style: UUID? = null
     val rawTags = mutableListOf<String>()
 
+    /** Renders this metadata into a string of <head> tags ready to be embedded in an HTML document. */
     internal fun render(): String {
         handleStyles()
         return "<title>$title</title>" +
@@ -91,6 +98,9 @@ class Metadata internal constructor(
     }
 }
 
+/**
+ * DSL entry point to create [Metadata] for the given [page] using [builder].
+ */
 fun metadata(
     page: Page<*>,
     builder: Metadata.() -> Unit,

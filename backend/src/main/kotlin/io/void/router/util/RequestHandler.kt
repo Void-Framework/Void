@@ -11,6 +11,10 @@ import io.void.html.page.dynamic.Path
 import io.void.router.toResult
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Internal helpers for routing requests to the correct handler and building
+ * responses for different page types (HTML, API, KTS, dynamic).
+ */
 internal interface RequestHandler {
     val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>>
 
