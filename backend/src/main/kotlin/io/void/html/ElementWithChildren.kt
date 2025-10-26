@@ -6,11 +6,26 @@ import kotlin.reflect.KClass
 
 internal interface HElement
 
+/**
+ * Base class for HTML-like elements that can contain children in the Void DSL.
+ *
+ * - [acceptedChildren] controls which child element types are allowed. If the first entry is null,
+ *   any child type is accepted. Otherwise, only the listed KClasses are allowed.
+ * - During [render], the children are validated against [acceptedChildren] and exceptions are thrown
+ *   if a disallowed child is encountered.
+ */
 abstract class ElementWithChildren internal constructor(
     override val name: String,
 ) : Element(name) {
     abstract val acceptedChildren: MutableList<KClass<out Element>?>
 
+    /**
+     * Renders this element by first validating child types against [acceptedChildren],
+     * then concatenating each child's [Element.render] inside an opening/closing tag with attributes.
+     *
+     * Throws [ChildNotAllowedException] when a direct child type is not allowed, or
+     * [FragmentChildNotAllowedException] when a [Fractal] contains a disallowed nested child.
+     */
     override fun render(): String {
         var attrs = ""
         attributes.forEach { (name, value) ->

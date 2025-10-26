@@ -124,6 +124,12 @@ internal interface RequestHandler {
     }
 }
 
+/**
+ * Removes a single trailing empty string element from this list if present.
+ * Useful when splitting URL paths to ignore a trailing slash.
+ *
+ * @return true if an empty element was removed; false otherwise.
+ */
 fun MutableList<String>.trimTrailingEmpty(): Boolean {
     val hasEmptyTail = this.lastOrNull()?.isEmpty() == true
     if (hasEmptyTail) removeAt(lastIndex)
