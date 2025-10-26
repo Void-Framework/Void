@@ -18,6 +18,11 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
 import javax.net.ssl.SSLSocket
 
+/**
+ * Minimal HTTP/HTTPS server used by Void to serve routes from a [Router].
+ *
+ * @param httpVersion HTTP version used when writing responses.
+ */
 class Server internal constructor(
     private val router: Router,
     val httpVersion: Number = 1.1,
@@ -35,6 +40,12 @@ class Server internal constructor(
         it.close()
     }
 
+    /**
+     * Starts the HTTP server on the given [port].
+     *
+     * @param routeToHTTPS If true, new HTTP connections will wait until HTTPS is ready and then
+     * redirect the client to the HTTPS host using a 301 response.
+     */
     fun startHTTPServer(
         port: Int,
         routeToHTTPS: Boolean = false,
@@ -68,6 +79,12 @@ class Server internal constructor(
         }.start()
     }
 
+    /**
+     * Starts the HTTPS server on the given [port] using the provided PKCS12 keystore [file].
+     *
+     * @param password Keystore password.
+     * @param needsAuth Whether to require client certificate authentication.
+     */
     fun startHTTPSServer(
         port: Int,
         password: String,
@@ -109,6 +126,7 @@ class Server internal constructor(
         }.start()
     }
 
+    /** Returns true if the HTTPS server socket is initialized, bound, open, and HTTPS mode is enabled. */
     fun isHTTPSServerRunning(): Boolean = isHTTPSOn && ::httpsSocket.isInitialized && httpsSocket.isBound && !httpsSocket.isClosed
 
     private suspend fun waitForHTTPSAndRedirect(client: Socket) {
@@ -143,6 +161,12 @@ class Server internal constructor(
     }
 }
 
+/**
+ * Builder for configuring and creating a [Server].
+ *
+ * Defaults: port=8080, httpsPort=8081, httpVersion=1.1. If a keystore [file] is provided,
+ * HTTPS will be started; optionally set [routeToHTTPS] to also start HTTP that redirects to HTTPS.
+ */
 class ServerBuilder {
     var port: Int = 8080
     var httpsPort: Int = 8081
@@ -160,6 +184,12 @@ class ServerBuilder {
     }
     var autoStart: Boolean = true
 
+    /**
+     * Builds a [Server] instance from the configured properties. If [autoStart] is true,
+     * this will start the appropriate server(s):
+     * - HTTPS if [file] (PKCS12 keystore) is provided, and optionally HTTP for redirect when [routeToHTTPS] is true.
+     * - Otherwise, a plain HTTP server on [port].
+     */
     fun build(): Server {
         val server = Server(router, httpVersion)
         server.onServerSocketError = onServerSocketError
@@ -176,12 +206,18 @@ class ServerBuilder {
     }
 }
 
+/**
+ * DSL helper to create and optionally start a [Server] using a [ServerBuilder] configuration block.
+ */
 fun server(builder: ServerBuilder.() -> Unit): Server {
     val sBuilder = ServerBuilder()
     sBuilder.builder()
     return sBuilder.build()
 }
 
+/**
+ * Convenience function to spin up a simple HTTP server quickly on [port] with routes defined in [builder].
+ */
 fun simpleServer(
     port: Int = 8080,
     builder: Router.() -> Unit,
@@ -193,6 +229,9 @@ fun simpleServer(
     return server
 }
 
+/**
+ * Handles an incoming connection [Socket] by delegating processing to [ClientHandler].
+ */
 fun Socket.handle(
     server: Server,
     router: Router,
@@ -200,6 +239,11 @@ fun Socket.handle(
     ClientHandler(this, server, router).start()
 }
 
+/**
+ * Handles an error that occurred while processing a connection by delegating to [ClientHandler.error].
+ *
+ * @param exception The exception that was thrown during request processing.
+ */
 fun Socket.error(
     server: Server,
     router: Router,
