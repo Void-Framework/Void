@@ -26,23 +26,27 @@ abstract class DynamicPage<T : ContentType>(
     internal var _data = mutableMapOf<Path, String>()
 
     val data: Map<Path, String> get() = _data
+
+    operator fun get(segment: Path) = data[segment]
 }
 
-fun dynamicJsonRoute(
+inline fun <reified T : Any> DynamicPage<*>.path(name: String): T? = data[name] as? T
+
+fun dynamicApiRoute(
     path: String,
-    block: Map<String, String?>.(RequestDTO) -> ResponseDTO,
+    block: DynamicPage<ContentType.Response>.(RequestDTO) -> ResponseDTO,
 ): DynamicPage<ContentType.Response> =
     object : DynamicPage<ContentType.Response>(target = path) {
         override var metadata: Metadata? = null
         override val contentType = ContentType.Response::class
 
-        override fun content() = ContentType.Response(block(data, request))
+        override fun content() = ContentType.Response(block(request))
     }
 
 fun dynamicHtmlRoute(
     path: String,
     metadata: Metadata.() -> Unit,
-    block: (RequestDTO) -> Element,
+    block: DynamicPage<ContentType.HtmlElements>.(RequestDTO) -> Element,
 ): DynamicPage<ContentType.HtmlElements> =
     object : DynamicPage<ContentType.HtmlElements>(target = path) {
         private val _metadata = metadata(this) { }.apply(metadata)

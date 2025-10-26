@@ -16,7 +16,6 @@ import io.void.middleware.Relay
 import io.void.middleware.RelayAfter
 import io.void.middleware.RelayBefore
 import io.void.router.page.PageHandler
-import io.void.router.util.MiddlewareTime
 import io.void.router.util.RequestHandler
 import io.void.router.util.RouteCheck
 import java.io.File
@@ -61,21 +60,20 @@ class Router :
         internalRelay = relay.sortedByDescending { it.priority }
     }
 
-    internal fun middlewareProcess(
-        requestDTO: Result<RequestDTO>,
-        type: MiddlewareTime,
-    ): ResponseDTO? {
+    internal fun middlewareProcessBefore(requestDTO: Result<RequestDTO>): ResponseDTO? {
         internalRelay.forEach {
-            val newResponse =
-                when (type) {
-                    MiddlewareTime.BEFORE -> (it as? RelayBefore)?.processBefore(requestDTO)
-                    MiddlewareTime.AFTER -> (it as? RelayAfter)?.processAfter(requestDTO)
-                }
+            val newResponse = (it as? RelayBefore)?.processBefore(requestDTO)
             if (newResponse != null) {
                 return newResponse
             }
         }
         return null
+    }
+
+    internal fun middlewareProcessAfter(response: Result<ResponseDTO>) {
+        internalRelay.forEach {
+            (it as? RelayAfter)?.processAfter(response)
+        }
     }
 
     internal fun addRoute(route: Page<*>): Router {
@@ -122,14 +120,6 @@ class Router :
         clientHandler: ClientHandler,
     ) {
         val client = clientHandler.client
-        val response = middlewareProcess(requestDTO.toResult(), MiddlewareTime.BEFORE)
-        if (response != null) {
-            client.getOutputStream().writeHTTP(
-                response = response,
-                version = clientHandler.server.httpVersion,
-            )
-            return
-        }
         val target = requestDTO.target.substringBefore('?')
         val query =
             requestDTO.target
@@ -139,82 +129,76 @@ class Router :
                     val parts = it.split("=", limit = 2)
                     if (parts.size == 2) parts[0] to parts[1] else null
                 }.toMap()
+        val response =
+            when {
+                requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target) -> {
+                    val page = ktsResponsePages[target] as KtsPage
+                    page.queries = query
+                    val route = requestDTO.headers["KTS-Route"]!!
+                    val rootElement = (routes[route]!!.content() as? ContentType.HtmlElements)?.htmlElement
+                    val triggerId = requestDTO["KTS-Trigger"]
+                    val targetId = requestDTO["KTS-Target"]
+                    val trigger = triggerId?.let { rootElement?.findElement(it) }
+                    val targetEl = targetId?.let { rootElement?.findElement(it) }
+                    page._target = targetEl
+                    page._trigger = trigger
+                    page.request = requestDTO
 
-        if (requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target)) {
-            val page = ktsResponsePages[target] as KtsPage
-            page.queries = query
-            val route = requestDTO.headers["KTS-Route"]!!
-            val rootElement = (routes[route]!!.content() as? ContentType.HtmlElements)?.htmlElement
-            val triggerId = requestDTO["KTS-Trigger"]
-            val targetId = requestDTO["KTS-Target"]
-            val trigger = triggerId?.let { rootElement?.findElement(it) }
-            val target = targetId?.let { rootElement?.findElement(it) }
-            page._target = target
-            page._trigger = trigger
-            page.request = requestDTO
-            handleKts(
-                page = page,
-                clientHandler = clientHandler,
-            )
-        }
-        if (routes.containsKey(target)) {
-            val page = routes[target]
-            page!!.queries = query
-            page.request = requestDTO
-            if (page.content() is ContentType.Response) {
-                handleResponse(
-                    page = page as Page<ContentType.Response>,
-                    clientHandler = clientHandler,
-                )
-            } else {
-                handleCasual(
-                    page = page as Page<ContentType.HtmlElements>,
-                    clientHandler = clientHandler,
-                    target = target,
-                )
-            }
-        } else {
-            val response =
-                handleDynamic(requestDTO, query)
-                    ?: run {
-                        val response = ContentType.Response::class
-                        val page = RouteCheck.nullPage
-                        page.queries = query
-                        page.request = requestDTO
-                        when (page.contentType) {
-                            response -> (page.content() as ContentType.Response).response
-                            else ->
-                                buildResponse {
-                                    status = 404
-                                    statusText = "Not Found"
-                                    headers {
-                                        put("Content-Type", "text/html")
-                                        put("Connection", "close")
-                                    }
-                                    body =
-                                        "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${(
-                                            RouteCheck.nullPage
-                                                .content() as ContentType.HtmlElements
-                                        ).htmlElement.render()}</body></html>"
+                    page.middlewareProcessBefore(requestDTO.toResult())
+                        ?: handleKts(page, clientHandler)
+                }
+
+                routes.containsKey(target) -> {
+                    val page = routes[target]!!
+                    page.queries = query
+                    page.request = requestDTO
+
+                    page.middlewareProcessBefore(requestDTO.toResult())
+                        ?: if (page.content() is ContentType.Response) {
+                            handleResponse(page as Page<ContentType.Response>, clientHandler)
+                        } else {
+                            handleCasual(page as Page<ContentType.HtmlElements>, clientHandler, target)
+                        }
+                }
+
+                else -> {
+                    handleDynamic(requestDTO, query)
+                        ?: run {
+                            val page = RouteCheck.nullPage
+                            page.queries = query
+                            page.request = requestDTO
+                            page.middlewareProcessBefore(requestDTO.toResult())
+                                ?: when (page.contentType) {
+                                    ContentType.Response::class -> (page!!.content() as ContentType.Response).response
+                                    else ->
+                                        buildResponse {
+                                            status = 404
+                                            statusText = "Not Found"
+                                            headers {
+                                                put("Content-Type", "text/html")
+                                                put("Connection", "close")
+                                            }
+                                            body =
+                                                "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${(
+                                                        RouteCheck.nullPage
+                                                            .content() as ContentType.HtmlElements
+                                                        ).htmlElement.render()}</body></html>"
+                                        }
                                 }
                         }
-                    }
-            client.getOutputStream().writeHTTP(
-                response = response,
-                version = clientHandler.server.httpVersion,
-            )
-            val lateResponse =
-                middlewareProcess(
-                    requestDTO = requestDTO.toResult(),
-                    type = MiddlewareTime.AFTER,
-                )
-            if (lateResponse != null) {
-                client.getOutputStream().writeHTTP(
-                    response = lateResponse,
-                    version = clientHandler.server.httpVersion,
-                )
+                }
             }
-        }
+
+        val page = ktsResponsePages[target] ?: routes[target] ?: RouteCheck.nullPage as? Page<*>
+        page?.middlewareProcessAfter(response.toResult())
+
+        middlewareProcessAfter(
+            response.toResult(),
+        )
+        client.getOutputStream().writeHTTP(
+            response,
+            clientHandler.server.httpVersion,
+        )
     }
 
     fun error(
