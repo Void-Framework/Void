@@ -12,6 +12,12 @@ import io.void.router.exceptions.RouteTargetUsedException
 import java.util.concurrent.ConcurrentHashMap
 
 internal interface RouteCheck {
+    /**
+     * Validates and registers the [route] target into [routes].
+     *
+     * - Throws [io.void.router.exceptions.RouteTargetUsedException] if the path is already in use.
+     * - Throws [io.void.router.exceptions.RouteNoTargetException] if the path does not start with "/".
+     */
     fun handleTargetChecking(
         route: Page<*>,
         routes: ConcurrentHashMap<String, Page<*>>,
@@ -27,6 +33,10 @@ internal interface RouteCheck {
         }
     }
 
+    /**
+     * Defaults used by the router when an exception is thrown or a route is not found.
+     * These can be overridden by registering custom pages in the router.
+     */
     companion object {
         internal var exceptionPage: ExceptionPage<*> =
             exceptionPage { e ->

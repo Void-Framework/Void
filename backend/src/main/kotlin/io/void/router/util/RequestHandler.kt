@@ -11,6 +11,10 @@ import io.void.html.page.dynamic.Path
 import io.void.router.toResult
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Internal helpers for routing requests to the correct handler and building
+ * responses for different page types (HTML, API, KTS, dynamic).
+ */
 internal interface RequestHandler {
     val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>>
 
@@ -120,6 +124,12 @@ internal interface RequestHandler {
     }
 }
 
+/**
+ * Removes a single trailing empty string element from this list if present.
+ * Useful when splitting URL paths to ignore a trailing slash.
+ *
+ * @return true if an empty element was removed; false otherwise.
+ */
 fun MutableList<String>.trimTrailingEmpty(): Boolean {
     val hasEmptyTail = this.lastOrNull()?.isEmpty() == true
     if (hasEmptyTail) removeAt(lastIndex)

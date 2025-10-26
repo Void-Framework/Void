@@ -1,0 +1,43 @@
+name: Show and tell
+description: Share something you built with Void and get feedback
+category: Show and tell
+labels:
+  - showcase
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We love to see what you build with Void! Share links, screenshots, and key ideas.
+
+  - type: input
+    id: project-link
+    attributes:
+      label: Project link
+      description: Link to repo, demo, or article
+      placeholder: https://github.com/your/repo
+    validations:
+      required: false
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: Overview
+      description: What did you build and why?
+    validations:
+      required: true
+
+  - type: textarea
+    id: tech
+    attributes:
+      label: Tech details
+      description: Interesting code, patterns, or lessons learned
+    validations:
+      required: false
+
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or media
+      description: Drag and drop images or paste links
+    validations:
+      required: false
