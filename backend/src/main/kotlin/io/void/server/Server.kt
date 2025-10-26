@@ -61,7 +61,9 @@ class Server internal constructor(
             } catch (e: Exception) {
                 onServerSocketError(e)
             } finally {
-                onServerSocketClose(socket)
+                if (::socket.isInitialized) {
+                    onServerSocketClose(socket)
+                }
             }
         }.start()
     }
@@ -115,22 +117,26 @@ class Server internal constructor(
             }
 
             // Send redirect once HTTPS is ready
-            client.getOutputStream().writeHTTP(
-                response =
-                    buildResponse {
-                        status = 301
-                        statusText = "Moved Permanently"
-                        headers {
-                            put("Location", "https://${client.inetAddress.hostName}")
-                        }
-                        body = ""
-                    },
-                version = httpVersion,
-            )
+            withContext(Dispatchers.IO) {
+                client.getOutputStream().writeHTTP(
+                    response =
+                        buildResponse {
+                            status = 301
+                            statusText = "Moved Permanently"
+                            headers {
+                                put("Location", "https://${client.inetAddress.hostName}")
+                            }
+                            body = ""
+                        },
+                    version = httpVersion,
+                )
+            }
         } catch (e: Exception) {
             client.close()
         } finally {
-            runCatching { client.close() }
+            withContext(Dispatchers.IO) {
+                runCatching { client.close() }
+            }
         }
     }
 }
