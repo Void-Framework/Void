@@ -31,13 +31,16 @@ abstract class Page<T : ContentType>(
 
     /** The current request bound to this page during handling. */
     lateinit var request: RequestDTO
+
     /** The resulting content type produced by this page. */
     abstract val contentType: KClass<T>
+
     /** Optional HTML metadata associated with this page. */
     abstract var metadata: Metadata?
     private val cssFiles = mutableListOf<String>()
     internal val relaysBefore = mutableListOf<Relay>()
     internal val relaysAfter = mutableListOf<Relay>()
+
     /** URL query parameters for the current request. */
     lateinit var queries: Map<String, String>
 

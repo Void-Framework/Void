@@ -4,7 +4,6 @@ import io.void.dto.http.RequestDTO
 import io.void.dto.http.writeHTTP
 import io.void.router.Router
 import io.void.router.toResult
-import io.void.router.util.MiddlewareTime
 import io.void.server.Server
 import java.net.Socket
 
@@ -31,10 +30,7 @@ class ClientHandler(
         }
     }
 
-    fun error(
-        e: Exception,
-        time: MiddlewareTime,
-    ) {
+    fun error(e: Exception) {
         val response = router.middlewareProcessBefore(e.toResult())
         if (response != null) {
             client.getOutputStream().writeHTTP(
@@ -43,7 +39,6 @@ class ClientHandler(
             )
             return
         }
-        e.printStackTrace()
         try {
             this.router.error(this, e)
         } catch (error: Exception) {

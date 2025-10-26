@@ -21,6 +21,7 @@ abstract class Element internal constructor(
 ) {
     /** Optional list of child elements (null means this node cannot have children). */
     open val children: MutableList<Element>? = mutableListOf()
+
     /** Mutable list of element attributes (name/value pairs). */
     val attributes = mutableListOf<Attribute>()
 

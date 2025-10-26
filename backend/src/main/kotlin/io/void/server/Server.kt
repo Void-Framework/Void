@@ -5,7 +5,6 @@ import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.dto.http.writeHTTP
 import io.void.router.Router
-import io.void.router.util.MiddlewareTime
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileInputStream
@@ -249,5 +248,5 @@ fun Socket.error(
     router: Router,
     exception: Exception,
 ) {
-    ClientHandler(this, server, router).error(exception, MiddlewareTime.BEFORE)
+    ClientHandler(this, server, router).error(exception)
 }
