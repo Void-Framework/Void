@@ -5,20 +5,15 @@ import java.io.PrintWriter
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
-typealias Headers = Map<String, String>
 typealias JSON = Map<String, Any?>
+typealias Headers = MutableMap<String, String>
 
 data class ResponseDTO(
-    val status: Int,
-    val statusText: String,
-    val body: ResponseBody<*>,
+    var status: Int,
+    var statusText: String,
+    var body: ResponseBody<*>,
 ) {
-    private val _headers = mutableMapOf<String, String>()
-    var headers: Headers
-        get() = _headers
-        set(value) {
-            _headers.putAll(value)
-        }
+    var headers = mutableMapOf<String, String>()
 
     companion object {
         private fun generateJson(keyAndValue: Map<String, Any?>) {
@@ -138,7 +133,7 @@ data class ResponseDTO(
     internal operator fun set(
         headerName: String,
         headerValue: String,
-    ) = _headers.put(headerName, headerValue)
+    ) = headers.put(headerName, headerValue)
 }
 
 interface ResponseBuilder<T> {
@@ -247,43 +242,43 @@ sealed class ResponseBody<T>(
 
 inline fun <reified T> ok(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 200
         this.statusText = "OK"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> created(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 201
         this.statusText = "Created"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> accepted(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 202
         this.statusText = "Accepted"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
-fun noContent(headers: Headers = emptyMap()): ResponseDTO =
+fun noContent(headers: Headers): ResponseDTO =
     buildResponse<String> {
         this.status = 204
         this.statusText = "No Content"
         this.body = ""
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 fun redirect(
@@ -315,121 +310,121 @@ fun permanentRedirect(location: String): ResponseDTO =
 
 inline fun <reified T> badRequest(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 400
         this.statusText = "Bad Request"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> unauthorized(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 401
         this.statusText = "Unauthorized"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> forbidden(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 403
         this.statusText = "Forbidden"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> notFound(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 404
         this.statusText = "Not Found"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> conflict(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 409
         this.statusText = "Conflict"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> tooManyRequests(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 429
         this.statusText = "Too Many Requests"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> internalServerError(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 500
         this.statusText = "Internal Server Error"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> notImplemented(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 501
         this.statusText = "Not Implemented"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> badGateway(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 502
         this.statusText = "Bad Gateway"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> serviceUnavailable(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 503
         this.statusText = "Service Unavailable"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }
 
 inline fun <reified T> gatewayTimeout(
     body: T,
-    headers: Headers = emptyMap(),
+    headers: Headers = mutableMapOf(),
 ): ResponseDTO =
     buildResponse {
         this.status = 504
         this.statusText = "Gateway Timeout"
         this.body = body
-        this.headers = headers.toMutableMap()
+        this.headers = headers
     }

@@ -12,7 +12,7 @@ interface RelayBefore : Relay {
 }
 
 interface RelayAfter : Relay {
-    fun processAfter(requestDTO: Result<RequestDTO>): ResponseDTO?
+    fun processAfter(response: Result<ResponseDTO>)
 }
 
 fun relayBefore(
@@ -31,7 +31,7 @@ fun relayBefore(
 
 fun relayAfter(
     priority: Int = 0,
-    block: (Result<RequestDTO>) -> ResponseDTO?,
+    block: (Result<ResponseDTO>) -> Unit,
 ): RelayAfter =
     object : RelayAfter {
         override val priority = priority
@@ -40,7 +40,9 @@ fun relayAfter(
                 after = block
             }
 
-        override fun processAfter(requestDTO: Result<RequestDTO>) = builder.after(requestDTO)
+        override fun processAfter(response: Result<ResponseDTO>) {
+            builder.after(response)
+        }
     }
 
 class RelayBeforeBuilder {
@@ -48,5 +50,5 @@ class RelayBeforeBuilder {
 }
 
 class RelayAfterBuilder {
-    var after: (Result<RequestDTO>) -> ResponseDTO? = { null }
+    var after: (Result<ResponseDTO>) -> Unit = { }
 }

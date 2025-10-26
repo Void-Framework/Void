@@ -23,7 +23,7 @@ abstract class KtsPage(
 
 fun ktsRoute(
     path: String,
-    block: (RequestDTO, Element?, Element?) -> Element,
+    block: KtsPage.(RequestDTO, Element?, Element?) -> Element,
 ): KtsPage =
     object : KtsPage(target = path) {
         override val contentType = ContentType.HtmlElements::class

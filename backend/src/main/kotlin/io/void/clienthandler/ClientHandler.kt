@@ -35,7 +35,7 @@ class ClientHandler(
         e: Exception,
         time: MiddlewareTime,
     ) {
-        val response = router.middlewareProcess(e.toResult(), time)
+        val response = router.middlewareProcessBefore(e.toResult())
         if (response != null) {
             client.getOutputStream().writeHTTP(
                 response = response,

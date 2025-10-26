@@ -8,6 +8,7 @@ import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.html.page.dynamic.Path
+import io.void.router.toResult
 import java.util.concurrent.ConcurrentHashMap
 
 internal interface RequestHandler {
@@ -50,7 +51,9 @@ internal interface RequestHandler {
             route.request = requestDTO
             route.queries = query
 
-            return when (route.contentType) {
+            val response = route.middlewareProcessBefore(requestDTO.toResult())
+
+            return response ?: when (route.contentType) {
                 ContentType.HtmlElements::class -> constructClassicResponse(route)
                 else -> (route.content() as ContentType.Response).response
             }
@@ -77,39 +80,27 @@ internal interface RequestHandler {
     fun handleResponse(
         page: Page<ContentType.Response>,
         clientHandler: ClientHandler,
-    ) {
-        val client = clientHandler.client
-        client.getOutputStream().writeHTTP(
-            response = page.content().response,
-            version = clientHandler.server.httpVersion,
-        )
-    }
+    ): ResponseDTO = page.content().response
 
     fun handleCasual(
         page: Page<ContentType.HtmlElements>,
         clientHandler: ClientHandler,
         target: String,
-    ) {
+    ): ResponseDTO {
         val client = clientHandler.client
-        val response =
-            if (Cache.cache.containsKey(target)) {
-                Cache[target]!!
-            } else {
-                constructClassicResponse(
-                    page = page,
-                )
-            }
-
-        client.getOutputStream().writeHTTP(
-            response = response,
-            version = clientHandler.server.httpVersion,
-        )
+        return if (Cache.cache.containsKey(target)) {
+            Cache[target]!!
+        } else {
+            constructClassicResponse(
+                page = page,
+            )
+        }
     }
 
     fun handleKts(
         page: KtsPage,
         clientHandler: ClientHandler,
-    ) {
+    ): ResponseDTO {
         val client = clientHandler.client
         val response =
             if (Cache.cache.containsKey(page.target)) {
@@ -125,10 +116,7 @@ internal interface RequestHandler {
                         (page.content() as ContentType.HtmlElements).htmlElement.render().trimIndent()
                 }
             }
-        client.getOutputStream().writeHTTP(
-            response = response,
-            version = clientHandler.server.httpVersion,
-        )
+        return response
     }
 }
 
