@@ -9,10 +9,17 @@ import io.void.html.page.content.ContentType
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Simple in-memory page response cache with optional timed invalidation.
+ *
+ * Pages annotated with [io.void.cache.Cacheable] are registered via [CacheProcessor]
+ * with their invalidation duration in milliseconds.
+ */
 internal object Cache {
     internal val cache: ConcurrentHashMap<String, ResponseDTO> = ConcurrentHashMap()
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
+    /** Populates/refreshes cache entries for the given [routes] and schedules invalidation. */
     internal fun cacheRoute(routes: Map<Page<*>, Int>) {
         routes.forEach { (route, duration) ->
             try {
@@ -23,6 +30,7 @@ internal object Cache {
         }
     }
 
+    /** Renders page output and stores it in the cache, then sets up refresh if needed. */
     private fun putInCache(route: Pair<Page<*>, Int>) {
         val (page, duration) = route
         if (page.contentType != ContentType.Response::class) {
@@ -48,6 +56,7 @@ internal object Cache {
         handleCache(route)
     }
 
+    /** Schedules periodic cache refresh for the given [route] if [duration] > 0. */
     private fun handleCache(route: Pair<Page<*>, Int>) {
         val (page, duration) = route
         if (duration <= 0) return
@@ -63,5 +72,6 @@ internal object Cache {
         }
     }
 
+    /** Returns the cached [ResponseDTO] for a page target path, if present. */
     operator fun get(route: String): ResponseDTO? = cache[route]
 }
