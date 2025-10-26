@@ -43,7 +43,7 @@ abstract class Element internal constructor(
     override fun toString(): String = render()
 
     operator fun String.unaryPlus() {
-        children!!.add(Fractal(this))
+        children!!.add(Fractal(text = this))
     }
 }
 
