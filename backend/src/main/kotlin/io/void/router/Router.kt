@@ -24,6 +24,13 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarFile
 
+/**
+ * Central registry and dispatcher for routes/pages and middleware.
+ *
+ * - Holds static, dynamic, and KTS routes.
+ * - Manages global middleware execution order and processing.
+ * - Serves embedded JS/CSS resources and wires them into page metadata.
+ */
 class Router :
     RouteCheck,
     RequestHandler {
@@ -47,6 +54,7 @@ class Router :
         js.forEach { addRoute(it) }
     }
 
+    /** Adds this page to the router using unary plus syntax: +page. */
     operator fun Page<*>.unaryPlus() {
         addRoute(this)
     }
@@ -236,6 +244,10 @@ class Router :
         }
     }
 
+    /**
+     * Returns a [PageHandler] for the given static [path], creating and registering one if missing.
+     * Allows a fluent style to register per-method handlers (e.g., on("/api") GET { ... }).
+     */
     fun on(path: String): PageHandler =
         if (routes.containsKey(path)) {
             routes[path] as PageHandler
@@ -246,6 +258,10 @@ class Router :
         }
 }
 
+/**
+ * Lists resource file paths under the given classpath [folder].
+ * Supports running from the filesystem during development or from a JAR at runtime.
+ */
 fun listResourcePaths(folder: String): List<String> {
     val cl = Thread.currentThread().contextClassLoader
     val url = cl.getResource(folder) ?: return emptyList()
@@ -275,15 +291,24 @@ fun listResourcePaths(folder: String): List<String> {
     }
 }
 
+/**
+ * DSL entry to create a [Router] and configure it with the provided [builder] block.
+ */
 fun router(builder: Router.() -> Unit): Router {
     val router = Router().apply(builder)
     return router
 }
 
+/** Wraps this value in a successful [Result]. */
 fun <T> T.toResult(): Result<T> = Result.success(this)
 
+/** Wraps this exception in a failed [Result]. */
 fun <T> Exception.toResult(): Result<T> = Result.failure<T>(this)
 
+/**
+ * Reads the classpath resource at [path] using the class loader of [clazz].
+ * Useful when loading resources packaged alongside a specific class.
+ */
 fun readResourceText(
     path: String,
     clazz: Class<*>,
@@ -294,6 +319,9 @@ fun readResourceText(
         ?.use { it.readText() }
         ?: error("Missing resource: $path")
 
+/**
+ * Reads the classpath resource at [path] using the thread context class loader.
+ */
 fun readResourceText(path: String): String =
     Thread
         .currentThread()

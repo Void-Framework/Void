@@ -12,6 +12,13 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.*
 
+/**
+ * Extracts only the Tailwind CSS rules actually used by a page and serves them as a scoped stylesheet.
+ *
+ * At startup [grabTailwind] downloads the canonical Tailwind CSS. On each HTML page render,
+ * [processTailwind] walks the element tree to collect class names, extracts matching CSS rules, and
+ * registers a unique [CssPage] with the router while wiring it into page metadata.
+ */
 object TailwindGen {
     private var resourceFile: String = ""
     private val client =
@@ -21,7 +28,7 @@ object TailwindGen {
             .build()
 
     /**
-     * Fetch tailwind css and store raw content. Call once at startup or when you want to refresh.
+     * Fetches Tailwind CSS and stores its raw content. Called at startup or on demand to refresh.
      */
     internal fun grabTailwind() {
         val request =
@@ -168,6 +175,15 @@ object TailwindGen {
     }
 }
 
+/**
+ * Returns true if any pair in this list has its first component equal to [key].
+ *
+ * Useful for treating a List of Pair as a lightweight map in small utilities.
+ * Runs in O(n).
+ */
 fun <T> List<Pair<T, *>>.containsKey(key: T): Boolean = any { it.first == key }
 
+/**
+ * Retrieves the second component for the first pair whose first component equals [key].
+ */
 operator fun <N, M> List<Pair<N, M>>.get(key: N): M = first { it.first == key }.second
