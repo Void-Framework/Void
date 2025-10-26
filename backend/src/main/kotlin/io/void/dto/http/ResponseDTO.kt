@@ -5,9 +5,18 @@ import java.io.PrintWriter
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
+/** JSON key/value map used by legacy JSON builder utilities. */
 typealias JSON = Map<String, Any?>
+/** Mutable map of HTTP header names to values. */
 typealias Headers = MutableMap<String, String>
 
+/**
+ * Mutable representation of an HTTP response to be written back to the client.
+ *
+ * - [status] and [statusText] form the status line.
+ * - [headers] holds response headers (auto-populated with Content-Length if missing).
+ * - [body] is a [ResponseBody] wrapping either a String or ByteArray payload.
+ */
 data class ResponseDTO(
     var status: Int,
     var statusText: String,
@@ -15,6 +24,7 @@ data class ResponseDTO(
 ) {
     var headers = mutableMapOf<String, String>()
 
+    /** Factory and helper functions for building JSON strings (legacy) and typed ResponseDTOs. */
     companion object {
         private fun generateJson(keyAndValue: Map<String, Any?>) {
             keyAndValue.forEach {
@@ -136,6 +146,10 @@ data class ResponseDTO(
     ) = headers.put(headerName, headerValue)
 }
 
+/**
+ * Generic builder interface used by [buildResponse] to produce a [ResponseDTO]
+ * for either String or ByteArray bodies.
+ */
 interface ResponseBuilder<T> {
     var status: Int
     var statusText: String
@@ -143,6 +157,7 @@ interface ResponseBuilder<T> {
     var body: T
 }
 
+/** Builder for string-based HTTP responses. */
 class StringResponseBuilder : ResponseBuilder<String> {
     override var status: Int = 200
     override var statusText: String = "All is well!"
@@ -156,6 +171,7 @@ class StringResponseBuilder : ResponseBuilder<String> {
         }
 }
 
+/** Builder for binary (ByteArray) HTTP responses. */
 class ByteResponseBuilder : ResponseBuilder<ByteArray> {
     override var status: Int = 200
     override var statusText: String = "All is well!"
@@ -169,6 +185,10 @@ class ByteResponseBuilder : ResponseBuilder<ByteArray> {
         }
 }
 
+/**
+ * Builds a [ResponseDTO] using a type-safe builder for either String or ByteArray bodies.
+ * The generic [T] determines which underlying builder is used.
+ */
 inline fun <reified T> buildResponse(builder: ResponseBuilder<T>.() -> Unit): ResponseDTO {
     val build: ResponseBuilder<T> =
         when (T::class) {
@@ -184,10 +204,15 @@ inline fun <reified T> buildResponse(builder: ResponseBuilder<T>.() -> Unit): Re
     }
 }
 
+/** Applies header mutations within the response builder DSL. */
 fun ResponseBuilder<*>.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
 }
 
+/**
+ * Writes the given [response] to this [OutputStream] as an HTTP/1.x message with the provided [version].
+ * Ensures Content-Length is present and streams either text or binary bodies appropriately.
+ */
 fun OutputStream.writeHTTP(
     response: ResponseDTO,
     version: Number,

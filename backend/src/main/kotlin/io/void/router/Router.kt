@@ -24,6 +24,13 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarFile
 
+/**
+ * Central registry and dispatcher for routes/pages and middleware.
+ *
+ * - Holds static, dynamic, and KTS routes.
+ * - Manages global middleware execution order and processing.
+ * - Serves embedded JS/CSS resources and wires them into page metadata.
+ */
 class Router :
     RouteCheck,
     RequestHandler {
@@ -47,6 +54,7 @@ class Router :
         js.forEach { addRoute(it) }
     }
 
+    /** Adds this page to the router using unary plus syntax: +page. */
     operator fun Page<*>.unaryPlus() {
         addRoute(this)
     }
