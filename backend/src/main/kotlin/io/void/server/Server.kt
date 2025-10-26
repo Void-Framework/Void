@@ -102,7 +102,9 @@ class Server internal constructor(
             } catch (e: Exception) {
                 onServerSocketError(e)
             } finally {
-                onServerSocketClose(socket)
+                if (::httpsSocket.isInitialized) {
+                    onServerSocketClose(httpsSocket)
+                }
             }
         }.start()
     }
@@ -113,7 +115,7 @@ class Server internal constructor(
         try {
             // Keep checking until HTTPS is available
             while (!isHTTPSServerRunning()) {
-                delay(1000)
+                delay(50)
             }
 
             // Send redirect once HTTPS is ready

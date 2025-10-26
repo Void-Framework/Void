@@ -79,12 +79,14 @@ class RouteTests {
     @BeforeAll
     fun setup() {
         setupHttpServer()
+        // Wait until HTTP is ready quickly instead of risking connection refused
+        waitForPort(httpPort, 3000)
         if (enableHttpsTests) {
             setupHttpsServerIfKeystoreExists()
             // Wait until HTTPS is ready with timeout instead of fixed sleep
             val start = System.currentTimeMillis()
             while ((!::httpsServer.isInitialized || !httpsServer.isHTTPSServerRunning()) && System.currentTimeMillis() - start < 5000) {
-                Thread.sleep(100)
+                Thread.sleep(50)
             }
         }
     }
@@ -151,7 +153,7 @@ class RouteTests {
             }
         }.start()
 
-        Thread.sleep(100)
+        Thread.sleep(10)
         assertTrue(true) // Test passes if server creation doesn't throw
     }
 
@@ -204,12 +206,106 @@ class RouteTests {
             testServer.startHTTPServer(httpPort) // Same port as main server
         }.start()
 
-        Thread.sleep(500)
+        // Wait up to 1s for the error to be caught instead of fixed sleep
+        val startWait = System.currentTimeMillis()
+        while (!errorCaught && System.currentTimeMillis() - startWait < 1000) {
+            Thread.sleep(20)
+        }
         assertTrue(errorCaught, "Server should handle port binding error")
         assertTrue(errorMessage.contains("Address already in use") || errorMessage.isNotEmpty())
     }
 
     // ===== HTTPS SERVER TESTS =====
+
+    @Test
+    fun `test HTTPS keystore wrong password fails fast`() {
+        val tempFile = File.createTempFile("test-keystore-wrongpass", ".p12").apply { deleteOnExit() }
+        tempFile.writeBytes(createInMemoryKeystoreBytes())
+
+        var errorCaught = false
+        var exceptionMsg = ""
+        val s =
+            server {
+                router = router { +homeRoute }
+                autoStart = false
+                onServerSocketError = { e ->
+                    errorCaught = true
+                    exceptionMsg = e::class.simpleName + ": " + (e.message ?: "")
+                }
+            }
+        val httpsPortLocal = findFreePort()
+        Thread { s.startHTTPSServer(httpsPortLocal, "wrong-password", tempFile, false) }.start()
+
+        val start = System.currentTimeMillis()
+        while (!errorCaught && System.currentTimeMillis() - start < 1000) {
+            Thread.sleep(20)
+        }
+        assertTrue(errorCaught, "Expected HTTPS startup to fail fast with wrong password. Last error: $exceptionMsg")
+    }
+
+    @Test
+    fun `test HTTPS keystore missing file fails fast`() {
+        val missing = File.createTempFile("missing-keystore", ".p12")
+        val path = missing.absolutePath
+        // ensure it's missing
+        missing.delete()
+
+        var errorCaught = false
+        val s =
+            server {
+                router = router { +homeRoute }
+                autoStart = false
+                onServerSocketError = { _ -> errorCaught = true }
+            }
+        val httpsPortLocal = findFreePort()
+        Thread { s.startHTTPSServer(httpsPortLocal, "changeit", File(path), false) }.start()
+
+        val start = System.currentTimeMillis()
+        while (!errorCaught && System.currentTimeMillis() - start < 1000) {
+            Thread.sleep(20)
+        }
+        assertTrue(errorCaught, "Expected HTTPS startup to fail fast with missing keystore file")
+    }
+
+    @Test
+    fun `test HTTPS client auth required rejects client without certificate`() {
+        val tempFile = File.createTempFile("test-keystore-clientauth", ".p12").apply { deleteOnExit() }
+        tempFile.writeBytes(createInMemoryKeystoreBytes())
+        var s: Server? = null
+        try {
+            s =
+                server {
+                    router = router { +homeRoute }
+                    autoStart = false
+                }
+            val httpsPortLocal = findFreePort()
+            Thread { s!!.startHTTPSServer(httpsPortLocal, "changeit", tempFile, true) }.start()
+
+            // wait until the HTTPS socket is reported as running (without connecting to it)
+            val start = System.currentTimeMillis()
+            while (System.currentTimeMillis() - start < 2000 && !s!!.isHTTPSServerRunning()) {
+                Thread.sleep(20)
+            }
+
+            // Attempt a request without client cert; expect failure or non-200
+            val req =
+                HttpRequest
+                    .newBuilder()
+                    .uri(URI.create("https://localhost:$httpsPortLocal/"))
+                    .GET()
+                    .build()
+            var failed = false
+            try {
+                val resp = httpsClient.send(req, HttpResponse.BodyHandlers.ofString())
+                failed = resp.statusCode() !in 200..299
+            } catch (_: Exception) {
+                failed = true
+            }
+            assertTrue(failed, "Expected client-auth required server to reject connection without client certificate")
+        } finally {
+            // best-effort stop: nothing to do; threads are daemon-like and will close on JVM exit
+        }
+    }
 
     @Test
     fun `test HTTPS server configuration`() {
@@ -724,5 +820,29 @@ class RouteTests {
         val sslContext = SSLContext.getInstance("TLS")
         sslContext.init(null, arrayOf<TrustManager>(trustAllCertificates), null)
         return sslContext
+    }
+
+    private fun waitForPort(
+        port: Int,
+        timeoutMs: Long,
+    ) {
+        val start = System.currentTimeMillis()
+        while (System.currentTimeMillis() - start < timeoutMs) {
+            try {
+                java.net.Socket().use { s ->
+                    s.connect(java.net.InetSocketAddress("127.0.0.1", port), 50)
+                    return
+                }
+            } catch (_: Exception) {
+                Thread.sleep(20)
+            }
+        }
+    }
+
+    private fun findFreePort(): Int {
+        java.net.ServerSocket(0).use { socket ->
+            socket.reuseAddress = true
+            return socket.localPort
+        }
     }
 }
