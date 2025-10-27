@@ -50,7 +50,7 @@ jobs:
 
       - name: Upload Test Results (XML)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-results-xml
           path: test/build/test-results/test/
@@ -58,7 +58,7 @@ jobs:
 
       - name: Upload Test Report (HTML)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-report-html
           path: test/build/reports/tests/test/
