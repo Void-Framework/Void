@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -66,7 +66,7 @@ jobs:
 
       - name: Generate Test Report
         if: always() && hashFiles('test/build/test-results/test/*.xml') != ''
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         with:
           name: JUnit Tests
           path: test/build/test-results/test/*.xml
