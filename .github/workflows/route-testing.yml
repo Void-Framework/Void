@@ -66,7 +66,7 @@ jobs:
 
       - name: Generate Test Report
         if: always() && hashFiles('test/build/test-results/test/*.xml') != ''
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         with:
           name: JUnit Tests
           path: test/build/test-results/test/*.xml
