@@ -13,7 +13,7 @@ dependencies {
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
     testImplementation(libs.org.json.json)
-    testImplementation("org.bouncycastle:bcpkix-jdk18on:1.76")
+    testImplementation("org.bouncycastle:bcpkix-jdk18on:1.82")
 }
 
 tasks.test {
