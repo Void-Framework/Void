@@ -24,6 +24,9 @@ abstract class Page<T : ContentType>(
     abstract var metadata: Metadata?
     private val cssFiles = mutableListOf<String>()
 
+    val includeTailwind = true
+    val includeKts = true
+
     abstract fun content(): T
 
     operator fun invoke(vararg cssFileName: String): Page<T> {

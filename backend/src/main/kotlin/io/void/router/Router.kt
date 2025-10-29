@@ -87,8 +87,8 @@ class Router :
         if (route::class != CssPage::class) {
             if (route.contentType == ContentType.HtmlElements::class) {
                 route.request = buildRequest { }
-                TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
-                JsPage.addToMetadata(route, js.toList())
+                if (route.includeTailwind) TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
+                if (route.includeKts) JsPage.addToMetadata(route  as Page<ContentType.HtmlElements>, js.toList())
             }
             if (route is KtsPage) {
                 ktsResponsePages[route.target] = route
