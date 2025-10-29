@@ -90,10 +90,11 @@ class Metadata internal constructor(
     ): String = "<meta property=\"og:$name\" content=\"$content\">"
 
     private fun handleStyles() {
+        val styleId = style ?: return
         if (externalCss == null) {
-            externalCss = mutableListOf("/css/$style/styles.css")
+            externalCss = mutableListOf("/css/$styleId/styles.css")
         } else {
-            externalCss!!.add("/css/$style/styles.css")
+            externalCss!!.add("/css/$styleId/styles.css")
         }
     }
 }
