@@ -80,9 +80,11 @@ function processElement(el) {
                 if (trigger === "load") {
                     sendRequest(el, method, url);
                 } else {
-                    el.addEventListener(trigger, () => {
+                    el.addEventListener(trigger, (event) => {
                         const confirmMsg = el.getAttribute("kts-confirm");
+                        const prevent = el.getAttribute("kts-prevent");
                         if (confirmMsg && !window.confirm(confirmMsg)) return;
+                        if (prevent === "true") event.preventDefault()
 
                         sendRequest(el, method, url);
                     });

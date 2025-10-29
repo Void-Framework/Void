@@ -3,6 +3,8 @@ package io.void.html
 import io.void.api.method.Method
 import io.void.dto.http.Headers
 import io.void.dto.http.RequestDTO
+import java.util.Locale
+import java.util.Locale.getDefault
 
 typealias Attribute = Pair<String, String>
 
@@ -137,4 +139,6 @@ class KtsBuilder(
         event: String,
         script: String,
     ) = element.attributes.add("kts-on:$event" to script)
+
+    fun prevent(value: Boolean) = element.attributes.add("kts-prevent" to value.toString().lowercase(getDefault()))
 }
