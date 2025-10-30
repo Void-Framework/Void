@@ -5,6 +5,8 @@ import io.void.clienthandler.ClientHandler
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.net.URI
+import java.net.http.HttpRequest
 import java.util.*
 
 data class RequestDTO(
@@ -83,4 +85,17 @@ fun buildRequest(builder: RequestBuilder.() -> Unit): RequestDTO {
 
 fun RequestBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
+}
+
+fun RequestDTO.toHttpRequest(url: String): HttpRequest {
+    val builder = HttpRequest.newBuilder()
+        .uri(URI.create(url + target))
+        .method(method.name,
+            if (body.isNotEmpty()) HttpRequest.BodyPublishers.ofString(body)
+            else HttpRequest.BodyPublishers.noBody()
+        )
+
+    headers.forEach { (key, value) -> builder.header(key, value) }
+
+    return builder.build()
 }
