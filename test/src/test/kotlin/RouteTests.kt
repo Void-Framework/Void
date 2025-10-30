@@ -13,6 +13,9 @@ import io.void.router.router
 import io.void.server.Server
 import io.void.server.server
 import io.void.server.simpleServer
+import io.void.html.page.htmlRoute
+import io.void.generated.*
+import io.void.html.Fractal
 import kotlinx.coroutines.*
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
@@ -24,8 +27,12 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.math.BigInteger
+import java.net.InetSocketAddress
+import java.net.ServerSocket
+import java.net.Socket
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -132,29 +139,26 @@ class RouteTests {
         val testPort = 9998
         var serverCreated = false
 
-        Thread {
-            try {
-                val simple =
-                    simpleServer(testPort) {
-                        +apiRoute("/test") { request ->
-                            buildResponse {
-                                status = 200
-                                statusText = "OK"
-                                body = """{"message": "Simple server test", "path": "${request.target}"}"""
-                                headers {
-                                    put("Content-Type", "application/json")
-                                }
-                            }
+        try {
+            simpleServer(testPort) {
+                +apiRoute("/test") { request ->
+                    buildResponse {
+                        status = 200
+                        statusText = "OK"
+                        body = """{"message": "Simple server test", "path": "${request.target}"}"""
+                        headers {
+                            put("Content-Type", "application/json")
                         }
                     }
-                serverCreated = true
-            } catch (e: Exception) {
-                // Port might be in use, that's okay for this test
+                }
             }
-        }.start()
+            serverCreated = true
+        } catch (_: Exception) {
+            // Port might be in use, that's okay for this test
+        }
 
         Thread.sleep(10)
-        assertTrue(true) // Test passes if server creation doesn't throw
+        assertTrue(serverCreated) // Test passes if server creation doesn't throw
     }
 
     @Test
@@ -180,7 +184,7 @@ class RouteTests {
         }
 
         assertTrue(latch.await(10, TimeUnit.SECONDS))
-        assertTrue(responses.size > 0, "At least some concurrent requests should succeed")
+        assertTrue(responses.isNotEmpty(), "At least some concurrent requests should succeed")
         responses.forEach { response ->
             assertEquals(200, response.statusCode())
         }
@@ -271,7 +275,7 @@ class RouteTests {
     fun `test HTTPS client auth required rejects client without certificate`() {
         val tempFile = File.createTempFile("test-keystore-clientauth", ".p12").apply { deleteOnExit() }
         tempFile.writeBytes(createInMemoryKeystoreBytes())
-        var s: Server? = null
+        var s: Server
         try {
             s =
                 server {
@@ -279,11 +283,11 @@ class RouteTests {
                     autoStart = false
                 }
             val httpsPortLocal = findFreePort()
-            Thread { s!!.startHTTPSServer(httpsPortLocal, "changeit", tempFile, true) }.start()
+            Thread { s.startHTTPSServer(httpsPortLocal, "changeit", tempFile, true) }.start()
 
             // wait until the HTTPS socket is reported as running (without connecting to it)
             val start = System.currentTimeMillis()
-            while (System.currentTimeMillis() - start < 2000 && !s!!.isHTTPSServerRunning()) {
+            while (System.currentTimeMillis() - start < 2000 && !s.isHTTPSServerRunning()) {
                 Thread.sleep(20)
             }
 
@@ -294,7 +298,7 @@ class RouteTests {
                     .uri(URI.create("https://localhost:$httpsPortLocal/"))
                     .GET()
                     .build()
-            var failed = false
+            var failed: Boolean
             try {
                 val resp = httpsClient.send(req, HttpResponse.BodyHandlers.ofString())
                 failed = resp.statusCode() !in 200..299
@@ -502,6 +506,53 @@ class RouteTests {
         }
     }
 
+    @Test
+    fun `test tailwind test route and css generation`() {
+        val connection = createConnectionGET("/tailwind-test")
+        val cResponse = client.send(connection, HttpResponse.BodyHandlers.ofString())
+
+        assertEquals(200, cResponse.statusCode())
+        val html = cResponse.body()
+        assertTrue(html.contains("<html"))
+
+        // Extract generated CSS link
+        val cssHref = Regex("href=\\\"(/css/[^\\\"]+/styles\\.css)\\\"").find(html)?.groupValues?.get(1)
+        assertNotNull(cssHref, "Should include generated Tailwind CSS link in metadata")
+
+        val cssRequest =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort$cssHref"))
+                .GET()
+                .build()
+        val cssResponse = client.send(cssRequest, HttpResponse.BodyHandlers.ofString())
+
+        assertEquals(200, cssResponse.statusCode())
+        val css = cssResponse.body()
+
+        // Assertions for key features
+        assertTrue(
+            css.contains(".mb\\:\\[7px\\]") || css.contains("margin-bottom: 7px"),
+            "CSS should include rule for mb-[7px]",
+        )
+        assertTrue(
+            css.contains(".\\-mx\\:\\[1rem\\]") || css.contains("margin-left: -1rem"),
+            "CSS should include rule for -mx-[1rem]",
+        )
+        assertTrue(
+            css.contains(".hover\\:py\\:\\[10%\\]\\:hover") || css.contains("padding-top: 10%"),
+            "CSS should include rule for hover:py-[10%]",
+        )
+        assertTrue(
+            css.contains("@media (min-width: 640px)") && (css.contains(".sm\\:mb-2") || css.contains("margin-bottom")),
+            "CSS should include responsive rule for sm:mb-2",
+        )
+        assertTrue(
+            css.contains("@media (min-width: 640px)") && (css.contains(".sm\\:hover\\:mb\\:\\[3px\\]\\:hover") || css.contains("margin-bottom: 3px")),
+            "CSS should include combined responsive+state rule for sm:hover:mb-[3px]",
+        )
+    }
+
     // ===== PERFORMANCE TESTS =====
 
     @Test
@@ -537,7 +588,7 @@ class RouteTests {
         val successfulRequests = mutableListOf<Boolean>()
         val latch = CountDownLatch(requestCount)
 
-        repeat(requestCount) { index ->
+        repeat(requestCount) { _ ->
             Thread {
                 try {
                     val connection = createConnectionGET("/setter")
@@ -545,7 +596,7 @@ class RouteTests {
                     synchronized(successfulRequests) {
                         successfulRequests.add(response.statusCode() == 200)
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     synchronized(successfulRequests) {
                         successfulRequests.add(false)
                     }
@@ -679,6 +730,19 @@ class RouteTests {
                         +homeRoute
                         +setterRoute
                         +userRoute
+                        +htmlRoute("/tailwind-test", {}) {
+                            Main("class" to "container mx-auto p-4") {
+                                H1("class" to "text-2xl font-bold mb-4") { Fractal("TailwindGen Test Route") }
+                                Div("class" to "mb-[7px] p-2 bg-gray-100 rounded") { Fractal("mb-[7px]") }
+                                Div("class" to "-mx-[1rem] p-2 bg-gray-100 rounded") { Fractal("-mx-[1rem]") }
+                                Button(
+                                    "class" to "hover:py-[10%] px-4 bg-blue-500 text-white rounded",
+                                    "id" to "hover-btn"
+                                ) { Fractal("hover:py-[10%] (hover me)") }
+                                Div("class" to "sm:mb-2 p-2 bg-gray-100 rounded mt-4") { Fractal("sm:mb-2") }
+                                Div("class" to "sm:hover:mb-[3px] p-2 bg-gray-100 rounded mt-2") { Fractal("sm:hover:mb-[3px]") }
+                            }
+                        }
                         +echoRoute
                         +searchRoute
                         +searchRootRoute
@@ -702,7 +766,7 @@ class RouteTests {
             httpsServer =
                 server {
                     port = redirectPort // HTTP port for redirect
-                    httpsPort = httpsPort // HTTPS port
+                    this.httpsPort = this@RouteTests.httpsPort // HTTPS port
                     router =
                         router {
                             +homeRoute
@@ -711,6 +775,19 @@ class RouteTests {
                             +echoRoute
                             +searchRoute
                             +searchRootRoute
+                            +htmlRoute("/tailwind-test", {}) {
+                                Main("class" to "container mx-auto p-4") {
+                                    H1("class" to "text-2xl font-bold mb-4") { Fractal("TailwindGen Test Route") }
+                                    Div("class" to "mb-[7px] p-2 bg-gray-100 rounded") { Fractal("mb-[7px]") }
+                                    Div("class" to "-mx-[1rem] p-2 bg-gray-100 rounded") { Fractal("-mx-[1rem]") }
+                                    Button(
+                                        "class" to "hover:py-[10%] px-4 bg-blue-500 text-white rounded",
+                                        "id" to "hover-btn"
+                                    ) { Fractal("hover:py-[10%] (hover me)") }
+                                    Div("class" to "sm:mb-2 p-2 bg-gray-100 rounded mt-4") { Fractal("sm:mb-2") }
+                                    Div("class" to "sm:hover:mb-[3px] p-2 bg-gray-100 rounded mt-2") { Fractal("sm:hover:mb-[3px]") }
+                                }
+                            }
                         }
                     password = "changeit"
                     file = tempFile
@@ -736,7 +813,7 @@ class RouteTests {
 
     private fun createInMemoryKeystoreBytes(): ByteArray {
         val keystore = createInMemoryKeystore()
-        val outputStream = java.io.ByteArrayOutputStream()
+        val outputStream = ByteArrayOutputStream()
         keystore.store(outputStream, "changeit".toCharArray())
         return outputStream.toByteArray()
     }
@@ -829,8 +906,8 @@ class RouteTests {
         val start = System.currentTimeMillis()
         while (System.currentTimeMillis() - start < timeoutMs) {
             try {
-                java.net.Socket().use { s ->
-                    s.connect(java.net.InetSocketAddress("127.0.0.1", port), 50)
+                Socket().use { s ->
+                    s.connect(InetSocketAddress("127.0.0.1", port), 50)
                     return
                 }
             } catch (_: Exception) {
@@ -840,7 +917,7 @@ class RouteTests {
     }
 
     private fun findFreePort(): Int {
-        java.net.ServerSocket(0).use { socket ->
+        ServerSocket(0).use { socket ->
             socket.reuseAddress = true
             return socket.localPort
         }
