@@ -4,13 +4,13 @@
 
 plugins {
     `java-library`
-    kotlin("jvm") version "2.2.10"
+    kotlin("jvm") version "2.2.21"
 
     id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
 }
 
 group = "io.jadiefication"
-version = "1.0.3"
+version = "1.1.1"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType<JavaCompile> {

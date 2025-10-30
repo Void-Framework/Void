@@ -8,6 +8,10 @@ import io.void.html.page.metadata.Metadata
 import io.void.html.page.metadata.metadata
 import kotlin.reflect.KClass
 
+/**
+ * Base page for KTS-driven interactions. When a request is marked as a KTS request, the
+ * router will set [trigger] and [targetElement] based on the DOM ids sent by the client.
+ */
 abstract class KtsPage(
     override val target: String,
 ) : Page<ContentType.HtmlElements>(target) {
@@ -21,9 +25,14 @@ abstract class KtsPage(
         get() = _target
 }
 
+/**
+ * Defines a KTS route at [path]. When invoked, the [block] receives the current [RequestDTO],
+ * the triggering element (if any), and the target element (if any) that the client asked to update.
+ * The block must return the root [Element] to send back to the client.
+ */
 fun ktsRoute(
     path: String,
-    block: (RequestDTO, Element?, Element?) -> Element,
+    block: KtsPage.(RequestDTO, Element?, Element?) -> Element,
 ): KtsPage =
     object : KtsPage(target = path) {
         override val contentType = ContentType.HtmlElements::class
