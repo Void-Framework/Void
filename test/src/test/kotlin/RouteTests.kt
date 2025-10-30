@@ -42,6 +42,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import io.void.fetch.fetch
+import io.void.dto.http.buildRequest
+import io.void.api.method.Method
+import io.void.dto.http.ResponseDTO
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RouteTests {
@@ -396,6 +400,64 @@ class RouteTests {
     }
 
     // ===== PERFORMANCE TESTS =====
+
+    // ===== FETCH TESTS =====
+
+    @Test
+    fun `test fetch GET home returns 200 and HTML`() = runBlocking {
+        val request = buildRequest {
+            method = Method.GET
+            target = "/"
+        }
+        val promise = fetch("http://localhost:$httpPort", request)
+        promise.finally { response ->
+            assertEquals(200, response.status)
+            val contentType = response.headers["Content-Type"] ?: ""
+            assertTrue(contentType.contains("text/html"))
+            val body = (response.body.body as? String) ?: ""
+            assertTrue(body.contains("<html"))
+        }
+    }
+
+    @Test
+    fun `test fetch then chaining`() = runBlocking {
+        val request = buildRequest {
+            method = Method.GET
+            target = "/setter"
+        }
+        val promise = fetch("http://localhost:$httpPort", request)
+        promise
+            .then { it } // no-op transform; exercises then path
+            .finally { response ->
+                assertEquals(200, response.status)
+                val contentType = response.headers["Content-Type"] ?: ""
+                assertTrue(contentType.contains("application/json"))
+            }
+    }
+
+    @Test
+    fun `test fetch catch on connection failure`() = runBlocking {
+        val badPort = httpPort + 12345
+        val request = buildRequest {
+            method = Method.GET
+            target = "/"
+        }
+        val promise = fetch("http://localhost:$badPort", request)
+        promise
+            .then { it } // trigger awaiting which will fail
+            .catch { _ ->
+                buildResponse {
+                    status = 599
+                    statusText = "Network Error"
+                    body = "synthetic"
+                }
+            }
+            .finally { response ->
+                assertEquals(599, response.status)
+                val body = (response.body.body as? String) ?: ""
+                assertEquals("synthetic", body)
+            }
+    }
 
     @Test
     fun `test response time performance`() {
