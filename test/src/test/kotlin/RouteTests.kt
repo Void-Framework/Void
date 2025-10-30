@@ -10,6 +10,9 @@ import io.void.router.router
 import io.void.server.Server
 import io.void.server.server
 import io.void.server.simpleServer
+import io.void.html.page.htmlRoute
+import io.void.generated.*
+import io.void.html.Fractal
 import kotlinx.coroutines.*
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
@@ -395,6 +398,53 @@ class RouteTests {
         }
     }
 
+    @Test
+    fun `test tailwind test route and css generation`() {
+        val connection = createConnectionGET("/tailwind-test")
+        val cResponse = client.send(connection, HttpResponse.BodyHandlers.ofString())
+
+        assertEquals(200, cResponse.statusCode())
+        val html = cResponse.body()
+        assertTrue(html.contains("<html"))
+
+        // Extract generated CSS link
+        val cssHref = Regex("href=\\\"(/css/[^\\\"]+/styles\\.css)\\\"").find(html)?.groupValues?.get(1)
+        assertNotNull(cssHref, "Should include generated Tailwind CSS link in metadata")
+
+        val cssRequest =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$httpPort$cssHref"))
+                .GET()
+                .build()
+        val cssResponse = client.send(cssRequest, HttpResponse.BodyHandlers.ofString())
+
+        assertEquals(200, cssResponse.statusCode())
+        val css = cssResponse.body()
+
+        // Assertions for key features
+        assertTrue(
+            css.contains(".mb\\:\\[7px\\]") || css.contains("margin-bottom: 7px"),
+            "CSS should include rule for mb-[7px]",
+        )
+        assertTrue(
+            css.contains(".\\-mx\\:\\[1rem\\]") || css.contains("margin-left: -1rem"),
+            "CSS should include rule for -mx-[1rem]",
+        )
+        assertTrue(
+            css.contains(".hover\\:py\\:\\[10%\\]\\:hover") || css.contains("padding-top: 10%"),
+            "CSS should include rule for hover:py-[10%]",
+        )
+        assertTrue(
+            css.contains("@media (min-width: 640px)") && (css.contains(".sm\\:mb-2") || css.contains("margin-bottom")),
+            "CSS should include responsive rule for sm:mb-2",
+        )
+        assertTrue(
+            css.contains("@media (min-width: 640px)") && (css.contains(".sm\\:hover\\:mb\\:\\[3px\\]\\:hover") || css.contains("margin-bottom: 3px")),
+            "CSS should include combined responsive+state rule for sm:hover:mb-[3px]",
+        )
+    }
+
     // ===== PERFORMANCE TESTS =====
 
     @Test
@@ -456,6 +506,19 @@ class RouteTests {
                         +homeRoute
                         +setterRoute
                         +userRoute
+                        +htmlRoute("/tailwind-test", {}) {
+                            Main("class" to "container mx-auto p-4") {
+                                H1("class" to "text-2xl font-bold mb-4") { Fractal("TailwindGen Test Route") }
+                                Div("class" to "mb-[7px] p-2 bg-gray-100 rounded") { Fractal("mb-[7px]") }
+                                Div("class" to "-mx-[1rem] p-2 bg-gray-100 rounded") { Fractal("-mx-[1rem]") }
+                                Button(
+                                    "class" to "hover:py-[10%] px-4 bg-blue-500 text-white rounded",
+                                    "id" to "hover-btn"
+                                ) { Fractal("hover:py-[10%] (hover me)") }
+                                Div("class" to "sm:mb-2 p-2 bg-gray-100 rounded mt-4") { Fractal("sm:mb-2") }
+                                Div("class" to "sm:hover:mb-[3px] p-2 bg-gray-100 rounded mt-2") { Fractal("sm:hover:mb-[3px]") }
+                            }
+                        }
                     }
                 autoStart = false
             }
@@ -482,6 +545,19 @@ class RouteTests {
                             +homeRoute
                             +setterRoute
                             +userRoute
+                            +htmlRoute("/tailwind-test", {}) {
+                                Main("class" to "container mx-auto p-4") {
+                                    H1("class" to "text-2xl font-bold mb-4") { Fractal("TailwindGen Test Route") }
+                                    Div("class" to "mb-[7px] p-2 bg-gray-100 rounded") { Fractal("mb-[7px]") }
+                                    Div("class" to "-mx-[1rem] p-2 bg-gray-100 rounded") { Fractal("-mx-[1rem]") }
+                                    Button(
+                                        "class" to "hover:py-[10%] px-4 bg-blue-500 text-white rounded",
+                                        "id" to "hover-btn"
+                                    ) { Fractal("hover:py-[10%] (hover me)") }
+                                    Div("class" to "sm:mb-2 p-2 bg-gray-100 rounded mt-4") { Fractal("sm:mb-2") }
+                                    Div("class" to "sm:hover:mb-[3px] p-2 bg-gray-100 rounded mt-2") { Fractal("sm:hover:mb-[3px]") }
+                                }
+                            }
                         }
                     password = "changeit"
                     file = tempFile
