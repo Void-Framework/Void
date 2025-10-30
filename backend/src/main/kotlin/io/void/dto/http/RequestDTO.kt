@@ -87,13 +87,44 @@ fun RequestBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
 }
 
+/**
+ * Converts this high-level [RequestDTO] into a Java [HttpRequest] using the provided base [url].
+ *
+ * Behavior:
+ * - The request URI is built by simple concatenation of `url + target` (e.g., `"http://host" + "/path"`).
+ *   Ensure that `url` includes the scheme/host/port and that `target` begins with `/`.
+ * - The HTTP method is taken from [RequestDTO.method].
+ * - If [RequestDTO.body] is non-empty, it uses `BodyPublishers.ofString(body)`; otherwise `noBody()`.
+ * - All entries from [RequestDTO.headers] are forwarded to the request via `builder.header(key, value)`.
+ *
+ * Notes:
+ * - `URI.create(url + target)` may throw [IllegalArgumentException] if the resulting string is not a valid URI.
+ * - No additional URL encoding is performed here. Pre-encode path/query segments in [target] if needed.
+ *
+ * Example:
+ * ```kotlin
+ * val req = buildRequest {
+ *     method = Method.POST
+ *     target = "/api/items"
+ *     headers { put("Content-Type", "application/json") }
+ *     body = "{""name"":""Widget""}"
+ * }
+ * val httpRequest = req.toHttpRequest("http://localhost:8080")
+ * ```
+ */
 fun RequestDTO.toHttpRequest(url: String): HttpRequest {
-    val builder = HttpRequest.newBuilder()
-        .uri(URI.create(url + target))
-        .method(method.name,
-            if (body.isNotEmpty()) HttpRequest.BodyPublishers.ofString(body)
-            else HttpRequest.BodyPublishers.noBody()
-        )
+    val builder =
+        HttpRequest
+            .newBuilder()
+            .uri(URI.create(url + target))
+            .method(
+                method.name,
+                if (body.isNotEmpty()) {
+                    HttpRequest.BodyPublishers.ofString(body)
+                } else {
+                    HttpRequest.BodyPublishers.noBody()
+                },
+            )
 
     headers.forEach { (key, value) -> builder.header(key, value) }
 
