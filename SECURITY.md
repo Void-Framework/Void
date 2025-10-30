@@ -1,40 +1,57 @@
-# 🛡️ Security Policy
+# Security Policy
 
-## Project: Void (Kotlin Web Framework)
+This document describes how to report vulnerabilities, what versions are supported with fixes, and guidance for using Void securely.
 
-### Supported Versions
+## Supported Versions
 
-We currently maintain the latest stable release. Security updates are applied as needed.
+We currently provide security updates for the latest release line.
 
-| Version       | Supported |
-|---------------|-----------|
-| Latest        | ✅        |
-| Older releases| ❌        |
+| Version | Supported |
+|--------:|:---------:|
+| latest  | ✅ |
+| older   | ❌ |
 
-### 📢 Reporting a Vulnerability
+If you are using an older version, please upgrade to the latest release.
 
-If you discover a security vulnerability in Void or any of its submodules:
+## Reporting a Vulnerability
 
-- **DO NOT** open a public GitHub issue.
-- Please email us at: **[jadeczjade008@gmail.com]**
-- Provide a detailed description of the issue, its potential impact, and steps to reproduce.
+Please report security issues privately so we can triage and fix them before public disclosure.
 
-We will acknowledge receipt within **48 hours** and aim to provide a fix or mitigation plan within **7 days**, depending on the severity.
+- Do not open a public issue for security problems
+- Preferred contact: security reports via email to jadeczjade008@gmail.com
+- Include: affected version(s), environment, PoC or reproduction steps, and impact assessment if known
+- If the issue involves a third-party dependency, note the dependency and version
 
-### 🔒 Security Best Practices
+We will:
+- Acknowledge your report within 48 hours
+- Provide an initial assessment within 5 business days
+- Coordinate a fix and release, and credit reporters who request it
 
-If you're using Void in production, we recommend following these security guidelines:
+## Disclosure Policy
 
-- **Validate all inputs**: Void assumes that developers handle input validation properly.
-- **Use HTTPS** in production environments.
-- **Restrict reflective access** when using custom Kotlin class renderers.
-- **Keep dependencies updated**: Use tools like [Dependabot](https://github.com/dependabot) to keep your dependencies secure.
-- **Audit your code** before deploying. Void offers flexibility, but that means you are responsible for maintaining security.
+- We practice responsible coordinated disclosure
+- We will propose a disclosure timeline after triage based on severity
+- We may request a short embargo until a fixed version is available
 
-### 📄 License
+## Scope and Safe Harbor
 
-Void is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for full terms.
+- Scope: code in this repository and official modules under the io.void.* namespace
+- Out of scope: issues exclusively in downstream applications built with Void
+- Safe Harbor: we will not initiate legal action for good-faith research and reporting that follows this policy and avoids privacy violations and service disruption
 
----
+## Security Guidance for Users
 
-Thank you for using Void! If you have any questions or suggestions, feel free to open an issue or contact us directly.
+- Always use HTTPS in production; consider enabling the HTTPS server with a valid certificate
+- Validate and sanitize user input; middleware can help implement cross-cutting checks
+- Set security-related HTTP headers in responses (e.g., X-Content-Type-Options, Content-Security-Policy) via middleware or response builders
+- Keep dependencies updated (consider Dependabot/GitHub Alerts)
+- If exposing the admin or developer endpoints, protect them behind authentication
+
+## Contact and PGP
+
+- Primary: jadeczjade008@gmail.com
+- If you require encrypted communication, open an issue requesting a PGP key exchange (do not include vulnerability details in that issue)
+
+## License
+
+Void is licensed under the MIT License. See LICENSE for details.

@@ -5,6 +5,12 @@ import java.net.InetAddress
 import java.nio.charset.Charset
 import java.util.*
 
+/**
+ * Describes HTML document metadata for a [Page]: title, description, icons, social tags,
+ * canonical URL, theme color, robots, external CSS/JS, and arbitrary raw tags.
+ *
+ * Instances are normally created via [metadata] DSL and rendered into the <head> by the router.
+ */
 class Metadata internal constructor(
     page: Page<*>,
 ) {
@@ -25,8 +31,10 @@ class Metadata internal constructor(
     var externalCss: MutableList<String>? = null
     var externalJS: MutableMap<String, Boolean>? = null
     internal var style: UUID? = null
+    val rawTags = mutableListOf<String>()
 
-    fun render(): String {
+    /** Renders this metadata into a string of <head> tags ready to be embedded in an HTML document. */
+    internal fun render(): String {
         handleStyles()
         return "<title>$title</title>" +
             meta("description", description) +
@@ -63,12 +71,12 @@ class Metadata internal constructor(
             if (externalJS != null) {
                 var js = ""
                 externalJS!!.forEach { (link, deferer) ->
-                    js += "<script src=\"$link\" ${if (deferer) "defer" else ""}></script>"
+                    js += "<script src=\"$link\" ${if (deferer) "defer" else ""}></script>\n"
                 }
                 js
             } else {
                 ""
-            }
+            } + rawTags.joinToString("\n")
     }
 
     private fun meta(
@@ -82,14 +90,18 @@ class Metadata internal constructor(
     ): String = "<meta property=\"og:$name\" content=\"$content\">"
 
     private fun handleStyles() {
+        val styleId = style ?: return
         if (externalCss == null) {
-            externalCss = mutableListOf("/css/$style/styles.css")
+            externalCss = mutableListOf("/css/$styleId/styles.css")
         } else {
-            externalCss!!.add("/css/$style/styles.css")
+            externalCss!!.add("/css/$styleId/styles.css")
         }
     }
 }
 
+/**
+ * DSL entry point to create [Metadata] for the given [page] using [builder].
+ */
 fun metadata(
     page: Page<*>,
     builder: Metadata.() -> Unit,

@@ -2,23 +2,30 @@ package io.void.dto.http
 
 import java.io.OutputStream
 import java.io.PrintWriter
+import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
-typealias Headers = Map<String, String>
+/** JSON key/value map used by legacy JSON builder utilities. */
 typealias JSON = Map<String, Any?>
 
-data class ResponseDTO(
-    val status: Int,
-    val statusText: String,
-    val body: ResponseBody<*>,
-) {
-    private val _headers = mutableMapOf<String, String>()
-    var headers: Headers
-        get() = _headers
-        set(value) {
-            _headers.putAll(value)
-        }
+/** Mutable map of HTTP header names to values. */
+typealias Headers = MutableMap<String, String>
 
+/**
+ * Mutable representation of an HTTP response to be written back to the client.
+ *
+ * - [status] and [statusText] form the status line.
+ * - [headers] holds response headers (auto-populated with Content-Length if missing).
+ * - [body] is a [ResponseBody] wrapping either a String or ByteArray payload.
+ */
+data class ResponseDTO(
+    var status: Int,
+    var statusText: String,
+    var body: ResponseBody<*>,
+) {
+    var headers = mutableMapOf<String, String>()
+
+    /** Factory and helper functions for building JSON strings (legacy) and typed ResponseDTOs. */
     companion object {
         private fun generateJson(keyAndValue: Map<String, Any?>) {
             keyAndValue.forEach {
@@ -137,9 +144,13 @@ data class ResponseDTO(
     internal operator fun set(
         headerName: String,
         headerValue: String,
-    ) = _headers.put(headerName, headerValue)
+    ) = headers.put(headerName, headerValue)
 }
 
+/**
+ * Generic builder interface used by [buildResponse] to produce a [ResponseDTO]
+ * for either String or ByteArray bodies.
+ */
 interface ResponseBuilder<T> {
     var status: Int
     var statusText: String
@@ -147,6 +158,7 @@ interface ResponseBuilder<T> {
     var body: T
 }
 
+/** Builder for string-based HTTP responses. */
 class StringResponseBuilder : ResponseBuilder<String> {
     override var status: Int = 200
     override var statusText: String = "All is well!"
@@ -160,6 +172,7 @@ class StringResponseBuilder : ResponseBuilder<String> {
         }
 }
 
+/** Builder for binary (ByteArray) HTTP responses. */
 class ByteResponseBuilder : ResponseBuilder<ByteArray> {
     override var status: Int = 200
     override var statusText: String = "All is well!"
@@ -173,6 +186,10 @@ class ByteResponseBuilder : ResponseBuilder<ByteArray> {
         }
 }
 
+/**
+ * Builds a [ResponseDTO] using a type-safe builder for either String or ByteArray bodies.
+ * The generic [T] determines which underlying builder is used.
+ */
 inline fun <reified T> buildResponse(builder: ResponseBuilder<T>.() -> Unit): ResponseDTO {
     val build: ResponseBuilder<T> =
         when (T::class) {
@@ -188,10 +205,15 @@ inline fun <reified T> buildResponse(builder: ResponseBuilder<T>.() -> Unit): Re
     }
 }
 
+/** Applies header mutations within the response builder DSL. */
 fun ResponseBuilder<*>.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
 }
 
+/**
+ * Writes the given [response] to this [OutputStream] as an HTTP/1.x message with the provided [version].
+ * Ensures Content-Length is present and streams either text or binary bodies appropriately.
+ */
 fun OutputStream.writeHTTP(
     response: ResponseDTO,
     version: Number,
@@ -216,9 +238,18 @@ fun OutputStream.writeHTTP(
         writer.println("$key: $value")
     }
     writer.println()
-    writer.println(response.body.body)
-
     writer.flush()
+
+    when (val body = response.body) {
+        is ResponseBody.StringBody -> {
+            writer.print(body.body)
+            writer.flush()
+        }
+        is ResponseBody.ByteArrayBody -> {
+            this.write(body.body)
+            this.flush()
+        }
+    }
 }
 
 fun emptyResponse(): ResponseDTO = buildResponse<String> { }
@@ -234,3 +265,192 @@ sealed class ResponseBody<T>(
         override val body: ByteArray,
     ) : ResponseBody<ByteArray>(body)
 }
+
+inline fun <reified T> ok(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 200
+        this.statusText = "OK"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> created(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 201
+        this.statusText = "Created"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> accepted(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 202
+        this.statusText = "Accepted"
+        this.body = body
+        this.headers = headers
+    }
+
+fun noContent(headers: Headers): ResponseDTO =
+    buildResponse<String> {
+        this.status = 204
+        this.statusText = "No Content"
+        this.body = ""
+        this.headers = headers
+    }
+
+fun redirect(
+    location: String,
+    permanent: Boolean = false,
+): ResponseDTO =
+    buildResponse<String> {
+        this.status = if (permanent) 301 else 302
+        this.statusText = if (permanent) "Moved Permanently" else "Found"
+        this.headers = mutableMapOf("Location" to location)
+        this.body = ""
+    }
+
+fun temporaryRedirect(location: String): ResponseDTO =
+    buildResponse<String> {
+        this.status = 307
+        this.statusText = "Temporary Redirect"
+        this.headers = mutableMapOf("Location" to location)
+        this.body = ""
+    }
+
+fun permanentRedirect(location: String): ResponseDTO =
+    buildResponse<String> {
+        this.status = 308
+        this.statusText = "Permanent Redirect"
+        this.headers = mutableMapOf("Location" to location)
+        this.body = ""
+    }
+
+inline fun <reified T> badRequest(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 400
+        this.statusText = "Bad Request"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> unauthorized(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 401
+        this.statusText = "Unauthorized"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> forbidden(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 403
+        this.statusText = "Forbidden"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> notFound(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 404
+        this.statusText = "Not Found"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> conflict(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 409
+        this.statusText = "Conflict"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> tooManyRequests(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 429
+        this.statusText = "Too Many Requests"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> internalServerError(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 500
+        this.statusText = "Internal Server Error"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> notImplemented(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 501
+        this.statusText = "Not Implemented"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> badGateway(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 502
+        this.statusText = "Bad Gateway"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> serviceUnavailable(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 503
+        this.statusText = "Service Unavailable"
+        this.body = body
+        this.headers = headers
+    }
+
+inline fun <reified T> gatewayTimeout(
+    body: T,
+    headers: Headers = mutableMapOf(),
+): ResponseDTO =
+    buildResponse {
+        this.status = 504
+        this.statusText = "Gateway Timeout"
+        this.body = body
+        this.headers = headers
+    }

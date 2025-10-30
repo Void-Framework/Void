@@ -1,62 +1,113 @@
 <div align="center">
-    <h1>Void Framework 🌌</h1><br>
-  <img src=".github/image.png" alt="Centered Image">
-    <hr>
+
+  <img alt="Void logo" src=".github/image.png" width="160" height="160" />
+  <h1>Void</h1>
+  <p>A minimal Kotlin web framework for building HTML pages and APIs with a tiny HTTP/HTTPS server.</p>
+
+  <p>
+    <a href="https://jitpack.io/#Jadiefication/Void"><img alt="JitPack" src="https://jitpack.io/v/Jadiefication/Void.svg"></a>
+    <a href="https://kotlinlang.org"><img alt="Kotlin" src="https://img.shields.io/badge/kotlin-2.2.10-blue.svg?logo=kotlin"></a>
+    <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+    <a href="https://gitpod.io/#https://github.com/Jadiefication/Void"><img alt="Contribute with Gitpod" src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod"></a>
+  </p>
 </div>
 
-The **Void Framework** is a modular web framework designed to be lightweight, flexible, and easy to extend. Inspired by frameworks like Spring, Void aims to provide a solid foundation for building web applications, while offering optional submodules to extend its functionality.
+Void is a small, unopinionated framework you can embed into your app. It provides:
 
-## Use 🚀
-### Prerequisites 📋
-- 🖥️ **Java 17+**
-- 📦 **A build tool of your choice**
+- Type-safe HTML DSL with generated elements (io.void.generated)
+- Simple router with static, dynamic, and KTS interaction routes
+- Middleware (before/after) with priorities
+- First-class API endpoints returning ResponseDTO
+- Minimal HTTP/HTTPS server (no servlet container)
+- Optional per-page Tailwind CSS extraction at runtime
+- In-memory page caching via @Cacheable
 
-### Installation 📂
-Since Void Framework is currently not hosted on any public repository, you can clone the project locally and add it as a dependency to your project:
-```bash
-https://github.com/Jadiefication/Void.git
-```
-Then, add the local path to your build tool configuration.
+Quick links
+- Security policy: SECURITY.md
+- Roadmap/TODO: TODO.md
+- Contributing guide: CONTRIBUTING.md
+- Code of Conduct: CODE_OF_CONDUCT.md
+- Support: SUPPORT.md
+- License: MIT (LICENSE)
 
-## Usage 💻
-Here's a quick example to get started in Kotlin:
+## Get started
+
+Requirements
+- Java 17+
+- Kotlin 2.2.10 (Gradle Kotlin DSL recommended)
+
+### Installation (JitPack)
+Add the repository and dependency:
+
 ```kotlin
-fun main() {
-    val server =
-        server {
-            router =
-                router {
-                    +middleware {
-                        after = { result ->
-                            result.fold(
-                                onSuccess = { println(it) },
-                                onFailure = { println(it) },
-                            )
-                            null
-                        }
-                        +homeRoute
-                        +setterRoute
-                        +userRoute
-                    }
-                    port = 8080
-                    routeToHTTPS = false
-                }
-        }
+repositories {
+    mavenCentral()
+    maven(url = "https://jitpack.io")
+}
+
+dependencies {
+    implementation("com.github.Jadiefication:Void:<version>")
 }
 ```
 
-## Contributing 🤝
-Contributions are welcome! Feel free to fork the repository and submit a pull request.
+### Hello, Void
+Create a minimal server with one HTML route and one API route:
 
-### How to Contribute 🛠️
-1. 🍴 **Fork the repository**
-2. 🌱 **Create a new branch**
-3. ✏️ **Make your changes**
-4. 📩 **Submit a pull request**
+```kotlin
+import io.void.router.router
+import io.void.html.page.htmlRoute
+import io.void.html.page.apiRoute
+import io.void.generated.Div
+import io.void.html.Fractal
+import io.void.server.server
+import io.void.dto.http.ok
 
-## License 📄
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
+fun main() {
+    val r = router {
+        +htmlRoute("/", { title = "Home" }) { _ ->
+            Div("class" to "p-6 text-xl") { Fractal("Hello, Void!") }
+        }
+        +apiRoute("/api/health") { _ ->
+            ok("ok", mutableMapOf("Content-Type" to "text/plain"))
+        }
+    }
 
----
+    server {
+        router = r
+        port = 8080
+        routeToHTTPS = false
+    }
+}
+```
 
-Made with ❤️ by [Jadiefication](https://github.com/Jadiefication)
+Then open http://localhost:8080.
+
+## Principles
+
+#### Unopinionated
+Void doesn’t force a particular logging, DI, templating, or persistence stack. Compose apps using functions and small DSLs. Middleware integrates via a simple interception mechanism.
+
+#### Asynchronous
+Request handling uses Kotlin coroutines under the hood to keep I/O non-blocking with a straightforward API.
+
+#### Testable
+Pages and routers can be constructed and invoked in tests without spinning up external containers. You can exercise handlers directly or run the tiny server in integration tests.
+
+## Documentation
+Until a dedicated site is available, see this README and the test module for examples. Core entry points:
+- io.void.router.router { }
+- io.void.html.page.htmlRoute / apiRoute / dynamicHtmlRoute / dynamicApiRoute
+- io.void.server.server { }
+
+## Reporting Issues / Support
+- File bugs and feature requests using GitHub Issues.
+- For questions, Discussions or StackOverflow (tag: kotlin) are recommended.
+
+## Reporting Security Vulnerabilities
+Please follow the process in SECURITY.md for private disclosure.
+
+## Contributing
+We welcome contributions of all kinds. Before large changes, please open an issue to discuss direction. Keep PRs focused; add tests or examples where appropriate.
+
+## License
+MIT — see LICENSE for details.
