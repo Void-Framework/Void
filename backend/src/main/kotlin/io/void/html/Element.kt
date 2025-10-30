@@ -4,6 +4,8 @@ import io.void.api.method.Method
 import io.void.dto.http.RequestDTO
 import io.void.generated.Div
 import io.void.generated.H2
+import java.util.Locale
+import java.util.Locale.getDefault
 
 /**
  * Represents an HTML attribute as a name/value pair (e.g. "id" to "main").
@@ -256,4 +258,7 @@ class KtsBuilder(
         event: String,
         script: String,
     ) = element.attributes.add("kts-on:$event" to script)
+
+    /** Prevents the default event behavior.. */
+    fun prevent(value: Boolean) = element.attributes.add("kts-prevent" to value.toString().lowercase(getDefault()))
 }
