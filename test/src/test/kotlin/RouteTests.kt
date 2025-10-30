@@ -3,8 +3,12 @@ package test
 import io.jadiefication.routes.home.homeRoute
 import io.jadiefication.routes.setter.setterRoute
 import io.jadiefication.routes.user.userRoute
+import io.void.api.method.Method
+import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildRequest
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
+import io.void.fetch.fetch
 import io.void.html.page.jsonRoute
 import io.void.router.router
 import io.void.server.Server
@@ -42,10 +46,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import io.void.fetch.fetch
-import io.void.dto.http.buildRequest
-import io.void.api.method.Method
-import io.void.dto.http.ResponseDTO
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RouteTests {
@@ -404,13 +404,14 @@ class RouteTests {
     // ===== FETCH TESTS =====
 
     @Test
-    fun `test fetch GET home returns 200 and HTML`() = runBlocking {
-        val request = buildRequest {
-            method = Method.GET
-            target = "/"
-        }
+    fun `test fetch GET home returns 200 and HTML`() {
+        val request =
+            buildRequest {
+                method = Method.GET
+                target = "/"
+            }
         val promise = fetch("http://localhost:$httpPort", request)
-        promise.finally { response ->
+        promise.onSuccess { response ->
             assertEquals(200, response.status)
             val contentType = response.headers["Content-Type"] ?: ""
             assertTrue(contentType.contains("text/html"))
@@ -420,15 +421,15 @@ class RouteTests {
     }
 
     @Test
-    fun `test fetch then chaining`() = runBlocking {
-        val request = buildRequest {
-            method = Method.GET
-            target = "/setter"
-        }
+    fun `test fetch then chaining`() {
+        val request =
+            buildRequest {
+                method = Method.GET
+                target = "/setter"
+            }
         val promise = fetch("http://localhost:$httpPort", request)
         promise
-            .then { it } // no-op transform; exercises then path
-            .finally { response ->
+            .onSuccess { response ->
                 assertEquals(200, response.status)
                 val contentType = response.headers["Content-Type"] ?: ""
                 assertTrue(contentType.contains("application/json"))
@@ -436,26 +437,25 @@ class RouteTests {
     }
 
     @Test
-    fun `test fetch catch on connection failure`() = runBlocking {
+    fun `test fetch catch on connection failure`() {
         val badPort = httpPort + 12345
-        val request = buildRequest {
-            method = Method.GET
-            target = "/"
-        }
+        val request =
+            buildRequest {
+                method = Method.GET
+                target = "/"
+            }
         val promise = fetch("http://localhost:$badPort", request)
         promise
-            .then { it } // trigger awaiting which will fail
-            .catch { _ ->
+            .onSuccess { response ->
+                assertEquals(599, response.status)
+                val body = (response.body.body as? String) ?: ""
+                assertEquals("synthetic", body)
+            }.onFailure {
                 buildResponse {
                     status = 599
                     statusText = "Network Error"
                     body = "synthetic"
                 }
-            }
-            .finally { response ->
-                assertEquals(599, response.status)
-                val body = (response.body.body as? String) ?: ""
-                assertEquals("synthetic", body)
             }
     }
 
