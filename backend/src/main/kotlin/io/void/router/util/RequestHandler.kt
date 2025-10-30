@@ -8,24 +8,35 @@ import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.html.page.dynamic.Path
+import io.void.router.toResult
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Internal helpers for routing requests to the correct handler and building
+ * responses for different page types (HTML, API, KTS, dynamic).
+ */
 internal interface RequestHandler {
     val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>>
 
-    fun handleDynamic(requestDTO: RequestDTO): ResponseDTO? {
-        val segmentRegex = Regex("""^\{([^{}]+)}$""")
-        val optionalSegment = Regex("""^\{([^{}?]+)\?}$""")
+    companion object {
+        private val segmentRegex = Regex("""^\{([^{}]+)}$""")
+        private val optionalSegment = Regex("""^\{([^{}?]+)\?}$""")
+    }
+
+    fun handleDynamic(
+        requestDTO: RequestDTO,
+        query: Map<String, String>,
+    ): ResponseDTO? {
         val requestTarget = requestDTO.target
+        if (requestTarget.endsWith("favicon.ico")) return null
         val url = requestTarget.split('/').toMutableList()
-        if (url.contains("favicon.ico")) return null
         dynamicRoutes.forEach { (target, route) ->
             val dynamics = mutableMapOf<Path, String>()
             val mutableTarget = target.toMutableList()
             url.trimTrailingEmpty()
             mutableTarget.trimTrailingEmpty()
             if (url.size != mutableTarget.size) {
-                if (mutableTarget.last().matches(optionalSegment) && url.size + 1 == mutableTarget.size) {
+                if (mutableTarget.isNotEmpty() && mutableTarget.last().matches(optionalSegment) && url.size + 1 == mutableTarget.size) {
                     mutableTarget.removeLast()
                 } else {
                     return@forEach
@@ -35,7 +46,7 @@ internal interface RequestHandler {
                 val targetValue = mutableTarget[i]
                 if (segment == targetValue) {
                     return@forEachIndexed
-                } else if (targetValue.matches(segmentRegex)) {
+                } else if (segmentRegex.matches(targetValue)) {
                     val match = segmentRegex.matchEntire(targetValue)!!.groupValues[1]
                     dynamics[match] = url[i]
                 } else {
@@ -45,8 +56,11 @@ internal interface RequestHandler {
 
             route._data = dynamics
             route.request = requestDTO
+            route.queries = query
 
-            return when (route.contentType) {
+            val response = route.middlewareProcessBefore(requestDTO.toResult())
+
+            return response ?: when (route.contentType) {
                 ContentType.HtmlElements::class -> constructClassicResponse(route)
                 else -> (route.content() as ContentType.Response).response
             }
@@ -73,39 +87,27 @@ internal interface RequestHandler {
     fun handleResponse(
         page: Page<ContentType.Response>,
         clientHandler: ClientHandler,
-    ) {
-        val client = clientHandler.client
-        client.getOutputStream().writeHTTP(
-            response = page.content().response,
-            version = clientHandler.server.httpVersion,
-        )
-    }
+    ): ResponseDTO = page.content().response
 
     fun handleCasual(
         page: Page<ContentType.HtmlElements>,
         clientHandler: ClientHandler,
         target: String,
-    ) {
+    ): ResponseDTO {
         val client = clientHandler.client
-        val response =
-            if (Cache.cache.containsKey(target)) {
-                Cache[target]!!
-            } else {
-                constructClassicResponse(
-                    page = page,
-                )
-            }
-
-        client.getOutputStream().writeHTTP(
-            response = response,
-            version = clientHandler.server.httpVersion,
-        )
+        return if (Cache.cache.containsKey(target)) {
+            Cache[target]!!
+        } else {
+            constructClassicResponse(
+                page = page,
+            )
+        }
     }
 
     fun handleKts(
         page: KtsPage,
         clientHandler: ClientHandler,
-    ) {
+    ): ResponseDTO {
         val client = clientHandler.client
         val response =
             if (Cache.cache.containsKey(page.target)) {
@@ -121,13 +123,16 @@ internal interface RequestHandler {
                         (page.content() as ContentType.HtmlElements).htmlElement.render().trimIndent()
                 }
             }
-        client.getOutputStream().writeHTTP(
-            response = response,
-            version = clientHandler.server.httpVersion,
-        )
+        return response
     }
 }
 
+/**
+ * Removes a single trailing empty string element from this list if present.
+ * Useful when splitting URL paths to ignore a trailing slash.
+ *
+ * @return true if an empty element was removed; false otherwise.
+ */
 fun MutableList<String>.trimTrailingEmpty(): Boolean {
     val hasEmptyTail = this.lastOrNull()?.isEmpty() == true
     if (hasEmptyTail) removeAt(lastIndex)

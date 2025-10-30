@@ -3,10 +3,10 @@ package io.jadiefication.routes.setter
 import io.void.api.method.Method
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
-import io.void.html.page.jsonRoute
+import io.void.html.page.apiRoute
 
 val setterRoute =
-    jsonRoute("/setter") { request ->
+    apiRoute("/setter") { request ->
         val method = Method.GET
         if (request.method ==
             method
