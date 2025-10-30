@@ -20,6 +20,22 @@ object TailwindGen {
             .version(HttpClient.Version.HTTP_1_1)
             .build()
 
+    // Tailwind default breakpoints (v3)
+    private val breakpoints = mapOf(
+        "sm" to "(min-width: 640px)",
+        "md" to "(min-width: 768px)",
+        "lg" to "(min-width: 1024px)",
+        "xl" to "(min-width: 1280px)",
+        "2xl" to "(min-width: 1536px)"
+    )
+
+    // Supported state variants
+    private val statePseudos = mapOf(
+        "hover" to ":hover",
+        "focus" to ":focus",
+        "active" to ":active"
+    )
+
     /**
      * Fetch tailwind css and store raw content. Call once at startup or when you want to refresh.
      */
@@ -61,6 +77,9 @@ object TailwindGen {
                 .replace(".", "\\.")
                 .replace("[", "\\[")
                 .replace("]", "\\]")
+                .replace("(", "\\(")
+                .replace(")", "\\)")
+                .replace(",", "\\,")
         return ".$escaped"
     }
 
@@ -84,7 +103,9 @@ object TailwindGen {
             val selectorBlock = m.groupValues[1].trim()
             val selectors = selectorBlock.split(",").map { it.trim() }
 
-            if (selectors.any { usedClassSelectors.contains(it) }) {
+            // match either exact selector or selector that starts with the class and then a pseudo, e.g.
+            // used ".hover\\:underline" matches CSS ".hover\\:underline:hover"
+            if (selectors.any { sel -> usedClassSelectors.any { used -> sel == used || sel.startsWith("${'$'}used:") } }) {
                 sb.append(m.value).append("\n")
             }
         }
@@ -102,6 +123,92 @@ object TailwindGen {
     }
 
     /**
+     * Parse a raw class like "sm:hover:mb-[7px]" and, if it is an arbitrary value utility we support,
+     * generate the corresponding CSS block text. Currently supports margin/padding utilities with
+     * sides and axes (m, mt, mr, mb, ml, mx, my, p, pt, pr, pb, pl, px, py).
+     * Returns null if not recognized.
+     */
+    private fun generateArbitraryUtilityCss(rawClass: String): String? {
+        // Split variant prefixes (e.g., sm:hover:)
+        val parts = rawClass.split(":")
+        if (parts.isEmpty()) return null
+        val base = parts.last()
+        val prefixes = if (parts.size > 1) parts.dropLast(1) else emptyList()
+
+        // Detect state and responsive variants from prefixes
+        val state = prefixes.firstOrNull { statePseudos.containsKey(it) }
+        val media = prefixes.firstOrNull { breakpoints.containsKey(it) }
+
+        // Support optional leading '-' for negative values
+        val neg = base.startsWith("-")
+        val baseNoNeg = if (neg) base.substring(1) else base
+
+        // Match arbitrary m*/p* utilities
+        val m = Regex("^([mp][trblxy]?)-\\[(.+)]").matchEntire(baseNoNeg) ?: return null
+        val key = m.groupValues[1] // e.g., mb, mx, p, pt
+        val valueRaw = m.groupValues[2] // e.g., 7px, 1rem, 10%
+        val value = if (neg && !valueRaw.startsWith("-")) "-$valueRaw" else valueRaw
+
+        val (properties, shorthand) = when (key[0]) {
+            'm' -> mapMarginPaddingProperties('m', key)
+            'p' -> mapMarginPaddingProperties('p', key)
+            else -> return null
+        }
+
+        val selectorBase = normalizeClassToSelector(rawClass)
+        val pseudo = state?.let { statePseudos[it] } ?: ""
+        val selector = selectorBase + pseudo
+
+        val declarations = buildString {
+            if (shorthand != null) {
+                append("$shorthand: $value;")
+            } else {
+                properties.forEachIndexed { idx, prop ->
+                    if (idx > 0) append(' ')
+                    append("$prop: $value;")
+                }
+            }
+        }
+
+        val rule = "$selector{$declarations}"
+        return if (media != null) {
+            val mq = breakpoints[media]
+            "@media $mq{$rule}"
+        } else rule
+    }
+
+    private fun mapMarginPaddingProperties(kind: Char, key: String): Pair<List<String>, String?> {
+        val baseProp = if (kind == 'm') "margin" else "padding"
+        return when (key) {
+            "m", "p" -> emptyList<String>() to baseProp // shorthand property
+            "mt", "pt" -> listOf("$baseProp-top") to null
+            "mr", "pr" -> listOf("$baseProp-right") to null
+            "mb", "pb" -> listOf("$baseProp-bottom") to null
+            "ml", "pl" -> listOf("$baseProp-left") to null
+            "mx", "px" -> listOf("$baseProp-left", "$baseProp-right") to null
+            "my", "py" -> listOf("$baseProp-top", "$baseProp-bottom") to null
+            else -> emptyList<String>() to null
+        }
+    }
+
+    /**
+     * Iterate over all raw classes and synthesize CSS for supported arbitrary utilities.
+     */
+    private fun generateSyntheticCssForArbitrary(rawClasses: Set<String>): String {
+        val sb = StringBuilder()
+        val seen = mutableSetOf<String>()
+        rawClasses.forEach { cls ->
+            // quickly filter for bracket utilities to avoid extra work
+            if (!cls.contains('[') || !cls.contains(']')) return@forEach
+            val css = generateArbitraryUtilityCss(cls)
+            if (css != null && seen.add(css)) {
+                sb.append(css).append('\n')
+            }
+        }
+        return sb.toString()
+    }
+
+    /**
      * Produce the set of class selectors we should scan for in the CSS.
      * E.g. "border-gray-400" -> ".border-gray-400"
      *       "hover:bg-red-500" -> ".hover\:bg-red-500"
@@ -113,6 +220,23 @@ object TailwindGen {
                 val trimmed = raw.trim()
                 if (trimmed.isNotEmpty()) {
                     classes.add(normalizeClassToSelector(trimmed))
+                }
+            }
+        }
+        return classes
+    }
+
+    /**
+     * Collect raw class tokens as they appear on elements (without normalization). Useful for
+     * generating synthetic CSS for arbitrary values not present in the CDN build.
+     */
+    private fun collectRawClasses(page: Page<ContentType.HtmlElements>): Set<String> {
+        val classes = mutableSetOf<String>()
+        page.classAttributes.forEach { (_, list) ->
+            list.forEach { raw ->
+                val trimmed = raw.trim()
+                if (trimmed.isNotEmpty()) {
+                    classes.add(trimmed)
                 }
             }
         }
@@ -159,7 +283,14 @@ object TailwindGen {
         }
 
         // Extract used blocks (base rules + media queries)
-        val finalCss = extractUsedCssBlocks(classSelectors)
+        var finalCss = extractUsedCssBlocks(classSelectors)
+
+        // Generate synthetic CSS for arbitrary value utilities (e.g., mb-[7px]) including variants
+        val rawClasses = collectRawClasses(page)
+        val synthetic = generateSyntheticCssForArbitrary(rawClasses)
+        if (synthetic.isNotBlank()) {
+            finalCss += "\n" + synthetic
+        }
 
         // Generate UUID, register route, and attach to page metadata
         val uuid = UUID.randomUUID()
