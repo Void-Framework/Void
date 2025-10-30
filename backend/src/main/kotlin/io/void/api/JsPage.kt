@@ -10,6 +10,10 @@ import io.void.html.page.metadata.metadata
 import java.util.*
 import kotlin.reflect.KClass
 
+/**
+ * Internal page that serves a generated JavaScript asset at a unique UUID-backed path.
+ * The router loads scripts from resources/js and exposes them via these pages.
+ */
 internal class JsPage(
     uuid: UUID,
     private val body: String,
@@ -39,6 +43,7 @@ internal class JsPage(
             },
         )
 
+    /** Utility functions to attach the JS page into HTML page metadata. */
     companion object {
         fun addToMetadata(
             page: Page<ContentType.HtmlElements>,

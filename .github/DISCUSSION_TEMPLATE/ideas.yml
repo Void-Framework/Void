@@ -1,0 +1,46 @@
+name: Ideas
+description: Propose an enhancement or new feature for Void
+category: Ideas
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing your idea! Please search existing ideas first to avoid duplicates.
+
+  - type: input
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What problem would this feature solve? Who would benefit?
+      placeholder: It’s hard to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe your idea. Include API/DSL sketches or examples if possible.
+      placeholder: |
+        Example DSL:
+        router { /* ... */ }
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What workarounds or different approaches have you tried?
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Prior art, links, or references
+    validations:
+      required: false

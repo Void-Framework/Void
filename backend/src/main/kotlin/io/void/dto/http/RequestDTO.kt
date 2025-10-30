@@ -9,6 +9,12 @@ import java.net.URI
 import java.net.http.HttpRequest
 import java.util.*
 
+/**
+ * Immutable representation of an HTTP request handled by the server.
+ *
+ * Fields include the HTTP [method], request [target] (path + optional query),
+ * request [headers], and raw [body].
+ */
 data class RequestDTO(
     val method: Method,
     val target: String,
@@ -16,6 +22,11 @@ data class RequestDTO(
     val body: String,
 ) {
     companion object {
+        /**
+         * Parses an incoming HTTP request from the given [inputStream] into a [RequestDTO].
+         * In case of malformed requests, the [clientHandler] router error path is invoked
+         * and a minimal default GET request is returned to allow graceful handling.
+         */
         internal fun parse(
             inputStream: InputStream,
             clientHandler: ClientHandler,
@@ -65,18 +76,26 @@ data class RequestDTO(
         }
     }
 
+    /** Returns the value of the header named [headerName], or null if it is not present. */
     operator fun get(headerName: String): String? = headers[headerName]
 }
 
+/**
+ * Mutable builder for constructing a [RequestDTO] in tests or internal fallbacks.
+ */
 class RequestBuilder {
     var method: Method = Method.GET
     var target: String = "/"
     val headers: MutableMap<String, String> = mutableMapOf()
     var body: String = ""
 
+    /** Builds an immutable [RequestDTO] from the current builder state. */
     fun build(): RequestDTO = RequestDTO(method, target, headers.toMap(), body)
 }
 
+/**
+ * DSL helper to build a [RequestDTO] using a [RequestBuilder].
+ */
 fun buildRequest(builder: RequestBuilder.() -> Unit): RequestDTO {
     val build = RequestBuilder()
     build.builder()

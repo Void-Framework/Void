@@ -1,0 +1,25 @@
+# Configuration for GitHub Discussions templates
+# Note: The categories referenced here (Q&A, Ideas, Show and tell)
+# must exist under the repository Discussions settings.
+
+templates:
+  - name: Q&A
+    description: Ask a question and get help from the community
+    category: Q&A
+    labels: [question]
+    title: "[Q&A]: "
+    template: q-and-a.yml
+
+  - name: Ideas
+    description: Propose an enhancement or new feature for Void
+    category: Ideas
+    labels: [enhancement]
+    title: "[Idea]: "
+    template: ideas.yml
+
+  - name: Show and tell
+    description: Share something you built with Void and get feedback
+    category: Show and tell
+    labels: [showcase]
+    title: "[Showcase]: "
+    template: show-and-tell.yml

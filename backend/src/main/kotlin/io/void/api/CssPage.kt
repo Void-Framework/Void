@@ -9,6 +9,10 @@ import io.void.html.page.metadata.Metadata
 import java.util.*
 import kotlin.reflect.KClass
 
+/**
+ * Internal page that serves a generated CSS asset at a unique UUID-backed path.
+ * Used by the router to expose styles discovered under resources/css and added to page metadata.
+ */
 internal class CssPage(
     uuid: UUID,
     private val body: String,
