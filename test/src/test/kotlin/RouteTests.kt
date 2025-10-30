@@ -6,9 +6,13 @@ import io.jadiefication.routes.search.searchRootRoute
 import io.jadiefication.routes.search.searchRoute
 import io.jadiefication.routes.setter.setterRoute
 import io.jadiefication.routes.user.userRoute
+import io.void.api.method.Method
+import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildRequest
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.html.page.apiRoute
+import io.void.fetch.fetch
 import io.void.router.router
 import io.void.server.Server
 import io.void.server.server
@@ -554,6 +558,64 @@ class RouteTests {
     }
 
     // ===== PERFORMANCE TESTS =====
+
+    // ===== FETCH TESTS =====
+
+    @Test
+    fun `test fetch GET home returns 200 and HTML`() {
+        val request =
+            buildRequest {
+                method = Method.GET
+                target = "/"
+            }
+        val promise = fetch("http://localhost:$httpPort", request)
+        promise.onSuccess { response ->
+            assertEquals(200, response.status)
+            val contentType = response.headers["Content-Type"] ?: ""
+            assertTrue(contentType.contains("text/html"))
+            val body = (response.body.body as? String) ?: ""
+            assertTrue(body.contains("<html"))
+        }
+    }
+
+    @Test
+    fun `test fetch then chaining`() {
+        val request =
+            buildRequest {
+                method = Method.GET
+                target = "/setter"
+            }
+        val promise = fetch("http://localhost:$httpPort", request)
+        promise
+            .onSuccess { response ->
+                assertEquals(200, response.status)
+                val contentType = response.headers["Content-Type"] ?: ""
+                assertTrue(contentType.contains("application/json"))
+            }
+    }
+
+    @Test
+    fun `test fetch catch on connection failure`() {
+        val badPort = httpPort + 12345
+        val request =
+            buildRequest {
+                method = Method.GET
+                target = "/"
+            }
+        val promise = fetch("http://localhost:$badPort", request)
+        promise
+            .onSuccess { response ->
+                assertEquals(599, response.status)
+                val body = (response.body.body as? String) ?: ""
+                assertEquals("synthetic", body)
+            }.onFailure {
+                buildResponse {
+                    status = 599
+                    statusText = "Network Error"
+                    body = "synthetic"
+                }
+            }
+    }
 
     @Test
     fun `test response time performance`() {
