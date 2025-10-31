@@ -41,6 +41,12 @@ abstract class Page<T : ContentType>(
     internal val relaysBefore = mutableListOf<Relay>()
     internal val relaysAfter = mutableListOf<Relay>()
 
+    /** Whether to include the compiled Tailwind. */
+    val includeTailwind = true
+
+    /** Whether to include the kts script. */
+    val includeKts = true
+
     /** URL query parameters for the current request. */
     lateinit var queries: Map<String, String>
 
