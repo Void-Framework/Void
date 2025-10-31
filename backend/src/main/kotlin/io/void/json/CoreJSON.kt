@@ -7,6 +7,7 @@ import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildRequest
 import io.void.dto.http.buildResponse
 import io.void.html.page.Page
+import io.void.json.JsonConfigs.default
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.cbor.Cbor
@@ -17,7 +18,7 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.Base64
+import java.util.*
 import kotlin.reflect.full.findAnnotation
 
 /**

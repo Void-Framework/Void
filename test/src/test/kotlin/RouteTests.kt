@@ -7,22 +7,23 @@ import io.jadiefication.routes.search.searchRoute
 import io.jadiefication.routes.setter.setterRoute
 import io.jadiefication.routes.user.userRoute
 import io.void.api.method.Method
-import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildRequest
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
-import io.void.html.page.apiRoute
-import io.void.json.fromJson
 import io.void.fetch.fetch
+import io.void.generated.Button
+import io.void.generated.Div
+import io.void.generated.H1
+import io.void.generated.Main
+import io.void.html.Fractal
+import io.void.html.page.apiRoute
+import io.void.html.page.htmlRoute
+import io.void.json.fromJson
 import io.void.router.router
 import io.void.server.Server
 import io.void.server.server
 import io.void.server.simpleServer
-import io.void.html.page.htmlRoute
-import io.void.generated.*
-import io.void.html.Fractal
 import kotlinx.coroutines.*
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
@@ -591,7 +592,8 @@ class RouteTests {
             "CSS should include responsive rule for sm:mb-2",
         )
         assertTrue(
-            css.contains("@media (min-width: 640px)") && (css.contains(".sm\\:hover\\:mb\\:\\[3px\\]\\:hover") || css.contains("margin-bottom: 3px")),
+            css.contains("@media (min-width: 640px)") &&
+                (css.contains(".sm\\:hover\\:mb\\:\\[3px\\]\\:hover") || css.contains("margin-bottom: 3px")),
             "CSS should include combined responsive+state rule for sm:hover:mb-[3px]",
         )
     }
@@ -835,7 +837,7 @@ class RouteTests {
                                 Div("class" to "-mx-[1rem] p-2 bg-gray-100 rounded") { Fractal("-mx-[1rem]") }
                                 Button(
                                     "class" to "hover:py-[10%] px-4 bg-blue-500 text-white rounded",
-                                    "id" to "hover-btn"
+                                    "id" to "hover-btn",
                                 ) { Fractal("hover:py-[10%] (hover me)") }
                                 Div("class" to "sm:mb-2 p-2 bg-gray-100 rounded mt-4") { Fractal("sm:mb-2") }
                                 Div("class" to "sm:hover:mb-[3px] p-2 bg-gray-100 rounded mt-2") { Fractal("sm:hover:mb-[3px]") }
@@ -880,7 +882,7 @@ class RouteTests {
                                     Div("class" to "-mx-[1rem] p-2 bg-gray-100 rounded") { Fractal("-mx-[1rem]") }
                                     Button(
                                         "class" to "hover:py-[10%] px-4 bg-blue-500 text-white rounded",
-                                        "id" to "hover-btn"
+                                        "id" to "hover-btn",
                                     ) { Fractal("hover:py-[10%] (hover me)") }
                                     Div("class" to "sm:mb-2 p-2 bg-gray-100 rounded mt-4") { Fractal("sm:mb-2") }
                                     Div("class" to "sm:hover:mb-[3px] p-2 bg-gray-100 rounded mt-2") { Fractal("sm:hover:mb-[3px]") }
@@ -982,12 +984,14 @@ class RouteTests {
                 override fun checkClientTrusted(
                     chain: Array<X509Certificate>,
                     authType: String,
-                ) {}
+                ) {
+                }
 
                 override fun checkServerTrusted(
                     chain: Array<X509Certificate>,
                     authType: String,
-                ) {}
+                ) {
+                }
 
                 override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
             }

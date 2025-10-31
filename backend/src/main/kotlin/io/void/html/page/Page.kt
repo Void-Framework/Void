@@ -13,7 +13,7 @@ import io.void.middleware.RelayBefore
 import io.void.router.Router
 import io.void.router.listResourcePaths
 import io.void.router.readResourceText
-import java.util.UUID
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -53,7 +53,7 @@ abstract class Page<T : ContentType>(
     /** Builds the concrete [ContentType] instance to be rendered or returned. */
     abstract fun content(): T
 
-/**
+    /**
      * Registers CSS resources by file name present under resources/css.
      * Returns this page for fluent configuration.
      */
@@ -66,7 +66,7 @@ abstract class Page<T : ContentType>(
         return this
     }
 
-/**
+    /**
      * Registers the previously selected CSS resources as router pages and
      * injects their paths into this page's [metadata] as external stylesheets.
      */
@@ -83,17 +83,17 @@ abstract class Page<T : ContentType>(
         }
     }
 
-/** Registers a middleware to run before the page handler by class reference. */
+    /** Registers a middleware to run before the page handler by class reference. */
     fun before(relay: KClass<RelayBefore>) {
         relaysBefore.add(relay.createInstance())
     }
 
-/** Registers a middleware instance to run before the page handler. */
+    /** Registers a middleware instance to run before the page handler. */
     fun before(relay: RelayBefore) {
         relaysBefore.add(relay)
     }
 
-/** Registers a middleware to run after the page handler by class reference. */
+    /** Registers a middleware to run after the page handler by class reference. */
     fun after(relay: KClass<RelayAfter>) {
         relaysAfter.add(relay.createInstance())
     }
@@ -103,7 +103,7 @@ abstract class Page<T : ContentType>(
         relaysAfter.add(relay)
     }
 
-/**
+    /**
      * Runs all registered [RelayBefore] middlewares. If any returns a non-null [ResponseDTO],
      * the processing is short-circuited and that response is returned.
      */
@@ -117,7 +117,7 @@ abstract class Page<T : ContentType>(
         return null
     }
 
-/**
+    /**
      * Runs all registered [RelayAfter] middlewares with the produced [response].
      */
     internal fun middlewareProcessAfter(response: Result<ResponseDTO>) {

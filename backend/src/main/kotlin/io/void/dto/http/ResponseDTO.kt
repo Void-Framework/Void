@@ -2,7 +2,6 @@ package io.void.dto.http
 
 import java.io.OutputStream
 import java.io.PrintWriter
-import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
 /** JSON key/value map used by legacy JSON builder utilities. */
@@ -68,6 +67,7 @@ data class ResponseDTO(
                     arrayBuilder.append("]")
                     return ("\"$key\":$arrayBuilder,")
                 }
+
                 is Map<*, *> -> {
                     val mapBuilder = StringBuilder("{")
 
@@ -87,6 +87,7 @@ data class ResponseDTO(
                     mapBuilder.append("}")
                     return "\"$key\":$mapBuilder,"
                 }
+
                 else -> {
                     return generateObjectJson(key, value)
                 }
@@ -230,6 +231,7 @@ fun OutputStream.writeHTTP(
                         .toByteArray()
                         .size
                         .toString()
+
             else -> response["Content-Length"] = (responseBody.body as ByteArray).size.toString()
         }
     }
@@ -245,6 +247,7 @@ fun OutputStream.writeHTTP(
             writer.print(body.body)
             writer.flush()
         }
+
         is ResponseBody.ByteArrayBody -> {
             this.write(body.body)
             this.flush()

@@ -92,7 +92,7 @@ class Router :
             if (route.contentType == ContentType.HtmlElements::class) {
                 route.request = buildRequest { }
                 if (route.includeTailwind) TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
-                if (route.includeKts) JsPage.addToMetadata(route  as Page<ContentType.HtmlElements>, js.toList())
+                if (route.includeKts) JsPage.addToMetadata(route as Page<ContentType.HtmlElements>, js.toList())
             }
             if (route is KtsPage) {
                 ktsResponsePages[route.target] = route
@@ -131,24 +131,27 @@ class Router :
         val rawTarget = requestDTO.target
         val qMark = rawTarget.indexOf('?')
         val target = if (qMark >= 0) rawTarget.substring(0, qMark) else rawTarget
-        val query: Map<String, String> = if (qMark >= 0 && qMark + 1 < rawTarget.length) {
-            val map = LinkedHashMap<String, String>(4)
-            val qs = rawTarget.substring(qMark + 1)
-            var start = 0
-            while (start < qs.length) {
-                val amp = qs.indexOf('&', start).let { if (it == -1) qs.length else it }
-                if (amp > start) {
-                    val eq = qs.indexOf('=', start).let { if (it == -1 || it > amp) -1 else it }
-                    if (eq != -1) {
-                        val key = qs.substring(start, eq)
-                        val value = qs.substring(eq + 1, amp)
-                        map[key] = value
+        val query: Map<String, String> =
+            if (qMark >= 0 && qMark + 1 < rawTarget.length) {
+                val map = LinkedHashMap<String, String>(4)
+                val qs = rawTarget.substring(qMark + 1)
+                var start = 0
+                while (start < qs.length) {
+                    val amp = qs.indexOf('&', start).let { if (it == -1) qs.length else it }
+                    if (amp > start) {
+                        val eq = qs.indexOf('=', start).let { if (it == -1 || it > amp) -1 else it }
+                        if (eq != -1) {
+                            val key = qs.substring(start, eq)
+                            val value = qs.substring(eq + 1, amp)
+                            map[key] = value
+                        }
                     }
+                    start = amp + 1
                 }
-                start = amp + 1
+                map
+            } else {
+                emptyMap()
             }
-            map
-        } else emptyMap()
         val response =
             when {
                 requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target) -> {
@@ -200,10 +203,12 @@ class Router :
                                                     put("Connection", "close")
                                                 }
                                                 body =
-                                                    "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${(
-                                                        RouteCheck.nullPage
-                                                            .content() as ContentType.HtmlElements
-                                                    ).htmlElement.render()}</body></html>"
+                                                    "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${
+                                                        (
+                                                            RouteCheck.nullPage
+                                                                .content() as ContentType.HtmlElements
+                                                        ).htmlElement.render()
+                                                    }</body></html>"
                                             }
                                     }
                             }
@@ -236,6 +241,7 @@ class Router :
                     response = content.response,
                     version = clientHandler.server.httpVersion,
                 )
+
             is ContentType.HtmlElements ->
                 client.getOutputStream().writeHTTP(
                     response =
@@ -289,6 +295,7 @@ fun listResourcePaths(folder: String): List<String> {
                 .map { "$folder/" + it.relativeTo(root).invariantSeparatorsPath }
                 .toList()
         }
+
         "jar" -> {
             val path = url.path
             val jarPath = path.substringAfter("file:").substringBefore("!")
@@ -302,6 +309,7 @@ fun listResourcePaths(folder: String): List<String> {
                     }.toList()
             }
         }
+
         else -> emptyList()
     }
 }
