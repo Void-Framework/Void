@@ -1,8 +1,10 @@
 package io.void.json
 
 import io.void.cache.Cache
+import io.void.cache.RecomputeFlag
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
+import io.void.dto.http.buildRequest
 import io.void.dto.http.buildResponse
 import io.void.html.page.Page
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -32,7 +34,8 @@ object JsonConfigs {
 }
 
 context(page: Page<*>)
-fun cache(duration: Int, recompute: Boolean = true) {
+fun cache(duration: Int, recompute: RecomputeFlag = RecomputeFlag(true)) {
+    page.request = buildRequest {  }
     Cache.cacheRoute(mapOf(page to duration), recompute)
 }
 
