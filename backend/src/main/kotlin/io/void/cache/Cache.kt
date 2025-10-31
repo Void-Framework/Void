@@ -20,7 +20,7 @@ internal object Cache {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     /** Populates/refreshes cache entries for the given [routes] and schedules invalidation. */
-    internal fun cacheRoute(routes: Map<Page<*>, Int>, recompute: Boolean) {
+    internal fun cacheRoute(routes: Map<Page<*>, Int>, recompute: RecomputeFlag) {
         routes.forEach { (route, duration) ->
             try {
                 putInCache(route to duration, recompute)
@@ -31,7 +31,7 @@ internal object Cache {
     }
 
     /** Renders page output and stores it in the cache, then sets up refresh if needed. */
-    private fun putInCache(route: Pair<Page<*>, Int>, recompute: Boolean) {
+    private fun putInCache(route: Pair<Page<*>, Int>, recompute: RecomputeFlag) {
         val (page, duration) = route
         if (page.contentType != ContentType.Response::class) {
             val metadata = page.metadata
@@ -57,25 +57,24 @@ internal object Cache {
     }
 
     /** Schedules periodic cache refresh for the given [route] if [duration] > 0. */
-    private fun handleCache(route: Pair<Page<*>, Int>, recompute: Boolean) {
+    private fun handleCache(route: Pair<Page<*>, Int>, recompute: RecomputeFlag) {
         val (page, duration) = route
         if (duration <= 0) return
         scope.launch {
-            while (isActive) {
+            while (recompute.value) {
                 delay(duration.toLong())
                 try {
-                    if (recompute) {
-                        putInCache(route, true)
-                    } else {
-                        cache.remove(page.target)
-                    }
+                    putInCache(route, recompute)
                 } catch (e: Exception) {
                     throw CacheException(e)
                 }
             }
+            cache.remove(page.target)
         }
     }
 
     /** Returns the cached [ResponseDTO] for a page target path, if present. */
     operator fun get(route: String): ResponseDTO? = cache[route]
 }
+
+data class RecomputeFlag(@Volatile var value: Boolean)
