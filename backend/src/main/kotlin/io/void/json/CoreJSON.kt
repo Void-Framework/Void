@@ -40,3 +40,27 @@ inline fun <reified T : Any> ByteArray.fromJson(): Result<T> = runCatching { Cbo
 inline fun <reified T : Any> T.toXml(pretty: Boolean = false): Result<ByteArray> = runCatching { ProtoBuf.encodeToByteArray(this) }
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> ByteArray.fromXml(pretty: Boolean = false): Result<T> = runCatching { ProtoBuf.decodeFromByteArray(this) }
+
+inline fun <reified T> RequestDTO.parseBody(): Result<T> = runCatching { Json.decodeFromString(this.body) }
+
+fun RequestDTO.detectFormat(): Format =
+    when (headers["Content-Type"]) {
+        "application/json" -> Format.JSON
+        "application/cbor" -> Format.CBOR
+        "application/xml" -> Format.XML
+        else -> Format.TEXT
+    }
+
+fun Page<*>.autoSerialize(value: Any): ResponseDTO {
+    val accept = request.headers["Accept"] ?: "application/json"
+    val body = when {
+        "application/json" in accept -> value.toJson()
+        "application/xml" in accept -> value.toXml()
+        else -> value.toString()
+    }
+
+    return buildResponse {
+        headers["Content-Type"] = accept
+        this.body = body
+    }
+}
