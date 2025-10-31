@@ -3,7 +3,6 @@ package io.void.router
 import io.void.api.CssPage
 import io.void.api.JsPage
 import io.void.api.KtsPage
-import io.void.cache.CacheProcessor
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.*
 import io.void.generator.TailwindGen
@@ -94,11 +93,9 @@ class Router :
             }
             if (route is KtsPage) {
                 ktsResponsePages[route.target] = route
-                CacheProcessor.processCacheables(page = route)
                 return this
             }
         }
-        CacheProcessor.processCacheables(page = route)
         if (route is ExceptionPage) {
             RouteCheck.exceptionPage = route
             return this

@@ -20,10 +20,10 @@ internal object Cache {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     /** Populates/refreshes cache entries for the given [routes] and schedules invalidation. */
-    internal fun cacheRoute(routes: Map<Page<*>, Int>) {
+    internal fun cacheRoute(routes: Map<Page<*>, Int>, recompute: Boolean) {
         routes.forEach { (route, duration) ->
             try {
-                putInCache(route to duration)
+                putInCache(route to duration, recompute)
             } catch (e: Exception) {
                 throw CacheException(e)
             }
@@ -31,7 +31,7 @@ internal object Cache {
     }
 
     /** Renders page output and stores it in the cache, then sets up refresh if needed. */
-    private fun putInCache(route: Pair<Page<*>, Int>) {
+    private fun putInCache(route: Pair<Page<*>, Int>, recompute: Boolean) {
         val (page, duration) = route
         if (page.contentType != ContentType.Response::class) {
             val metadata = page.metadata
@@ -53,18 +53,22 @@ internal object Cache {
         } else {
             cache[page.target] = (page.content() as ContentType.Response).response
         }
-        handleCache(route)
+        handleCache(route, recompute)
     }
 
     /** Schedules periodic cache refresh for the given [route] if [duration] > 0. */
-    private fun handleCache(route: Pair<Page<*>, Int>) {
+    private fun handleCache(route: Pair<Page<*>, Int>, recompute: Boolean) {
         val (page, duration) = route
         if (duration <= 0) return
         scope.launch {
             while (isActive) {
                 delay(duration.toLong())
                 try {
-                    putInCache(route)
+                    if (recompute) {
+                        putInCache(route, true)
+                    } else {
+                        cache.remove(page.target)
+                    }
                 } catch (e: Exception) {
                     throw CacheException(e)
                 }
