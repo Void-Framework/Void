@@ -1,6 +1,6 @@
 package io.void.json
 
-import io.void.cache.Cacheable
+import io.void.cache.Cache
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
@@ -17,7 +17,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Base64
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.findAnnotations
 
 object JsonConfigs {
     val default = Json {
@@ -30,6 +29,11 @@ object JsonConfigs {
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
+}
+
+context(page: Page<*>)
+fun cache(duration: Int, recompute: Boolean = true) {
+    Cache.cacheRoute(mapOf(page to duration), recompute)
 }
 
 inline fun <reified T : Any> T.toJson(pretty: Boolean = false): Result<String> = runCatching {
@@ -81,5 +85,5 @@ inline fun <reified T : Any> File.fromJsonFile(): Result<T> = this.readText().fr
 inline fun <reified T : Any> T.toJson64(): Result<String> = runCatching { Base64.getEncoder().encodeToString(this.toJson().getOrNull()!!.toByteArray()) }
 inline fun <reified T : Any> String.fromJson64(): Result<T> = String(Base64.getDecoder().decode(this)).fromJson()
 
-inline fun <reified T : Any> T.canSerialize(): Boolean = this::class.findAnnotation<Cacheable>() != null
+inline fun <reified T : Any> T.canSerialize(): Boolean = this::class.findAnnotation<Serializable>() != null
 
