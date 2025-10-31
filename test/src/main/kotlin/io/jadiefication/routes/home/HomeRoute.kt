@@ -2,14 +2,12 @@ package io.jadiefication.routes.home
 
 import io.void.api.ktsRoute
 import io.void.api.method.Method
-import io.void.cache.Cacheable
 import io.void.generated.*
 import io.void.html.Fractal
 import io.void.html.kts
 import io.void.html.page.htmlRoute
 import java.net.URL
 
-@Cacheable(invalidationDurationInMillies = 0)
 val homeRoute =
     htmlRoute("/", {}) {
         val containerClasses = "container mx-auto px-4 py-8"

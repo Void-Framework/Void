@@ -20,12 +20,25 @@ import java.nio.file.Path
 import java.util.Base64
 import kotlin.reflect.full.findAnnotation
 
+/**
+ * Core JSON/serialization helpers and small HTTP utilities.
+ *
+ * This file provides:
+ * - Shared JSON configurations via [JsonConfigs]
+ * - Convenience extensions to serialize/deserialize objects to/from JSON, CBOR, and ProtoBuf
+ * - Base64 helpers for JSON payloads
+ * - File helpers to persist and load JSON
+ * - Small [RequestDTO] helpers like [RequestDTO.parseBody] and [RequestDTO.detectFormat]
+ * - A [Page.autoSerialize] helper to produce a [ResponseDTO] from a value based on the request's Accept header
+ */
 object JsonConfigs {
+    /** Default JSON config: ignores unknown keys and encodes default values. */
     val default = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
 
+    /** Pretty-printing JSON config with the same semantics as [default]. */
     val pretty = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
@@ -33,30 +46,47 @@ object JsonConfigs {
     }
 }
 
+/**
+ * Registers the current [Page] for caching with a refresh [duration] in milliseconds.
+ *
+ * The [recompute] flag controls whether the cache will be periodically recomputed. When set to `false`,
+ * the background refresh loop stops and the cached entry is removed.
+ */
 context(page: Page<*>)
 fun cache(duration: Int, recompute: RecomputeFlag = RecomputeFlag(true)) {
-    page.request = buildRequest {  }
+    page.request = buildRequest { }
     Cache.cacheRoute(mapOf(page to duration), recompute)
 }
 
+/** Serializes this object to a JSON string using either [JsonConfigs.default] or [JsonConfigs.pretty]. */
 inline fun <reified T : Any> T.toJson(pretty: Boolean = false): Result<String> = runCatching {
     val json = if (pretty) JsonConfigs.pretty else JsonConfigs.default
     json.encodeToString(this)
 }
+
+/** Deserializes this JSON string into type [T] using the default [Json] instance. */
 inline fun <reified T : Any> String.fromJson(): Result<T> = runCatching { Json.decodeFromString(this) }
 
+/** Encodes this object to CBOR bytes using [Cbor]. */
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> T.toBytes(): Result<ByteArray> = runCatching { Cbor.encodeToByteArray(this) }
+
+/** Decodes CBOR bytes into type [T] using [Cbor]. Note: despite the name, this parses CBOR, not JSON. */
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> ByteArray.fromJson(): Result<T> = runCatching { Cbor.decodeFromByteArray(this) }
 
+/** Encodes this object to ProtoBuf bytes using [ProtoBuf]. */
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> T.toXml(): Result<ByteArray> = runCatching { ProtoBuf.encodeToByteArray(this) }
+
+/** Decodes ProtoBuf bytes into type [T] using [ProtoBuf]. */
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> ByteArray.fromXml(): Result<T> = runCatching { ProtoBuf.decodeFromByteArray(this) }
 
+/** Parses the textual [RequestDTO.body] as JSON into type [T]. */
 inline fun <reified T> RequestDTO.parseBody(): Result<T> = runCatching { Json.decodeFromString(this.body) }
 
+/** Detects the request body [Format] based on the `Content-Type` header. */
 fun RequestDTO.detectFormat(): Format =
     when (headers["Content-Type"]) {
         "application/json" -> Format.JSON
@@ -65,6 +95,10 @@ fun RequestDTO.detectFormat(): Format =
         else -> Format.TEXT
     }
 
+/**
+ * Creates a [ResponseDTO] by serializing [value] according to the request `Accept` header.
+ * Defaults to `application/json` when the header is missing.
+ */
 fun Page<*>.autoSerialize(value: Any): ResponseDTO {
     val accept = request.headers["Accept"] ?: "application/json"
     val body = when {
@@ -79,14 +113,21 @@ fun Page<*>.autoSerialize(value: Any): ResponseDTO {
     }
 }
 
+/** Writes JSON representation of this object to the given [path]. Creates the file if needed. */
 inline fun <reified T : Any> T.toJsonFile(pretty: Boolean = false, path: Path) {
     Files.createFile(path)
     Files.write(path, this.toJson(pretty).getOrNull()!!.toByteArray())
 }
+
+/** Reads JSON content from this [File] into type [T]. */
 inline fun <reified T : Any> File.fromJsonFile(): Result<T> = this.readText().fromJson()
 
+/** Encodes this object's JSON string to Base64. */
 inline fun <reified T : Any> T.toJson64(): Result<String> = runCatching { Base64.getEncoder().encodeToString(this.toJson().getOrNull()!!.toByteArray()) }
+
+/** Decodes a Base64-encoded JSON string into type [T]. */
 inline fun <reified T : Any> String.fromJson64(): Result<T> = String(Base64.getDecoder().decode(this)).fromJson()
 
+/** Returns true if this instance's class is annotated with [Serializable]. */
 inline fun <reified T : Any> T.canSerialize(): Boolean = this::class.findAnnotation<Serializable>() != null
 

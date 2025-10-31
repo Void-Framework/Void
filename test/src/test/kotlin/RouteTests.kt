@@ -19,7 +19,9 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
-import org.json.JSONObject
+import io.void.json.fromJson
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -45,6 +47,26 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+
+@Serializable
+private data class SetterMeta(val registered: Boolean, val languages: List<String>, val profile: Map<String, String>)
+@Serializable
+private data class SetterDTO(
+    val name: String,
+    val age: Int,
+    val isStudent: Boolean,
+    val grades: List<Int>,
+    val meta: SetterMeta,
+    val nullValue: String? = null,
+    val emptyList: List<String> = emptyList(),
+    val emptyMap: Map<String, String> = emptyMap(),
+)
+@Serializable
+private data class EchoDTO(val path: String, val query: Map<String, String>, val hasQuery: Boolean)
+@Serializable
+private data class UserDTO(val id: String, val name: String, val email: String)
+@Serializable
+private data class SearchDTO(val path: String, val category: String? = null, val query: Map<String, String>)
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RouteTests {
@@ -395,17 +417,14 @@ class RouteTests {
         assertTrue(cResponse.headers().allValues("Content-Type").any { it.contains("application/json") })
 
         val response = cResponse.body()
-        val json = JSONObject(response)
+        val dto = response.fromJson<SetterDTO>().getOrThrow()
 
-        assertEquals("Jade", json.getString("name"))
-        assertEquals(20, json.getInt("age"))
-        assertTrue(json.getBoolean("isStudent"))
+        assertEquals("Jade", dto.name)
+        assertEquals(20, dto.age)
+        assertTrue(dto.isStudent)
 
-        val meta = json.getJSONObject("meta")
-        assertTrue(meta.getBoolean("registered"))
-
-        val languages = meta.getJSONArray("languages")
-        assertTrue(languages.toString().contains("Kotlin"))
+        assertTrue(dto.meta.registered)
+        assertTrue(dto.meta.languages.contains("Kotlin"))
     }
 
     @Test
@@ -418,11 +437,11 @@ class RouteTests {
         assertTrue(cResponse.headers().allValues("Content-Type").any { it.contains("application/json") })
 
         val response = cResponse.body()
-        val json = JSONObject(response)
+        val dto = response.fromJson<UserDTO>().getOrThrow()
 
-        assertEquals(userId, json.getString("id"))
-        assertNotNull(json.getString("name"))
-        assertNotNull(json.getString("email"))
+        assertEquals(userId, dto.id)
+        assertNotNull(dto.name)
+        assertNotNull(dto.email)
     }
 
     @Test
@@ -572,12 +591,11 @@ class RouteTests {
                 .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
-        val json = JSONObject(response.body())
-        assertEquals("/echo", json.getString("path"))
-        assertTrue(json.getBoolean("hasQuery"))
-        val queryObj = json.getJSONObject("query")
-        assertEquals("bar", queryObj.getString("foo"))
-        assertEquals("42", queryObj.getString("num"))
+        val dto = response.body().fromJson<EchoDTO>().getOrThrow()
+        assertEquals("/echo", dto.path)
+        assertTrue(dto.hasQuery)
+        assertEquals("bar", dto.query["foo"])
+        assertEquals("42", dto.query["num"])
     }
 
     @Test
@@ -592,9 +610,9 @@ class RouteTests {
                 .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
-        val query = JSONObject(response.body()).getJSONObject("query")
-        assertEquals(encoded, query.getString("q"))
-        assertEquals(unicode, query.getString("u"))
+        val dto = response.body().fromJson<EchoDTO>().getOrThrow()
+        assertEquals(encoded, dto.query["q"])
+        assertEquals(unicode, dto.query["u"])
     }
 
     @Test
@@ -607,8 +625,8 @@ class RouteTests {
                 .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
-        val query = JSONObject(response.body()).getJSONObject("query")
-        assertEquals("3", query.getString("x"))
+        val dto = response.body().fromJson<EchoDTO>().getOrThrow()
+        assertEquals("3", dto.query["x"])
     }
 
     @Test
@@ -621,10 +639,10 @@ class RouteTests {
                 .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
-        val query = JSONObject(response.body()).getJSONObject("query")
-        assertTrue(query.has("a"))
-        assertEquals("", query.getString("a"))
-        assertFalse(query.has("b"))
+        val dto = response.body().fromJson<EchoDTO>().getOrThrow()
+        assertTrue(dto.query.containsKey("a"))
+        assertEquals("", dto.query["a"])
+        assertFalse(dto.query.containsKey("b"))
     }
 
     @Test
@@ -637,12 +655,11 @@ class RouteTests {
                 .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
-        val json = JSONObject(response.body())
-        assertEquals("/search/books", json.getString("path"))
-        assertEquals("books", json.optString("category", null))
-        val query = json.getJSONObject("query")
-        assertEquals("kotlin", query.getString("q"))
-        assertEquals("asc", query.getString("sort"))
+        val dto = response.body().fromJson<SearchDTO>().getOrThrow()
+        assertEquals("/search/books", dto.path)
+        assertEquals("books", dto.category)
+        assertEquals("kotlin", dto.query["q"])
+        assertEquals("asc", dto.query["sort"])
     }
 
     @Test
@@ -655,11 +672,10 @@ class RouteTests {
                 .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
         assertEquals(200, response.statusCode())
-        val json = JSONObject(response.body())
-        assertEquals("/search", json.getString("path"))
-        assertTrue(json.isNull("category") || json.optString("category", null) == null)
-        val query = json.getJSONObject("query")
-        assertEquals("latest", query.getString("q"))
+        val dto = response.body().fromJson<SearchDTO>().getOrThrow()
+        assertEquals("/search", dto.path)
+        assertTrue(dto.category == null)
+        assertEquals("latest", dto.query["q"])
     }
 
     @Test
