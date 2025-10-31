@@ -68,8 +68,10 @@ class Router :
     }
 
     internal fun middlewareProcessBefore(requestDTO: Result<RequestDTO>): ResponseDTO? {
-        internalRelay.forEach {
-            val newResponse = (it as? RelayBefore)?.processBefore(requestDTO)
+        val relays = internalRelay
+        for (i in 0 until relays.size) {
+            val relay = relays[i]
+            val newResponse = (relay as? RelayBefore)?.processBefore(requestDTO)
             if (newResponse != null) {
                 return newResponse
             }
@@ -78,8 +80,9 @@ class Router :
     }
 
     internal fun middlewareProcessAfter(response: Result<ResponseDTO>) {
-        internalRelay.forEach {
-            (it as? RelayAfter)?.processAfter(response)
+        val relays = internalRelay
+        for (i in 0 until relays.size) {
+            (relays[i] as? RelayAfter)?.processAfter(response)
         }
     }
 
@@ -88,8 +91,8 @@ class Router :
         if (route::class != CssPage::class) {
             if (route.contentType == ContentType.HtmlElements::class) {
                 route.request = buildRequest { }
-                TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
-                JsPage.addToMetadata(route, js.toList())
+                if (route.includeTailwind) TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
+                if (route.includeKts) JsPage.addToMetadata(route  as Page<ContentType.HtmlElements>, js.toList())
             }
             if (route is KtsPage) {
                 ktsResponsePages[route.target] = route
@@ -125,22 +128,35 @@ class Router :
         clientHandler: ClientHandler,
     ) {
         val client = clientHandler.client
-        val target = requestDTO.target.substringBefore('?')
-        val query =
-            requestDTO.target
-                .substringAfter("?", "")
-                .split("&")
-                .mapNotNull {
-                    val parts = it.split("=", limit = 2)
-                    if (parts.size == 2) parts[0] to parts[1] else null
-                }.toMap()
+        val rawTarget = requestDTO.target
+        val qMark = rawTarget.indexOf('?')
+        val target = if (qMark >= 0) rawTarget.substring(0, qMark) else rawTarget
+        val query: Map<String, String> = if (qMark >= 0 && qMark + 1 < rawTarget.length) {
+            val map = LinkedHashMap<String, String>(4)
+            val qs = rawTarget.substring(qMark + 1)
+            var start = 0
+            while (start < qs.length) {
+                val amp = qs.indexOf('&', start).let { if (it == -1) qs.length else it }
+                if (amp > start) {
+                    val eq = qs.indexOf('=', start).let { if (it == -1 || it > amp) -1 else it }
+                    if (eq != -1) {
+                        val key = qs.substring(start, eq)
+                        val value = qs.substring(eq + 1, amp)
+                        map[key] = value
+                    }
+                }
+                start = amp + 1
+            }
+            map
+        } else emptyMap()
         val response =
             when {
                 requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target) -> {
                     val page = ktsResponsePages[target] as KtsPage
                     page.queries = query
                     val route = requestDTO.headers["KTS-Route"]!!
-                    val rootElement = (routes[route]!!.content() as? ContentType.HtmlElements)?.htmlElement
+                    val content = routes[route]!!.content()
+                    val rootElement = (content as? ContentType.HtmlElements)?.htmlElement
                     val triggerId = requestDTO["KTS-Trigger"]
                     val targetId = requestDTO["KTS-Target"]
                     val trigger = triggerId?.let { rootElement?.findElement(it) }
@@ -153,44 +169,45 @@ class Router :
                         ?: handleKts(page, clientHandler)
                 }
 
-                routes.containsKey(target) -> {
-                    val page = routes[target]!!
-                    page.queries = query
-                    page.request = requestDTO
-
-                    page.middlewareProcessBefore(requestDTO.toResult())
-                        ?: if (page.content() is ContentType.Response) {
-                            handleResponse(page as Page<ContentType.Response>, clientHandler)
-                        } else {
-                            handleCasual(page as Page<ContentType.HtmlElements>, clientHandler, target)
-                        }
-                }
-
                 else -> {
-                    handleDynamic(requestDTO, query)
-                        ?: run {
-                            val page = RouteCheck.nullPage
-                            page.queries = query
-                            page.request = requestDTO
-                            page.middlewareProcessBefore(requestDTO.toResult())
-                                ?: when (page.contentType) {
-                                    ContentType.Response::class -> (page!!.content() as ContentType.Response).response
-                                    else ->
-                                        buildResponse {
-                                            status = 404
-                                            statusText = "Not Found"
-                                            headers {
-                                                put("Content-Type", "text/html")
-                                                put("Connection", "close")
+                    val staticPage = routes[target]
+                    if (staticPage != null) {
+                        val page = staticPage
+                        page.queries = query
+                        page.request = requestDTO
+
+                        page.middlewareProcessBefore(requestDTO.toResult())
+                            ?: if (page.content() is ContentType.Response) {
+                                handleResponse(page as Page<ContentType.Response>, clientHandler)
+                            } else {
+                                handleCasual(page as Page<ContentType.HtmlElements>, clientHandler, target)
+                            }
+                    } else {
+                        handleDynamic(requestDTO, query)
+                            ?: run {
+                                val page = RouteCheck.nullPage
+                                page.queries = query
+                                page.request = requestDTO
+                                page.middlewareProcessBefore(requestDTO.toResult())
+                                    ?: when (page.contentType) {
+                                        ContentType.Response::class -> (page!!.content() as ContentType.Response).response
+                                        else ->
+                                            buildResponse {
+                                                status = 404
+                                                statusText = "Not Found"
+                                                headers {
+                                                    put("Content-Type", "text/html")
+                                                    put("Connection", "close")
+                                                }
+                                                body =
+                                                    "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${(
+                                                        RouteCheck.nullPage
+                                                            .content() as ContentType.HtmlElements
+                                                    ).htmlElement.render()}</body></html>"
                                             }
-                                            body =
-                                                "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${(
-                                                    RouteCheck.nullPage
-                                                        .content() as ContentType.HtmlElements
-                                                ).htmlElement.render()}</body></html>"
-                                        }
-                                }
-                        }
+                                    }
+                            }
+                    }
                 }
             }
 
@@ -200,7 +217,8 @@ class Router :
         middlewareProcessAfter(
             response.toResult(),
         )
-        client.getOutputStream().writeHTTP(
+        val out = client.getOutputStream()
+        out.writeHTTP(
             response,
             clientHandler.server.httpVersion,
         )
