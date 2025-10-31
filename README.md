@@ -23,6 +23,7 @@ Void is a small, unopinionated framework you can embed into your app. It provide
 - In-memory page caching via @Cacheable
 
 Quick links
+
 - Security policy: SECURITY.md
 - Roadmap/TODO: TODO.md
 - Contributing guide: CONTRIBUTING.md
@@ -33,10 +34,12 @@ Quick links
 ## Get started
 
 Requirements
+
 - Java 17+
 - Kotlin 2.2.10 (Gradle Kotlin DSL recommended)
 
 ### Installation (JitPack)
+
 Add the repository and dependency:
 
 ```kotlin
@@ -51,6 +54,7 @@ dependencies {
 ```
 
 ### Hello, Void
+
 Create a minimal server with one HTML route and one API route:
 
 ```kotlin
@@ -85,29 +89,41 @@ Then open http://localhost:8080.
 ## Principles
 
 #### Unopinionated
-Void doesn’t force a particular logging, DI, templating, or persistence stack. Compose apps using functions and small DSLs. Middleware integrates via a simple interception mechanism.
+
+Void doesn’t force a particular logging, DI, templating, or persistence stack. Compose apps using functions and small
+DSLs. Middleware integrates via a simple interception mechanism.
 
 #### Asynchronous
+
 Request handling uses Kotlin coroutines under the hood to keep I/O non-blocking with a straightforward API.
 
 #### Testable
-Pages and routers can be constructed and invoked in tests without spinning up external containers. You can exercise handlers directly or run the tiny server in integration tests.
+
+Pages and routers can be constructed and invoked in tests without spinning up external containers. You can exercise
+handlers directly or run the tiny server in integration tests.
 
 ## Documentation
+
 Until a dedicated site is available, see this README and the test module for examples. Core entry points:
+
 - io.void.router.router { }
 - io.void.html.page.htmlRoute / apiRoute / dynamicHtmlRoute / dynamicApiRoute
 - io.void.server.server { }
 
 ## Reporting Issues / Support
+
 - File bugs and feature requests using GitHub Issues.
 - For questions, Discussions or StackOverflow (tag: kotlin) are recommended.
 
 ## Reporting Security Vulnerabilities
+
 Please follow the process in SECURITY.md for private disclosure.
 
 ## Contributing
-We welcome contributions of all kinds. Before large changes, please open an issue to discuss direction. Keep PRs focused; add tests or examples where appropriate.
+
+We welcome contributions of all kinds. Before large changes, please open an issue to discuss direction. Keep PRs
+focused; add tests or examples where appropriate.
 
 ## License
+
 MIT — see LICENSE for details.

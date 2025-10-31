@@ -23,7 +23,7 @@ function sendRequest(el, method, url, opts = {}) {
         }
     }
 
-    const headers = { ...defaultHeaders, ...customHeaders };
+    const headers = {...defaultHeaders, ...customHeaders};
 
     // Show indicator if specified
     if (indicator) {

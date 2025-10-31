@@ -16,7 +16,8 @@ For example: "The tree generation logic is too deeply nested and mixes data and 
 ### Describe the rewrite you'd like
 
 A clear and concise description of what you want to happen.  
-For example: "Split the generation into a `TreeShapeBuilder` and `TreeBlockPlacer`, and move random logic into a utility."
+For example: "Split the generation into a `TreeShapeBuilder` and `TreeBlockPlacer`, and move random logic into a
+utility."
 
 ---
 

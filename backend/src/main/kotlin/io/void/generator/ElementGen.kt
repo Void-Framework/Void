@@ -72,20 +72,22 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
             "Normal" -> {
                 val HElement = name.startsWith("h", true) && name[name.length - 1].digitToIntOrNull() != null
                 kotlinCode.append(
-                    "\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = \"${name.lowercase()}\")${if (HElement) {
-                        ", HElement"
-                    } else {
-                        ""
-                    }
+                    "\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit): ElementWithChildren(name = \"${name.lowercase()}\")${
+                        if (HElement) {
+                            ", HElement"
+                        } else {
+                            ""
+                        }
                     } {\n",
                 )
                 kotlinCode.insert(
                     startLength,
-                    "import io.void.html.Element\nimport io.void.html.ElementWithChildren\n${if (HElement) {
-                        "import io.void.html.HElement\n"
-                    } else {
-                        ""
-                    }
+                    "import io.void.html.Element\nimport io.void.html.ElementWithChildren\n${
+                        if (HElement) {
+                            "import io.void.html.HElement\n"
+                        } else {
+                            ""
+                        }
                     }",
                 )
                 val childrenBuilder = StringBuilder("null")
@@ -114,10 +116,12 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
                     "    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf($childrenBuilder)\n",
                 )
             }
+
             "Void" -> {
                 kotlinCode.append("\nclass $name(vararg attributes: Attribute): SelfClosingElement(\"${name.lowercase()}\") {\n")
                 kotlinCode.insert(startLength, "import io.void.html.SelfClosingElement\nimport io.void.html.Element\n")
             }
+
             else -> throw UnsupportedOperationException()
         }
 
@@ -130,9 +134,11 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
                     "        val ${name.capitalize()} = ${name.capitalize()}(\n            attributes = attribute,\n            function = _children\n        )\n" +
                     "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n"
             }
+
             "Void" -> {
                 kotlinCode.append("\n    init {\n        addAttributes(*attributes)\n    }\n\n")
-                extension = "    fun Element.${name.capitalize()}(vararg attribute: Attribute): ${name.capitalize()} {\n" +
+                extension =
+                    "    fun Element.${name.capitalize()}(vararg attribute: Attribute): ${name.capitalize()} {\n" +
                     "        val ${name.capitalize()} = ${name.capitalize()}(\n            attributes = attribute\n        )\n" +
                     "        children!!.add(${name.capitalize()})\n        return ${name.capitalize()}\n    }\n"
             }

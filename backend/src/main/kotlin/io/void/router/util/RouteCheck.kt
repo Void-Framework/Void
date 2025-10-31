@@ -2,11 +2,7 @@ package io.void.router.util
 
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
-import io.void.html.page.ExceptionPage
-import io.void.html.page.NotFoundPage
-import io.void.html.page.Page
-import io.void.html.page.exceptionPage
-import io.void.html.page.notFoundPage
+import io.void.html.page.*
 import io.void.router.exceptions.RouteNoTargetException
 import io.void.router.exceptions.RouteTargetUsedException
 import java.util.concurrent.ConcurrentHashMap

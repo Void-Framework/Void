@@ -1,6 +1,7 @@
 # Security Policy
 
-This document describes how to report vulnerabilities, what versions are supported with fixes, and guidance for using Void securely.
+This document describes how to report vulnerabilities, what versions are supported with fixes, and guidance for using
+Void securely.
 
 ## Supported Versions
 
@@ -8,8 +9,8 @@ We currently provide security updates for the latest release line.
 
 | Version | Supported |
 |--------:|:---------:|
-| latest  | ✅ |
-| older   | ❌ |
+|  latest |     ✅     |
+|   older |     ❌     |
 
 If you are using an older version, please upgrade to the latest release.
 
@@ -23,6 +24,7 @@ Please report security issues privately so we can triage and fix them before pub
 - If the issue involves a third-party dependency, note the dependency and version
 
 We will:
+
 - Acknowledge your report within 48 hours
 - Provide an initial assessment within 5 business days
 - Coordinate a fix and release, and credit reporters who request it
@@ -37,20 +39,23 @@ We will:
 
 - Scope: code in this repository and official modules under the io.void.* namespace
 - Out of scope: issues exclusively in downstream applications built with Void
-- Safe Harbor: we will not initiate legal action for good-faith research and reporting that follows this policy and avoids privacy violations and service disruption
+- Safe Harbor: we will not initiate legal action for good-faith research and reporting that follows this policy and
+  avoids privacy violations and service disruption
 
 ## Security Guidance for Users
 
 - Always use HTTPS in production; consider enabling the HTTPS server with a valid certificate
 - Validate and sanitize user input; middleware can help implement cross-cutting checks
-- Set security-related HTTP headers in responses (e.g., X-Content-Type-Options, Content-Security-Policy) via middleware or response builders
+- Set security-related HTTP headers in responses (e.g., X-Content-Type-Options, Content-Security-Policy) via middleware
+  or response builders
 - Keep dependencies updated (consider Dependabot/GitHub Alerts)
 - If exposing the admin or developer endpoints, protect them behind authentication
 
 ## Contact and PGP
 
 - Primary: jadeczjade008@gmail.com
-- If you require encrypted communication, open an issue requesting a PGP key exchange (do not include vulnerability details in that issue)
+- If you require encrypted communication, open an issue requesting a PGP key exchange (do not include vulnerability
+  details in that issue)
 
 ## License
 

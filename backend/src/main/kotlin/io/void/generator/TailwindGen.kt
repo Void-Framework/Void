@@ -1,6 +1,8 @@
 package io.void.generator
 
 import io.void.api.CssPage
+import io.void.generator.TailwindGen.grabTailwind
+import io.void.generator.TailwindGen.processTailwind
 import io.void.html.Element
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
@@ -28,20 +30,22 @@ object TailwindGen {
             .build()
 
     // Tailwind default breakpoints (v3)
-    private val breakpoints = mapOf(
-        "sm" to "(min-width: 640px)",
-        "md" to "(min-width: 768px)",
-        "lg" to "(min-width: 1024px)",
-        "xl" to "(min-width: 1280px)",
-        "2xl" to "(min-width: 1536px)"
-    )
+    private val breakpoints =
+        mapOf(
+            "sm" to "(min-width: 640px)",
+            "md" to "(min-width: 768px)",
+            "lg" to "(min-width: 1024px)",
+            "xl" to "(min-width: 1280px)",
+            "2xl" to "(min-width: 1536px)",
+        )
 
     // Supported state variants
-    private val statePseudos = mapOf(
-        "hover" to ":hover",
-        "focus" to ":focus",
-        "active" to ":active"
-    )
+    private val statePseudos =
+        mapOf(
+            "hover" to ":hover",
+            "focus" to ":focus",
+            "active" to ":active",
+        )
 
     /**
      * Fetches Tailwind CSS and stores its raw content. Called at startup or on demand to refresh.
@@ -98,7 +102,8 @@ object TailwindGen {
         val sb = StringBuilder()
 
         // 1) include some global rules always (html, body, *, ::before, ::after)
-        val globalRegex = Regex("""(^|[\s,])(?:html|body|\*|::before|::after)[^{]*\{[^}]*\}""", RegexOption.DOT_MATCHES_ALL)
+        val globalRegex =
+            Regex("""(^|[\s,])(?:html|body|\*|::before|::after)[^{]*\{[^}]*\}""", RegexOption.DOT_MATCHES_ALL)
         for (m in globalRegex.findAll(resourceFile)) {
             sb.append(m.value).append("\n")
         }
@@ -156,35 +161,42 @@ object TailwindGen {
         val valueRaw = m.groupValues[2] // e.g., 7px, 1rem, 10%
         val value = if (neg && !valueRaw.startsWith("-")) "-$valueRaw" else valueRaw
 
-        val (properties, shorthand) = when (key[0]) {
-            'm' -> mapMarginPaddingProperties('m', key)
-            'p' -> mapMarginPaddingProperties('p', key)
-            else -> return null
-        }
+        val (properties, shorthand) =
+            when (key[0]) {
+                'm' -> mapMarginPaddingProperties('m', key)
+                'p' -> mapMarginPaddingProperties('p', key)
+                else -> return null
+            }
 
         val selectorBase = normalizeClassToSelector(rawClass)
         val pseudo = state?.let { statePseudos[it] } ?: ""
         val selector = selectorBase + pseudo
 
-        val declarations = buildString {
-            if (shorthand != null) {
-                append("$shorthand: $value;")
-            } else {
-                properties.forEachIndexed { idx, prop ->
-                    if (idx > 0) append(' ')
-                    append("$prop: $value;")
+        val declarations =
+            buildString {
+                if (shorthand != null) {
+                    append("$shorthand: $value;")
+                } else {
+                    properties.forEachIndexed { idx, prop ->
+                        if (idx > 0) append(' ')
+                        append("$prop: $value;")
+                    }
                 }
             }
-        }
 
         val rule = "$selector{$declarations}"
         return if (media != null) {
             val mq = breakpoints[media]
             "@media $mq{$rule}"
-        } else rule
+        } else {
+            rule
+        }
     }
 
-    private fun mapMarginPaddingProperties(kind: Char, key: String): Pair<List<String>, String?> {
+    private fun mapMarginPaddingProperties(
+        kind: Char,
+        key: String,
+    ): Pair<List<String>, String?> {
         val baseProp = if (kind == 'm') "margin" else "padding"
         return when (key) {
             "m", "p" -> emptyList<String>() to baseProp // shorthand property
