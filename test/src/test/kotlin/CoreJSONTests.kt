@@ -12,11 +12,15 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CoreJSONTests {
-
     @Serializable
-    data class Foo(val a: Int = 1, val b: String = "x")
+    data class Foo(
+        val a: Int = 1,
+        val b: String = "x",
+    )
 
-    class NotSerializable(val a: Int)
+    class NotSerializable(
+        val a: Int,
+    )
 
     @Test
     fun json_roundtrip_default_and_pretty() {
@@ -58,10 +62,11 @@ class CoreJSONTests {
     @Test
     fun detect_format_and_parse_body() {
         val bodyJson = Foo(11, "eleven").toJson().getOrThrow()
-        val reqJson: RequestDTO = buildRequest {
-            headers["Content-Type"] = "application/json"
-            body = bodyJson
-        }
+        val reqJson: RequestDTO =
+            buildRequest {
+                headers["Content-Type"] = "application/json"
+                body = bodyJson
+            }
         assertEquals(Format.JSON, reqJson.detectFormat())
         val parsed = reqJson.parseBody<Foo>().getOrThrow()
         assertEquals(11, parsed.a)

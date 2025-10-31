@@ -25,7 +25,10 @@ internal object Cache {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     /** Populates/refreshes cache entries for the given [routes] and schedules recomputation if applicable. */
-    internal fun cacheRoute(routes: Map<Page<*>, Int>, recompute: RecomputeFlag) {
+    internal fun cacheRoute(
+        routes: Map<Page<*>, Int>,
+        recompute: RecomputeFlag,
+    ) {
         routes.forEach { (route, duration) ->
             try {
                 putInCache(route to duration, recompute)
@@ -36,7 +39,10 @@ internal object Cache {
     }
 
     /** Renders page output and stores it in the cache, then sets up refresh if needed. */
-    private fun putInCache(route: Pair<Page<*>, Int>, recompute: RecomputeFlag) {
+    private fun putInCache(
+        route: Pair<Page<*>, Int>,
+        recompute: RecomputeFlag,
+    ) {
         val (page, duration) = route
         if (page.contentType != ContentType.Response::class) {
             val metadata = page.metadata
@@ -62,7 +68,10 @@ internal object Cache {
     }
 
     /** Schedules periodic cache refresh for the given [route] if [duration] > 0. */
-    private fun handleCache(route: Pair<Page<*>, Int>, recompute: RecomputeFlag) {
+    private fun handleCache(
+        route: Pair<Page<*>, Int>,
+        recompute: RecomputeFlag,
+    ) {
         val (page, duration) = route
         if (duration <= 0) return
         scope.launch {
@@ -86,4 +95,6 @@ internal object Cache {
  * Mutable flag controlling whether cached entries keep being recomputed.
  * Set [value] to false to stop the refresh loop and evict the entry on the next check.
  */
- data class RecomputeFlag(@Volatile var value: Boolean)
+data class RecomputeFlag(
+    @Volatile var value: Boolean,
+)

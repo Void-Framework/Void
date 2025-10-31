@@ -9,19 +9,19 @@ import io.jadiefication.routes.user.userRoute
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.html.page.apiRoute
+import io.void.json.fromJson
 import io.void.router.router
 import io.void.server.Server
 import io.void.server.server
 import io.void.server.simpleServer
 import kotlinx.coroutines.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
-import io.void.json.fromJson
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerialName
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -49,7 +49,12 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @Serializable
-private data class SetterMeta(val registered: Boolean, val languages: List<String>, val profile: Map<String, String>)
+private data class SetterMeta(
+    val registered: Boolean,
+    val languages: List<String>,
+    val profile: Map<String, String>,
+)
+
 @Serializable
 private data class SetterDTO(
     val name: String,
@@ -61,12 +66,27 @@ private data class SetterDTO(
     val emptyList: List<String> = emptyList(),
     val emptyMap: Map<String, String> = emptyMap(),
 )
+
 @Serializable
-private data class EchoDTO(val path: String, val query: Map<String, String>, val hasQuery: Boolean)
+private data class EchoDTO(
+    val path: String,
+    val query: Map<String, String>,
+    val hasQuery: Boolean,
+)
+
 @Serializable
-private data class UserDTO(val id: String, val name: String, val email: String)
+private data class UserDTO(
+    val id: String,
+    val name: String,
+    val email: String,
+)
+
 @Serializable
-private data class SearchDTO(val path: String, val category: String? = null, val query: Map<String, String>)
+private data class SearchDTO(
+    val path: String,
+    val category: String? = null,
+    val query: Map<String, String>,
+)
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RouteTests {
