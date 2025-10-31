@@ -13,6 +13,13 @@ plugins {
 java {
     withSourcesJar()
     withJavadocJar()
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {

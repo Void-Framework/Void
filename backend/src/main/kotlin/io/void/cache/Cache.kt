@@ -10,16 +10,21 @@ import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Simple in-memory page response cache with optional timed invalidation.
+ * In-memory cache for rendered page responses with optional periodic recomputation.
  *
- * Pages annotated with [io.void.cache.Cacheable] are registered via [CacheProcessor]
- * with their invalidation duration in milliseconds.
+ * Usage:
+ * - Pages are registered with a duration (milliseconds) controlling refresh cadence.
+ * - For HTML pages ([ContentType.HtmlElements]), the page is rendered to a complete HTML document.
+ * - For API pages ([ContentType.Response]), the produced [ResponseDTO] is cached directly.
+ * - If duration <= 0, the response is cached once and not refreshed.
+ * - Refreshing continues while [RecomputeFlag.value] is true; when it becomes false, the entry is removed.
  */
 internal object Cache {
+    /** Internal store keyed by page target path. */
     internal val cache: ConcurrentHashMap<String, ResponseDTO> = ConcurrentHashMap()
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    /** Populates/refreshes cache entries for the given [routes] and schedules invalidation. */
+    /** Populates/refreshes cache entries for the given [routes] and schedules recomputation if applicable. */
     internal fun cacheRoute(routes: Map<Page<*>, Int>, recompute: RecomputeFlag) {
         routes.forEach { (route, duration) ->
             try {
@@ -77,4 +82,8 @@ internal object Cache {
     operator fun get(route: String): ResponseDTO? = cache[route]
 }
 
-data class RecomputeFlag(@Volatile var value: Boolean)
+/**
+ * Mutable flag controlling whether cached entries keep being recomputed.
+ * Set [value] to false to stop the refresh loop and evict the entry on the next check.
+ */
+ data class RecomputeFlag(@Volatile var value: Boolean)
