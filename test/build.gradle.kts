@@ -4,6 +4,17 @@
 
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization") version "2.2.0"
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
@@ -12,7 +23,6 @@ dependencies {
     api(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
-    testImplementation(libs.org.json.json)
     testImplementation("org.bouncycastle:bcpkix-jdk18on:1.82")
 }
 
