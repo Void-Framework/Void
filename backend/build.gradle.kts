@@ -5,6 +5,7 @@
 plugins {
     kotlin("jvm")
     `maven-publish`
+    kotlin("plugin.serialization") version "2.2.0"
 }
 
 java {
@@ -16,6 +17,8 @@ dependencies {
     api(libs.org.jetbrains.kotlin.kotlin.stdlib)
     api(libs.org.jetbrains.kotlin.kotlin.reflect)
     api(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
+    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.9.0")
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
 }
