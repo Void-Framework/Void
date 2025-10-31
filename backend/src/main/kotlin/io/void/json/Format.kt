@@ -13,5 +13,5 @@ enum class Format {
     JSON,
     CBOR,
     XML,
-    TEXT
+    TEXT,
 }

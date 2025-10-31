@@ -33,17 +33,19 @@ import kotlin.reflect.full.findAnnotation
  */
 object JsonConfigs {
     /** Default JSON config: ignores unknown keys and encodes default values. */
-    val default = Json {
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-    }
+    val default =
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
 
     /** Pretty-printing JSON config with the same semantics as [default]. */
-    val pretty = Json {
-        prettyPrint = true
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-    }
+    val pretty =
+        Json {
+            prettyPrint = true
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
 }
 
 /**
@@ -53,16 +55,20 @@ object JsonConfigs {
  * the background refresh loop stops and the cached entry is removed.
  */
 context(page: Page<*>)
-fun cache(duration: Int, recompute: RecomputeFlag = RecomputeFlag(true)) {
+fun cache(
+    duration: Int,
+    recompute: RecomputeFlag = RecomputeFlag(true),
+) {
     page.request = buildRequest { }
     Cache.cacheRoute(mapOf(page to duration), recompute)
 }
 
 /** Serializes this object to a JSON string using either [JsonConfigs.default] or [JsonConfigs.pretty]. */
-inline fun <reified T : Any> T.toJson(pretty: Boolean = false): Result<String> = runCatching {
-    val json = if (pretty) JsonConfigs.pretty else JsonConfigs.default
-    json.encodeToString(this)
-}
+inline fun <reified T : Any> T.toJson(pretty: Boolean = false): Result<String> =
+    runCatching {
+        val json = if (pretty) JsonConfigs.pretty else JsonConfigs.default
+        json.encodeToString(this)
+    }
 
 /** Deserializes this JSON string into type [T] using the default [Json] instance. */
 inline fun <reified T : Any> String.fromJson(): Result<T> = runCatching { Json.decodeFromString(this) }
@@ -101,11 +107,12 @@ fun RequestDTO.detectFormat(): Format =
  */
 fun Page<*>.autoSerialize(value: Any): ResponseDTO {
     val accept = request.headers["Accept"] ?: "application/json"
-    val body = when {
-        "application/json" in accept -> value.toJson()
-        "application/xml" in accept -> value.toXml()
-        else -> value.toString()
-    }
+    val body =
+        when {
+            "application/json" in accept -> value.toJson()
+            "application/xml" in accept -> value.toXml()
+            else -> value.toString()
+        }
 
     return buildResponse {
         headers["Content-Type"] = accept
@@ -114,7 +121,10 @@ fun Page<*>.autoSerialize(value: Any): ResponseDTO {
 }
 
 /** Writes JSON representation of this object to the given [path]. Creates the file if needed. */
-inline fun <reified T : Any> T.toJsonFile(pretty: Boolean = false, path: Path) {
+inline fun <reified T : Any> T.toJsonFile(
+    pretty: Boolean = false,
+    path: Path,
+) {
     Files.createFile(path)
     Files.write(path, this.toJson(pretty).getOrNull()!!.toByteArray())
 }
@@ -123,11 +133,13 @@ inline fun <reified T : Any> T.toJsonFile(pretty: Boolean = false, path: Path) {
 inline fun <reified T : Any> File.fromJsonFile(): Result<T> = this.readText().fromJson()
 
 /** Encodes this object's JSON string to Base64. */
-inline fun <reified T : Any> T.toJson64(): Result<String> = runCatching { Base64.getEncoder().encodeToString(this.toJson().getOrNull()!!.toByteArray()) }
+inline fun <reified T : Any> T.toJson64(): Result<String> =
+    runCatching {
+        Base64.getEncoder().encodeToString(this.toJson().getOrNull()!!.toByteArray())
+    }
 
 /** Decodes a Base64-encoded JSON string into type [T]. */
 inline fun <reified T : Any> String.fromJson64(): Result<T> = String(Base64.getDecoder().decode(this)).fromJson()
 
 /** Returns true if this instance's class is annotated with [Serializable]. */
 inline fun <reified T : Any> T.canSerialize(): Boolean = this::class.findAnnotation<Serializable>() != null
-

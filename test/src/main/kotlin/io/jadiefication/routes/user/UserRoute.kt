@@ -7,7 +7,11 @@ import io.void.json.toJson
 import kotlinx.serialization.Serializable
 
 @Serializable
-private data class UserDTO(val id: String, val name: String, val email: String)
+private data class UserDTO(
+    val id: String,
+    val name: String,
+    val email: String,
+)
 
 val userRoute =
     dynamicApiRoute("/users/{id}/{name?}") {
@@ -21,11 +25,12 @@ val userRoute =
                 body = """{"error":"Invalid user ID"}"""
             }
         } else {
-            val payload = UserDTO(
-                id = userId,
-                name = "User $userId",
-                email = "${name ?: "user"}$userId@example.com",
-            )
+            val payload =
+                UserDTO(
+                    id = userId,
+                    name = "User $userId",
+                    email = "${name ?: "user"}$userId@example.com",
+                )
             ok<String>(
                 body = payload.toJson().getOrThrow(),
                 headers = mutableMapOf("Content-Type" to "application/json"),
