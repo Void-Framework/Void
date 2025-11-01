@@ -3,35 +3,19 @@
 This document breaks down the evolution plan into actionable, bite‑sized tasks you can convert into GitHub issues and
 branches.
 
-Last updated: 2025-10-11 15:34
+Milestone 1 — KTS experience and routing foundation
 
-Conventions
-
-- Labels suggestion: area/dsl, area/state, area/client, area/router, area/perf, area/tooling, area/security,
-  kind/feature, kind/refactor, kind/docs, good-first-issue.
-- Branch naming: feature/<short-topic>, chore/<short-topic>, fix/<short-topic>.
-- Estimates are rough person‑day ranges.
-
-Milestone 1 — KTS experience and routing foundation (2–3 weeks)
-
-1. Type‑safe routing DSL core (get/post/put/delete)
-    - Implement router { get("/path") { ... } } API surface. (area/dsl, kind/feature, 2–3d)
-    - Add typed path parameter helpers: path<T>("id"). (area/dsl, kind/feature, 1–2d)
-    - Add before/after middleware references by KClass. (area/router, kind/feature, 1–2d)
-    - Backwards‑compat shim to existing PageHandler/on(path). (area/router, kind/refactor, 1d)
-2. Response helpers and content DSL
-    - ok(), notFound(), redirect(), fileDownload() helpers mapping to ResponseDTO. (area/dsl, kind/feature, 1d)
-    - HTML page builder sugar: page(title) { head { … } body { … } }. (area/dsl, kind/feature, 2d)
-3. Error handling improvements
+1. Response helpers and content DSL
+    - fileDownload() helper mapping to ResponseDTO. (area/dsl, kind/feature, 0.5–1d)
+2. Error handling improvements
     - Enrich IExceptionPage with request id, route info, middleware chain, headers. (area/router, kind/feature, 1–2d)
     - Structured logging with traceId header. (area/tooling, kind/feature, 1d)
-4. Validation at build time (KSP groundwork)
+3. Validation at build time (KSP groundwork)
     - KSP processor skeleton scanning router {} blocks. (area/tooling, kind/feature, 2–3d)
     - Emit warnings for duplicate paths/unreachable routes; generate routes.json. (area/tooling, kind/feature, 2d)
-5. Gradle ergonomics
-    - Minimal Gradle tasks: tailwindGen, assetsBundle (placeholder), devServer (proxy TBD). (area/tooling, kind/feature,
-      1–2d)
-6. TailwindGen manifest
+4. Gradle ergonomics — moved to Milestone 3
+    - See Milestone 3 → Bundler/dev workflow (tailwindGen, assetsBundle, devServer).
+5. TailwindGen manifest
     - Extend TailwindGen to emit manifest with hashed filenames. (area/tooling, kind/feature, 1d)
 
 Milestone 2 — Server‑authoritative reactive state (2–3 weeks)
@@ -68,6 +52,8 @@ Milestone 3 — Client DSL: Kotlin/JS IR + RPC (3–4 weeks)
       kind/feature, 2–3d)
     - Backend dev server proxies /assets to the Kotlin/JS dev server in dev (HMR via Gradle tasks). (area/tooling,
       kind/feature, 2d)
+    - Gradle ergonomics: tailwindGen, assetsBundle (placeholder), devServer (proxy). (area/tooling, kind/feature, 1–2d)
+    - Tailwind pipeline rewrite with ability to exclude KTS and Tailwind; config switches. (area/tooling, kind/feature, 2d)
 4. SSR + hydration demo
     - Server renders HTML; client hydrates a mounted component using useAtom. (area/client, kind/feature, 2d)
 
@@ -89,6 +75,8 @@ Milestone 6 — Performance & caching (1–2 weeks)
 1. SSR fragment/page cache with TTL and vary by user/locale. (area/perf, kind/feature, 2–3d)
 2. Data loader layer for N+1 (request‑scoped batching). (area/perf, kind/feature, 2–3d)
 3. Streaming HTML (chunked) support. (area/perf, kind/feature, 2–3d)
+4. Cache layer refactor for clarity and testability. (area/perf, kind/refactor, 1–2d)
+5. Cache invalidation correctness and regression tests. (area/perf, kind/fix, 1–2d)
 
 Milestone 7 — Tooling and DX (1–2 weeks)
 
@@ -128,13 +116,11 @@ Housekeeping & CI
 
 Suggested GitHub issues (titles + branch names)
 
-- [M1] Implement type‑safe routing DSL core — feature/routing-dsl
-- [M1] Typed path params and middleware KClass references — feature/typed-params-middleware
-- [M1] Response helpers (ok, notFound, redirect, fileDownload) — feature/response-helpers
+- [M1] fileDownload helper — feature/file-download-helper
 - [M1] Error page enrich + structured logging — feature/error-page-context
 - [M1] KSP: router validation + routes.json — feature/ksp-router-validation
-- [M1] Gradle tasks: tailwindGen, assetsBundle, devServer — feature/gradle-tasks
 - [M1] Tailwind manifest generation — feature/tailwind-manifest
+- [M1] Query parsing semantics (duplicate keys, empty vs missing, no decode) — docs/query-parsing-semantics
 - [M2] Server atoms and store primitives — feature/server-atoms
 - [M2] WebSocket state channel with snapshots/patches — feature/state-ws
 - [M2] Hydration bridge (SSR snapshot embed) — feature/hydration-bridge
@@ -142,6 +128,8 @@ Suggested GitHub issues (titles + branch names)
 - [M3] Kotlin/JS client runtime (@void/client-kt) — feature/kotlinjs-client-runtime
 - [M3] RPC annotation + KSP Kotlin/JS client stubs — feature/rpc-kotlinjs-codegen
 - [M3] Dev workflow: Kotlin/JS + backend proxy — feature/dev-hmr-kotlinjs
+- [M3] Gradle ergonomics: tailwindGen, assetsBundle, devServer — feature/gradle-tasks
+- [M3] Tailwind pipeline rewrite + exclusions — feature/tailwind-pipeline-rewrite
 - [M3] SSR + hydration demo page — feature/ssr-hydration-demo
 - [M4] SDUI attributes and fragments — feature/sdui-primitives
 - [M5] Route groups and content negotiation — feature/router-polish
@@ -170,23 +158,6 @@ Note: These examples illustrate the target developer experience (DX). Some APIs 
 their respective milestones. Examples assume Kotlin on both server and client (Kotlin/JS IR).
 
 Milestone 1 — KTS experience and routing foundation
-
-- Type‑safe routing DSL core and typed params
-  ```kotlin
-  val app = router {
-      get("/users/{id}") {
-          val id: Int = path("id") // typed param extraction
-          before(Auth::class)       // middleware reference by KClass
-          ok(html(UserPage(id)))
-      }
-
-      post("/users") {
-          val input = jsonBody<UserCreate>()
-          val created = userService.create(input)
-          created(json(UserCreatedDTO(created.id)))
-      }
-  }
-  ```
 
 - Response helpers and content DSL
   ```kotlin
