@@ -24,6 +24,9 @@ data class ResponseDTO(
 ) {
     var headers = mutableMapOf<String, String>()
 
+    internal lateinit var _request: RequestDTO
+    val request: RequestDTO = _request
+
     /** Factory and helper functions for building JSON strings (legacy) and typed ResponseDTOs. */
     companion object {
         private fun generateJson(keyAndValue: Map<String, Any?>) {
