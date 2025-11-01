@@ -5,17 +5,10 @@ branches.
 
 Milestone 1 — KTS experience and routing foundation
 
-1. Response helpers and content DSL
-    - fileDownload() helper mapping to ResponseDTO. (area/dsl, kind/feature, 0.5–1d)
-2. Error handling improvements
-    - Enrich IExceptionPage with request id, route info, middleware chain, headers. (area/router, kind/feature, 1–2d)
-    - Structured logging with traceId header. (area/tooling, kind/feature, 1d)
-3. Validation at build time (KSP groundwork)
+1. Validation at build time (KSP groundwork)
     - KSP processor skeleton scanning router {} blocks. (area/tooling, kind/feature, 2–3d)
     - Emit warnings for duplicate paths/unreachable routes; generate routes.json. (area/tooling, kind/feature, 2d)
-4. Gradle ergonomics — moved to Milestone 3
-    - See Milestone 3 → Bundler/dev workflow (tailwindGen, assetsBundle, devServer).
-5. TailwindGen manifest
+2. TailwindGen manifest
     - Extend TailwindGen to emit manifest with hashed filenames. (area/tooling, kind/feature, 1d)
 
 Milestone 2 — Server‑authoritative reactive state (2–3 weeks)
@@ -116,11 +109,8 @@ Housekeeping & CI
 
 Suggested GitHub issues (titles + branch names)
 
-- [M1] fileDownload helper — feature/file-download-helper
-- [M1] Error page enrich + structured logging — feature/error-page-context
 - [M1] KSP: router validation + routes.json — feature/ksp-router-validation
 - [M1] Tailwind manifest generation — feature/tailwind-manifest
-- [M1] Query parsing semantics (duplicate keys, empty vs missing, no decode) — docs/query-parsing-semantics
 - [M2] Server atoms and store primitives — feature/server-atoms
 - [M2] WebSocket state channel with snapshots/patches — feature/state-ws
 - [M2] Hydration bridge (SSR snapshot embed) — feature/hydration-bridge
@@ -158,50 +148,6 @@ Note: These examples illustrate the target developer experience (DX). Some APIs 
 their respective milestones. Examples assume Kotlin on both server and client (Kotlin/JS IR).
 
 Milestone 1 — KTS experience and routing foundation
-
-- Response helpers and content DSL
-  ```kotlin
-  get("/download/report") {
-      val bytes = reportService.generate()
-      fileDownload(bytes, filename = "report.csv")
-  }
-
-  get("/old") { redirect(seeOther("/new")) }
-
-  get("/missing") { notFound(html(ErrorPage("Nope"))) }
-
-  page("Users") {
-      meta { description = "Users listing" }
-      head {
-          includeTailwind() // reads TailwindGen manifest in M1-6
-          script(module = jsModule("app"))
-      }
-      body {
-          container {
-              h1("Users")
-              mount(UserListComponent()) // SSR + hydrate later in M3
-          }
-      }
-  }
-  ```
-
-- Error handling improvements (exception page context)
-  ```kotlin
-  class MyExceptionPage : IExceptionPage {
-      override var e: Exception? = null
-      override val newPage = ExceptionPageContext(
-          statusCode = 500,
-          statusMessage = "Internal Error",
-          headers = headersOf("X-TraceId" to request.traceId)
-      )
-
-      override val page: String get() = buildHtml {
-          h1 { +"Oops" }
-          pre { +e?.message.orEmpty() }
-          small { +"traceId: ${'$'}{request.traceId}" }
-      }
-  }
-  ```
 
 - Gradle ergonomics (tasks)
   ```bash
