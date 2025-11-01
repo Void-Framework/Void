@@ -5,17 +5,15 @@ branches.
 
 Milestone 1 — KTS experience and routing foundation
 
-1. Response helpers and content DSL
-    - fileDownload() helper mapping to ResponseDTO. (area/dsl, kind/feature, 0.5–1d)
-2. Error handling improvements
+1. Error handling improvements
     - Enrich IExceptionPage with request id, route info, middleware chain, headers. (area/router, kind/feature, 1–2d)
     - Structured logging with traceId header. (area/tooling, kind/feature, 1d)
-3. Validation at build time (KSP groundwork)
+2. Validation at build time (KSP groundwork)
     - KSP processor skeleton scanning router {} blocks. (area/tooling, kind/feature, 2–3d)
     - Emit warnings for duplicate paths/unreachable routes; generate routes.json. (area/tooling, kind/feature, 2d)
-4. Gradle ergonomics — moved to Milestone 3
+3. Gradle ergonomics — moved to Milestone 3
     - See Milestone 3 → Bundler/dev workflow (tailwindGen, assetsBundle, devServer).
-5. TailwindGen manifest
+4. TailwindGen manifest
     - Extend TailwindGen to emit manifest with hashed filenames. (area/tooling, kind/feature, 1d)
 
 Milestone 2 — Server‑authoritative reactive state (2–3 weeks)
@@ -116,7 +114,6 @@ Housekeeping & CI
 
 Suggested GitHub issues (titles + branch names)
 
-- [M1] fileDownload helper — feature/file-download-helper
 - [M1] Error page enrich + structured logging — feature/error-page-context
 - [M1] KSP: router validation + routes.json — feature/ksp-router-validation
 - [M1] Tailwind manifest generation — feature/tailwind-manifest
