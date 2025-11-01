@@ -14,13 +14,28 @@ import java.util.*
  *
  * Fields include the HTTP [method], request [target] (path + optional query),
  * request [headers], and raw [body].
+ *
+ * Attributes map:
+ * - [attributes] provides a per-request scratchpad for middleware and handlers to attach
+ *   arbitrary data (e.g., a trace ID). Keys are convention-based; prefer small, unique names
+ *   or extension properties (see `RequestDTO.traceId`).
  */
 data class RequestDTO(
+    /** HTTP method of the request (GET, POST, ...). */
     val method: Method,
+    /** Path and optional query (e.g., "/users?id=1"). */
     val target: String,
+    /** Immutable view of request headers (first-value per name). */
     val headers: Map<String, String>,
+    /** Raw request body as a string. */
     val body: String,
 ) {
+    /**
+     * Per-request, mutable bag for attaching values during processing.
+     * Intended for internal use by middleware and handlers.
+     */
+    val attributes: MutableMap<String, Any> = mutableMapOf()
+
     companion object {
         /**
          * Parses an incoming HTTP request from the given [inputStream] into a [RequestDTO].

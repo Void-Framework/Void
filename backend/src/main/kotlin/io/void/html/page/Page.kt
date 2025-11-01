@@ -126,7 +126,7 @@ abstract class Page<T : ContentType>(
      * Runs all registered [RelayAfter] middlewares with the produced [response].
      */
     internal fun middlewareProcessAfter(response: Result<ResponseDTO>) {
-        relaysBefore.forEach {
+        relaysAfter.forEach {
             (it as? RelayAfter)?.processAfter(response)
         }
     }
