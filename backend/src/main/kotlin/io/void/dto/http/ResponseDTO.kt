@@ -33,6 +33,7 @@ data class ResponseDTO(
      * Set internally by the router so middleware can correlate requests and responses.
      */
     internal lateinit var _request: RequestDTO
+
     /** Public accessor for the originating request; valid after routing sets it. */
     val request: RequestDTO
         get() = _request
