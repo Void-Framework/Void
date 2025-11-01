@@ -20,7 +20,6 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
 class LoggingRelayTest {
-
     private fun freePort(): Int = ServerSocket(0).use { it.localPort }
 
     private class CapturingLogger : Logger {
@@ -28,70 +27,306 @@ class LoggingRelayTest {
         var lastArgs: Array<out Any?>? = null
 
         override fun getName(): String = "capturing"
+
         override fun isTraceEnabled(): Boolean = false
+
         override fun trace(msg: String?) {}
-        override fun trace(format: String?, arg: Any?) {}
-        override fun trace(format: String?, arg1: Any?, arg2: Any?) {}
-        override fun trace(format: String?, vararg arguments: Any?) {}
-        override fun trace(msg: String?, t: Throwable?) {}
+
+        override fun trace(
+            format: String?,
+            arg: Any?,
+        ) {}
+
+        override fun trace(
+            format: String?,
+            arg1: Any?,
+            arg2: Any?,
+        ) {}
+
+        override fun trace(
+            format: String?,
+            vararg arguments: Any?,
+        ) {}
+
+        override fun trace(
+            msg: String?,
+            t: Throwable?,
+        ) {}
+
         override fun isTraceEnabled(marker: Marker?): Boolean = false
-        override fun trace(marker: Marker?, msg: String?) {}
-        override fun trace(marker: Marker?, format: String?, arg: Any?) {}
-        override fun trace(marker: Marker?, format: String?, arg1: Any?, arg2: Any?) {}
-        override fun trace(marker: Marker?, format: String?, vararg arguments: Any?) {}
-        override fun trace(marker: Marker?, msg: String?, t: Throwable?) {}
+
+        override fun trace(
+            marker: Marker?,
+            msg: String?,
+        ) {}
+
+        override fun trace(
+            marker: Marker?,
+            format: String?,
+            arg: Any?,
+        ) {}
+
+        override fun trace(
+            marker: Marker?,
+            format: String?,
+            arg1: Any?,
+            arg2: Any?,
+        ) {}
+
+        override fun trace(
+            marker: Marker?,
+            format: String?,
+            vararg arguments: Any?,
+        ) {}
+
+        override fun trace(
+            marker: Marker?,
+            msg: String?,
+            t: Throwable?,
+        ) {}
 
         override fun isDebugEnabled(): Boolean = false
+
         override fun debug(msg: String?) {}
-        override fun debug(format: String?, arg: Any?) {}
-        override fun debug(format: String?, arg1: Any?, arg2: Any?) {}
-        override fun debug(format: String?, vararg arguments: Any?) {}
-        override fun debug(msg: String?, t: Throwable?) {}
+
+        override fun debug(
+            format: String?,
+            arg: Any?,
+        ) {}
+
+        override fun debug(
+            format: String?,
+            arg1: Any?,
+            arg2: Any?,
+        ) {}
+
+        override fun debug(
+            format: String?,
+            vararg arguments: Any?,
+        ) {}
+
+        override fun debug(
+            msg: String?,
+            t: Throwable?,
+        ) {}
+
         override fun isDebugEnabled(marker: Marker?): Boolean = false
-        override fun debug(marker: Marker?, msg: String?) {}
-        override fun debug(marker: Marker?, format: String?, arg: Any?) {}
-        override fun debug(marker: Marker?, format: String?, arg1: Any?, arg2: Any?) {}
-        override fun debug(marker: Marker?, format: String?, vararg arguments: Any?) {}
-        override fun debug(marker: Marker?, msg: String?, t: Throwable?) {}
+
+        override fun debug(
+            marker: Marker?,
+            msg: String?,
+        ) {}
+
+        override fun debug(
+            marker: Marker?,
+            format: String?,
+            arg: Any?,
+        ) {}
+
+        override fun debug(
+            marker: Marker?,
+            format: String?,
+            arg1: Any?,
+            arg2: Any?,
+        ) {}
+
+        override fun debug(
+            marker: Marker?,
+            format: String?,
+            vararg arguments: Any?,
+        ) {}
+
+        override fun debug(
+            marker: Marker?,
+            msg: String?,
+            t: Throwable?,
+        ) {}
 
         override fun isInfoEnabled(): Boolean = true
+
         override fun info(msg: String?) {}
-        override fun info(format: String?, arg: Any?) { lastMessage = format; lastArgs = arrayOf(arg) }
-        override fun info(format: String?, arg1: Any?, arg2: Any?) { lastMessage = format; lastArgs = arrayOf(arg1, arg2) }
-        override fun info(format: String?, vararg arguments: Any?) { lastMessage = format; lastArgs = arguments }
-        override fun info(msg: String?, t: Throwable?) {}
+
+        override fun info(
+            format: String?,
+            arg: Any?,
+        ) {
+            lastMessage = format
+            lastArgs = arrayOf(arg)
+        }
+
+        override fun info(
+            format: String?,
+            arg1: Any?,
+            arg2: Any?,
+        ) {
+            lastMessage = format
+            lastArgs = arrayOf(arg1, arg2)
+        }
+
+        override fun info(
+            format: String?,
+            vararg arguments: Any?,
+        ) {
+            lastMessage = format
+            lastArgs = arguments
+        }
+
+        override fun info(
+            msg: String?,
+            t: Throwable?,
+        ) {}
+
         override fun isInfoEnabled(marker: Marker?): Boolean = true
-        override fun info(marker: Marker?, msg: String?) {}
-        override fun info(marker: Marker?, format: String?, arg: Any?) { info(format, arg) }
-        override fun info(marker: Marker?, format: String?, arg1: Any?, arg2: Any?) { info(format, arg1, arg2) }
-        override fun info(marker: Marker?, format: String?, vararg arguments: Any?) { info(format, *arguments) }
-        override fun info(marker: Marker?, msg: String?, t: Throwable?) {}
+
+        override fun info(
+            marker: Marker?,
+            msg: String?,
+        ) {}
+
+        override fun info(
+            marker: Marker?,
+            format: String?,
+            arg: Any?,
+        ) {
+            info(format, arg)
+        }
+
+        override fun info(
+            marker: Marker?,
+            format: String?,
+            arg1: Any?,
+            arg2: Any?,
+        ) {
+            info(format, arg1, arg2)
+        }
+
+        override fun info(
+            marker: Marker?,
+            format: String?,
+            vararg arguments: Any?,
+        ) {
+            info(format, *arguments)
+        }
+
+        override fun info(
+            marker: Marker?,
+            msg: String?,
+            t: Throwable?,
+        ) {}
 
         override fun isWarnEnabled(): Boolean = false
+
         override fun warn(msg: String?) {}
-        override fun warn(format: String?, arg: Any?) {}
-        override fun warn(format: String?, arg1: Any?, arg2: Any?) {}
-        override fun warn(format: String?, vararg arguments: Any?) {}
-        override fun warn(msg: String?, t: Throwable?) {}
+
+        override fun warn(
+            format: String?,
+            arg: Any?,
+        ) {}
+
+        override fun warn(
+            format: String?,
+            arg1: Any?,
+            arg2: Any?,
+        ) {}
+
+        override fun warn(
+            format: String?,
+            vararg arguments: Any?,
+        ) {}
+
+        override fun warn(
+            msg: String?,
+            t: Throwable?,
+        ) {}
+
         override fun isWarnEnabled(marker: Marker?): Boolean = false
-        override fun warn(marker: Marker?, msg: String?) {}
-        override fun warn(marker: Marker?, format: String?, arg: Any?) {}
-        override fun warn(marker: Marker?, format: String?, arg1: Any?, arg2: Any?) {}
-        override fun warn(marker: Marker?, format: String?, vararg arguments: Any?) {}
-        override fun warn(marker: Marker?, msg: String?, t: Throwable?) {}
+
+        override fun warn(
+            marker: Marker?,
+            msg: String?,
+        ) {}
+
+        override fun warn(
+            marker: Marker?,
+            format: String?,
+            arg: Any?,
+        ) {}
+
+        override fun warn(
+            marker: Marker?,
+            format: String?,
+            arg1: Any?,
+            arg2: Any?,
+        ) {}
+
+        override fun warn(
+            marker: Marker?,
+            format: String?,
+            vararg arguments: Any?,
+        ) {}
+
+        override fun warn(
+            marker: Marker?,
+            msg: String?,
+            t: Throwable?,
+        ) {}
 
         override fun isErrorEnabled(): Boolean = false
+
         override fun error(msg: String?) {}
-        override fun error(format: String?, arg: Any?) {}
-        override fun error(format: String?, arg1: Any?, arg2: Any?) {}
-        override fun error(format: String?, vararg arguments: Any?) {}
-        override fun error(msg: String?, t: Throwable?) {}
+
+        override fun error(
+            format: String?,
+            arg: Any?,
+        ) {}
+
+        override fun error(
+            format: String?,
+            arg1: Any?,
+            arg2: Any?,
+        ) {}
+
+        override fun error(
+            format: String?,
+            vararg arguments: Any?,
+        ) {}
+
+        override fun error(
+            msg: String?,
+            t: Throwable?,
+        ) {}
+
         override fun isErrorEnabled(marker: Marker?): Boolean = false
-        override fun error(marker: Marker?, msg: String?) {}
-        override fun error(marker: Marker?, format: String?, arg: Any?) {}
-        override fun error(marker: Marker?, format: String?, arg1: Any?, arg2: Any?) {}
-        override fun error(marker: Marker?, format: String?, vararg arguments: Any?) {}
-        override fun error(marker: Marker?, msg: String?, t: Throwable?) {}
+
+        override fun error(
+            marker: Marker?,
+            msg: String?,
+        ) {}
+
+        override fun error(
+            marker: Marker?,
+            format: String?,
+            arg: Any?,
+        ) {}
+
+        override fun error(
+            marker: Marker?,
+            format: String?,
+            arg1: Any?,
+            arg2: Any?,
+        ) {}
+
+        override fun error(
+            marker: Marker?,
+            format: String?,
+            vararg arguments: Any?,
+        ) {}
+
+        override fun error(
+            marker: Marker?,
+            msg: String?,
+            t: Throwable?,
+        ) {}
     }
 
     @Test
@@ -100,30 +335,34 @@ class LoggingRelayTest {
         val logger = CapturingLogger()
         server {
             this.port = port
-            router = router {
-                +logBefore
-                +logAfter(logger)
-                val route = apiRoute("/logging") { request ->
-                    buildResponse<String> {
-                        status = 201
-                        statusText = "Created"
-                        body = ""
-                        headers {
-                            put("X-Trace-Id", request.traceId)
+            router =
+                router {
+                    +logBefore
+                    +logAfter(logger)
+                    val route =
+                        apiRoute("/logging") { request ->
+                            buildResponse<String> {
+                                status = 201
+                                statusText = "Created"
+                                body = ""
+                                headers {
+                                    put("X-Trace-Id", request.traceId)
+                                }
+                            }
                         }
-                    }
+                    +route
                 }
-                +route
-            }
         }
 
         // make a client request
         val client = HttpClient.newHttpClient()
-        val req = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:$port/logging"))
-            .header("X-Trace-Id", "abc-123")
-            .POST(HttpRequest.BodyPublishers.noBody())
-            .build()
+        val req =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$port/logging"))
+                .header("X-Trace-Id", "abc-123")
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build()
         val res = client.send(req, HttpResponse.BodyHandlers.ofString())
 
         assertEquals(201, res.statusCode())
@@ -143,28 +382,32 @@ class LoggingRelayTest {
         val logger = CapturingLogger()
         server {
             this.port = port
-            router = router {
-                +logBefore
-                +logAfter(logger)
-                val route = apiRoute("/logging") { request ->
-                    buildResponse<String> {
-                        status = 200
-                        statusText = "OK"
-                        body = ""
-                        headers {
-                            put("X-Trace-Id", request.traceId)
+            router =
+                router {
+                    +logBefore
+                    +logAfter(logger)
+                    val route =
+                        apiRoute("/logging") { request ->
+                            buildResponse<String> {
+                                status = 200
+                                statusText = "OK"
+                                body = ""
+                                headers {
+                                    put("X-Trace-Id", request.traceId)
+                                }
+                            }
                         }
-                    }
+                    +route
                 }
-                +route
-            }
         }
 
         val client = HttpClient.newHttpClient()
-        val req = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:$port/logging"))
-            .GET()
-            .build()
+        val req =
+            HttpRequest
+                .newBuilder()
+                .uri(URI.create("http://localhost:$port/logging"))
+                .GET()
+                .build()
         val res = client.send(req, HttpResponse.BodyHandlers.ofString())
 
         assertEquals(200, res.statusCode())
