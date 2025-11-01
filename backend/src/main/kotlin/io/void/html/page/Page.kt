@@ -14,6 +14,7 @@ import io.void.router.Router
 import io.void.router.listResourcePaths
 import io.void.router.readResourceText
 import java.util.*
+import kotlin.collections.sortedByDescending
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -86,21 +87,25 @@ abstract class Page<T : ContentType>(
     /** Registers a middleware to run before the page handler by class reference. */
     fun before(relay: KClass<RelayBefore>) {
         relaysBefore.add(relay.createInstance())
+        relaysBefore.sortedByDescending { it.priority }
     }
 
     /** Registers a middleware instance to run before the page handler. */
     fun before(relay: RelayBefore) {
         relaysBefore.add(relay)
+        relaysBefore.sortedByDescending { it.priority }
     }
 
     /** Registers a middleware to run after the page handler by class reference. */
     fun after(relay: KClass<RelayAfter>) {
         relaysAfter.add(relay.createInstance())
+        relaysAfter.sortedByDescending { it.priority }
     }
 
     /** Registers a middleware instance to run after the page handler. */
     fun after(relay: RelayAfter) {
         relaysAfter.add(relay)
+        relaysAfter.sortedByDescending { it.priority }
     }
 
     /**

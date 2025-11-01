@@ -1,7 +1,10 @@
 package io.void.dto.http
 
+import java.io.File
 import java.io.OutputStream
 import java.io.PrintWriter
+import java.net.URLConnection
+import java.nio.file.Files
 import kotlin.reflect.full.memberProperties
 
 /** JSON key/value map used by legacy JSON builder utilities. */
@@ -471,3 +474,17 @@ inline fun <reified T> gatewayTimeout(
         this.body = body
         this.headers = headers
     }
+
+fun fileDownload(file: File, contentType: String? = null): ResponseDTO = buildResponse {
+    status = 200
+    statusText = "OK"
+    headers {
+        put("Content-Type", contentType ?: guessContentType(file))
+        put("Content-Disposition", "attachment; filename=\"${file.name}\"")
+    }
+    body = file.readBytes() // or InputStream for streaming
+}
+
+fun guessContentType(file: File): String = Files.probeContentType(file.toPath())
+    ?: URLConnection.guessContentTypeFromName(file.name)
+    ?: "application/octet-stream"
