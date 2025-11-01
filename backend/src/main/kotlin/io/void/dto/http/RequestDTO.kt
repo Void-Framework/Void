@@ -21,6 +21,8 @@ data class RequestDTO(
     val headers: Map<String, String>,
     val body: String,
 ) {
+    val attributes: MutableMap<String, Any> = mutableMapOf()
+
     companion object {
         /**
          * Parses an incoming HTTP request from the given [inputStream] into a [RequestDTO].
