@@ -153,7 +153,7 @@ class Router :
                 emptyMap()
             }
         val response =
-            when {
+            middlewareProcessBefore(requestDTO.toResult()) ?: when {
                 requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target) -> {
                     val page = ktsResponsePages[target] as KtsPage
                     page.queries = query
@@ -215,6 +215,8 @@ class Router :
                     }
                 }
             }
+
+        response._request = requestDTO
 
         val page = ktsResponsePages[target] ?: routes[target] ?: RouteCheck.nullPage as? Page<*>
         page?.middlewareProcessAfter(response.toResult())

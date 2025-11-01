@@ -21,11 +21,25 @@ typealias Headers = MutableMap<String, String>
  * - [body] is a [ResponseBody] wrapping either a String or ByteArray payload.
  */
 data class ResponseDTO(
+    /** Numeric HTTP status code (e.g., 200, 404). */
     var status: Int,
+    /** Short reason phrase for the status line (e.g., "OK"). */
     var statusText: String,
+    /** Response body wrapper, either [ResponseBody.StringBody] or [ResponseBody.ByteArrayBody]. */
     var body: ResponseBody<*>,
 ) {
+    /** Mutable map of response headers. "Content-Length" will be added if missing during write. */
     var headers = mutableMapOf<String, String>()
+
+    /**
+     * Back-reference to the originating [RequestDTO].
+     * Set internally by the router so middleware can correlate requests and responses.
+     */
+    internal lateinit var _request: RequestDTO
+
+    /** Public accessor for the originating request; valid after routing sets it. */
+    val request: RequestDTO
+        get() = _request
 
     /** Factory and helper functions for building JSON strings (legacy) and typed ResponseDTOs. */
     companion object {
