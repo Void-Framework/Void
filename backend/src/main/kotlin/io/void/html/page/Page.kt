@@ -27,8 +27,8 @@ import kotlin.reflect.full.createInstance
 abstract class Page<T : ContentType>(
     open val target: String,
 ) {
-    /** Maps elements to CSS class lists to apply at render time. */
-    val classAttributes: MutableMap<Element, List<String>> = mutableMapOf()
+    /** List of css classes. */
+    val classAttributes: MutableList<String> = mutableListOf()
 
     /** The current request bound to this page during handling. */
     lateinit var request: RequestDTO

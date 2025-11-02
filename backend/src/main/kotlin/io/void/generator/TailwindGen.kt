@@ -13,6 +13,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.util.*
+import kotlin.reflect.KProperty
 
 /**
  * Extracts only the Tailwind CSS rules actually used by a page and serves them as a scoped stylesheet.
@@ -67,7 +68,7 @@ object TailwindGen {
     ) {
         // reuse putInTailwind to populate page.classAttributes
         if (element.attributes.containsKey("class")) {
-            page.classAttributes[element] = element.attributes["class"].split("\\s+".toRegex())
+            page.classAttributes.addAll(element.attributes["class"].split("\\s+".toRegex()))
         }
         element.children?.forEach {
             handleElements(it, page)
@@ -234,12 +235,10 @@ object TailwindGen {
      */
     private fun collectClassSelectors(page: Page<ContentType.HtmlElements>): Set<String> {
         val classes = mutableSetOf<String>()
-        page.classAttributes.forEach { (_, list) ->
-            list.forEach { raw ->
-                val trimmed = raw.trim()
-                if (trimmed.isNotEmpty()) {
-                    classes.add(normalizeClassToSelector(trimmed))
-                }
+        page.classAttributes.forEach { raw ->
+            val trimmed = raw.trim()
+            if (trimmed.isNotEmpty()) {
+                classes.add(normalizeClassToSelector(trimmed))
             }
         }
         return classes
@@ -251,12 +250,10 @@ object TailwindGen {
      */
     private fun collectRawClasses(page: Page<ContentType.HtmlElements>): Set<String> {
         val classes = mutableSetOf<String>()
-        page.classAttributes.forEach { (_, list) ->
-            list.forEach { raw ->
-                val trimmed = raw.trim()
-                if (trimmed.isNotEmpty()) {
-                    classes.add(trimmed)
-                }
+        page.classAttributes.forEach { raw ->
+            val trimmed = raw.trim()
+            if (trimmed.isNotEmpty()) {
+                classes.add(trimmed)
             }
         }
         return classes
@@ -330,3 +327,14 @@ fun <T> List<Pair<T, *>>.containsKey(key: T): Boolean = any { it.first == key }
  * Retrieves the second component for the first pair whose first component equals [key].
  */
 operator fun <N, M> List<Pair<N, M>>.get(key: N): M = first { it.first == key }.second
+
+
+data class TailwindString(
+    val classes: String
+) {
+
+    operator fun provideDelegate(ref: Page<ContentType.HtmlElements>, property: KProperty<*>): String {
+        ref.classAttributes.addAll(classes.split("\\s+".toRegex()))
+        return classes
+    }
+}

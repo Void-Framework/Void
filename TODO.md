@@ -3,14 +3,6 @@
 This document breaks down the evolution plan into actionable, bite‑sized tasks you can convert into GitHub issues and
 branches.
 
-Milestone 1 — KTS experience and routing foundation
-
-1. Validation at build time (KSP groundwork)
-    - KSP processor skeleton scanning router {} blocks. (area/tooling, kind/feature, 2–3d)
-    - Emit warnings for duplicate paths/unreachable routes; generate routes.json. (area/tooling, kind/feature, 2d)
-2. TailwindGen manifest
-    - Extend TailwindGen to emit manifest with hashed filenames. (area/tooling, kind/feature, 1d)
-
 Milestone 2 — Server‑authoritative reactive state (2–3 weeks)
 
 1. Reactive store primitives
@@ -109,8 +101,6 @@ Housekeeping & CI
 
 Suggested GitHub issues (titles + branch names)
 
-- [M1] KSP: router validation + routes.json — feature/ksp-router-validation
-- [M1] Tailwind manifest generation — feature/tailwind-manifest
 - [M2] Server atoms and store primitives — feature/server-atoms
 - [M2] WebSocket state channel with snapshots/patches — feature/state-ws
 - [M2] Hydration bridge (SSR snapshot embed) — feature/hydration-bridge
@@ -146,22 +136,6 @@ Code examples: how to use each feature
 
 Note: These examples illustrate the target developer experience (DX). Some APIs are placeholders to be implemented in
 their respective milestones. Examples assume Kotlin on both server and client (Kotlin/JS IR).
-
-Milestone 1 — KTS experience and routing foundation
-
-- Gradle ergonomics (tasks)
-  ```bash
-  ./gradlew tailwindGen
-  ./gradlew assetsBundle
-  ./gradlew devServer -Dvoid.env=dev
-  ```
-
-- TailwindGen manifest usage in page head
-  ```kotlin
-  head {
-      includeTailwind() // resolves to /assets/tailwind-<hash>.css
-  }
-  ```
 
 Milestone 2 — Server‑authoritative reactive state
 
