@@ -10,7 +10,6 @@ import java.nio.file.StandardWatchEventKinds
 import kotlin.concurrent.thread
 
 class VoidPlugin : Plugin<Project> {
-
     override fun apply(project: Project) {
         project.tasks.register("devWatch") {
             group = "void"

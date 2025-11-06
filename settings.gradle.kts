@@ -28,5 +28,3 @@ dependencyResolutionManagement {
 rootProject.name = "void-framework"
 include(":test")
 include(":backend")
-
-include("gradle-plugin")

@@ -45,3 +45,12 @@ publishing {
         }
     }
 }
+
+gradlePlugin {
+    plugins {
+        create("voidHotReload") {
+            id = "io.void.hotreload"
+            implementationClass = "io.void.gradle.VoidPlugin"
+        }
+    }
+}

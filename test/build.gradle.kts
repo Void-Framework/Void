@@ -5,6 +5,7 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization") version "2.2.0"
+    id("io.void.hotreload")
 }
 
 java {
