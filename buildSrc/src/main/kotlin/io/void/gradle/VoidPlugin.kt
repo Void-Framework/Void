@@ -1,64 +1,132 @@
 package io.void.gradle
 
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.tooling.GradleConnector
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-import java.io.File
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardWatchEventKinds
-import java.nio.file.WatchService
-import kotlin.concurrent.thread
+import java.nio.file.*
 import kotlin.io.path.absolute
 import kotlin.io.path.extension
 
 class VoidPlugin : Plugin<Project> {
+
     override fun apply(project: Project) {
         project.tasks.register("devWatch") {
             group = "void"
             description = "Run development hot reload watcher"
 
             doLast {
-                val kotlinExt = project.extensions
-                    .findByType(KotlinProjectExtension::class.java)
+                val kotlinExt = project.extensions.findByType(KotlinProjectExtension::class.java)
                 val sourceDirs = kotlinExt?.sourceSets
                     ?.flatMap { it.kotlin.srcDirs }
-                    ?.filter { it.exists() }
-                    ?: emptyList()
+                    ?.filter { it.exists() } ?: emptyList()
+
+                if (sourceDirs.isEmpty()) {
+                    println("⚠️ No Kotlin source directories found")
+                    return@doLast
+                }
 
                 val watcher = FileSystems.getDefault().newWatchService()
-                sourceDirs.forEach { dir ->
-                    dir.toPath().registerAll(watcher)
-                }
+                sourceDirs.forEach { it.toPath().registerAll(watcher) }
 
-                thread {
-                    while (true) {
-                        val key = watcher.take()
-                        key.pollEvents().forEach { e ->
-                            val changedFile = (key.watchable() as Path).resolve(e.context() as Path)
+                val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+                val compilationMutex = Mutex()
+                var isCompiling = false
+                var pendingCompilation: Job? = null
+                val debounceDelayMs = 300L // Wait 300ms for events to settle
+
+                scope.launch {
+                    println("👀 Watching Kotlin sources for changes...")
+                    while (isActive) {
+                        val key = watcher.take() // blocking
+                        var changed = false
+
+                        for (event in key.pollEvents()) {
+                            val kind = event.kind()
+                            if (kind == StandardWatchEventKinds.OVERFLOW) continue
+
+                            val changedFile = (key.watchable() as Path).resolve(event.context() as Path)
                             if (changedFile.extension == "kt") {
-                                println("💡 Changed: $changedFile")
+                                println("💡 Kotlin file changed: $changedFile")
+                                changed = true
+                            }
 
-                                ProcessBuilder("gradle", "compileKotlin").inheritIO().start()
+                            // if a new directory is created, register it recursively
+                            if (kind == StandardWatchEventKinds.ENTRY_CREATE && Files.isDirectory(changedFile)) {
+                                println("📁 New dir created -> registering recursively: $changedFile")
+                                changedFile.registerAll(watcher)
                             }
                         }
+
                         key.reset()
+
+                        if (changed) {
+                            // Cancel any pending compilation
+                            pendingCompilation?.cancel()
+                            
+                            // Schedule a new compilation after debounce delay
+                            pendingCompilation = scope.launch {
+                                delay(debounceDelayMs)
+                                
+                                // Check if we can compile
+                                if (compilationMutex.tryLock()) {
+                                    try {
+                                        if (!isCompiling) {
+                                            isCompiling = true
+                                            try {
+                                                println("⚡ Running incremental compileKotlin…")
+                                                val connector = GradleConnector.newConnector()
+                                                    .useBuildDistribution()
+                                                    .forProjectDirectory(project.rootDir)
+                                                
+                                                connector.connect().use { connection ->
+                                                    connection.newBuild()
+                                                        .forTasks("compileKotlin")
+                                                        .setStandardOutput(System.out)
+                                                        .setStandardError(System.err)
+                                                        .run()
+                                                }
+                                                println("✅ compileKotlin finished")
+                                            } catch (e: Exception) {
+                                                println("❌ Compilation failed: ${e.message}")
+                                                e.printStackTrace()
+                                            } finally {
+                                                isCompiling = false
+                                            }
+                                        } else {
+                                            println("⏭️ Compilation already in progress, skipping...")
+                                        }
+                                    } finally {
+                                        compilationMutex.unlock()
+                                    }
+                                } else {
+                                    println("⏭️ Compilation already queued, skipping...")
+                                }
+                            }
+                        }
                     }
                 }
-                Thread.currentThread().join()
+
+                // keep the task alive
+                runBlocking { scope.coroutineContext[Job]?.join() }
             }
         }
     }
 
-    fun Path.registerAll(watcher: WatchService) {
-        Files.walk(this).filter { Files.isDirectory(it) }.forEach {
-            println("👀 Watching: ${it.absolute()}")
-            it.register(watcher, StandardWatchEventKinds.ENTRY_CREATE,
-                StandardWatchEventKinds.ENTRY_DELETE,
-                StandardWatchEventKinds.ENTRY_MODIFY)
-        }
+    private fun Path.registerAll(watcher: WatchService) {
+        Files.walk(this)
+            .filter { Files.isDirectory(it) }
+            .forEach {
+                println("👀 Watching: ${it.absolute()}")
+                it.register(
+                    watcher,
+                    StandardWatchEventKinds.ENTRY_CREATE,
+                    StandardWatchEventKinds.ENTRY_DELETE,
+                    StandardWatchEventKinds.ENTRY_MODIFY
+                )
+            }
     }
-
 }
