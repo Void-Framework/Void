@@ -11,6 +11,7 @@ import io.void.html.page.Page
 import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.html.page.dynamic.Path
+import io.void.router.Router
 import io.void.router.toResult
 import java.util.concurrent.ConcurrentHashMap
 
@@ -85,7 +86,19 @@ internal interface RequestHandler {
             body =
                 """
                 <!doctype html><html>
-                <head>${page.metadata?.render() ?: ""}</head>
+                <head>${page.metadata?.render() ?: ""}${
+                    if (Router.devServer) {
+                        "<script>\n" +
+                                "                            const ws = new WebSocket(\"ws://localhost:35729/reload\");\n" +
+                                "                            ws.onmessage = (event) => {\n" +
+                                "                                if (event.data === \"reload\") {\n" +
+                                "                                    location.reload();\n" +
+                                "                                }\n" +
+                                "                            };</script>".trimIndent()
+                    } else {
+                        ""
+                    }
+                }</head>
                 <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
                 </html>
                 """.trimIndent()

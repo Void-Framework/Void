@@ -17,6 +17,7 @@ import io.void.middleware.RelayBefore
 import io.void.router.page.PageHandler
 import io.void.router.util.RequestHandler
 import io.void.router.util.RouteCheck
+import org.jetbrains.annotations.ApiStatus
 import java.io.File
 import java.net.URLDecoder
 import java.util.*
@@ -33,6 +34,12 @@ import java.util.jar.JarFile
 class Router :
     RouteCheck,
     RequestHandler {
+
+    companion object {
+        internal val devServer: Boolean
+            get() = System.getProperty("io.void.dev") == "true"
+    }
+
     private var internalRelay: List<Relay> = emptyList()
     val relay = mutableSetOf<Relay>()
 

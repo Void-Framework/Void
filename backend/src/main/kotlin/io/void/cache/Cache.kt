@@ -6,6 +6,7 @@ import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.html.page.Page
 import io.void.html.page.content.ContentType
+import io.void.router.Router
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -56,7 +57,17 @@ internal object Cache {
                     body =
                         """
                         <!doctype html><html>
-                        <head>${metadata?.render() ?: ""}</head>
+                        <head>${metadata?.render() ?: ""}${if (Router.devServer) {
+                            "<script>\n" +
+                                    "                            const ws = new WebSocket(\"ws://localhost:35729/reload\");\n" +
+                                    "                            ws.onmessage = (event) => {\n" +
+                                    "                                if (event.data === \"reload\") {\n" +
+                                    "                                    location.reload();\n" +
+                                    "                                }\n" +
+                                    "                            };</script>".trimIndent()
+                        } else {
+                            ""
+                        }}</head>
                         <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
                         </html>
                         """.trimIndent()
