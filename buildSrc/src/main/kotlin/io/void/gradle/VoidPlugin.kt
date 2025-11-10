@@ -1,5 +1,6 @@
 package io.void.gradle
 
+import io.void.ws.TinyWebSocketServer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -19,6 +20,8 @@ class VoidPlugin : Plugin<Project> {
             description = "Run development hot reload watcher"
 
             doLast {
+                TinyWebSocketServer.start()
+                System.setProperty("io.void.dev", "true")
                 val kotlinExt = project.extensions.findByType(KotlinProjectExtension::class.java)
                 val sourceDirs = kotlinExt?.sourceSets
                     ?.flatMap { it.kotlin.srcDirs }
@@ -90,6 +93,7 @@ class VoidPlugin : Plugin<Project> {
                                                         .run()
                                                 }
                                                 println("✅ compileKotlin finished")
+                                                TinyWebSocketServer.broadcast("reload")
                                             } catch (e: Exception) {
                                                 println("❌ Compilation failed: ${e.message}")
                                                 e.printStackTrace()
