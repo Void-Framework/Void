@@ -26,6 +26,13 @@ class Server internal constructor(
     private val router: Router,
     val httpVersion: Number = 1.1,
 ) {
+
+    companion object {
+        private val _servers = mutableSetOf<Server>()
+        val servers: Set<Server>
+            get() = _servers
+    }
+
     private lateinit var socket: ServerSocket
     private lateinit var httpsSocket: SSLServerSocket
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -37,6 +44,10 @@ class Server internal constructor(
     }
     var onServerSocketClose: (ServerSocket) -> Unit = {
         it.close()
+    }
+
+    init {
+        _servers.add(this)
     }
 
     /**
