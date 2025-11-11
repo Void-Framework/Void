@@ -4,7 +4,6 @@ import io.void.api.CssPage
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.html.Element
-import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import io.void.html.page.metadata.metadata
 import io.void.middleware.Relay
@@ -13,6 +12,7 @@ import io.void.middleware.RelayBefore
 import io.void.router.Router
 import io.void.router.listResourcePaths
 import io.void.router.readResourceText
+import io.void.util.createResponse
 import java.util.*
 import kotlin.collections.sortedByDescending
 import kotlin.reflect.KClass
@@ -24,7 +24,7 @@ import kotlin.reflect.full.createInstance
  *
  * @param target The router path this page responds to (e.g. "/search").
  */
-abstract class Page<T : ContentType>(
+abstract class Page(
     open val target: String,
 ) {
     /** List of css classes. */
@@ -32,9 +32,6 @@ abstract class Page<T : ContentType>(
 
     /** The current request bound to this page during handling. */
     lateinit var request: RequestDTO
-
-    /** The resulting content type produced by this page. */
-    abstract val contentType: KClass<T>
 
     /** Optional HTML metadata associated with this page. */
     abstract var metadata: Metadata?
@@ -52,13 +49,13 @@ abstract class Page<T : ContentType>(
     lateinit var queries: Map<String, String>
 
     /** Builds the concrete [ContentType] instance to be rendered or returned. */
-    abstract fun content(): T
+    abstract fun content(): ResponseDTO
 
     /**
      * Registers CSS resources by file name present under resources/css.
      * Returns this page for fluent configuration.
      */
-    operator fun invoke(vararg cssFileName: String): Page<T> {
+    operator fun invoke(vararg cssFileName: String): Page {
         listResourcePaths("css").forEach {
             if (it.split("/").last() in cssFileName) {
                 cssFiles.add(it)
@@ -136,14 +133,14 @@ abstract class Page<T : ContentType>(
  * Base type for pages rendered when an exception occurs during request handling.
  * The [exception] field is populated before [content] is evaluated.
  */
-abstract class ExceptionPage<T : ContentType> : Page<T>("") {
+abstract class ExceptionPage : Page("") {
     lateinit var exception: Exception
 }
 
 /**
  * Base type for pages rendered when a route cannot be resolved (HTTP 404).
  */
-abstract class NotFoundPage<T : ContentType> : Page<T>("")
+abstract class NotFoundPage : Page("")
 
 /**
  * Defines an HTML route at [path] with page-level [metadata] and a content [block]
@@ -152,14 +149,12 @@ abstract class NotFoundPage<T : ContentType> : Page<T>("")
 fun htmlRoute(
     path: String,
     metadata: Metadata.() -> Unit,
-    block: Page<ContentType.HtmlElements>.(RequestDTO) -> Element,
-): Page<ContentType.HtmlElements> =
-    object : Page<ContentType.HtmlElements>(target = path) {
-        private val _metadata = metadata(this) { }.apply(metadata)
-        override var metadata: Metadata? = _metadata
-        override val contentType = ContentType.HtmlElements::class
+    block: Page.(RequestDTO) -> Element,
+): Page =
+    object : Page(target = path) {
+        override var metadata: Metadata? = metadata(this) { }.apply(metadata)
 
-        override fun content() = ContentType.HtmlElements(block(request), _metadata)
+        override fun content() = createResponse(block(request), this.metadata!!)
     }
 
 /**
@@ -167,13 +162,12 @@ fun htmlRoute(
  */
 fun apiRoute(
     path: String,
-    block: Page<ContentType.Response>.(RequestDTO) -> ResponseDTO,
-): Page<ContentType.Response> =
-    object : Page<ContentType.Response>(target = path) {
+    block: Page.(RequestDTO) -> ResponseDTO,
+): Page =
+    object : Page(target = path) {
         override var metadata: Metadata? = null
-        override val contentType = ContentType.Response::class
 
-        override fun content() = ContentType.Response(block(request))
+        override fun content() = block(request)
     }
 
 /**
@@ -181,43 +175,39 @@ fun apiRoute(
  */
 fun exceptionPage(
     metadata: Metadata.() -> Unit,
-    block: ExceptionPage<ContentType.HtmlElements>.(Exception) -> Element,
-): ExceptionPage<ContentType.HtmlElements> =
-    object : ExceptionPage<ContentType.HtmlElements>() {
+    block: ExceptionPage.(Exception) -> Element,
+): ExceptionPage =
+    object : ExceptionPage() {
         private val _metadata = metadata(this) { }.apply(metadata)
         override var metadata: Metadata? = _metadata
-        override val contentType = ContentType.HtmlElements::class
 
-        override fun content() = ContentType.HtmlElements(block(exception), _metadata)
+        override fun content() = createResponse(block(exception), this.metadata!!)
     }
 
 /**
  * Defines an exception page that returns a raw [ResponseDTO] via [block].
  */
-fun exceptionPage(block: ExceptionPage<ContentType.Response>.(Exception) -> ResponseDTO): ExceptionPage<ContentType.Response> =
-    object : ExceptionPage<ContentType.Response>() {
+fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPage =
+    object : ExceptionPage() {
         override var metadata: Metadata? = null
-        override val contentType = ContentType.Response::class
 
-        override fun content() = ContentType.Response(block(exception))
+        override fun content() = block(exception)
     }
 
 fun notFoundPage(
     metadata: Metadata.() -> Unit,
-    block: NotFoundPage<ContentType.HtmlElements>.(RequestDTO) -> Element,
-): NotFoundPage<ContentType.HtmlElements> =
-    object : NotFoundPage<ContentType.HtmlElements>() {
+    block: NotFoundPage.(RequestDTO) -> Element,
+): NotFoundPage =
+    object : NotFoundPage() {
         private val _metadata = metadata(this) { }.apply(metadata)
         override var metadata: Metadata? = _metadata
-        override val contentType = ContentType.HtmlElements::class
 
-        override fun content() = ContentType.HtmlElements(block(request), _metadata)
+        override fun content() = createResponse(block(request), this.metadata!!)
     }
 
-fun notFoundPage(block: NotFoundPage<ContentType.Response>.(RequestDTO) -> ResponseDTO): NotFoundPage<ContentType.Response> =
-    object : NotFoundPage<ContentType.Response>() {
+fun notFoundPage(block: NotFoundPage.(RequestDTO) -> ResponseDTO): NotFoundPage =
+    object : NotFoundPage() {
         override var metadata: Metadata? = null
-        override val contentType = ContentType.Response::class
 
-        override fun content() = ContentType.Response(block(request))
+        override fun content() = block(request)
     }
