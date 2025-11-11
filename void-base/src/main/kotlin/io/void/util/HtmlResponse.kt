@@ -13,6 +13,12 @@ fun createResponse(element: Element, metadata: Metadata): ResponseDTO = ok("""
                         <body>${element.render()}</body>
                         </html>
                         """.trimIndent(), mutableMapOf("Content-Type" to "text/html"))
+    .apply {
+        attributes["Element"] = element
+    }
 
 
 fun createResponse(element: Element): ResponseDTO = ok(element.render().trimIndent(), mutableMapOf("Content-Type" to "text/html"))
+    .apply {
+        attributes["Element"] = element
+    }

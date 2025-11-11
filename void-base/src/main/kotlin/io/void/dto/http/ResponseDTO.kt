@@ -28,6 +28,12 @@ data class ResponseDTO(
     /** Response body wrapper, either [ResponseBody.StringBody] or [ResponseBody.ByteArrayBody]. */
     var body: ResponseBody<*>,
 ) {
+    /**
+     * Per-response, mutable bag for attaching values during processing.
+     * Intended for internal use by middleware and handlers.
+     */
+    val attributes: MutableMap<String, Any> = mutableMapOf()
+
     /** Mutable map of response headers. "Content-Length" will be added if missing during write. */
     var headers = mutableMapOf<String, String>()
 
