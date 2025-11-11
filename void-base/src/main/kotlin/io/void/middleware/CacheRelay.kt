@@ -11,7 +11,7 @@ import io.void.html.page.Page
  * The [recompute] flag controls whether the cache will be periodically recomputed. When set to `false`,
  * the background refresh loop stops and the cached entry is removed.
  */
-context(page: Page<*>)
+context(page: Page)
 fun cache(
     duration: Int,
     recompute: RecomputeFlag = RecomputeFlag(true),
