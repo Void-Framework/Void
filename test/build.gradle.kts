@@ -18,7 +18,7 @@ kotlin {
 }
 
 dependencies {
-    api(project(":backend"))
+    api(project(":void-base"))
     api(libs.org.jetbrains.kotlin.kotlin.stdlib)
     api(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
