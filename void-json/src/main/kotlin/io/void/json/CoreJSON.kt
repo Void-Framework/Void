@@ -88,7 +88,7 @@ fun RequestDTO.detectFormat(): Format =
  * Creates a [io.void.dto.http.ResponseDTO] by serializing [value] according to the request `Accept` header.
  * Defaults to `application/json` when the header is missing.
  */
-fun Page<*>.autoSerialize(value: Any): ResponseDTO {
+fun Page.autoSerialize(value: Any): ResponseDTO {
     val accept = request.headers["Accept"] ?: "application/json"
     val body =
         when {
