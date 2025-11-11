@@ -15,8 +15,8 @@ internal interface RouteCheck {
      * - Throws [io.void.router.exceptions.RouteNoTargetException] if the path does not start with "/".
      */
     fun handleTargetChecking(
-        route: Page<*>,
-        routes: ConcurrentHashMap<String, Page<*>>,
+        route: Page,
+        routes: ConcurrentHashMap<String, Page>,
     ) {
         if (routes.containsKey(route.target)) {
             throw RouteTargetUsedException(target = route.target)
@@ -34,7 +34,7 @@ internal interface RouteCheck {
      * These can be overridden by registering custom pages in the router.
      */
     companion object {
-        internal var exceptionPage: ExceptionPage<*> =
+        internal var exceptionPage: ExceptionPage =
             exceptionPage { e ->
                 return@exceptionPage buildResponse {
                     status = 500
@@ -126,7 +126,7 @@ internal interface RouteCheck {
                         "</html>"
                 }
             }
-        internal var nullPage: NotFoundPage<*> =
+        internal var nullPage: NotFoundPage =
             notFoundPage { request ->
                 return@notFoundPage buildResponse {
                     status = 404

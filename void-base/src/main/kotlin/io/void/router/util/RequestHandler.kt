@@ -8,7 +8,6 @@ import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.html.page.Page
-import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.html.page.dynamic.Path
 import io.void.router.toResult
@@ -19,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
  * responses for different page types (HTML, API, KTS, dynamic).
  */
 internal interface RequestHandler {
-    val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>>
+    val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage>
 
     companion object {
         private val segmentRegex = Regex("""^\{([^{}]+)}$""")
@@ -67,70 +66,19 @@ internal interface RequestHandler {
 
             val response = route.middlewareProcessBefore(requestDTO.toResult())
 
-            return response ?: when (route.contentType) {
-                ContentType.HtmlElements::class -> constructClassicResponse(route)
-                else -> (route.content() as ContentType.Response).response
-            }
+            return response ?: route.content()
         }
         return null
     }
 
-    fun <T : Page<*>> constructClassicResponse(page: T): ResponseDTO =
-        buildResponse {
-            status = 200
-            statusText = "All is well"
-            headers {
-                put("Content-Type", "text/html")
-            }
-            body =
-                """
-                <!doctype html><html>
-                <head>${page.metadata?.render() ?: ""}</head>
-                <body>${(page.content() as ContentType.HtmlElements).htmlElement.render()}</body>
-                </html>
-                """.trimIndent()
-        }
-
     fun handleResponse(
-        page: Page<ContentType.Response>,
+        page: Page,
         clientHandler: ClientHandler,
-    ): ResponseDTO = page.content().response
-
-    fun handleCasual(
-        page: Page<ContentType.HtmlElements>,
-        clientHandler: ClientHandler,
-        target: String,
-    ): ResponseDTO {
-        val client = clientHandler.client
-        return if (Cache.cache.containsKey(target)) {
-            Cache[target]!!
-        } else {
-            constructClassicResponse(
-                page = page,
-            )
-        }
-    }
-
-    fun handleKts(
-        page: KtsPage,
-        clientHandler: ClientHandler,
-    ): ResponseDTO {
-        val client = clientHandler.client
-        val response =
-            if (Cache.cache.containsKey(page.target)) {
-                Cache[page.target]!!
-            } else {
-                buildResponse {
-                    status = 200
-                    statusText = "All is well"
-                    headers {
-                        put("Content-Type", "text/html")
-                    }
-                    body =
-                        (page.content() as ContentType.HtmlElements).htmlElement.render().trimIndent()
-                }
-            }
-        return response
+        target: String
+    ): ResponseDTO = if (Cache.cache.containsKey(target)) {
+        Cache[target]!!
+    } else {
+        page.content()
     }
 }
 

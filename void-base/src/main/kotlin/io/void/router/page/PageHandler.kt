@@ -5,7 +5,6 @@ import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.emptyResponse
 import io.void.html.page.Page
-import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import kotlin.reflect.KClass
 
@@ -16,15 +15,14 @@ import kotlin.reflect.KClass
  */
 class PageHandler(
     override val target: String,
-) : Page<ContentType.Response>(
+) : Page(
         target = target,
     ) {
     override var metadata: Metadata? = null
-    override val contentType: KClass<ContentType.Response> = ContentType.Response::class
     private val responses = mutableMapOf<Method, (RequestDTO) -> ResponseDTO>()
 
     /** Returns the response from the registered handler for [request.method], or an empty response if none. */
-    override fun content(): ContentType.Response = ContentType.Response(responses[request.method]?.invoke(request) ?: emptyResponse())
+    override fun content(): ResponseDTO = responses[request.method]?.invoke(request) ?: emptyResponse()
 
     /** Registers a GET handler. */
     infix fun GET(body: (RequestDTO) -> ResponseDTO): PageHandler = apply { responses[Method.GET] = body }
