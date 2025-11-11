@@ -4,9 +4,9 @@ import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.html.Element
 import io.void.html.page.Page
-import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import io.void.html.page.metadata.metadata
+import io.void.util.createResponse
 
 typealias Path = String
 
@@ -19,9 +19,9 @@ typealias Path = String
  *
  * Resolved values are exposed via [data] or the index operator (e.g. this["id"]).
  */
-abstract class DynamicPage<T : ContentType>(
+abstract class DynamicPage(
     target: String,
-) : Page<T>(target = target) {
+) : Page(target = target) {
     internal var _data = mutableMapOf<Path, String>()
 
     /** Map of dynamic path segment name to value for the current request. */
@@ -32,20 +32,19 @@ abstract class DynamicPage<T : ContentType>(
 }
 
 /** Type-safe accessor for a dynamic path segment named [name], cast to [T] when possible. */
-inline fun <reified T : Any> DynamicPage<*>.path(name: String): T? = data[name] as? T
+inline fun <reified T : Any> DynamicPage.path(name: String): T? = data[name] as? T
 
 /**
  * Defines a dynamic API route at [path]. The [block] returns a [ResponseDTO] for the given request.
  */
 fun dynamicApiRoute(
     path: String,
-    block: DynamicPage<ContentType.Response>.(RequestDTO) -> ResponseDTO,
-): DynamicPage<ContentType.Response> =
-    object : DynamicPage<ContentType.Response>(target = path) {
+    block: DynamicPage.(RequestDTO) -> ResponseDTO,
+): DynamicPage =
+    object : DynamicPage(target = path) {
         override var metadata: Metadata? = null
-        override val contentType = ContentType.Response::class
 
-        override fun content() = ContentType.Response(block(request))
+        override fun content() = block(request)
     }
 
 /**
@@ -55,12 +54,11 @@ fun dynamicApiRoute(
 fun dynamicHtmlRoute(
     path: String,
     metadata: Metadata.() -> Unit,
-    block: DynamicPage<ContentType.HtmlElements>.(RequestDTO) -> Element,
-): DynamicPage<ContentType.HtmlElements> =
-    object : DynamicPage<ContentType.HtmlElements>(target = path) {
+    block: DynamicPage.(RequestDTO) -> Element,
+): DynamicPage =
+    object : DynamicPage(target = path) {
         private val _metadata = metadata(this) { }.apply(metadata)
         override var metadata: Metadata? = _metadata
-        override val contentType = ContentType.HtmlElements::class
 
-        override fun content() = ContentType.HtmlElements(block(request), _metadata)
+        override fun content() = createResponse(block(request), this.metadata!!)
     }
