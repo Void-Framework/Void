@@ -34,7 +34,7 @@ dependencies {
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
 }
 
-description = "backend"
+description = "void-base"
 
 publishing {
     publications {
