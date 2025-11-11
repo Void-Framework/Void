@@ -12,7 +12,7 @@ import java.util.*
  * Instances are normally created via [metadata] DSL and rendered into the <head> by the router.
  */
 class Metadata internal constructor(
-    page: Page<*>,
+    page: Page,
 ) {
     var title: String = "Void Page"
     var description: String = "This is the default description of a Void page"
@@ -103,7 +103,7 @@ class Metadata internal constructor(
  * DSL entry point to create [Metadata] for the given [page] using [builder].
  */
 fun metadata(
-    page: Page<*>,
+    page: Page,
     builder: Metadata.() -> Unit,
 ): Metadata {
     val metadata = Metadata(page)

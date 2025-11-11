@@ -5,7 +5,6 @@ import io.void.generator.TailwindGen.grabTailwind
 import io.void.generator.TailwindGen.processTailwind
 import io.void.html.Element
 import io.void.html.page.Page
-import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.metadata
 import io.void.router.Router
 import java.net.URI
@@ -64,7 +63,7 @@ object TailwindGen {
 
     private fun handleElements(
         element: Element,
-        page: Page<ContentType.HtmlElements>,
+        page: Page,
     ) {
         // reuse putInTailwind to populate page.classAttributes
         if (element.attributes.containsKey("class")) {
@@ -233,7 +232,7 @@ object TailwindGen {
      * E.g. "border-gray-400" -> ".border-gray-400"
      *       "hover:bg-red-500" -> ".hover\:bg-red-500"
      */
-    private fun collectClassSelectors(page: Page<ContentType.HtmlElements>): Set<String> {
+    private fun collectClassSelectors(page: Page): Set<String> {
         val classes = mutableSetOf<String>()
         page.classAttributes.forEach { raw ->
             val trimmed = raw.trim()
@@ -248,7 +247,7 @@ object TailwindGen {
      * Collect raw class tokens as they appear on elements (without normalization). Useful for
      * generating synthetic CSS for arbitrary values not present in the CDN build.
      */
-    private fun collectRawClasses(page: Page<ContentType.HtmlElements>): Set<String> {
+    private fun collectRawClasses(page: Page): Set<String> {
         val classes = mutableSetOf<String>()
         page.classAttributes.forEach { raw ->
             val trimmed = raw.trim()
@@ -260,7 +259,7 @@ object TailwindGen {
     }
 
     private fun handleMetadataAdding(
-        page: Page<ContentType.HtmlElements>,
+        page: Page,
         uuid: UUID,
     ) {
         if (page.metadata == null) {
@@ -277,7 +276,7 @@ object TailwindGen {
      * Main entry: gather classes from page, extract only matching Tailwind blocks, register route.
      */
     internal fun processTailwind(
-        page: Page<ContentType.HtmlElements>,
+        page: Page,
         router: Router,
     ) {
         if (resourceFile.isBlank()) {
@@ -291,7 +290,7 @@ object TailwindGen {
         }
 
         // populate page.classAttributes map
-        handleElements(page.content().htmlElement, page)
+        handleElements(page.content().attributes["Element"] as Element, page)
 
         val classSelectors = collectClassSelectors(page)
         if (classSelectors.isEmpty()) {
@@ -333,7 +332,7 @@ data class TailwindString(
     val classes: String
 ) {
 
-    operator fun provideDelegate(ref: Page<ContentType.HtmlElements>, property: KProperty<*>): String {
+    operator fun provideDelegate(ref: Page, property: KProperty<*>): String {
         ref.classAttributes.addAll(classes.split("\\s+".toRegex()))
         return classes
     }
