@@ -29,6 +29,6 @@ rootProject.name = "void-framework"
 include(":test")
 include(":void-base")
 
-include("void-html")
-include("void-json")
-include("void-css")
+include(":void-html")
+include(":void-json")
+include(":void-css")
