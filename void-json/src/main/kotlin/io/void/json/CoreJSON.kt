@@ -1,10 +1,7 @@
 package io.void.json
 
-import io.void.cache.Cache
-import io.void.cache.RecomputeFlag
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
-import io.void.dto.http.buildRequest
 import io.void.dto.http.buildResponse
 import io.void.html.page.Page
 import io.void.json.JsonConfigs.default
@@ -29,8 +26,8 @@ import kotlin.reflect.full.findAnnotation
  * - Convenience extensions to serialize/deserialize objects to/from JSON, CBOR, and ProtoBuf
  * - Base64 helpers for JSON payloads
  * - File helpers to persist and load JSON
- * - Small [RequestDTO] helpers like [RequestDTO.parseBody] and [RequestDTO.detectFormat]
- * - A [Page.autoSerialize] helper to produce a [ResponseDTO] from a value based on the request's Accept header
+ * - Small [io.void.dto.http.RequestDTO] helpers like [parseBody] and [detectFormat]
+ * - A [autoSerialize] helper to produce a [io.void.dto.http.ResponseDTO] from a value based on the request's Accept header
  */
 object JsonConfigs {
     /** Default JSON config: ignores unknown keys and encodes default values. */
@@ -49,48 +46,33 @@ object JsonConfigs {
         }
 }
 
-/**
- * Registers the current [Page] for caching with a refresh [duration] in milliseconds.
- *
- * The [recompute] flag controls whether the cache will be periodically recomputed. When set to `false`,
- * the background refresh loop stops and the cached entry is removed.
- */
-context(page: Page<*>)
-fun cache(
-    duration: Int,
-    recompute: RecomputeFlag = RecomputeFlag(true),
-) {
-    page.request = buildRequest { }
-    Cache.cacheRoute(mapOf(page to duration), recompute)
-}
-
 /** Serializes this object to a JSON string using either [JsonConfigs.default] or [JsonConfigs.pretty]. */
 inline fun <reified T : Any> T.toJson(pretty: Boolean = false): Result<String> =
     runCatching {
-        val json = if (pretty) JsonConfigs.pretty else JsonConfigs.default
+        val json = if (pretty) JsonConfigs.pretty else default
         json.encodeToString(this)
     }
 
-/** Deserializes this JSON string into type [T] using the default [Json] instance. */
+/** Deserializes this JSON string into type [T] using the default [kotlinx.serialization.json.Json] instance. */
 inline fun <reified T : Any> String.fromJson(): Result<T> = runCatching { Json.decodeFromString(this) }
 
-/** Encodes this object to CBOR bytes using [Cbor]. */
+/** Encodes this object to CBOR bytes using [kotlinx.serialization.cbor.Cbor]. */
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> T.toBytes(): Result<ByteArray> = runCatching { Cbor.encodeToByteArray(this) }
 
-/** Decodes CBOR bytes into type [T] using [Cbor]. Note: despite the name, this parses CBOR, not JSON. */
+/** Decodes CBOR bytes into type [T] using [kotlinx.serialization.cbor.Cbor]. Note: despite the name, this parses CBOR, not JSON. */
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> ByteArray.fromJson(): Result<T> = runCatching { Cbor.decodeFromByteArray(this) }
 
-/** Encodes this object to ProtoBuf bytes using [ProtoBuf]. */
+/** Encodes this object to ProtoBuf bytes using [kotlinx.serialization.protobuf.ProtoBuf]. */
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> T.toXml(): Result<ByteArray> = runCatching { ProtoBuf.encodeToByteArray(this) }
 
-/** Decodes ProtoBuf bytes into type [T] using [ProtoBuf]. */
+/** Decodes ProtoBuf bytes into type [T] using [kotlinx.serialization.protobuf.ProtoBuf]. */
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> ByteArray.fromXml(): Result<T> = runCatching { ProtoBuf.decodeFromByteArray(this) }
 
-/** Parses the textual [RequestDTO.body] as JSON into type [T]. */
+/** Parses the textual [io.void.dto.http.RequestDTO.body] as JSON into type [T]. */
 inline fun <reified T> RequestDTO.parseBody(): Result<T> = runCatching { Json.decodeFromString(this.body) }
 
 /** Detects the request body [Format] based on the `Content-Type` header. */
@@ -103,7 +85,7 @@ fun RequestDTO.detectFormat(): Format =
     }
 
 /**
- * Creates a [ResponseDTO] by serializing [value] according to the request `Accept` header.
+ * Creates a [io.void.dto.http.ResponseDTO] by serializing [value] according to the request `Accept` header.
  * Defaults to `application/json` when the header is missing.
  */
 fun Page<*>.autoSerialize(value: Any): ResponseDTO {
@@ -142,5 +124,5 @@ inline fun <reified T : Any> T.toJson64(): Result<String> =
 /** Decodes a Base64-encoded JSON string into type [T]. */
 inline fun <reified T : Any> String.fromJson64(): Result<T> = String(Base64.getDecoder().decode(this)).fromJson()
 
-/** Returns true if this instance's class is annotated with [Serializable]. */
+/** Returns true if this instance's class is annotated with [kotlinx.serialization.Serializable]. */
 inline fun <reified T : Any> T.canSerialize(): Boolean = this::class.findAnnotation<Serializable>() != null

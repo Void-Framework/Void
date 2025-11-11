@@ -3,7 +3,7 @@ package io.void.json
 /**
  * Supported payload formats detected from HTTP headers.
  *
- * The mapping used by [io.void.json.detectFormat]:
+ * The mapping used by [detectFormat]:
  * - JSON -> `application/json`
  * - CBOR -> `application/cbor`
  * - XML  -> `application/xml`
