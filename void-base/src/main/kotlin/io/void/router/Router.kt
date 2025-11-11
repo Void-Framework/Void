@@ -6,10 +6,10 @@ import io.void.api.KtsPage
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.*
 import io.void.generator.TailwindGen
+import io.void.html.Element
 import io.void.html.page.ExceptionPage
 import io.void.html.page.NotFoundPage
 import io.void.html.page.Page
-import io.void.html.page.content.ContentType
 import io.void.html.page.dynamic.DynamicPage
 import io.void.middleware.Relay
 import io.void.middleware.RelayAfter
@@ -37,8 +37,8 @@ class Router :
     val relay = mutableSetOf<Relay>()
 
     private val js = mutableSetOf<JsPage>()
-    private val routes: ConcurrentHashMap<String, Page<*>> = ConcurrentHashMap()
-    override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage<*>> = ConcurrentHashMap()
+    private val routes: ConcurrentHashMap<String, Page> = ConcurrentHashMap()
+    override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage> = ConcurrentHashMap()
     private val ktsResponsePages = mutableMapOf<String, KtsPage>()
 
     init {
@@ -54,7 +54,7 @@ class Router :
     }
 
     /** Adds this page to the router using unary plus syntax: +page. */
-    operator fun Page<*>.unaryPlus() {
+    operator fun Page.unaryPlus() {
         addRoute(this)
     }
 
@@ -86,13 +86,13 @@ class Router :
         }
     }
 
-    internal fun addRoute(route: Page<*>): Router {
+    internal fun addRoute(route: Page): Router {
         route.addCssToRouter(this)
         if (route::class != CssPage::class) {
-            if (route.contentType == ContentType.HtmlElements::class) {
+            if (route.metadata != null) {
                 route.request = buildRequest { }
-                if (route.includeTailwind) TailwindGen.processTailwind(route as Page<ContentType.HtmlElements>, this)
-                if (route.includeKts) JsPage.addToMetadata(route as Page<ContentType.HtmlElements>, js.toList())
+                if (route.includeTailwind) TailwindGen.processTailwind(route, this)
+                if (route.includeKts) JsPage.addToMetadata(route, js.toList())
             }
             if (route is KtsPage) {
                 ktsResponsePages[route.target] = route
@@ -108,7 +108,7 @@ class Router :
             return this
         }
         handleTargetChecking(route, routes)
-        if (route is DynamicPage<*>) {
+        if (route is DynamicPage) {
             val target = route.target.split("/")
             dynamicRoutes[target] = route
         }
@@ -116,7 +116,7 @@ class Router :
         return this
     }
 
-    internal fun addRoutes(routes: List<Page<*>>): Router {
+    internal fun addRoutes(routes: List<Page>): Router {
         routes.forEach {
             addRoute(route = it)
         }
@@ -130,7 +130,7 @@ class Router :
         val client = clientHandler.client
         val rawTarget = requestDTO.target
         val qMark = rawTarget.indexOf('?')
-        val target = if (qMark >= 0) rawTarget.substring(0, qMark) else rawTarget
+        val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
         val query: Map<String, String> =
             if (qMark >= 0 && qMark + 1 < rawTarget.length) {
                 val map = LinkedHashMap<String, String>(4)
@@ -159,17 +159,17 @@ class Router :
                     page.queries = query
                     val route = requestDTO.headers["KTS-Route"]!!
                     val content = routes[route]!!.content()
-                    val rootElement = (content as? ContentType.HtmlElements)?.htmlElement
+                    val rootElement = content.attributes["Element"] as Element
                     val triggerId = requestDTO["KTS-Trigger"]
                     val targetId = requestDTO["KTS-Target"]
-                    val trigger = triggerId?.let { rootElement?.findElement(it) }
-                    val targetEl = targetId?.let { rootElement?.findElement(it) }
+                    val trigger = triggerId?.let { rootElement.findElement(it) }
+                    val targetEl = targetId?.let { rootElement.findElement(it) }
                     page._target = targetEl
                     page._trigger = trigger
                     page.request = requestDTO
 
                     page.middlewareProcessBefore(requestDTO.toResult())
-                        ?: handleKts(page, clientHandler)
+                        ?: handleResponse(page, clientHandler, target)
                 }
 
                 else -> {
@@ -180,11 +180,7 @@ class Router :
                         page.request = requestDTO
 
                         page.middlewareProcessBefore(requestDTO.toResult())
-                            ?: if (page.content() is ContentType.Response) {
-                                handleResponse(page as Page<ContentType.Response>, clientHandler)
-                            } else {
-                                handleCasual(page as Page<ContentType.HtmlElements>, clientHandler, target)
-                            }
+                            ?: handleResponse(page, clientHandler, target)
                     } else {
                         handleDynamic(requestDTO, query)
                             ?: run {
@@ -192,25 +188,7 @@ class Router :
                                 page.queries = query
                                 page.request = requestDTO
                                 page.middlewareProcessBefore(requestDTO.toResult())
-                                    ?: when (page.contentType) {
-                                        ContentType.Response::class -> (page!!.content() as ContentType.Response).response
-                                        else ->
-                                            buildResponse {
-                                                status = 404
-                                                statusText = "Not Found"
-                                                headers {
-                                                    put("Content-Type", "text/html")
-                                                    put("Connection", "close")
-                                                }
-                                                body =
-                                                    "<!doctype html><html><head>${RouteCheck.nullPage.metadata?.render()}</head><body>${
-                                                        (
-                                                            RouteCheck.nullPage
-                                                                .content() as ContentType.HtmlElements
-                                                        ).htmlElement.render()
-                                                    }</body></html>"
-                                            }
-                                    }
+                                    ?: page.content()
                             }
                     }
                 }
@@ -218,8 +196,8 @@ class Router :
 
         response._request = requestDTO
 
-        val page = ktsResponsePages[target] ?: routes[target] ?: RouteCheck.nullPage as? Page<*>
-        page?.middlewareProcessAfter(response.toResult())
+        val page = ktsResponsePages[target] ?: routes[target] ?: RouteCheck.nullPage
+        page.middlewareProcessAfter(response.toResult())
 
         middlewareProcessAfter(
             response.toResult(),
@@ -237,34 +215,10 @@ class Router :
     ) {
         val client = clientHandler.client
         RouteCheck.exceptionPage.exception = e
-        when (val content = RouteCheck.exceptionPage.content()) {
-            is ContentType.Response ->
-                client.getOutputStream().writeHTTP(
-                    response = content.response,
-                    version = clientHandler.server.httpVersion,
-                )
-
-            is ContentType.HtmlElements ->
-                client.getOutputStream().writeHTTP(
-                    response =
-                        buildResponse {
-                            status = 500
-                            statusText = "Server Error"
-                            headers {
-                                put("Content-Type", "text/html")
-                                put("Connection", "close")
-                            }
-                            body =
-                                """
-                                <!doctype html><html>
-                                <head>${content.metadata.render()}</head>
-                                <body>${content.htmlElement.render()}</body>
-                                </html>
-                                """.trimIndent()
-                        },
-                    version = clientHandler.server.httpVersion,
-                )
-        }
+        client.getOutputStream().writeHTTP(
+            response = RouteCheck.exceptionPage.content(),
+            version = clientHandler.server.httpVersion,
+        )
     }
 
     /**
@@ -328,7 +282,7 @@ fun router(builder: Router.() -> Unit): Router {
 fun <T> T.toResult(): Result<T> = Result.success(this)
 
 /** Wraps this exception in a failed [Result]. */
-fun <T> Exception.toResult(): Result<T> = Result.failure<T>(this)
+fun <T> Exception.toResult(): Result<T> = Result.failure(this)
 
 /**
  * Reads the classpath resource at [path] using the class loader of [clazz].
