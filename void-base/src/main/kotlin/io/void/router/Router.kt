@@ -2,7 +2,6 @@ package io.void.router
 
 import io.void.api.CssPage
 import io.void.api.JsPage
-import io.void.api.KtsPage
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.*
 import io.void.generator.TailwindGen
@@ -37,9 +36,8 @@ class Router :
     val relay = mutableSetOf<Relay>()
 
     private val js = mutableSetOf<JsPage>()
-    private val routes: ConcurrentHashMap<String, Page> = ConcurrentHashMap()
+    val routes: ConcurrentHashMap<String, Page> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage> = ConcurrentHashMap()
-    private val ktsResponsePages = mutableMapOf<String, KtsPage>()
 
     init {
         recomputeMiddlewareSnapshot()
@@ -94,25 +92,22 @@ class Router :
                 if (route.includeTailwind) TailwindGen.processTailwind(route, this)
                 if (route.includeKts) JsPage.addToMetadata(route, js.toList())
             }
-            if (route is KtsPage) {
-                ktsResponsePages[route.target] = route
-                return this
+        }
+        when (route) {
+            is ExceptionPage -> {
+                RouteCheck.exceptionPage = route
+            }
+            is NotFoundPage -> {
+                RouteCheck.nullPage = route
+            }
+            is DynamicPage -> {
+                val target = route.target.split("/")
+                dynamicRoutes[target] = route
+            }
+            else -> {
+                handleTargetChecking(route, routes)
             }
         }
-        if (route is ExceptionPage) {
-            RouteCheck.exceptionPage = route
-            return this
-        }
-        if (route is NotFoundPage) {
-            RouteCheck.nullPage = route
-            return this
-        }
-        handleTargetChecking(route, routes)
-        if (route is DynamicPage) {
-            val target = route.target.split("/")
-            dynamicRoutes[target] = route
-        }
-
         return this
     }
 
@@ -154,24 +149,7 @@ class Router :
             }
         val response =
             middlewareProcessBefore(requestDTO.toResult()) ?: when {
-                requestDTO.headers.containsKey("KTS-Request") && ktsResponsePages.containsKey(target) -> {
-                    val page = ktsResponsePages[target] as KtsPage
-                    page.queries = query
-                    val route = requestDTO.headers["KTS-Route"]!!
-                    val content = routes[route]!!.content()
-                    val rootElement = content.attributes["Element"] as Element
-                    val triggerId = requestDTO["KTS-Trigger"]
-                    val targetId = requestDTO["KTS-Target"]
-                    val trigger = triggerId?.let { rootElement.findElement(it) }
-                    val targetEl = targetId?.let { rootElement.findElement(it) }
-                    page._target = targetEl
-                    page._trigger = trigger
-                    page.request = requestDTO
-
-                    page.middlewareProcessBefore(requestDTO.toResult())
-                        ?: handleResponse(page, clientHandler, target)
-                }
-
+                requestDTO.headers.containsKey("KTS-Request") -> HtmlIntegration.getKtsPage?.let { it(this, target, query, requestDTO, clientHandler) } ?: emptyResponse()
                 else -> {
                     val staticPage = routes[target]
                     if (staticPage != null) {
@@ -196,7 +174,7 @@ class Router :
 
         response._request = requestDTO
 
-        val page = ktsResponsePages[target] ?: routes[target] ?: RouteCheck.nullPage
+        val page = routes[target] ?: RouteCheck.nullPage
         page.middlewareProcessAfter(response.toResult())
 
         middlewareProcessAfter(
@@ -309,3 +287,9 @@ fun readResourceText(path: String): String =
         ?.bufferedReader()
         ?.use { it.readText() }
         ?: error("Missing resource: $path")
+
+typealias GetKtsPageFn = Router.(String, Map<String, String>, RequestDTO, ClientHandler) -> ResponseDTO
+
+object HtmlIntegration {
+    var getKtsPage: GetKtsPageFn? = null
+}
