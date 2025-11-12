@@ -1,12 +1,9 @@
-package io.void.api
+package io.void.html.page
 
 import io.void.dto.http.RequestDTO
 import io.void.html.Element
-import io.void.html.page.Page
 import io.void.html.page.metadata.Metadata
-import io.void.html.page.metadata.metadata
-import io.void.util.createResponse
-import kotlin.reflect.KClass
+import io.void.html.util.createResponse
 
 /**
  * Base page for KTS-driven interactions. When a request is marked as a KTS request, the
