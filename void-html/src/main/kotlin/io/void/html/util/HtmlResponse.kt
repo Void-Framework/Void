@@ -1,4 +1,4 @@
-package io.void.util
+package io.void.html.util
 
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
