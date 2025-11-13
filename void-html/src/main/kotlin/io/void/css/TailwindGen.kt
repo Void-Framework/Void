@@ -1,11 +1,12 @@
-package io.void.generator
+package io.void.css
 
 import io.void.api.CssPage
-import io.void.generator.TailwindGen.grabTailwind
-import io.void.generator.TailwindGen.processTailwind
+import io.void.css.TailwindGen.grabTailwind
+import io.void.css.TailwindGen.processTailwind
 import io.void.html.Element
+import io.void.html.metadata.metadata
 import io.void.html.page.Page
-import io.void.html.page.metadata.metadata
+import io.void.html.page.metadata
 import io.void.router.Router
 import java.net.URI
 import java.net.http.HttpClient
@@ -46,6 +47,10 @@ object TailwindGen {
             "focus" to ":focus",
             "active" to ":active",
         )
+
+    init {
+        grabTailwind()
+    }
 
     /**
      * Fetches Tailwind CSS and stores its raw content. Called at startup or on demand to refresh.

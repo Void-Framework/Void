@@ -3,7 +3,7 @@ package io.void.html.router
 import io.void.api.CssPage
 import io.void.dto.http.buildRequest
 import io.void.dto.http.emptyResponse
-import io.void.generator.TailwindGen
+import io.void.css.TailwindGen
 import io.void.html.Element
 import io.void.html.page.JsPage
 import io.void.html.page.KtsPage
@@ -53,7 +53,7 @@ object RouterUtil {
             if (route::class != CssPage::class) {
                 if (route.metadata != null) {
                     route.request = buildRequest { }
-                    if (route.includeTailwind) TailwindGen.processTailwind(route, this)
+                    if (route.includeTailwind) TailwindGen.processTailwind(route, router)
                     if (route.includeKts) JsPage.addToMetadata(route, HtmlIntegration.jsPages.toList() as List<JsPage>)
                 }
             }
