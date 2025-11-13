@@ -5,6 +5,7 @@ import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.dto.http.writeHTTP
 import io.void.router.Router
+import io.void.util.ModuleInit
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileInputStream
@@ -37,6 +38,10 @@ class Server internal constructor(
     }
     var onServerSocketClose: (ServerSocket) -> Unit = {
         it.close()
+    }
+
+    init {
+        ModuleInit.initializers.forEach { it.init() }
     }
 
     /**

@@ -12,6 +12,7 @@ import io.void.middleware.RelayBefore
 import io.void.router.page.PageHandler
 import io.void.router.util.RequestHandler
 import io.void.router.util.RouteCheck
+import io.void.util.HtmlIntegration
 import java.io.File
 import java.net.URLDecoder
 import java.util.*
@@ -268,12 +269,3 @@ fun readResourceText(path: String): String =
         ?.bufferedReader()
         ?.use { it.readText() }
         ?: error("Missing resource: $path")
-
-typealias GetKtsPageFn = Router.(String, Map<String, String>, RequestDTO, ClientHandler) -> ResponseDTO
-typealias HandleJsAndCss = (Page, Router) -> Unit
-
-object HtmlIntegration {
-    var getKtsPage: GetKtsPageFn? = null
-    val jsPages = mutableSetOf<Page>()
-    var handleJsAndCss: HandleJsAndCss? = null
-}
