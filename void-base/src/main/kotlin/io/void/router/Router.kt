@@ -136,19 +136,23 @@ class Router :
                     val staticPage = routes[target]
                     if (staticPage != null) {
                         val page = staticPage
-                        page.queries = query
-                        page.request = requestDTO
+                        synchronized(page) {
+                            page.queries = query
+                            page.request = requestDTO
 
-                        page.middlewareProcessBefore(requestDTO.toResult())
-                            ?: handleResponse(page, clientHandler, target)
+                            page.middlewareProcessBefore(requestDTO.toResult())
+                                ?: handleResponse(page, clientHandler, target)
+                        }
                     } else {
                         handleDynamic(requestDTO, query)
                             ?: run {
                                 val page = RouteCheck.nullPage
-                                page.queries = query
-                                page.request = requestDTO
-                                page.middlewareProcessBefore(requestDTO.toResult())
-                                    ?: page.content()
+                                synchronized(page) {
+                                    page.queries = query
+                                    page.request = requestDTO
+                                    page.middlewareProcessBefore(requestDTO.toResult())
+                                        ?: page.content()
+                                }
                             }
                     }
                 }
@@ -157,7 +161,9 @@ class Router :
         response._request = requestDTO
 
         val page = routes[target] ?: RouteCheck.nullPage
-        page.middlewareProcessAfter(response.toResult())
+        synchronized(page) {
+            page.middlewareProcessAfter(response.toResult())
+        }
 
         middlewareProcessAfter(
             response.toResult(),
@@ -174,11 +180,14 @@ class Router :
         e: Exception,
     ) {
         val client = clientHandler.client
-        RouteCheck.exceptionPage.exception = e
-        client.getOutputStream().writeHTTP(
-            response = RouteCheck.exceptionPage.content(),
-            version = clientHandler.server.httpVersion,
-        )
+        val exPage = RouteCheck.exceptionPage
+        synchronized(exPage) {
+            exPage.exception = e
+            client.getOutputStream().writeHTTP(
+                response = exPage.content(),
+                version = clientHandler.server.httpVersion,
+            )
+        }
     }
 
     /**

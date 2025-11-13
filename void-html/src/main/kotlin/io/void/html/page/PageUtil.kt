@@ -11,9 +11,14 @@ import io.void.html.util.createResponse
 import io.void.router.Router
 import io.void.router.listResourcePaths
 import io.void.router.readResourceText
+import io.void.html.router.RouterUtil // force class loading to run ModuleInit.init()
 import java.util.UUID
 import kotlin.collections.mutableListOf
 import kotlin.collections.set
+
+// Force RouterUtil object initialization so its ModuleInit.init() runs and hooks are registered.
+@Suppress("unused")
+private val ensureRouterUtilInit = RouterUtil
 
 /** Optional HTML metadata associated with this page. */
 var Page.metadata: Metadata?
