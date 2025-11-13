@@ -12,7 +12,6 @@ import io.void.html.util.createResponse
 abstract class KtsPage(
     override val target: String,
 ) : Page(target) {
-    override var metadata: Metadata? = null
     internal var _trigger: Element? = null
     internal var _target: Element? = null
     val trigger: Element?

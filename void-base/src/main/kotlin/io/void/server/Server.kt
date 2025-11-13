@@ -42,6 +42,13 @@ class Server internal constructor(
 
     init {
         ModuleInit.initializers.forEach { it.init() }
+        // After module initializers register HTML integration hooks, retroactively apply them
+        // to any routes that were added to the router before the server was constructed.
+        io.void.util.HtmlIntegration.handleJsAndCss?.let { handler ->
+            router.routes.values.forEach { page ->
+                handler(page, router)
+            }
+        }
     }
 
     /**

@@ -285,12 +285,13 @@ object TailwindGen {
         router: Router,
     ) {
         if (resourceFile.isBlank()) {
-            // if not fetched yet, attempt to fetch — keep it simple
+            // If not fetched yet, attempt to fetch. Network may be unavailable in tests/CI.
             try {
                 grabTailwind()
-            } catch (e: Exception) {
-                // fail silently but return so we don't crash the server
-                return
+            } catch (_: Exception) {
+                // Proceed without the CDN stylesheet; we'll still generate synthetic CSS for
+                // arbitrary utilities and, importantly, register a CSS route so the metadata
+                // includes a stylesheet link. This keeps tests and offline environments working.
             }
         }
 
@@ -302,7 +303,7 @@ object TailwindGen {
             return
         }
 
-        // Extract used blocks (base rules + media queries)
+        // Extract used blocks (base rules + media queries). If resourceFile is empty, this yields "".
         var finalCss = extractUsedCssBlocks(classSelectors)
 
         // Generate synthetic CSS for arbitrary value utilities (e.g., mb-[7px]) including variants
@@ -312,7 +313,7 @@ object TailwindGen {
             finalCss += "\n" + synthetic
         }
 
-        // Generate UUID, register route, and attach to page metadata
+        // Generate UUID, register route (even if CSS is empty), and attach to page metadata
         val uuid = UUID.randomUUID()
         router.addRoute(CssPage(uuid, finalCss))
         handleMetadataAdding(page, uuid)

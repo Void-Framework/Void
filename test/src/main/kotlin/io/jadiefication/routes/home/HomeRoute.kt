@@ -6,6 +6,7 @@ import io.void.generated.*
 import io.void.html.Fractal
 import io.void.html.kts
 import io.void.html.page.htmlRoute
+import io.void.html.page.invoke
 import java.net.URL
 
 val homeRoute =
