@@ -4,7 +4,6 @@ import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.html.Element
 import io.void.html.page.Page
-import io.void.util.createResponse
 
 typealias Path = String
 
@@ -40,23 +39,5 @@ fun dynamicApiRoute(
     block: DynamicPage.(RequestDTO) -> ResponseDTO,
 ): DynamicPage =
     object : DynamicPage(target = path) {
-        override var metadata: Metadata? = null
-
         override fun content() = block(request)
-    }
-
-/**
- * Defines a dynamic HTML route at [path] with page-level [metadata] and a content [block]
- * that returns the root [Element] to render.
- */
-fun dynamicHtmlRoute(
-    path: String,
-    metadata: Metadata.() -> Unit,
-    block: DynamicPage.(RequestDTO) -> Element,
-): DynamicPage =
-    object : DynamicPage(target = path) {
-        private val _metadata = metadata(this) { }.apply(metadata)
-        override var metadata: Metadata? = _metadata
-
-        override fun content() = createResponse(block(request), this.metadata!!)
     }
