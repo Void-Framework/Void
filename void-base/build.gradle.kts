@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     `maven-publish`
+    id("org.jetbrains.dokka")
 }
 
 java {

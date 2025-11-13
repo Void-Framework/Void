@@ -22,6 +22,22 @@ internal interface RequestHandler {
         private val optionalSegment = Regex("""^\{([^{}?]+)\?}$""")
     }
 
+    /**
+     * Attempts to resolve the incoming [requestDTO] against registered dynamic routes.
+     *
+     * Matching rules:
+     * - Route patterns are tokenized by '/'. Static segments must match exactly.
+     * - Dynamic segments use "{name}" syntax and accept any single path token; the
+     *   captured values are exposed to the page in [DynamicPage._data].
+     * - Optional trailing segments use "{name?}" and may be omitted by the request.
+     * - A single trailing slash at the end of either the request or pattern is ignored.
+     *
+     * If a route matches, the page's request context and [query] map are populated, the
+     * page BEFORE middleware is executed, and finally [DynamicPage.content] is produced.
+     *
+     * @return a [ResponseDTO] when a dynamic route matches; null otherwise so callers can
+     *         fall back to static routes or 404 handling.
+     */
     fun handleDynamic(
         requestDTO: RequestDTO,
         query: Map<String, String>,
@@ -68,6 +84,11 @@ internal interface RequestHandler {
         return null
     }
 
+    /**
+     * Returns a [ResponseDTO] for a static [page], consulting the cache when present.
+     * If the target path exists in the [io.void.cache.Cache], the cached value is
+     * returned; otherwise [Page.content] is evaluated.
+     */
     fun handleResponse(
         page: Page,
         clientHandler: ClientHandler,

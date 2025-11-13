@@ -28,8 +28,8 @@ var Page.metadata: Metadata?
     }
 
 /**
- * Defines an HTML route at [path] with page-level [_metadata] and a content [block]
- * that builds and returns the root [Element] for the response body.
+ * Defines a static HTML route at [path]. The page-level [\_metadata] builder runs once when the
+ * page is created; the [block] is invoked per-request to build the root [Element] of the page.
  */
 fun htmlRoute(
     path: String,
@@ -44,9 +44,9 @@ fun htmlRoute(
         override fun content() = createResponse(block(request), metadata as Metadata)
     }
 
-
 /**
- * Defines a page to render when an exception occurs, producing HTML content with [metadata].
+ * Defines an HTML exception page that renders when an error bubbles to the router. The [\_metadata]
+ * builder runs once; the [block] is invoked with the thrown [Exception].
  */
 fun exceptionPage(
     _metadata: Metadata.() -> Unit,
@@ -61,6 +61,9 @@ fun exceptionPage(
     }
 
 
+/**
+ * Defines an HTML 404 page that renders when no route matches. The [block] is invoked per-request.
+ */
 fun notFoundPage(
     _metadata: Metadata.() -> Unit,
     block: NotFoundPage.(RequestDTO) -> Element,
@@ -73,10 +76,10 @@ fun notFoundPage(
         override fun content() = createResponse(block(request), metadata as Metadata)
     }
 
-
 /**
- * Defines a dynamic HTML route at [path] with page-level [metadata] and a content [block]
- * that returns the root [Element] to render.
+ * Defines a dynamic HTML route at [path]. Path parameters are denoted with curly braces, e.g.
+ * "/users/{id}" or optional as "/blog/{slug?}". The [block] receives a [DynamicPage] so you can
+ * read path parameters via DynamicPage._data.
  */
 fun dynamicHtmlRoute(
     path: String,
@@ -92,8 +95,11 @@ fun dynamicHtmlRoute(
     }
 
 /**
- * Registers CSS resources by file name present under resources/css.
- * Returns this page for fluent configuration.
+ * Marks one or more CSS resource files (by file name) to be included with this page.
+ *
+ * This looks up files under resources/css and remembers matches in [Page.cssFiles]. Actual
+ * registration of those files as router pages and injection into HTML metadata happens in
+ * [addCssToRouter]. Returns this page for fluent configuration.
  */
 operator fun Page.invoke(vararg cssFileName: String): Page {
     listResourcePaths("css").forEach {
@@ -105,8 +111,12 @@ operator fun Page.invoke(vararg cssFileName: String): Page {
 }
 
 /**
- * Registers the previously selected CSS resources as router pages and
- * injects their paths into this page's [metadata] as external stylesheets.
+ * Registers the previously selected CSS resource files ([Page.cssFiles]) as router pages and
+ * injects their paths into this page's [metadata] as external stylesheets ([Metadata.externalCss]).
+ *
+ * For each discovered resource, a unique route like "/css/{uuid}/styles.css" is registered
+ * by creating a [CssPage], and that URL is appended to the page's metadata so it is linked
+ * in the final HTML head.
  */
 internal fun Page.addCssToRouter(router: Router) {
     cssFiles.forEach {

@@ -73,6 +73,15 @@ class Router :
         }
     }
 
+    /**
+     * Registers a [route] with the router.
+     *
+     * - Applies HTML integration hooks (JS/CSS injection) if available.
+     * - Routes of special types update router defaults: [ExceptionPage] and [NotFoundPage].
+     * - Dynamic pages are indexed by their tokenized path segments for matching.
+     *
+     * @return this router for chaining.
+     */
     fun addRoute(route: Page): Router {
         HtmlIntegration.handleJsAndCss?.let { it(route, this) }
         when (route) {
@@ -93,6 +102,9 @@ class Router :
         return this
     }
 
+    /**
+     * Registers multiple [routes] at once, returning this router for chaining.
+     */
     internal fun addRoutes(routes: List<Page>): Router {
         routes.forEach {
             addRoute(route = it)
@@ -100,6 +112,17 @@ class Router :
         return this
     }
 
+    /**
+     * Dispatches an incoming [requestDTO] through middleware and the matched page, then
+     * writes the response to the [clientHandler]'s socket.
+     *
+     * Order of operations:
+     * 1. Global BEFORE middleware
+     * 2. KTS handler if request contains the header "KTS-Request"
+     * 3. Static page by exact path, or dynamic route matching
+     * 4. Per-page BEFORE middleware, page content, per-page AFTER middleware
+     * 5. Global AFTER middleware
+     */
     fun route(
         requestDTO: RequestDTO,
         clientHandler: ClientHandler,
@@ -175,6 +198,10 @@ class Router :
         )
     }
 
+    /**
+     * Sends an error response using the configured [ExceptionPage] when an exception [e]
+     * occurs during request handling for the given [clientHandler].
+     */
     fun error(
         clientHandler: ClientHandler,
         e: Exception,
@@ -193,6 +220,11 @@ class Router :
     /**
      * Returns a [PageHandler] for the given static [path], creating and registering one if missing.
      * Allows a fluent style to register per-method handlers (e.g., on("/api") GET { ... }).
+     */
+    /**
+     * Returns a [PageHandler] for the static [path], creating and registering one
+     * if it does not exist yet. Allows fluent per-method handlers, e.g.:
+     * router.on("/api").GET { ... }
      */
     fun on(path: String): PageHandler =
         if (routes.containsKey(path)) {

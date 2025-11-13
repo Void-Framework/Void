@@ -21,6 +21,12 @@ import javax.net.ssl.SSLSocket
 /**
  * Minimal HTTP/HTTPS server used by Void to serve routes from a [Router].
  *
+ * Lifecycle:
+ * - Construct with a [Router]. During initialization, module hooks (see [io.void.util.ModuleInit])
+ *   are executed and any registered HTML integration is applied to existing routes.
+ * - Call [startHTTPServer] and/or [startHTTPSServer] to accept connections.
+ * - Each connection is handled on a coroutine via [io.void.clienthandler.ClientHandler].
+ *
  * @param httpVersion HTTP version used when writing responses.
  */
 class Server internal constructor(
@@ -33,9 +39,11 @@ class Server internal constructor(
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
     var isHTTPSOn = false
+    /** Callback invoked when a server socket (HTTP or HTTPS) throws while starting or accepting. */
     var onServerSocketError: (Exception) -> Unit = {
         it.printStackTrace()
     }
+    /** Callback invoked when a server socket is about to close; allows custom cleanup logic. */
     var onServerSocketClose: (ServerSocket) -> Unit = {
         it.close()
     }

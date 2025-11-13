@@ -334,10 +334,18 @@ fun <T> List<Pair<T, *>>.containsKey(key: T): Boolean = any { it.first == key }
 operator fun <N, M> List<Pair<N, M>>.get(key: N): M = first { it.first == key }.second
 
 
+/**
+ * Convenience delegate to register a space-separated list of Tailwind classes
+ * on a [Page]'s classAttributes at declaration time.
+ *
+ * Usage:
+ *   val hero by TailwindString("container mx-auto px-4")
+ * This will append those classes to the owning page when the property is bound.
+ */
 data class TailwindString(
     val classes: String
 ) {
-
+    /** Adds [classes] to the owning [Page.classAttributes] and returns the raw string. */
     operator fun provideDelegate(ref: Page, property: KProperty<*>): String {
         ref.classAttributes.addAll(classes.split("\\s+".toRegex()))
         return classes
