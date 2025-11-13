@@ -5,21 +5,18 @@ import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.html.page.Page
-import io.void.html.page.metadata.Metadata
 import java.util.*
-import kotlin.reflect.KClass
 
 /**
  * Internal page that serves a generated CSS asset at a unique UUID-backed path.
  * Used by the router to expose styles discovered under resources/css and added to page metadata.
  */
-internal class CssPage(
+class CssPage(
     uuid: UUID,
     private val body: String,
 ) : Page(
         target = "/css/$uuid/styles.css",
     ) {
-    override var metadata: Metadata? = null
 
     override fun content(): ResponseDTO =
         if (request.method == Method.GET) {

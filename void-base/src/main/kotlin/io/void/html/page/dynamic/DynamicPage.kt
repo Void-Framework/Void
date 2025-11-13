@@ -4,8 +4,6 @@ import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.html.Element
 import io.void.html.page.Page
-import io.void.html.page.metadata.Metadata
-import io.void.html.page.metadata.metadata
 import io.void.util.createResponse
 
 typealias Path = String

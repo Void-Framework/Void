@@ -5,8 +5,6 @@ import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.emptyResponse
 import io.void.html.page.Page
-import io.void.html.page.metadata.Metadata
-import kotlin.reflect.KClass
 
 /**
  * Lightweight page that dispatches to verb-specific handlers for API-style routes.

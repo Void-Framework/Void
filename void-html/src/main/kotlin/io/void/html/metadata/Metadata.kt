@@ -1,4 +1,4 @@
-package io.void.html.page.metadata
+package io.void.html.metadata
 
 import io.void.html.page.Page
 import java.net.InetAddress

@@ -5,10 +5,8 @@ import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.html.page.Page
-import io.void.html.page.metadata.Metadata
 import io.void.html.page.metadata.metadata
 import java.util.*
-import kotlin.reflect.KClass
 
 /**
  * Internal page that serves a generated JavaScript asset at a unique UUID-backed path.
@@ -20,7 +18,6 @@ internal class JsPage(
 ) : Page(
         target = "/js/$uuid/script.js",
     ) {
-    override var metadata: Metadata? = null
 
     override fun content(): ResponseDTO =
         if (request.method == Method.GET) {
