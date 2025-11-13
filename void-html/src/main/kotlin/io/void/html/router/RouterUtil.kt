@@ -9,19 +9,20 @@ import io.void.html.page.JsPage
 import io.void.html.page.KtsPage
 import io.void.html.page.addCssToRouter
 import io.void.html.page.metadata
-import io.void.router.HtmlIntegration
 import io.void.router.Router
 import io.void.router.listResourcePaths
 import io.void.router.readResourceText
 import io.void.router.toResult
+import io.void.util.HtmlIntegration
+import io.void.util.ModuleInit
 import java.util.UUID
 
 private val ktsPages = mutableMapOf<String, KtsPage>()
 private val Router.ktsResponsePages
     get() = ktsPages
 
-object RouterUtil {
-    init {
+object RouterUtil : ModuleInit() {
+    override fun init() {
         HtmlIntegration.getKtsPage = { target, query, requestDTO, clientHandler ->
             if (ktsResponsePages.containsKey(target)) {
                 val page = ktsResponsePages[target] as KtsPage
