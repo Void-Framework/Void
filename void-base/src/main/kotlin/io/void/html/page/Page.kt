@@ -29,6 +29,12 @@ abstract class Page(
     /** The current request bound to this page during handling. */
     lateinit var request: RequestDTO
 
+    /**
+     * Names of external CSS resource files to include for this page.
+     *
+     * Use the Page invocation operator (page("style.css")) to populate this list with
+     * resources discovered under resources/css. See [io.void.html.page.addCssToRouter].
+     */
     val cssFiles = mutableListOf<String>()
     internal val relaysBefore = mutableListOf<Relay>()
     internal val relaysAfter = mutableListOf<Relay>()
@@ -51,25 +57,35 @@ abstract class Page(
     /** Builds the concrete [ContentType] instance to be rendered or returned. */
     abstract fun content(): ResponseDTO
 
-    /** Registers a middleware to run before the page handler by class reference. */
+    /**
+     * Registers a BEFORE middleware by class reference. The instance is created via reflection
+     * and appended to this page's BEFORE chain. Higher [Relay.priority] values run first.
+     */
     fun before(relay: KClass<RelayBefore>) {
         relaysBefore.add(relay.createInstance())
         relaysBefore.sortedByDescending { it.priority }
     }
 
-    /** Registers a middleware instance to run before the page handler. */
+    /**
+     * Registers an instantiated BEFORE middleware. Higher [Relay.priority] values run first.
+     */
     fun before(relay: RelayBefore) {
         relaysBefore.add(relay)
         relaysBefore.sortedByDescending { it.priority }
     }
 
-    /** Registers a middleware to run after the page handler by class reference. */
+    /**
+     * Registers an AFTER middleware by class reference. The instance is created via reflection
+     * and appended to this page's AFTER chain. Higher [Relay.priority] values run first.
+     */
     fun after(relay: KClass<RelayAfter>) {
         relaysAfter.add(relay.createInstance())
         relaysAfter.sortedByDescending { it.priority }
     }
 
-    /** Registers a middleware instance to run after the page handler. */
+    /**
+     * Registers an instantiated AFTER middleware. Higher [Relay.priority] values run first.
+     */
     fun after(relay: RelayAfter) {
         relaysAfter.add(relay)
         relaysAfter.sortedByDescending { it.priority }
@@ -131,6 +147,10 @@ fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPag
         override fun content() = block(exception)
     }
 
+/**
+ * Defines a 404 page rendered when no route matches the request.
+ * The [block] is invoked to produce a raw [ResponseDTO].
+ */
 fun notFoundPage(block: NotFoundPage.(RequestDTO) -> ResponseDTO): NotFoundPage =
     object : NotFoundPage() {
         override fun content() = block(request)

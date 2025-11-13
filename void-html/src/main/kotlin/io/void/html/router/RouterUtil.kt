@@ -17,11 +17,21 @@ import io.void.util.HtmlIntegration
 import io.void.util.ModuleInit
 import java.util.UUID
 
+/**
+ * Wires the HTML module into the core runtime by registering integration hooks.
+ *
+ * Responsibilities:
+ * - Expose a handler for KTS requests via [HtmlIntegration.getKtsPage].
+ * - Discover and register embedded JS resources to [HtmlIntegration.jsPages].
+ * - Provide a per-page hook [HtmlIntegration.handleJsAndCss] to attach CSS (Tailwind and external)
+ *   and JS to newly added routes.
+ */
 private val ktsPages = mutableMapOf<String, KtsPage>()
 private val Router.ktsResponsePages
     get() = ktsPages
 
 object RouterUtil : ModuleInit() {
+    /** Called by the base module at startup to install integration hooks. */
     override fun init() {
         HtmlIntegration.getKtsPage = { target, query, requestDTO, clientHandler ->
             if (ktsResponsePages.containsKey(target)) {

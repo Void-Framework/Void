@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization") version "2.2.21"
     `maven-publish`
+    id("org.jetbrains.dokka")
 }
 
 java {

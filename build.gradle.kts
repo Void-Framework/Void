@@ -7,6 +7,8 @@ plugins {
     kotlin("jvm") version "2.2.21"
 
     id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
+    // API docs generation
+    id("org.jetbrains.dokka") version "2.0.0"
 }
 
 group = "io.jadiefication"
@@ -19,4 +21,11 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
+}
+
+// Convenience task to build multi-module HTML docs under build/dokka
+tasks.register("docs") {
+    group = "documentation"
+    description = "Generates aggregated HTML API docs for all modules"
+    dependsOn(":dokkaHtmlMultiModule")
 }

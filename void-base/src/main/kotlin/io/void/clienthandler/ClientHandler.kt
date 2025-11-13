@@ -23,6 +23,12 @@ class ClientHandler(
     /**
      * Starts processing for this connection: parse request, route it, and write the response.
      * Ensures the client socket is closed when finished.
+     *
+     * Flow:
+     * - Parse a [RequestDTO] from [client].
+     * - Delegate to [Router.route] which runs global and per-page middleware and renders content.
+     * - Write the [io.void.dto.http.ResponseDTO] back using [Server.httpVersion].
+     * - On any exception, delegate to [error].
      */
     fun start() {
         try {
@@ -43,8 +49,14 @@ class ClientHandler(
     }
 
     /**
-     * Handles an exception from request processing. Gives BEFORE middleware a chance to
-     * produce a custom [ResponseDTO], otherwise delegates to the router's error handler.
+     * Handles an exception from request processing.
+     *
+     * Behavior:
+     * - Invokes global BEFORE middleware; if any returns a [ResponseDTO], that is sent immediately.
+     * - Otherwise, delegates to [Router.error] which renders the configured [io.void.html.page.ExceptionPage].
+     * - Closes the client socket in all cases.
+     *
+     * @param e The exception thrown during request handling.
      */
     fun error(e: Exception) {
         val response = router.middlewareProcessBefore(e.toResult())
