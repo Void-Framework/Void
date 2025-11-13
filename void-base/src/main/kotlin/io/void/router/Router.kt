@@ -84,7 +84,7 @@ class Router :
         }
     }
 
-    internal fun addRoute(route: Page): Router {
+    fun addRoute(route: Page): Router {
         route.addCssToRouter(this)
         if (route::class != CssPage::class) {
             if (route.metadata != null) {

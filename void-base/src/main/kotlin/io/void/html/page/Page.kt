@@ -3,9 +3,6 @@ package io.void.html.page
 import io.void.api.CssPage
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
-import io.void.html.Element
-import io.void.html.page.metadata.Metadata
-import io.void.html.page.metadata.metadata
 import io.void.middleware.Relay
 import io.void.middleware.RelayAfter
 import io.void.middleware.RelayBefore
@@ -32,11 +29,15 @@ abstract class Page(
     /** The current request bound to this page during handling. */
     lateinit var request: RequestDTO
 
-    /** Optional HTML metadata associated with this page. */
-    abstract var metadata: Metadata?
-    private val cssFiles = mutableListOf<String>()
+    val cssFiles = mutableListOf<String>()
     internal val relaysBefore = mutableListOf<Relay>()
     internal val relaysAfter = mutableListOf<Relay>()
+
+    /**
+     * Per-page, mutable bag for attaching values during processing.
+     * Intended for internal use by middleware and handlers.
+     */
+    val attributes: MutableMap<String, Any> = mutableMapOf()
 
     /** Whether to include the compiled Tailwind. */
     val includeTailwind = true
@@ -49,36 +50,6 @@ abstract class Page(
 
     /** Builds the concrete [ContentType] instance to be rendered or returned. */
     abstract fun content(): ResponseDTO
-
-    /**
-     * Registers CSS resources by file name present under resources/css.
-     * Returns this page for fluent configuration.
-     */
-    operator fun invoke(vararg cssFileName: String): Page {
-        listResourcePaths("css").forEach {
-            if (it.split("/").last() in cssFileName) {
-                cssFiles.add(it)
-            }
-        }
-        return this
-    }
-
-    /**
-     * Registers the previously selected CSS resources as router pages and
-     * injects their paths into this page's [metadata] as external stylesheets.
-     */
-    internal fun addCssToRouter(router: Router) {
-        cssFiles.forEach {
-            val uuid = UUID.randomUUID()
-            router.addRoute(CssPage(uuid, readResourceText(it)))
-            val path = "/css/$uuid/styles.css"
-            metadata = metadata ?: metadata(this) { externalCss = mutableListOf(path) }
-            metadata!!.externalCss =
-                (metadata!!.externalCss ?: mutableListOf()).apply {
-                    add(path)
-                }
-        }
-    }
 
     /** Registers a middleware to run before the page handler by class reference. */
     fun before(relay: KClass<RelayBefore>) {
@@ -108,7 +79,7 @@ abstract class Page(
      * Runs all registered [RelayBefore] middlewares. If any returns a non-null [ResponseDTO],
      * the processing is short-circuited and that response is returned.
      */
-    internal fun middlewareProcessBefore(requestDTO: Result<RequestDTO>): ResponseDTO? {
+    fun middlewareProcessBefore(requestDTO: Result<RequestDTO>): ResponseDTO? {
         relaysBefore.forEach {
             val newResponse = (it as? RelayBefore)?.processBefore(requestDTO)
             if (newResponse != null) {
@@ -149,8 +120,6 @@ fun apiRoute(
     block: Page.(RequestDTO) -> ResponseDTO,
 ): Page =
     object : Page(target = path) {
-        override var metadata: Metadata? = null
-
         override fun content() = block(request)
     }
 
@@ -159,14 +128,10 @@ fun apiRoute(
  */
 fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPage =
     object : ExceptionPage() {
-        override var metadata: Metadata? = null
-
         override fun content() = block(exception)
     }
 
 fun notFoundPage(block: NotFoundPage.(RequestDTO) -> ResponseDTO): NotFoundPage =
     object : NotFoundPage() {
-        override var metadata: Metadata? = null
-
         override fun content() = block(request)
     }

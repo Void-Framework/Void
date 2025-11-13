@@ -2,7 +2,7 @@ package io.void.html.page
 
 import io.void.dto.http.RequestDTO
 import io.void.html.Element
-import io.void.html.page.metadata.Metadata
+import io.void.html.metadata.Metadata
 import io.void.html.util.createResponse
 
 /**

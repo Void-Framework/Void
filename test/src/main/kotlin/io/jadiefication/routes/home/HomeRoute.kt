@@ -1,6 +1,6 @@
 package io.jadiefication.routes.home
 
-import io.void.api.ktsRoute
+import io.void.html.page.ktsRoute
 import io.void.api.method.Method
 import io.void.generated.*
 import io.void.html.Fractal
