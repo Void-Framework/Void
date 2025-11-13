@@ -1,9 +1,7 @@
 package io.void.router
 
-import io.void.api.CssPage
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.*
-import io.void.generator.TailwindGen
 import io.void.html.page.ExceptionPage
 import io.void.html.page.NotFoundPage
 import io.void.html.page.Page
@@ -38,7 +36,6 @@ class Router :
 
     init {
         recomputeMiddlewareSnapshot()
-        TailwindGen.grabTailwind()
         HtmlIntegration.jsPages.forEach { addRoute(it) }
     }
 
