@@ -1,12 +1,11 @@
-package io.void.api
+package io.void.html.page
 
 import io.void.api.method.Method
 import io.void.dto.http.ResponseDTO
 import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
-import io.void.html.page.Page
-import io.void.html.page.metadata.metadata
-import java.util.*
+import io.void.html.metadata.metadata
+import java.util.UUID
 
 /**
  * Internal page that serves a generated JavaScript asset at a unique UUID-backed path.

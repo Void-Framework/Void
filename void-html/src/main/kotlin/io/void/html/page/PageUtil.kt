@@ -5,6 +5,7 @@ import io.void.dto.http.RequestDTO
 import io.void.html.Element
 import io.void.html.metadata.Metadata
 import io.void.html.metadata.metadata
+import io.void.html.page.dynamic.DynamicPage
 import io.void.html.page.metadata
 import io.void.html.util.createResponse
 import io.void.router.Router
@@ -60,6 +61,24 @@ fun notFoundPage(
     block: NotFoundPage.(RequestDTO) -> Element,
 ): NotFoundPage =
     object : NotFoundPage() {
+        init {
+            metadata = metadata(this, _metadata)
+        }
+
+        override fun content() = createResponse(block(request), metadata as Metadata)
+    }
+
+
+/**
+ * Defines a dynamic HTML route at [path] with page-level [metadata] and a content [block]
+ * that returns the root [Element] to render.
+ */
+fun dynamicHtmlRoute(
+    path: String,
+    _metadata: Metadata.() -> Unit,
+    block: DynamicPage.(RequestDTO) -> Element,
+): DynamicPage =
+    object : DynamicPage(target = path) {
         init {
             metadata = metadata(this, _metadata)
         }

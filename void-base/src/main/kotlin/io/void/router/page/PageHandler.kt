@@ -16,7 +16,6 @@ class PageHandler(
 ) : Page(
         target = target,
     ) {
-    override var metadata: Metadata? = null
     private val responses = mutableMapOf<Method, (RequestDTO) -> ResponseDTO>()
 
     /** Returns the response from the registered handler for [request.method], or an empty response if none. */

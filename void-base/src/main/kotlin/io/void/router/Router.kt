@@ -1,11 +1,9 @@
 package io.void.router
 
 import io.void.api.CssPage
-import io.void.api.JsPage
 import io.void.clienthandler.ClientHandler
 import io.void.dto.http.*
 import io.void.generator.TailwindGen
-import io.void.html.Element
 import io.void.html.page.ExceptionPage
 import io.void.html.page.NotFoundPage
 import io.void.html.page.Page
@@ -35,20 +33,13 @@ class Router :
     private var internalRelay: List<Relay> = emptyList()
     val relay = mutableSetOf<Relay>()
 
-    private val js = mutableSetOf<JsPage>()
     val routes: ConcurrentHashMap<String, Page> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage> = ConcurrentHashMap()
 
     init {
         recomputeMiddlewareSnapshot()
         TailwindGen.grabTailwind()
-
-        val paths = listResourcePaths("js")
-        paths.forEach { path ->
-            val content = readResourceText("/$path", this::class.java)
-            js.add(JsPage(UUID.randomUUID(), content))
-        }
-        js.forEach { addRoute(it) }
+        HtmlIntegration.jsPages.forEach { addRoute(it) }
     }
 
     /** Adds this page to the router using unary plus syntax: +page. */
@@ -85,14 +76,7 @@ class Router :
     }
 
     fun addRoute(route: Page): Router {
-        route.addCssToRouter(this)
-        if (route::class != CssPage::class) {
-            if (route.metadata != null) {
-                route.request = buildRequest { }
-                if (route.includeTailwind) TailwindGen.processTailwind(route, this)
-                if (route.includeKts) JsPage.addToMetadata(route, js.toList())
-            }
-        }
+        HtmlIntegration.handleJsAndCss?.let { it(route, this) }
         when (route) {
             is ExceptionPage -> {
                 RouteCheck.exceptionPage = route
@@ -289,7 +273,10 @@ fun readResourceText(path: String): String =
         ?: error("Missing resource: $path")
 
 typealias GetKtsPageFn = Router.(String, Map<String, String>, RequestDTO, ClientHandler) -> ResponseDTO
+typealias HandleJsAndCss = (Page, Router) -> Unit
 
 object HtmlIntegration {
     var getKtsPage: GetKtsPageFn? = null
+    val jsPages = mutableSetOf<Page>()
+    var handleJsAndCss: HandleJsAndCss? = null
 }
