@@ -1,9 +1,9 @@
 package io.void.html.router
 
 import io.void.api.CssPage
+import io.void.css.TailwindGen
 import io.void.dto.http.buildRequest
 import io.void.dto.http.emptyResponse
-import io.void.css.TailwindGen
 import io.void.html.Element
 import io.void.html.page.JsPage
 import io.void.html.page.KtsPage

@@ -122,7 +122,9 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
                 kotlinCode.insert(startLength, "import io.void.html.SelfClosingElement\nimport io.void.html.Element\n")
             }
 
-            else -> throw UnsupportedOperationException()
+            else -> {
+                throw UnsupportedOperationException()
+            }
         }
 
         var extension = ""

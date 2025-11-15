@@ -60,9 +60,18 @@ data class ResponseDTO(
             value: Any?,
         ): String? {
             when (value) {
-                null -> return "\"$key\":null,"
-                is Boolean, is Number -> return "\"$key\":$value,"
-                is String -> return "\"$key\":\"$value\","
+                null -> {
+                    return "\"$key\":null,"
+                }
+
+                is Boolean, is Number -> {
+                    return "\"$key\":$value,"
+                }
+
+                is String -> {
+                    return "\"$key\":\"$value\","
+                }
+
                 is Array<*>, is Iterable<*> -> {
                     val items =
                         when (value) {
@@ -73,8 +82,14 @@ data class ResponseDTO(
                     val arrayBuilder = StringBuilder("[")
                     items.forEach {
                         when (it) {
-                            is Number, is Boolean -> arrayBuilder.append("$it,")
-                            is String -> arrayBuilder.append("\"$it\",")
+                            is Number, is Boolean -> {
+                                arrayBuilder.append("$it,")
+                            }
+
+                            is String -> {
+                                arrayBuilder.append("\"$it\",")
+                            }
+
                             else -> {
                                 val nestedValue = generateJson("", it)
                                 if (nestedValue != null) {
@@ -248,14 +263,17 @@ fun OutputStream.writeHTTP(
     val responseBody = response.body
     if (!response.headers.containsKey("Content-Length")) {
         when (responseBody) {
-            is ResponseBody.StringBody ->
+            is ResponseBody.StringBody -> {
                 response["Content-Length"] =
                     responseBody.body
                         .toByteArray()
                         .size
                         .toString()
+            }
 
-            else -> response["Content-Length"] = (responseBody.body as ByteArray).size.toString()
+            else -> {
+                response["Content-Length"] = (responseBody.body as ByteArray).size.toString()
+            }
         }
     }
 
@@ -481,16 +499,21 @@ inline fun <reified T> gatewayTimeout(
         this.headers = headers
     }
 
-fun fileDownload(file: File, contentType: String? = null): ResponseDTO = buildResponse {
-    status = 200
-    statusText = "OK"
-    headers {
-        put("Content-Type", contentType ?: guessContentType(file))
-        put("Content-Disposition", "attachment; filename=\"${file.name}\"")
+fun fileDownload(
+    file: File,
+    contentType: String? = null,
+): ResponseDTO =
+    buildResponse {
+        status = 200
+        statusText = "OK"
+        headers {
+            put("Content-Type", contentType ?: guessContentType(file))
+            put("Content-Disposition", "attachment; filename=\"${file.name}\"")
+        }
+        body = file.readBytes() // or InputStream for streaming
     }
-    body = file.readBytes() // or InputStream for streaming
-}
 
-fun guessContentType(file: File): String = Files.probeContentType(file.toPath())
-    ?: URLConnection.guessContentTypeFromName(file.name)
-    ?: "application/octet-stream"
+fun guessContentType(file: File): String =
+    Files.probeContentType(file.toPath())
+        ?: URLConnection.guessContentTypeFromName(file.name)
+        ?: "application/octet-stream"

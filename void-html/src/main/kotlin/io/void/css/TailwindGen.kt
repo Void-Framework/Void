@@ -204,13 +204,21 @@ object TailwindGen {
     ): Pair<List<String>, String?> {
         val baseProp = if (kind == 'm') "margin" else "padding"
         return when (key) {
-            "m", "p" -> emptyList<String>() to baseProp // shorthand property
+            "m", "p" -> emptyList<String>() to baseProp
+
+            // shorthand property
             "mt", "pt" -> listOf("$baseProp-top") to null
+
             "mr", "pr" -> listOf("$baseProp-right") to null
+
             "mb", "pb" -> listOf("$baseProp-bottom") to null
+
             "ml", "pl" -> listOf("$baseProp-left") to null
+
             "mx", "px" -> listOf("$baseProp-left", "$baseProp-right") to null
+
             "my", "py" -> listOf("$baseProp-top", "$baseProp-bottom") to null
+
             else -> emptyList<String>() to null
         }
     }
@@ -333,7 +341,6 @@ fun <T> List<Pair<T, *>>.containsKey(key: T): Boolean = any { it.first == key }
  */
 operator fun <N, M> List<Pair<N, M>>.get(key: N): M = first { it.first == key }.second
 
-
 /**
  * Convenience delegate to register a space-separated list of Tailwind classes
  * on a [Page]'s classAttributes at declaration time.
@@ -343,10 +350,13 @@ operator fun <N, M> List<Pair<N, M>>.get(key: N): M = first { it.first == key }.
  * This will append those classes to the owning page when the property is bound.
  */
 data class TailwindString(
-    val classes: String
+    val classes: String,
 ) {
     /** Adds [classes] to the owning [Page.classAttributes] and returns the raw string. */
-    operator fun provideDelegate(ref: Page, property: KProperty<*>): String {
+    operator fun provideDelegate(
+        ref: Page,
+        property: KProperty<*>,
+    ): String {
         ref.classAttributes.addAll(classes.split("\\s+".toRegex()))
         return classes
     }

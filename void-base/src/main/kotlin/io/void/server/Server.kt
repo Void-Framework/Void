@@ -39,10 +39,12 @@ class Server internal constructor(
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
     var isHTTPSOn = false
+
     /** Callback invoked when a server socket (HTTP or HTTPS) throws while starting or accepting. */
     var onServerSocketError: (Exception) -> Unit = {
         it.printStackTrace()
     }
+
     /** Callback invoked when a server socket is about to close; allows custom cleanup logic. */
     var onServerSocketClose: (ServerSocket) -> Unit = {
         it.close()

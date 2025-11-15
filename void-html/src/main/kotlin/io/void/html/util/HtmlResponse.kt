@@ -12,13 +12,19 @@ import io.void.html.metadata.Metadata
  * `attributes["Element"]` so downstream processors (e.g., Tailwind extraction,
  * KTS handlers) can traverse the DOM tree if needed.
  */
-fun createResponse(element: Element, metadata: Metadata): ResponseDTO = ok("""
-                        <!doctype html><html>
-                        <head>${metadata.render()}</head>
-                        <body>${element.render()}</body>
-                        </html>
-                        """.trimIndent(), mutableMapOf("Content-Type" to "text/html"))
-    .apply {
+fun createResponse(
+    element: Element,
+    metadata: Metadata,
+): ResponseDTO =
+    ok(
+        """
+        <!doctype html><html>
+        <head>${metadata.render()}</head>
+        <body>${element.render()}</body>
+        </html>
+        """.trimIndent(),
+        mutableMapOf("Content-Type" to "text/html"),
+    ).apply {
         attributes["Element"] = element
     }
 
@@ -27,7 +33,8 @@ fun createResponse(element: Element, metadata: Metadata): ResponseDTO = ok("""
  * without additional metadata. Sets Content-Type to "text/html" and stores the
  * root [Element] in `attributes["Element"]` for further processing.
  */
-fun createResponse(element: Element): ResponseDTO = ok(element.render().trimIndent(), mutableMapOf("Content-Type" to "text/html"))
-    .apply {
-        attributes["Element"] = element
-    }
+fun createResponse(element: Element): ResponseDTO =
+    ok(element.render().trimIndent(), mutableMapOf("Content-Type" to "text/html"))
+        .apply {
+            attributes["Element"] = element
+        }

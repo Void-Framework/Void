@@ -88,13 +88,16 @@ class Router :
             is ExceptionPage -> {
                 RouteCheck.exceptionPage = route
             }
+
             is NotFoundPage -> {
                 RouteCheck.nullPage = route
             }
+
             is DynamicPage -> {
                 val target = route.target.split("/")
                 dynamicRoutes[target] = route
             }
+
             else -> {
                 handleTargetChecking(route, routes)
             }
@@ -154,7 +157,11 @@ class Router :
             }
         val response =
             middlewareProcessBefore(requestDTO.toResult()) ?: when {
-                requestDTO.headers.containsKey("KTS-Request") -> HtmlIntegration.getKtsPage?.let { it(this, target, query, requestDTO, clientHandler) } ?: emptyResponse()
+                requestDTO.headers.containsKey("KTS-Request") -> {
+                    HtmlIntegration.getKtsPage?.let { it(this, target, query, requestDTO, clientHandler) }
+                        ?: emptyResponse()
+                }
+
                 else -> {
                     val staticPage = routes[target]
                     if (staticPage != null) {
@@ -221,6 +228,7 @@ class Router :
      * Returns a [PageHandler] for the given static [path], creating and registering one if missing.
      * Allows a fluent style to register per-method handlers (e.g., on("/api") GET { ... }).
      */
+
     /**
      * Returns a [PageHandler] for the static [path], creating and registering one
      * if it does not exist yet. Allows fluent per-method handlers, e.g.:
@@ -267,7 +275,9 @@ fun listResourcePaths(folder: String): List<String> {
             }
         }
 
-        else -> emptyList()
+        else -> {
+            emptyList()
+        }
     }
 }
 

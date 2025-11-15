@@ -7,11 +7,11 @@ import io.void.html.metadata.Metadata
 import io.void.html.metadata.metadata
 import io.void.html.page.dynamic.DynamicPage
 import io.void.html.page.metadata
+import io.void.html.router.RouterUtil // force class loading to run ModuleInit.init()
 import io.void.html.util.createResponse
 import io.void.router.Router
 import io.void.router.listResourcePaths
 import io.void.router.readResourceText
-import io.void.html.router.RouterUtil // force class loading to run ModuleInit.init()
 import java.util.UUID
 import kotlin.collections.mutableListOf
 import kotlin.collections.set
@@ -59,7 +59,6 @@ fun exceptionPage(
 
         override fun content() = createResponse(block(exception), metadata as Metadata)
     }
-
 
 /**
  * Defines an HTML 404 page that renders when no route matches. The [block] is invoked per-request.
