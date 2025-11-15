@@ -55,6 +55,12 @@ function sendRequest(el, method, url, opts = {}) {
                         default:
                             target.innerHTML = html;
                     }
+
+                    // REPROCESS NEW ELEMENTS
+                    const root = document.querySelector(targetSelector);
+                    if (root) {
+                        root.querySelectorAll("*").forEach(processElement);
+                    }
                 }
             }
         })
