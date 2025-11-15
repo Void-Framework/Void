@@ -26,16 +26,12 @@ import java.util.UUID
  * - Provide a per-page hook [HtmlIntegration.handleJsAndCss] to attach CSS (Tailwind and external)
  *   and JS to newly added routes.
  */
-private val ktsPages = mutableMapOf<String, KtsPage>()
-private val Router.ktsResponsePages
-    get() = ktsPages
-
 object RouterUtil : ModuleInit() {
     /** Called by the base module at startup to install integration hooks. */
     override fun init() {
         HtmlIntegration.getKtsPage = { target, query, requestDTO, clientHandler ->
-            if (ktsResponsePages.containsKey(target)) {
-                val page = ktsResponsePages[target] as KtsPage
+            if (routes.containsKey(target)) {
+                val page = routes[target] as KtsPage
                 page.queries = query
                 val route = requestDTO.headers["KTS-Route"]!!
                 val content = routes[route]!!.content()
@@ -57,7 +53,9 @@ object RouterUtil : ModuleInit() {
         val paths = listResourcePaths("js")
         paths.forEach { path ->
             val content = readResourceText("/$path", this::class.java)
-            HtmlIntegration.jsPages.add(JsPage(UUID.randomUUID(), content))
+            val jsPage = JsPage(UUID.randomUUID(), content)
+            HtmlIntegration.jsPages.add(jsPage)
+            Router.routers.forEach { it.addRoute(jsPage) }
         }
         HtmlIntegration.handleJsAndCss = { route, router ->
             route.addCssToRouter(router)
@@ -67,9 +65,6 @@ object RouterUtil : ModuleInit() {
                     if (route.includeTailwind) TailwindGen.processTailwind(route, router)
                     if (route.includeKts) JsPage.addToMetadata(route, HtmlIntegration.jsPages.toList() as List<JsPage>)
                 }
-            }
-            HtmlIntegration.jsPages.forEach {
-                router.addRoute(it)
             }
         }
     }
