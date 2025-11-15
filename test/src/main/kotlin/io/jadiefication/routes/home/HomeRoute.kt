@@ -1,11 +1,12 @@
 package io.jadiefication.routes.home
 
-import io.void.api.ktsRoute
 import io.void.api.method.Method
 import io.void.generated.*
 import io.void.html.Fractal
 import io.void.html.kts
 import io.void.html.page.htmlRoute
+import io.void.html.page.invoke
+import io.void.html.page.ktsRoute
 import java.net.URL
 
 val homeRoute =
