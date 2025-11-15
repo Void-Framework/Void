@@ -5,6 +5,7 @@ import io.void.dto.http.buildResponse
 import io.void.dto.http.headers
 import io.void.dto.http.writeHTTP
 import io.void.router.Router
+import io.void.util.HtmlIntegration
 import io.void.util.ModuleInit
 import kotlinx.coroutines.*
 import java.io.File
@@ -48,17 +49,6 @@ class Server internal constructor(
     /** Callback invoked when a server socket is about to close; allows custom cleanup logic. */
     var onServerSocketClose: (ServerSocket) -> Unit = {
         it.close()
-    }
-
-    init {
-        ModuleInit.initializers.forEach { it.init() }
-        // After module initializers register HTML integration hooks, retroactively apply them
-        // to any routes that were added to the router before the server was constructed.
-        io.void.util.HtmlIntegration.handleJsAndCss?.let { handler ->
-            router.routes.values.forEach { page ->
-                handler(page, router)
-            }
-        }
     }
 
     /**

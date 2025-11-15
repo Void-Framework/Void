@@ -13,6 +13,7 @@ import io.void.router.page.PageHandler
 import io.void.router.util.RequestHandler
 import io.void.router.util.RouteCheck
 import io.void.util.HtmlIntegration
+import io.void.util.ModuleInit
 import java.io.File
 import java.net.URLDecoder
 import java.util.*
@@ -35,8 +36,14 @@ class Router :
     val routes: ConcurrentHashMap<String, Page> = ConcurrentHashMap()
     override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage> = ConcurrentHashMap()
 
+    companion object {
+        val routers = mutableSetOf<Router>()
+    }
+
     init {
         recomputeMiddlewareSnapshot()
+        routers.add(this)
+        ModuleInit.initializers.forEach { it.init() }
     }
 
     /** Adds this page to the router using unary plus syntax: +page. */
