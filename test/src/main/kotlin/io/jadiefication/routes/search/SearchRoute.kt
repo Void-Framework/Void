@@ -1,9 +1,9 @@
 package io.jadiefication.routes.search
 
-import io.void.dto.http.ok
-import io.void.html.page.apiRoute
-import io.void.html.page.dynamic.dynamicApiRoute
-import io.void.json.toJson
+import io.voidx.dto.http.ok
+import io.voidx.html.page.apiRoute
+import io.voidx.html.page.dynamic.dynamicApiRoute
+import io.voidx.json.toJson
 import kotlinx.serialization.Serializable
 
 @Serializable

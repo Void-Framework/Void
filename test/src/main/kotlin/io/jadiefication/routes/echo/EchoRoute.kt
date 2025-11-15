@@ -1,8 +1,8 @@
 package io.jadiefication.routes.echo
 
-import io.void.dto.http.ok
-import io.void.html.page.apiRoute
-import io.void.json.toJson
+import io.voidx.dto.http.ok
+import io.voidx.html.page.apiRoute
+import io.voidx.json.toJson
 import kotlinx.serialization.Serializable
 
 @Serializable

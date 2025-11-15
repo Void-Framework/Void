@@ -1,9 +1,9 @@
 package io.jadiefication.components
 
-import io.void.generated.*
-import io.void.html.Element
-import io.void.html.Fractal
-import io.void.html.loop
+import io.voidx.generated.*
+import io.voidx.html.Element
+import io.voidx.html.Fractal
+import io.voidx.html.loop
 
 fun Element.testComponent(): Fractal {
     val testComponent =

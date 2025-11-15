@@ -1,10 +1,10 @@
 package io.jadiefication.routes.setter
 
-import io.void.api.method.Method
-import io.void.dto.http.buildResponse
-import io.void.dto.http.ok
-import io.void.html.page.apiRoute
-import io.void.json.toJson
+import io.voidx.api.method.Method
+import io.voidx.dto.http.buildResponse
+import io.voidx.dto.http.ok
+import io.voidx.html.page.apiRoute
+import io.voidx.json.toJson
 import kotlinx.serialization.Serializable
 
 @Serializable
