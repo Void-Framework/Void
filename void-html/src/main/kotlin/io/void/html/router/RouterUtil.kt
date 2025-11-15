@@ -68,6 +68,9 @@ object RouterUtil : ModuleInit() {
                     if (route.includeKts) JsPage.addToMetadata(route, HtmlIntegration.jsPages.toList() as List<JsPage>)
                 }
             }
+            HtmlIntegration.jsPages.forEach {
+                router.addRoute(it)
+            }
         }
     }
 }
