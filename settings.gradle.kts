@@ -31,3 +31,4 @@ include(":void-base")
 
 include(":void-html")
 include(":void-json")
+include(":docs")
