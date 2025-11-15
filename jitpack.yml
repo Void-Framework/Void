@@ -2,4 +2,6 @@ jdk:
   - openjdk21
 
 install:
-  - ./gradlew :backend:publishToMavenLocal
+  - ./gradlew :void-base:publishToMavenLocal
+  - ./gradlew :void-html:publishToMavenLocal
+  - ./gradlew :void-json:publishToMavenLocal

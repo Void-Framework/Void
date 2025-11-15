@@ -27,4 +27,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "void-framework"
 include(":test")
-include(":backend")
+include(":void-base")
+
+include(":void-html")
+include(":void-json")
