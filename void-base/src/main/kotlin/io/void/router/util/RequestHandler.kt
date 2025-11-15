@@ -92,12 +92,13 @@ internal interface RequestHandler {
     fun handleResponse(
         page: Page,
         clientHandler: ClientHandler,
-        target: String
-    ): ResponseDTO = if (Cache.cache.containsKey(target)) {
-        Cache[target]!!
-    } else {
-        page.content()
-    }
+        target: String,
+    ): ResponseDTO =
+        if (Cache.cache.containsKey(target)) {
+            Cache[target]!!
+        } else {
+            page.content()
+        }
 }
 
 /**

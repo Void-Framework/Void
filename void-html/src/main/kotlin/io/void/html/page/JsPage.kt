@@ -17,7 +17,6 @@ internal class JsPage(
 ) : Page(
         target = "/js/$uuid/script.js",
     ) {
-
     override fun content(): ResponseDTO =
         if (request.method == Method.GET) {
             buildResponse {

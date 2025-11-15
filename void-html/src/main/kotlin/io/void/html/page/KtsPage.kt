@@ -22,11 +22,14 @@ abstract class KtsPage(
 ) : Page(target) {
     /** The element that initiated the KTS action on the client, if provided. */
     internal var _trigger: Element? = null
+
     /** The element that should be updated on the client, if provided. */
     internal var _target: Element? = null
+
     /** Public accessor for the triggering element. */
     val trigger: Element?
         get() = _trigger
+
     /** Public accessor for the target element. */
     val targetElement: Element?
         get() = _target

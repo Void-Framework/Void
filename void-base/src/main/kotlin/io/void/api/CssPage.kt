@@ -17,7 +17,6 @@ class CssPage(
 ) : Page(
         target = "/css/$uuid/styles.css",
     ) {
-
     override fun content(): ResponseDTO =
         if (request.method == Method.GET) {
             buildResponse {
