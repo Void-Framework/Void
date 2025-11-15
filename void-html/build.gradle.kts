@@ -1,10 +1,16 @@
 plugins {
     kotlin("jvm")
+    `maven-publish`
     id("org.jetbrains.dokka")
 }
 
-group = "io.void"
-version = "1.2.0"
+java {
+    withSourcesJar()
+    withJavadocJar()
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
 
 repositories {
     mavenCentral()
@@ -15,9 +21,21 @@ dependencies {
     implementation(project(":void-base"))
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
 kotlin {
     jvmToolchain(21)
+}
+
+description = "void-html"
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenKotlin") {
+            artifact(tasks["jar"])
+            artifact(tasks["sourcesJar"])
+            artifact(tasks["javadocJar"])
+            groupId = "com.github.Jadiefication"
+            artifactId = "Void-HTML"
+            version = rootProject.version.toString()
+        }
+    }
 }
