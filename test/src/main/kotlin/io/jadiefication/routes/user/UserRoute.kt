@@ -1,9 +1,9 @@
 package io.jadiefication.routes.user
 
-import io.void.dto.http.buildResponse
-import io.void.dto.http.ok
-import io.void.html.page.dynamic.dynamicApiRoute
-import io.void.json.toJson
+import io.voidx.dto.http.buildResponse
+import io.voidx.dto.http.ok
+import io.voidx.html.page.dynamic.dynamicApiRoute
+import io.voidx.json.toJson
 import kotlinx.serialization.Serializable
 
 @Serializable

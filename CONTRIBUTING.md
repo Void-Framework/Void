@@ -52,7 +52,7 @@ The test module contains sample routes you can run to try the framework:
 ./gradlew :test:run
 ```
 
-Or run your own small snippet using the `io.void.server.server { }` and `io.void.router.router { }` DSLs from a small
+Or run your own small snippet using the `io.voidx.server.server { }` and `io.voidx.router.router { }` DSLs from a small
 `main()`.
 
 ## Running and testing

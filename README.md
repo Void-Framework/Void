@@ -14,7 +14,7 @@
 
 Void is a small, unopinionated framework you can embed into your app. It provides:
 
-- Type-safe HTML DSL with generated elements (io.void.generated)
+- Type-safe HTML DSL with generated elements (io.voidx.generated)
 - Simple router with static, dynamic, and KTS interaction routes
 - Middleware (before/after) with priorities
 - First-class API endpoints returning ResponseDTO
@@ -58,13 +58,13 @@ dependencies {
 Create a minimal server with one HTML route and one API route:
 
 ```kotlin
-import io.void.router.router
-import io.void.html.page.htmlRoute
-import io.void.html.page.apiRoute
-import io.void.generated.Div
-import io.void.html.Fractal
-import io.void.server.server
-import io.void.dto.http.ok
+import io.voidx.router.router
+import io.voidx.html.page.htmlRoute
+import io.voidx.html.page.apiRoute
+import io.voidx.generated.Div
+import io.voidx.html.Fractal
+import io.voidx.server.server
+import io.voidx.dto.http.ok
 
 fun main() {
     val r = router {
@@ -106,9 +106,9 @@ handlers directly or run the tiny server in integration tests.
 
 Until a dedicated site is available, see this README and the test module for examples. Core entry points:
 
-- io.void.router.router { }
-- io.void.html.page.htmlRoute / apiRoute / dynamicHtmlRoute / dynamicApiRoute
-- io.void.server.server { }
+- io.voidx.router.router { }
+- io.voidx.html.page.htmlRoute / apiRoute / dynamicHtmlRoute / dynamicApiRoute
+- io.voidx.server.server { }
 
 ## Reporting Issues / Support
 

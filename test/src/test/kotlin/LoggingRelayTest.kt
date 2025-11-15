@@ -1,13 +1,13 @@
 package test
 
-import io.void.dto.http.buildResponse
-import io.void.dto.http.headers
-import io.void.html.page.apiRoute
-import io.void.middleware.logAfter
-import io.void.middleware.logBefore
-import io.void.middleware.traceId
-import io.void.router.router
-import io.void.server.server
+import io.voidx.dto.http.buildResponse
+import io.voidx.dto.http.headers
+import io.voidx.html.page.apiRoute
+import io.voidx.middleware.logAfter
+import io.voidx.middleware.logBefore
+import io.voidx.middleware.traceId
+import io.voidx.router.router
+import io.voidx.server.server
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

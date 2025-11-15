@@ -37,7 +37,7 @@ We will:
 
 ## Scope and Safe Harbor
 
-- Scope: code in this repository and official modules under the io.void.* namespace
+- Scope: code in this repository and official modules under the io.voidx.* namespace
 - Out of scope: issues exclusively in downstream applications built with Void
 - Safe Harbor: we will not initiate legal action for good-faith research and reporting that follows this policy and
   avoids privacy violations and service disruption
