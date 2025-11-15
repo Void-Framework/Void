@@ -37,7 +37,6 @@ class Router :
 
     init {
         recomputeMiddlewareSnapshot()
-        HtmlIntegration.jsPages.forEach { addRoute(it) }
     }
 
     /** Adds this page to the router using unary plus syntax: +page. */
