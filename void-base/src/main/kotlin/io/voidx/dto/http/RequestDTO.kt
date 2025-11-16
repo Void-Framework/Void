@@ -73,7 +73,9 @@ data class RequestDTO(
 
             val body = StringBuilder()
             val contentLength = headers["Content-Length"]?.toIntOrNull()
-            if (contentLength != null && contentLength > 0) {
+            // Per RFC 7231, a payload on GET has no defined semantics; many servers ignore it.
+            // We choose to ignore the body for GET requests even if Content-Length is present.
+            if (method.name != "GET" && contentLength != null && contentLength > 0) {
                 val charArray = CharArray(contentLength)
                 reader.read(charArray, 0, contentLength)
                 body.append(charArray)
@@ -92,7 +94,13 @@ data class RequestDTO(
     }
 
     /** Returns the value of the header named [headerName], or null if it is not present. */
-    operator fun get(headerName: String): String? = headers[headerName]
+    operator fun get(headerName: String): String? {
+        // Fast path: exact match
+        headers[headerName]?.let { return it }
+        // Fallback: case-insensitive lookup as HTTP header field-names are case-insensitive (RFC 7230 §3.2)
+        val key = headers.keys.firstOrNull { it.equals(headerName, ignoreCase = true) }
+        return key?.let { headers[it] }
+    }
 }
 
 /**

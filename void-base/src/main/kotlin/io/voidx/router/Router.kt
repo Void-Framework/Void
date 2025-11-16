@@ -38,6 +38,38 @@ class Router :
 
     companion object {
         val routers = mutableSetOf<Router>()
+
+        /**
+         * Parses the query parameters from a raw target string (path[?query]) applying URL decoding.
+         * - Keys without values are ignored.
+         * - Decoding uses UTF-8 and treats '+' as space per application/x-www-form-urlencoded.
+         */
+        internal fun parseQuery(rawTarget: String): Map<String, String> {
+            val qMark = rawTarget.indexOf('?')
+            if (qMark < 0 || qMark + 1 >= rawTarget.length) return emptyMap()
+            val qs = rawTarget.substring(qMark + 1)
+            val map = LinkedHashMap<String, String>(4)
+            var start = 0
+            while (start < qs.length) {
+                val amp = qs.indexOf('&', start).let { if (it == -1) qs.length else it }
+                if (amp > start) {
+                    val eq = qs.indexOf('=', start).let { if (it == -1 || it > amp) -1 else it }
+                    if (eq != -1) {
+                        val rawKey = qs.substring(start, eq)
+                        val rawValue = qs.substring(eq + 1, amp)
+                        try {
+                            val key = URLDecoder.decode(rawKey, Charsets.UTF_8)
+                            val value = URLDecoder.decode(rawValue, Charsets.UTF_8)
+                            map[key] = value
+                        } catch (_: Exception) {
+                            // Skip malformed encodings
+                        }
+                    }
+                }
+                start = amp + 1
+            }
+            return map
+        }
     }
 
     init {
@@ -144,27 +176,7 @@ class Router :
         val rawTarget = requestDTO.target
         val qMark = rawTarget.indexOf('?')
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
-        val query: Map<String, String> =
-            if (qMark >= 0 && qMark + 1 < rawTarget.length) {
-                val map = LinkedHashMap<String, String>(4)
-                val qs = rawTarget.substring(qMark + 1)
-                var start = 0
-                while (start < qs.length) {
-                    val amp = qs.indexOf('&', start).let { if (it == -1) qs.length else it }
-                    if (amp > start) {
-                        val eq = qs.indexOf('=', start).let { if (it == -1 || it > amp) -1 else it }
-                        if (eq != -1) {
-                            val key = qs.substring(start, eq)
-                            val value = qs.substring(eq + 1, amp)
-                            map[key] = value
-                        }
-                    }
-                    start = amp + 1
-                }
-                map
-            } else {
-                emptyMap()
-            }
+        val query: Map<String, String> = Companion.parseQuery(rawTarget)
         val response =
             middlewareProcessBefore(requestDTO.toResult()) ?: when {
                 requestDTO.headers.containsKey("KTS-Request") -> {
@@ -214,6 +226,7 @@ class Router :
             clientHandler.server.httpVersion,
         )
     }
+
 
     /**
      * Sends an error response using the configured [ExceptionPage] when an exception [e]
