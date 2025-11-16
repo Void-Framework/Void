@@ -1,0 +1,25 @@
+package test
+
+import io.voidx.dto.http.ok
+import io.voidx.html.page.Page
+import io.voidx.html.page.apiRoute
+import io.voidx.router.Router
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+
+class RouterAddRoutesInternalTests {
+    @Test
+    fun addRoutes_registers_all_pages_and_returns_router() {
+        val r = Router()
+        val p1: Page = apiRoute("/a") { ok("a", mutableMapOf("Content-Type" to "text/plain")) }
+        val p2: Page = apiRoute("/b") { ok("b", mutableMapOf("Content-Type" to "text/plain")) }
+        val p3: Page = apiRoute("/c") { ok("c", mutableMapOf("Content-Type" to "text/plain")) }
+
+        val returned = r.addRoutes(listOf(p1, p2, p3))
+        assertEquals(r, returned)
+        assertNotNull(r.routes["/a"])
+        assertNotNull(r.routes["/b"])
+        assertNotNull(r.routes["/c"])
+    }
+}
