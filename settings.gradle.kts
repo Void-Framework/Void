@@ -26,7 +26,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "void-framework"
-include(":test")
 include(":void-base")
 
 include(":void-html")
