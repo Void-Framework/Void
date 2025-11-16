@@ -94,21 +94,38 @@ fun RequestDTO.detectFormat(): Format {
 /**
  * Creates a [io.voidx.dto.http.ResponseDTO] by serializing [value] according to the request `Accept` header.
  * Defaults to `application/json` when the header is missing.
+ *
+ * Generic overload preserves the static type [T] so kotlinx.serialization can locate the correct serializer.
  */
-fun Page.autoSerialize(value: Any): ResponseDTO {
+inline fun <reified T : Any> Page.autoSerialize(value: T): ResponseDTO {
     val accept = request.headers["Accept"] ?: "application/json"
-    val body =
-        when {
-            "application/json" in accept -> value.toJson()
-            "application/xml" in accept -> value.toXml()
-            else -> value.toString()
-        }
+    return when {
+        "application/json" in accept ->
+            buildResponse<String> {
+                headers["Content-Type"] = "application/json"
+                body = value.toJson<T>().getOrThrow()
+            }
 
-    return buildResponse {
-        headers["Content-Type"] = accept
-        this.body = body
+        "application/xml" in accept ->
+            buildResponse<ByteArray> {
+                headers["Content-Type"] = "application/xml"
+                body = value.toXml<T>().getOrThrow()
+            }
+
+        else ->
+            buildResponse<String> {
+                headers["Content-Type"] = accept
+                body = value.toString()
+            }
     }
 }
+
+/**
+ * Backward-compatible overload that accepts [Any]. If the static type is not preserved (no reified generic),
+ * JSON serialization cannot be guaranteed; this version falls back to stringification for unknown types.
+ */
+// Note: A non-generic Any overload is intentionally omitted to avoid JVM signature clashes
+// and to ensure kotlinx.serialization serializers can be resolved via the reified type.
 
 /** Writes JSON representation of this object to the given [path]. Creates the file if needed. */
 inline fun <reified T : Any> T.toJsonFile(

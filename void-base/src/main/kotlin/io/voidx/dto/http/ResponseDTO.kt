@@ -200,7 +200,7 @@ interface ResponseBuilder<T> {
 /** Builder for string-based HTTP responses. */
 class StringResponseBuilder : ResponseBuilder<String> {
     override var status: Int = 200
-    override var statusText: String = "All is well!"
+    override var statusText: String = "OK"
     override var headers: MutableMap<String, String> = mutableMapOf()
     override var body: String = ""
 
@@ -214,7 +214,7 @@ class StringResponseBuilder : ResponseBuilder<String> {
 /** Builder for binary (ByteArray) HTTP responses. */
 class ByteResponseBuilder : ResponseBuilder<ByteArray> {
     override var status: Int = 200
-    override var statusText: String = "All is well!"
+    override var statusText: String = "OK"
     override var headers: MutableMap<String, String> = mutableMapOf()
     override var body: ByteArray = ByteArray(1)
 
