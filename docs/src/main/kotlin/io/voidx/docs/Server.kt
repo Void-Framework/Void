@@ -1,12 +1,10 @@
 package io.voidx.docs
 
-import io.voidx.api.method.Method
 import io.voidx.dto.http.buildResponse
 import io.voidx.dto.http.headers
 import io.voidx.generated.*
-import io.voidx.html.kts
 import io.voidx.html.page.htmlRoute
-import io.voidx.html.page.ktsRoute
+import io.voidx.middleware.cache
 import io.voidx.server.simpleServer
 
 /**
@@ -48,7 +46,6 @@ val docsHomeRoute =
                                 "Getting Started" to "#getting-started",
                                 "Routing" to "#routing",
                                 "HTML DSL" to "#html-dsl",
-                                "KTS" to "#kts",
                                 "Middleware" to "#middleware",
                                 "Server" to "#server",
                                 "Examples" to "#examples"
@@ -159,32 +156,17 @@ val docsHomeRoute =
                         listOf(
                             "Type-Safe HTML DSL" to "Build your UI with a fully type-safe Kotlin DSL",
                             "Composable Components" to "Compose elements and fragments to create reusable building blocks",
-                            "KTS Interactions" to "Attach client-side KTS configs to elements to invoke server-side fragments"
+                            // KTS interactions disabled for static export
                         ).forEach { (title, desc) ->
                             Article("class" to card) {
                                 H3("class" to subheading) { +title }
-                                P { +desc }
+                                if (desc.isNotEmpty()) P { +desc }
                             }
                         }
                     }
                 }
 
-                // KTS Demo
-                Section("id" to "kts", "class" to section) {
-                    H2("class" to heading) { +"KTS Demo" }
-                    P { +"Trigger a KTS route that swaps a target element's content:" }
-                    Button("class" to button, "id" to "kts-btn") {
-                        +"Run KTS Action"
-                        kts {
-                            on("/docs/kts-hello", Method.POST)
-                            target("#kts-target")
-                            swap("innerHTML")
-                            trigger("click")
-                            confirm("Proceed with KTS request?")
-                        }
-                    }
-                    Div("id" to "kts-target", "class" to card) { +"KTS Response will appear here" }
-                }
+                // KTS demo removed for static deployment
 
                 // Middleware
                 Section("id" to "middleware", "class" to section) {
@@ -238,21 +220,11 @@ val docsHomeRoute =
         }
     }
 
-val docsKtsRoute =
-    ktsRoute("/docs/kts-hello") { request, trigger, target ->
-        Div("class" to "bg-green-50 p-4 rounded-lg shadow-md") {
-            H3 { +"Hello from Docs KTS!" }
-            P { +"Trigger ID: ${trigger?.get("id")}" }
-            P { +"Target ID: ${target?.get("id")}" }
-        }
-    }
-
 fun main() {
     // Starts an HTTP server using the same DSL style as the test module.
     val server =
         simpleServer {
             +docsHomeRoute
-            +docsKtsRoute
 
             // Health endpoint
             on("/health") GET { _ ->

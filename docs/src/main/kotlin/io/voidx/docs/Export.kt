@@ -3,6 +3,10 @@ package io.voidx.docs
 import io.voidx.dto.http.ResponseBody
 import io.voidx.dto.http.buildRequest
 import io.voidx.dto.http.headers
+import io.voidx.html.page.metadata
+import io.voidx.middleware.cache
+import io.voidx.router.Router
+import io.voidx.router.router
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -15,8 +19,17 @@ fun main() {
     val outDir = Path.of("build", "pages")
     Files.createDirectories(outDir)
 
+    with(docsHomeRoute) {
+        cache(-1)
+    }
+
+    // Create a minimal router, add the docs page so hooks run (Tailwind + external CSS wiring)
+    val router = router {
+        +docsHomeRoute
+    }
+
     // Prepare a minimal GET request to bind to the page before rendering
-    val req =
+    val pageReq =
         buildRequest {
             method = io.voidx.api.method.Method.GET
             target = "/"
@@ -24,14 +37,36 @@ fun main() {
             body = ""
         }
 
-    // Render the docs home page using the same server page DSL
-    docsHomeRoute.request = req
+    // First render the docs home page so metadata.render() runs and populates externalCss links
+    docsHomeRoute.request = pageReq
     val response = docsHomeRoute.content()
     val homeHtml =
         when (val b = response.body) {
             is ResponseBody.StringBody -> b.body
             is ResponseBody.ByteArrayBody -> String(b.body)
         }
+
+    // Now that metadata has been rendered, export any generated CSS assets
+    val cssLinks = docsHomeRoute.metadata?.externalCss ?: emptyList()
+    cssLinks.forEach { href ->
+        val route = router.routes[href]
+        if (route != null) {
+            // Render CSS by invoking the route content with a GET request
+            route.request = buildRequest {
+                method = io.voidx.api.method.Method.GET
+                target = href
+            }
+            val cssResp = route.content()
+            val cssBody =
+                when (val b = cssResp.body) {
+                    is ResponseBody.StringBody -> b.body
+                    is ResponseBody.ByteArrayBody -> String(b.body)
+                }
+            val cssOut = outDir.resolve(href.removePrefix("/"))
+            Files.createDirectories(cssOut.parent)
+            write(cssOut, cssBody)
+        }
+    }
 
     write(outDir.resolve("index.html"), homeHtml)
 
