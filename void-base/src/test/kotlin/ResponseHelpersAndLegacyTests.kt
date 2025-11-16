@@ -3,13 +3,13 @@ package test
 import io.voidx.dto.http.JSON
 import io.voidx.dto.http.ResponseBody
 import io.voidx.dto.http.ResponseDTO
+import io.voidx.dto.http.badRequest
 import io.voidx.dto.http.buildResponse
+import io.voidx.dto.http.fileDownload
+import io.voidx.dto.http.guessContentType
 import io.voidx.dto.http.permanentRedirect
 import io.voidx.dto.http.redirect
 import io.voidx.dto.http.temporaryRedirect
-import io.voidx.dto.http.badRequest
-import io.voidx.dto.http.fileDownload
-import io.voidx.dto.http.guessContentType
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -45,7 +45,10 @@ class ResponseHelpersAndLegacyTests {
 
     @Test
     fun fileDownload_sets_disposition_and_content_type() {
-        val tmp = kotlin.io.path.createTempFile(suffix = ".txt").toFile()
+        val tmp =
+            kotlin.io.path
+                .createTempFile(suffix = ".txt")
+                .toFile()
         tmp.writeText("hello")
         try {
             val resp = fileDownload(tmp)
@@ -69,12 +72,13 @@ class ResponseHelpersAndLegacyTests {
 
     @Test
     fun legacy_json_builder_serializes_nested_structures() {
-        val entries: JSON = mapOf(
-            "a" to 1,
-            "b" to true,
-            "c" to listOf(1, 2, 3),
-            "d" to mapOf("x" to "y"),
-        )
+        val entries: JSON =
+            mapOf(
+                "a" to 1,
+                "b" to true,
+                "c" to listOf(1, 2, 3),
+                "d" to mapOf("x" to "y"),
+            )
 
         val resp = ResponseDTO.json(entries, 200, "OK")
         assertEquals(200, resp.status)

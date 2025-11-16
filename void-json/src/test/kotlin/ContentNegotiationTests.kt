@@ -12,15 +12,20 @@ import kotlin.test.assertTrue
 
 class ContentNegotiationTests {
     @Serializable
-    data class Person(val name: String, val age: Int)
+    data class Person(
+        val name: String,
+        val age: Int,
+    )
 
     private fun dummyPage(accept: String?): Page {
-        val p = object : Page("/test") {
-            override fun content() = throw UnsupportedOperationException()
-        }
-        p.request = buildRequest {
-            if (accept != null) headers["Accept"] = accept
-        }
+        val p =
+            object : Page("/test") {
+                override fun content() = throw UnsupportedOperationException()
+            }
+        p.request =
+            buildRequest {
+                if (accept != null) headers["Accept"] = accept
+            }
         return p
     }
 

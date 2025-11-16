@@ -83,10 +83,14 @@ fun RequestDTO.detectFormat(): Format {
 
     return when {
         mediaType == "application/json" -> Format.JSON
+
         // Common vendor or structured syntax suffix e.g. application/hal+json
         mediaType.endsWith("+json") || mediaType == "text/json" -> Format.JSON
+
         mediaType == "application/cbor" -> Format.CBOR
+
         mediaType == "application/xml" || mediaType == "text/xml" -> Format.XML
+
         else -> Format.TEXT
     }
 }
@@ -100,23 +104,26 @@ fun RequestDTO.detectFormat(): Format {
 inline fun <reified T : Any> Page.autoSerialize(value: T): ResponseDTO {
     val accept = request.headers["Accept"] ?: "application/json"
     return when {
-        "application/json" in accept ->
+        "application/json" in accept -> {
             buildResponse<String> {
                 headers["Content-Type"] = "application/json"
                 body = value.toJson<T>().getOrThrow()
             }
+        }
 
-        "application/xml" in accept ->
+        "application/xml" in accept -> {
             buildResponse<ByteArray> {
                 headers["Content-Type"] = "application/xml"
                 body = value.toXml<T>().getOrThrow()
             }
+        }
 
-        else ->
+        else -> {
             buildResponse<String> {
                 headers["Content-Type"] = accept
                 body = value.toString()
             }
+        }
     }
 }
 

@@ -21,9 +21,10 @@ class ElementInternalTests {
 
     @Test
     fun unary_plus_adds_text_child_and_render_contains_text() {
-        val el = Div("id" to "r") {
-            +"Hello"
-        }
+        val el =
+            Div("id" to "r") {
+                +"Hello"
+            }
         val s = el.render()
         assertTrue(s.contains("Hello"))
         assertTrue(s.contains("<div"))
@@ -32,9 +33,10 @@ class ElementInternalTests {
     @Test
     fun loop_helper_repeats_children_in_fragment() {
         val parent = Div { }
-        val fragment = parent.loop(1..3) { idx ->
-            H2 { Fractal("Item $idx") }
-        }
+        val fragment =
+            parent.loop(1..3) { idx ->
+                H2 { Fractal("Item $idx") }
+            }
         // Attach produced fragment to parent
         parent.children!!.add(fragment)
         val rendered = parent.render()
@@ -46,12 +48,13 @@ class ElementInternalTests {
 
     @Test
     fun findElement_returns_first_match_depth_first() {
-        val root = Div("id" to "root") {
-            Div("class" to "box") {
-                H2("id" to "title") { }
+        val root =
+            Div("id" to "root") {
+                Div("class" to "box") {
+                    H2("id" to "title") { }
+                }
+                Div("class" to "box") { }
             }
-            Div("class" to "box") { }
-        }
         val found = root.findElement(".box")
         assertNotNull(found)
         assertEquals("div", found.name)

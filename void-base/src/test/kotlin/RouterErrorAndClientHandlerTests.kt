@@ -6,25 +6,30 @@ import io.voidx.dto.http.buildResponse
 import io.voidx.html.page.exceptionPage
 import io.voidx.router.Router
 import io.voidx.router.router
-import io.voidx.server.Server
 import io.voidx.router.util.RouteCheck
+import io.voidx.server.Server
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 private class CapturingSocket : Socket() {
     private val out = ByteArrayOutputStream()
     private var closedFlag = false
 
     override fun getInputStream(): InputStream = InputStream.nullInputStream()
+
     override fun getOutputStream(): OutputStream = out
-    override fun close() { closedFlag = true }
+
+    override fun close() {
+        closedFlag = true
+    }
 
     fun bytes(): ByteArray = out.toByteArray()
+
     fun closed(): Boolean = closedFlag
 }
 
@@ -33,14 +38,15 @@ class RouterErrorAndClientHandlerTests {
     fun router_error_uses_exception_page_response() {
         val r = Router()
         // Install an ExceptionPage that returns a distinct response
-        val ex = exceptionPage { e ->
-            buildResponse<String> {
-                status = 500
-                statusText = "Internal Server Error"
-                headers["Content-Type"] = "text/plain"
-                body = "boom:${e.message}"
+        val ex =
+            exceptionPage { e ->
+                buildResponse<String> {
+                    status = 500
+                    statusText = "Internal Server Error"
+                    headers["Content-Type"] = "text/plain"
+                    body = "boom:${e.message}"
+                }
             }
-        }
         RouteCheck.exceptionPage = ex
 
         val sock = CapturingSocket()
@@ -59,14 +65,15 @@ class RouterErrorAndClientHandlerTests {
     fun client_handler_error_invokes_router_error_and_closes_socket_when_no_before_short_circuit() {
         val r = router { }
         // Minimal exception page to ensure write happens
-        RouteCheck.exceptionPage = exceptionPage { _ ->
-            buildResponse<String> {
-                status = 500
-                statusText = "Internal Server Error"
-                headers["Content-Type"] = "text/plain"
-                body = "err"
+        RouteCheck.exceptionPage =
+            exceptionPage { _ ->
+                buildResponse<String> {
+                    status = 500
+                    statusText = "Internal Server Error"
+                    headers["Content-Type"] = "text/plain"
+                    body = "err"
+                }
             }
-        }
 
         val sock = CapturingSocket()
         val srv = Server(r, 1.1)

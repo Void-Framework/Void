@@ -35,7 +35,11 @@ class MiddlewareInternalTests {
         }
 
         // Manually invoke internal processing functions
-        val req = buildRequest { method = Method.GET; target = "/x" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/x"
+            }
         val before = router.middlewareProcessBefore(Result.success(req))
         assertNotNull(before)
         assertEquals(403, before.status)
@@ -54,12 +58,25 @@ class MiddlewareInternalTests {
         val order = mutableListOf<Int>()
 
         with(router) {
-            +relayBefore(priority = 1) { _ -> order += 1; null }
-            +relayBefore(priority = 10) { _ -> order += 10; null }
-            +relayBefore(priority = 5) { _ -> order += 5; null }
+            +relayBefore(priority = 1) { _ ->
+                order += 1
+                null
+            }
+            +relayBefore(priority = 10) { _ ->
+                order += 10
+                null
+            }
+            +relayBefore(priority = 5) { _ ->
+                order += 5
+                null
+            }
         }
 
-        val req = buildRequest { method = Method.GET; target = "/" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/"
+            }
         val result = router.middlewareProcessBefore(Result.success(req))
         // No short-circuit
         assertEquals(null, result)

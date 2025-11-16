@@ -11,42 +11,50 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-private class InMemorySocket(private val incoming: String) : Socket() {
+private class InMemorySocket(
+    private val incoming: String,
+) : Socket() {
     private val inBytes = ByteArrayInputStream(incoming.toByteArray())
     private val outBytes = ByteArrayOutputStream()
     private var closedFlag = false
 
     override fun getInputStream(): InputStream = inBytes
+
     override fun getOutputStream(): OutputStream = outBytes
-    override fun close() { closedFlag = true }
+
+    override fun close() {
+        closedFlag = true
+    }
 
     fun outputString(): String = outBytes.toString().replace("\r\n", "\n")
+
     fun wasClosed(): Boolean = closedFlag
 }
 
 class SocketHandleTests {
     @Test
     fun socket_handle_end_to_end_writes_response_and_closes_socket() {
-        val r = router {
-            +apiRoute("/ping") { _ ->
-                buildResponse<String> {
-                    status = 200
-                    statusText = "OK"
-                    headers["Content-Type"] = "text/plain"
-                    body = "pong"
+        val r =
+            router {
+                +apiRoute("/ping") { _ ->
+                    buildResponse<String> {
+                        status = 200
+                        statusText = "OK"
+                        headers["Content-Type"] = "text/plain"
+                        body = "pong"
+                    }
                 }
             }
-        }
 
         val rawRequest = (
             "GET /ping HTTP/1.1\r\n" +
                 "Host: example.com\r\n" +
                 "Connection: close\r\n" +
                 "\r\n"
-            )
+        )
 
         val sock = InMemorySocket(rawRequest)
         val srv = Server(r, 1.1)
