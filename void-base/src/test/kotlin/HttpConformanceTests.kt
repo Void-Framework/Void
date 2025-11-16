@@ -10,12 +10,13 @@ import kotlin.test.assertNull
 class HttpConformanceTests {
     @Test
     fun headers_are_case_insensitive() {
-        val req = buildRequest {
-            method = Method.GET
-            target = "/"
-            headers["content-type"] = "text/plain"
-            headers["X-Custom-Header"] = "ABC"
-        }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/"
+                headers["content-type"] = "text/plain"
+                headers["X-Custom-Header"] = "ABC"
+            }
 
         // Exact case
         assertEquals("text/plain", req["content-type"])

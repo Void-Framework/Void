@@ -1,11 +1,11 @@
 package test
 
 import io.voidx.api.method.Method
+import io.voidx.dto.http.ResponseBody
 import io.voidx.dto.http.buildRequest
+import io.voidx.dto.http.buildResponse
 import io.voidx.dto.http.emptyResponse
 import io.voidx.dto.http.headers
-import io.voidx.dto.http.ResponseBody
-import io.voidx.dto.http.buildResponse
 import io.voidx.dto.http.toHttpRequest
 import io.voidx.html.page.apiRoute
 import io.voidx.html.page.dynamic.DynamicPage
@@ -13,10 +13,10 @@ import io.voidx.html.page.dynamic.dynamicApiRoute
 import io.voidx.html.page.dynamic.path
 import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import org.junit.jupiter.api.Test
 
 class BaseCoreTests {
     @Test
@@ -115,7 +115,11 @@ class BaseCoreTests {
         dyn._data["id"] = "42"
         dyn._data["name?"] = "neo"
 
-        val req = buildRequest { method = Method.GET; target = "/users/42/neo" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/users/42/neo"
+            }
         dyn.request = req
         val resp = dyn.content()
         val body = (resp.body as ResponseBody.StringBody).body

@@ -92,8 +92,7 @@ internal interface RequestHandler {
         page: Page,
         clientHandler: ClientHandler,
         target: String,
-    ): ResponseDTO =
-        page.content()
+    ): ResponseDTO = page.content()
 }
 
 /**

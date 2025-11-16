@@ -10,14 +10,16 @@ val echoRoute =
         val path = request.target.substringBefore("?")
         val hasQuery = queries.isNotEmpty()
         // Build a minimal JSON string without depending on void-json
-        val queryJson = queries.entries.joinToString(
-            prefix = "{",
-            postfix = "}",
-        ) { (k, v) -> "\"${k.replace("\"", "\\\"")}\":\"${v.replace("\"", "\\\"")}\"" }
+        val queryJson =
+            queries.entries.joinToString(
+                prefix = "{",
+                postfix = "}",
+            ) { (k, v) -> "\"${k.replace("\"", "\\\"")}\":\"${v.replace("\"", "\\\"")}\"" }
 
-        val payloadJson = """
+        val payloadJson =
+            """
             {"path":"$path","query":$queryJson,"hasQuery":$hasQuery}
-        """.trimIndent()
+            """.trimIndent()
 
         ok(
             body = payloadJson,

@@ -232,7 +232,6 @@ class Router :
         )
     }
 
-
     /**
      * Sends an error response using the configured [ExceptionPage] when an exception [e]
      * occurs during request handling for the given [clientHandler].

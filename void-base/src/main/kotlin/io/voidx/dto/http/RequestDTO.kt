@@ -97,19 +97,18 @@ data class RequestDTO(
          * This overload does not require a [ClientHandler] and will return a minimal
          * default GET request on parse errors.
          */
-        fun parse(
-            inputStream: InputStream,
-        ): RequestDTO {
+        fun parse(inputStream: InputStream): RequestDTO {
             val headers: MutableMap<String, String> = mutableMapOf()
             val method: Method
             val path: String
             val reader = BufferedReader(InputStreamReader(inputStream))
-            val line = reader.readLine()?.split(" ") ?: return buildRequest {
-                this.method = Method.GET
-                target = "/"
-                this.headers.putAll(headers)
-                body = ""
-            }
+            val line =
+                reader.readLine()?.split(" ") ?: return buildRequest {
+                    this.method = Method.GET
+                    target = "/"
+                    this.headers.putAll(headers)
+                    body = ""
+                }
             try {
                 if (line.size < 2) throw IllegalArgumentException("Invalid request line")
                 method = Method.valueOf(line[0].uppercase(Locale.getDefault()))

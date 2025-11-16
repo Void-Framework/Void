@@ -1,8 +1,8 @@
 package test
 
 import io.voidx.dto.http.ok
-import io.voidx.html.page.apiRoute
 import io.voidx.html.metadata.Metadata
+import io.voidx.html.page.apiRoute
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -25,16 +25,24 @@ class MetadataExtrasTests {
     fun external_js_defer_false_is_rendered_without_defer_and_order_preserved() {
         val page = apiRoute("/") { ok("", mutableMapOf("Content-Type" to "text/plain")) }
         val meta = Metadata(page)
-        meta.externalJS = linkedMapOf(
-            "/js/first.js" to true, // deferred
-            "/js/second.js" to false, // not deferred
-        )
+        meta.externalJS =
+            linkedMapOf(
+                "/js/first.js" to true, // deferred
+                "/js/second.js" to false, // not deferred
+            )
 
         val head = meta.render()
-        // The second script should not include the defer attribute
+
+        // first.js should have defer
         assertTrue(head.contains("<script src=\"/js/first.js\" defer></script>"))
-        assertTrue(head.contains("<script src=\"/js/second.js\" "></script>") || head.contains("<script src=\"/js/second.js\" ></script>"))
-        // And order is preserved (first.js appears before second.js)
+
+        // second.js should NOT have defer
+        assertTrue(
+            head.contains("<script src=\"/js/second.js\"></script>") ||
+                head.contains("<script src=\"/js/second.js\" ></script>"),
+        )
+
+        // order preserved
         assertTrue(head.indexOf("first.js") < head.indexOf("second.js"))
     }
 }

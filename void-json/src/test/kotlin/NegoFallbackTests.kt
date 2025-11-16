@@ -11,7 +11,9 @@ import kotlin.test.assertIs
 
 class NegoFallbackTests {
     @Serializable
-    data class Thing(val v: Int)
+    data class Thing(
+        val v: Int,
+    )
 
     private fun pageWithAccept(accept: String): Page =
         object : Page("/p") {

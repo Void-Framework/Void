@@ -6,12 +6,13 @@ import java.net.Socket
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private class FakeSocket(private val input: ByteArrayInputStream) : Socket() {
+private class FakeSocket(
+    private val input: ByteArrayInputStream,
+) : Socket() {
     override fun getInputStream() = input
 }
 
 class RequestParseTests {
-
     @Test
     fun parse_ignores_body_for_get_even_with_content_length() {
         val raw = (
@@ -52,7 +53,7 @@ class RequestParseTests {
             "BROKEN\r\n" +
                 "Host: example.com\r\n" +
                 "\r\n"
-            )
+        )
         val input = ByteArrayInputStream(raw.toByteArray())
         val req = RequestDTO.parse(input)
         // Defaults applied by RequestDTO.parse overload without ClientHandler

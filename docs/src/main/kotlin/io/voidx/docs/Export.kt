@@ -19,9 +19,10 @@ fun main() {
     Files.createDirectories(outDir)
 
     // Create a minimal router, add the docs page so hooks run (Tailwind + external CSS wiring)
-    val router = router {
-        +docsHomeRoute
-    }
+    val router =
+        router {
+            +docsHomeRoute
+        }
 
     // Prepare a minimal GET request to bind to the page before rendering
     val pageReq =
@@ -47,10 +48,11 @@ fun main() {
         val route = router.routes[href]
         if (route != null) {
             // Render CSS by invoking the route content with a GET request
-            route.request = buildRequest {
-                method = Method.GET
-                target = href
-            }
+            route.request =
+                buildRequest {
+                    method = Method.GET
+                    target = href
+                }
             val cssResp = route.content()
             val cssBody =
                 when (val b = cssResp.body) {
@@ -68,7 +70,10 @@ fun main() {
     println("[docs/export] Exported pages to ${outDir.toAbsolutePath()}")
 }
 
-private fun write(path: Path, content: String) {
+private fun write(
+    path: Path,
+    content: String,
+) {
     Files.write(
         path,
         content.toByteArray(),

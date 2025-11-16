@@ -59,17 +59,19 @@ tasks.register<JacocoReport>("jacocoRootReport") {
     description = "Generates an aggregate JaCoCo coverage report for all subprojects"
 
     // Collect execution data from subprojects
-    executionData(fileTree(project.rootDir) {
-        include("**/build/jacoco/test.exec")
-        include("**/build/jacoco/test.exec.gz")
-        include("**/build/jacoco/test.exec.zip")
-        include("**/build/jacoco/test.exec/**")
-        include("**/build/jacoco/test/*.exec")
-        include("**/build/jacoco/test.exec*")
-        include("**/build/jacoco/*.exec")
-        include("**/build/jacoco/*.ec")
-        include("**/build/jacoco/test/*.ec")
-    })
+    executionData(
+        fileTree(project.rootDir) {
+            include("**/build/jacoco/test.exec")
+            include("**/build/jacoco/test.exec.gz")
+            include("**/build/jacoco/test.exec.zip")
+            include("**/build/jacoco/test.exec/**")
+            include("**/build/jacoco/test/*.exec")
+            include("**/build/jacoco/test.exec*")
+            include("**/build/jacoco/*.exec")
+            include("**/build/jacoco/*.ec")
+            include("**/build/jacoco/test/*.ec")
+        },
+    )
 
     // Source sets for each subproject
     subprojects.forEach { sub ->

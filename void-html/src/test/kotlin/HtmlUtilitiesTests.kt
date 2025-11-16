@@ -1,11 +1,11 @@
 package test
 
+import io.voidx.dto.http.ok
 import io.voidx.generated.Div
 import io.voidx.generated.H2
 import io.voidx.html.Element
 import io.voidx.html.metadata.Metadata
 import io.voidx.html.page.apiRoute
-import io.voidx.dto.http.ok
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -14,11 +14,12 @@ import kotlin.test.assertTrue
 class HtmlUtilitiesTests {
     @Test
     fun element_findElement_matches_by_id_and_class_recursively() {
-        val root = Div("id" to "root") {
-            Div("class" to "box") {
-                H2("id" to "title") { }
+        val root =
+            Div("id" to "root") {
+                Div("class" to "box") {
+                    H2("id" to "title") { }
+                }
             }
-        }
 
         val byId = root.findElement("#title")
         assertNotNull(byId)
@@ -50,7 +51,9 @@ class HtmlUtilitiesTests {
     @Test
     fun createResponse_overload_sets_headers_and_element_attribute() {
         val el = Div("id" to "only") { }
-        val resp = io.voidx.html.util.createResponse(el)
+        val resp =
+            io.voidx.html.util
+                .createResponse(el)
         // Header
         assertEquals("text/html", resp.headers["Content-Type"])
         // Attributes should include original element
@@ -58,10 +61,11 @@ class HtmlUtilitiesTests {
         assertNotNull(stored)
         assertEquals("div", stored.name)
         // Body is the element's render() output
-        val body = when (val b = resp.body) {
-            is io.voidx.dto.http.ResponseBody.StringBody -> b.body
-            is io.voidx.dto.http.ResponseBody.ByteArrayBody -> String(b.body)
-        }
+        val body =
+            when (val b = resp.body) {
+                is io.voidx.dto.http.ResponseBody.StringBody -> b.body
+                is io.voidx.dto.http.ResponseBody.ByteArrayBody -> String(b.body)
+            }
         assertTrue(body.contains("<div"))
     }
 
@@ -73,6 +77,6 @@ class HtmlUtilitiesTests {
         // internal property is visible within module tests
         meta.style = id
         val head = meta.render()
-        assertTrue(head.contains("/css/${id}/styles.css"))
+        assertTrue(head.contains("/css/$id/styles.css"))
     }
 }
