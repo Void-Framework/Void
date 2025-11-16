@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm")
     application
@@ -35,4 +37,9 @@ tasks.register<JavaExec>("exportServerPages") {
     description = "Exports the server-rendered docs routes to static HTML under build/pages"
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("io.voidx.docs.ExportKt")
+}
+
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.compilerOptions {
+    freeCompilerArgs.set(listOf("-Xcontext-parameters"))
 }
