@@ -16,12 +16,14 @@ val docsHomeRoute =
         val inner = "max-w-5xl mx-auto px-6 py-12"
 
         // Hero section
-        val hero = "relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-xl mb-12"
+        val hero =
+            "relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-xl mb-12"
         val heroInner = "rounded-3xl bg-white/95 backdrop-blur-md px-10 py-12 md:px-16 md:py-16"
         val heroTitle = "text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900"
         val heroSubtitle = "mt-4 text-lg md:text-xl text-gray-700"
         val heroNav = "mt-8 flex flex-wrap gap-4"
-        val button = "inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-lg hover:bg-indigo-700 active:bg-indigo-800 shadow-md transition duration-200"
+        val button =
+            "inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-lg hover:bg-indigo-700 active:bg-indigo-800 shadow-md transition duration-200"
 
         // Section styling
         val section = "bg-white rounded-2xl shadow ring-1 ring-gray-100 p-8 mb-8"

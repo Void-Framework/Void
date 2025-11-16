@@ -15,7 +15,7 @@ import io.voidx.router.readResourceText
 import io.voidx.router.toResult
 import io.voidx.util.HtmlIntegration
 import io.voidx.util.ModuleInit
-import java.util.UUID
+import java.util.*
 
 /**
  * Wires the HTML module into the core runtime by registering integration hooks.

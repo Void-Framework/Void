@@ -217,7 +217,8 @@ fun RequestDTO.toHttpRequest(url: String): HttpRequest {
     if (method == Method.GET) {
         builder.GET()
     } else {
-        val publisher = if (body.isNotEmpty()) HttpRequest.BodyPublishers.ofString(body) else HttpRequest.BodyPublishers.noBody()
+        val publisher =
+            if (body.isNotEmpty()) HttpRequest.BodyPublishers.ofString(body) else HttpRequest.BodyPublishers.noBody()
         builder.method(method.name, publisher)
     }
 
