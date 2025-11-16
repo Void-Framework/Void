@@ -1,6 +1,5 @@
 package io.voidx.router.util
 
-import io.voidx.cache.Cache
 import io.voidx.clienthandler.ClientHandler
 import io.voidx.dto.http.RequestDTO
 import io.voidx.dto.http.ResponseDTO
@@ -94,11 +93,7 @@ internal interface RequestHandler {
         clientHandler: ClientHandler,
         target: String,
     ): ResponseDTO =
-        if (Cache.cache.containsKey(target)) {
-            Cache[target]!!
-        } else {
-            page.content()
-        }
+        page.content()
 }
 
 /**
