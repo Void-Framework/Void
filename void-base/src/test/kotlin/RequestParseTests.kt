@@ -45,4 +45,19 @@ class RequestParseTests {
         assertEquals("/submit", req.target)
         assertEquals("hello world", req.body)
     }
+
+    @Test
+    fun parse_with_invalid_request_line_returns_default_get() {
+        val raw = (
+            "BROKEN\r\n" +
+                "Host: example.com\r\n" +
+                "\r\n"
+            )
+        val input = ByteArrayInputStream(raw.toByteArray())
+        val req = RequestDTO.parse(input)
+        // Defaults applied by RequestDTO.parse overload without ClientHandler
+        assertEquals("/", req.target)
+        assertEquals("GET", req.method.name)
+        assertEquals("", req.body)
+    }
 }

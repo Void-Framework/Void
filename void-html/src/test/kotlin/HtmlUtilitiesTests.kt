@@ -46,4 +46,33 @@ class HtmlUtilitiesTests {
         // Robots default present
         assertTrue(head.contains("name=\"robots\""))
     }
+
+    @Test
+    fun createResponse_overload_sets_headers_and_element_attribute() {
+        val el = Div("id" to "only") { }
+        val resp = io.voidx.html.util.createResponse(el)
+        // Header
+        assertEquals("text/html", resp.headers["Content-Type"])
+        // Attributes should include original element
+        val stored = resp.attributes["Element"] as? Element
+        assertNotNull(stored)
+        assertEquals("div", stored.name)
+        // Body is the element's render() output
+        val body = when (val b = resp.body) {
+            is io.voidx.dto.http.ResponseBody.StringBody -> b.body
+            is io.voidx.dto.http.ResponseBody.ByteArrayBody -> String(b.body)
+        }
+        assertTrue(body.contains("<div"))
+    }
+
+    @Test
+    fun metadata_style_uuid_injects_css_link() {
+        val page = apiRoute("/") { ok("", mutableMapOf("Content-Type" to "text/plain")) }
+        val meta = Metadata(page)
+        val id = java.util.UUID.randomUUID()
+        // internal property is visible within module tests
+        meta.style = id
+        val head = meta.render()
+        assertTrue(head.contains("/css/${id}/styles.css"))
+    }
 }
