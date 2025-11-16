@@ -60,7 +60,12 @@ class Router :
                         try {
                             val key = URLDecoder.decode(rawKey, Charsets.UTF_8)
                             val value = URLDecoder.decode(rawValue, Charsets.UTF_8)
-                            map[key] = value
+                            // Skip if decoding produced Unicode replacement characters (indicates malformed percent-encoding)
+                            if (key.contains('\uFFFD') || value.contains('\uFFFD')) {
+                                // skip malformed pair
+                            } else {
+                                map[key] = value
+                            }
                         } catch (_: Exception) {
                             // Skip malformed encodings
                         }
