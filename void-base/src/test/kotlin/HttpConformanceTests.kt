@@ -35,4 +35,15 @@ class HttpConformanceTests {
         assertEquals("", q["empty"]) // retained as empty string value
         assertEquals("✓", q["encoded"]) // unicode checkmark
     }
+
+    @Test
+    fun query_string_malformed_percent_encoding_is_skipped() {
+        val raw = "/x?ok=1&bad=%ZZ&alsoBad=%E2%9C&fine=hello"
+        val q = Router.parseQuery(raw)
+        assertEquals("1", q["ok"]) // good pair kept
+        // Malformed values should be skipped (not present)
+        kotlin.test.assertNull(q["bad"])
+        kotlin.test.assertNull(q["alsoBad"])
+        assertEquals("hello", q["fine"]) // following pairs still parsed
+    }
 }
