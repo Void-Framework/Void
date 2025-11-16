@@ -12,7 +12,7 @@ import java.nio.file.StandardOpenOption
  * Currently exports the home route to build/pages/index.html.
  */
 fun main() {
-    val outDir = Path.of("docs", "build", "pages")
+    val outDir = Path.of("build", "pages")
     Files.createDirectories(outDir)
 
     // Prepare a minimal GET request to bind to the page before rendering
