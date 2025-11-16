@@ -100,4 +100,36 @@ class CoreJSONTests {
         assertTrue(Foo().canSerialize())
         assertFalse(NotSerializable(1).canSerialize())
     }
+
+    @Test
+    fun detect_format_with_parameters_and_case() {
+        val reqJsonWithParams: RequestDTO =
+            buildRequest {
+                headers["Content-Type"] = "Application/Json; charset=UTF-8"
+            }
+        assertEquals(Format.JSON, reqJsonWithParams.detectFormat())
+
+        val reqVendorJson: RequestDTO =
+            buildRequest {
+                headers["Content-Type"] = "application/hal+json"
+            }
+        assertEquals(Format.JSON, reqVendorJson.detectFormat())
+
+        val reqTextXml: RequestDTO = buildRequest { headers["Content-Type"] = "text/xml; charset=utf-8" }
+        assertEquals(Format.XML, reqTextXml.detectFormat())
+
+        val reqUnknown: RequestDTO = buildRequest { headers["Content-Type"] = "application/octet-stream" }
+        assertEquals(Format.TEXT, reqUnknown.detectFormat())
+    }
+
+    @Test
+    fun parse_body_invalid_json_returns_failure() {
+        val req: RequestDTO =
+            buildRequest {
+                headers["Content-Type"] = "application/json"
+                body = "{" // malformed JSON
+            }
+        val result = req.parseBody<Foo>()
+        assertTrue(result.isFailure, "Expected failure when parsing invalid JSON body")
+    }
 }

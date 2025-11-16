@@ -76,13 +76,20 @@ inline fun <reified T : Any> ByteArray.fromXml(): Result<T> = runCatching { Prot
 inline fun <reified T> RequestDTO.parseBody(): Result<T> = runCatching { Json.decodeFromString(this.body) }
 
 /** Detects the request body [Format] based on the `Content-Type` header. */
-fun RequestDTO.detectFormat(): Format =
-    when (headers["Content-Type"]) {
-        "application/json" -> Format.JSON
-        "application/cbor" -> Format.CBOR
-        "application/xml" -> Format.XML
+fun RequestDTO.detectFormat(): Format {
+    val raw = headers["Content-Type"] ?: return Format.TEXT
+    // Extract media type without parameters and lowercase it
+    val mediaType = raw.substringBefore(';').trim().lowercase(Locale.getDefault())
+
+    return when {
+        mediaType == "application/json" -> Format.JSON
+        // Common vendor or structured syntax suffix e.g. application/hal+json
+        mediaType.endsWith("+json") || mediaType == "text/json" -> Format.JSON
+        mediaType == "application/cbor" -> Format.CBOR
+        mediaType == "application/xml" || mediaType == "text/xml" -> Format.XML
         else -> Format.TEXT
     }
+}
 
 /**
  * Creates a [io.voidx.dto.http.ResponseDTO] by serializing [value] according to the request `Accept` header.

@@ -91,6 +91,59 @@ data class RequestDTO(
 
             return requestDTO
         }
+
+        /**
+         * Parses an incoming HTTP request from the given [inputStream] into a [RequestDTO].
+         * This overload does not require a [ClientHandler] and will return a minimal
+         * default GET request on parse errors.
+         */
+        fun parse(
+            inputStream: InputStream,
+        ): RequestDTO {
+            val headers: MutableMap<String, String> = mutableMapOf()
+            val method: Method
+            val path: String
+            val reader = BufferedReader(InputStreamReader(inputStream))
+            val line = reader.readLine()?.split(" ") ?: return buildRequest {
+                this.method = Method.GET
+                target = "/"
+                this.headers.putAll(headers)
+                body = ""
+            }
+            try {
+                if (line.size < 2) throw IllegalArgumentException("Invalid request line")
+                method = Method.valueOf(line[0].uppercase(Locale.getDefault()))
+            } catch (_: Exception) {
+                return buildRequest {
+                    this.method = Method.GET
+                    target = "/"
+                    this.headers.putAll(headers)
+                    body = ""
+                }
+            }
+            path = line[1]
+
+            var headerLine: String?
+            while ((reader.readLine().also { headerLine = it }) != null && headerLine!!.isNotEmpty()) {
+                val header = headerLine.split(": ", limit = 2)
+                if (header.size == 2) headers[header[0]] = header[1]
+            }
+
+            val body = StringBuilder()
+            val contentLength = headers["Content-Length"]?.toIntOrNull()
+            if (method.name != "GET" && contentLength != null && contentLength > 0) {
+                val charArray = CharArray(contentLength)
+                reader.read(charArray, 0, contentLength)
+                body.append(charArray)
+            }
+
+            return buildRequest {
+                this.method = method
+                this.target = path
+                this.headers.putAll(headers)
+                this.body = body.toString()
+            }
+        }
     }
 
     /** Returns the value of the header named [headerName], or null if it is not present. */
