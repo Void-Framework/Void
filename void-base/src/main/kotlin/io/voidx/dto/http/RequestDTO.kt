@@ -189,7 +189,8 @@ fun RequestBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
  * - The request URI is built by simple concatenation of `url + target` (e.g., `"http://host" + "/path"`).
  *   Ensure that `url` includes the scheme/host/port and that `target` begins with `/`.
  * - The HTTP method is taken from [RequestDTO.method].
- * - If [RequestDTO.body] is non-empty, it uses `BodyPublishers.ofString(body)`; otherwise `noBody()`.
+ * - For GET requests, always uses `noBody()` (ignores any provided body for RFC alignment).
+ * - For other methods, if [RequestDTO.body] is non-empty, it uses `BodyPublishers.ofString(body)`; otherwise `noBody()`.
  * - All entries from [RequestDTO.headers] are forwarded to the request via `builder.header(key, value)`.
  *
  * Notes:
@@ -212,14 +213,14 @@ fun RequestDTO.toHttpRequest(url: String): HttpRequest {
         HttpRequest
             .newBuilder()
             .uri(URI.create(url + target))
-            .method(
-                method.name,
-                if (body.isNotEmpty()) {
-                    HttpRequest.BodyPublishers.ofString(body)
-                } else {
-                    HttpRequest.BodyPublishers.noBody()
-                },
-            )
+
+    // For GET, prefer the dedicated GET() builder to ensure bodyPublisher() is empty
+    if (method == Method.GET) {
+        builder.GET()
+    } else {
+        val publisher = if (body.isNotEmpty()) HttpRequest.BodyPublishers.ofString(body) else HttpRequest.BodyPublishers.noBody()
+        builder.method(method.name, publisher)
+    }
 
     headers.forEach { (key, value) -> builder.header(key, value) }
 
