@@ -1,6 +1,5 @@
 package test
 
-import io.voidx.dto.http.ResponseBody
 import io.voidx.dto.http.buildResponse
 import io.voidx.dto.http.writeHTTP
 import java.io.ByteArrayOutputStream
@@ -28,7 +27,10 @@ class ResponseWriteTests {
         val normalized = raw.replace("\r\n", "\n")
         assertTrue(normalized.startsWith("HTTP/1.1 200 OK\n"), "Status line must start with HTTP/1.1 status line")
         assertTrue(normalized.contains("Content-Type: text/plain\n"))
-        assertTrue(normalized.contains("Content-Length: 5\n"), "Content-Length should be auto-populated for string body")
+        assertTrue(
+            normalized.contains("Content-Length: 5\n"),
+            "Content-Length should be auto-populated for string body",
+        )
 
         // Headers/body separator and body value
         assertTrue(normalized.contains("\n\n"))

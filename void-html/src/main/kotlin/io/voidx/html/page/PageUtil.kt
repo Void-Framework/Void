@@ -6,14 +6,12 @@ import io.voidx.html.Element
 import io.voidx.html.metadata.Metadata
 import io.voidx.html.metadata.metadata
 import io.voidx.html.page.dynamic.DynamicPage
-import io.voidx.html.router.RouterUtil // force class loading to run ModuleInit.init()
+import io.voidx.html.router.RouterUtil
 import io.voidx.html.util.createResponse
 import io.voidx.router.Router
 import io.voidx.router.listResourcePaths
 import io.voidx.router.readResourceText
-import java.util.UUID
-import kotlin.collections.mutableListOf
-import kotlin.collections.set
+import java.util.*
 
 // Force RouterUtil object initialization so its ModuleInit.init() runs and hooks are registered.
 @Suppress("unused")

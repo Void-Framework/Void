@@ -1,7 +1,5 @@
 package test
 
-import io.voidx.dto.http.ResponseBody
-import io.voidx.dto.http.buildRequest
 import io.voidx.dto.http.noContent
 import io.voidx.dto.http.ok
 import io.voidx.dto.http.writeHTTP
@@ -9,11 +7,7 @@ import io.voidx.html.page.apiRoute
 import io.voidx.router.Router
 import io.voidx.util.HtmlIntegration
 import java.io.ByteArrayOutputStream
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class RouterAndHttpEdgeTests {
     @Test

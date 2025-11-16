@@ -2,7 +2,6 @@ package test
 
 import io.voidx.generated.Div
 import io.voidx.generated.H2
-import io.voidx.html.Element
 import io.voidx.html.Fractal
 import io.voidx.html.loop
 import kotlin.test.Test

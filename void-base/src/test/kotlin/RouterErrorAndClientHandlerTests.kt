@@ -1,7 +1,6 @@
 package test
 
 import io.voidx.clienthandler.ClientHandler
-import io.voidx.dto.http.ResponseBody
 import io.voidx.dto.http.buildResponse
 import io.voidx.html.page.exceptionPage
 import io.voidx.router.Router
@@ -13,7 +12,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 private class CapturingSocket : Socket() {

@@ -1,15 +1,6 @@
 package test
 
-import io.voidx.dto.http.JSON
-import io.voidx.dto.http.ResponseBody
-import io.voidx.dto.http.ResponseDTO
-import io.voidx.dto.http.badRequest
-import io.voidx.dto.http.buildResponse
-import io.voidx.dto.http.fileDownload
-import io.voidx.dto.http.guessContentType
-import io.voidx.dto.http.permanentRedirect
-import io.voidx.dto.http.redirect
-import io.voidx.dto.http.temporaryRedirect
+import io.voidx.dto.http.*
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals

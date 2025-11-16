@@ -1,5 +1,7 @@
 package io.voidx.util
 
+import io.voidx.util.ModuleInit.Companion.initializers
+
 /**
  * Base class for framework modules that need to register initialization
  * logic during application startup.
