@@ -50,13 +50,6 @@ object RouterUtil : ModuleInit() {
                 emptyResponse()
             }
         }
-        val paths = listResourcePaths("js")
-        paths.forEach { path ->
-            val content = readResourceText("/$path", this::class.java)
-            val jsPage = JsPage(UUID.randomUUID(), content)
-            HtmlIntegration.jsPages.add(jsPage)
-            Router.routers.forEach { it.addRoute(jsPage) }
-        }
         HtmlIntegration.handleJsAndCss = { route, router ->
             route.addCssToRouter(router)
             if (route::class != CssPage::class) {
@@ -66,6 +59,13 @@ object RouterUtil : ModuleInit() {
                     if (route.includeKts) JsPage.addToMetadata(route, HtmlIntegration.jsPages.toList() as List<JsPage>)
                 }
             }
+        }
+        val paths = listResourcePaths("js")
+        paths.forEach { path ->
+            val content = readResourceText("/$path", this::class.java)
+            val jsPage = JsPage(UUID.randomUUID(), content)
+            HtmlIntegration.jsPages.add(jsPage)
+            Router.routers.forEach { it.addRoute(jsPage) }
         }
     }
 }

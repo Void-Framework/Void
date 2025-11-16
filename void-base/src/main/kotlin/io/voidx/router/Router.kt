@@ -89,6 +89,10 @@ class Router :
      * @return this router for chaining.
      */
     fun addRoute(route: Page): Router {
+        if (HtmlIntegration.handleJsAndCss == null) {
+            ModuleInit.initializers.forEach { it.init() }
+        }
+
         HtmlIntegration.handleJsAndCss?.let { it(route, this) }
         when (route) {
             is ExceptionPage -> {
@@ -291,7 +295,8 @@ fun listResourcePaths(folder: String): List<String> {
  * DSL entry to create a [Router] and configure it with the provided [builder] block.
  */
 fun router(builder: Router.() -> Unit): Router {
-    val router = Router().apply(builder)
+    val router = Router()
+    router.builder()
     return router
 }
 
