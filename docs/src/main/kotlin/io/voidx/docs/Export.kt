@@ -1,11 +1,10 @@
 package io.voidx.docs
 
+import io.voidx.api.method.Method
 import io.voidx.dto.http.ResponseBody
 import io.voidx.dto.http.buildRequest
 import io.voidx.dto.http.headers
 import io.voidx.html.page.metadata
-import io.voidx.middleware.cache
-import io.voidx.router.Router
 import io.voidx.router.router
 import java.nio.file.Files
 import java.nio.file.Path
@@ -19,10 +18,6 @@ fun main() {
     val outDir = Path.of("build", "pages")
     Files.createDirectories(outDir)
 
-    with(docsHomeRoute) {
-        cache(-1)
-    }
-
     // Create a minimal router, add the docs page so hooks run (Tailwind + external CSS wiring)
     val router = router {
         +docsHomeRoute
@@ -31,7 +26,7 @@ fun main() {
     // Prepare a minimal GET request to bind to the page before rendering
     val pageReq =
         buildRequest {
-            method = io.voidx.api.method.Method.GET
+            method = Method.GET
             target = "/"
             headers { put("User-Agent", "exporter") }
             body = ""
@@ -47,13 +42,13 @@ fun main() {
         }
 
     // Now that metadata has been rendered, export any generated CSS assets
-    val cssLinks = docsHomeRoute.metadata?.externalCss ?: emptyList()
-    cssLinks.forEach { href ->
+    val cssLinks = docsHomeRoute.metadata!!.externalCss
+    cssLinks?.forEach { href ->
         val route = router.routes[href]
         if (route != null) {
             // Render CSS by invoking the route content with a GET request
             route.request = buildRequest {
-                method = io.voidx.api.method.Method.GET
+                method = Method.GET
                 target = href
             }
             val cssResp = route.content()
