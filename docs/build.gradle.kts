@@ -15,7 +15,7 @@ kotlin {
 
 application {
     // Run the docs server by default
-    mainClass.set("io.void.docs.ServerKt")
+    mainClass.set("io.voidx.docs.ServerKt")
 }
 
 dependencies {
@@ -27,12 +27,12 @@ tasks.register<JavaExec>("buildDocs") {
     group = "documentation"
     description = "Generates static documentation site into build/site"
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("io.void.docs.SiteKt")
+    mainClass.set("io.voidx.docs.SiteKt")
 }
 
 tasks.register<JavaExec>("exportServerPages") {
     group = "documentation"
     description = "Exports the server-rendered docs routes to static HTML under build/pages"
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("io.void.docs.ExportKt")
+    mainClass.set("io.voidx.docs.ExportKt")
 }
