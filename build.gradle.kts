@@ -58,6 +58,10 @@ tasks.register<JacocoReport>("jacocoRootReport") {
     group = "verification"
     description = "Generates an aggregate JaCoCo coverage report for all subprojects"
 
+    dependsOn("test")
+    dependsOn("ktlintKotlinScriptCheck")
+    dependsOn("docs:startScripts")
+
     // Collect execution data from subprojects
     executionData(
         fileTree(project.rootDir) {
