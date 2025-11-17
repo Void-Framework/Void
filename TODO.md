@@ -38,7 +38,8 @@ Milestone 3 — Client DSL: Kotlin/JS IR + RPC (3–4 weeks)
     - Backend dev server proxies /assets to the Kotlin/JS dev server in dev (HMR via Gradle tasks). (area/tooling,
       kind/feature, 2d)
     - Gradle ergonomics: tailwindGen, assetsBundle (placeholder), devServer (proxy). (area/tooling, kind/feature, 1–2d)
-    - Tailwind pipeline rewrite with ability to exclude KTS and Tailwind; config switches. (area/tooling, kind/feature, 2d)
+    - Tailwind pipeline rewrite with ability to exclude KTS and Tailwind; config switches. (area/tooling, kind/feature,
+      2d)
 4. SSR + hydration demo
     - Server renders HTML; client hydrates a mounted component using useAtom. (area/client, kind/feature, 2d)
 

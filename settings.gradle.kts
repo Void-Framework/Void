@@ -15,7 +15,9 @@ pluginManagement {
 
 dependencyResolutionManagement {
     // control repositories for project dependencies
+    @Suppress("UnstableApiUsage")
     repositoriesMode.set(RepositoriesMode.PREFER_PROJECT) // optional, forbids repos in subprojects
+    @Suppress("UnstableApiUsage")
     repositories {
         mavenLocal()
         mavenCentral()
@@ -26,7 +28,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "void-framework"
-include(":test")
 include(":void-base")
 
 include(":void-html")

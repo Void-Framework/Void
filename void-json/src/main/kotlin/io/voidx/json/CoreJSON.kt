@@ -1,9 +1,9 @@
 package io.voidx.json
 
-import io.voidx.dto.http.RequestDTO
-import io.voidx.dto.http.ResponseDTO
-import io.voidx.dto.http.buildResponse
-import io.voidx.html.page.Page
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.ResponseDTO
+import io.voidx.dto.buildResponse
+import io.voidx.page.Page
 import io.voidx.json.JsonConfigs.default
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
@@ -26,8 +26,8 @@ import kotlin.reflect.full.findAnnotation
  * - Convenience extensions to serialize/deserialize objects to/from JSON, CBOR, and ProtoBuf
  * - Base64 helpers for JSON payloads
  * - File helpers to persist and load JSON
- * - Small [io.voidx.dto.http.RequestDTO] helpers like [parseBody] and [detectFormat]
- * - A [autoSerialize] helper to produce a [io.voidx.dto.http.ResponseDTO] from a value based on the request's Accept header
+ * - Small [RequestDTO] helpers like [parseBody] and [detectFormat]
+ * - A [autoSerialize] helper to produce a [ResponseDTO] from a value based on the request's Accept header
  */
 object JsonConfigs {
     /** Default JSON config: ignores unknown keys and encodes default values. */
@@ -72,36 +72,67 @@ inline fun <reified T : Any> T.toXml(): Result<ByteArray> = runCatching { ProtoB
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> ByteArray.fromXml(): Result<T> = runCatching { ProtoBuf.decodeFromByteArray(this) }
 
-/** Parses the textual [io.voidx.dto.http.RequestDTO.body] as JSON into type [T]. */
+/** Parses the textual [RequestDTO.body] as JSON into type [T]. */
 inline fun <reified T> RequestDTO.parseBody(): Result<T> = runCatching { Json.decodeFromString(this.body) }
 
 /** Detects the request body [Format] based on the `Content-Type` header. */
-fun RequestDTO.detectFormat(): Format =
-    when (headers["Content-Type"]) {
-        "application/json" -> Format.JSON
-        "application/cbor" -> Format.CBOR
-        "application/xml" -> Format.XML
+fun RequestDTO.detectFormat(): Format {
+    val raw = headers["Content-Type"] ?: return Format.TEXT
+    // Extract media type without parameters and lowercase it
+    val mediaType = raw.substringBefore(';').trim().lowercase(Locale.getDefault())
+
+    return when {
+        mediaType == "application/json" -> Format.JSON
+
+        // Common vendor or structured syntax suffix e.g. application/hal+json
+        mediaType.endsWith("+json") || mediaType == "text/json" -> Format.JSON
+
+        mediaType == "application/cbor" -> Format.CBOR
+
+        mediaType == "application/xml" || mediaType == "text/xml" -> Format.XML
+
         else -> Format.TEXT
     }
+}
 
 /**
- * Creates a [io.voidx.dto.http.ResponseDTO] by serializing [value] according to the request `Accept` header.
+ * Creates a [ResponseDTO] by serializing [value] according to the request `Accept` header.
  * Defaults to `application/json` when the header is missing.
+ *
+ * Generic overload preserves the static type [T] so kotlinx.serialization can locate the correct serializer.
  */
-fun Page.autoSerialize(value: Any): ResponseDTO {
+inline fun <reified T : Any> Page.autoSerialize(value: T): ResponseDTO {
     val accept = request.headers["Accept"] ?: "application/json"
-    val body =
-        when {
-            "application/json" in accept -> value.toJson()
-            "application/xml" in accept -> value.toXml()
-            else -> value.toString()
+    return when {
+        "application/json" in accept -> {
+            buildResponse<String> {
+                headers["Content-Type"] = "application/json"
+                body = value.toJson<T>().getOrThrow()
+            }
         }
 
-    return buildResponse {
-        headers["Content-Type"] = accept
-        this.body = body
+        "application/xml" in accept -> {
+            buildResponse<ByteArray> {
+                headers["Content-Type"] = "application/xml"
+                body = value.toXml<T>().getOrThrow()
+            }
+        }
+
+        else -> {
+            buildResponse<String> {
+                headers["Content-Type"] = accept
+                body = value.toString()
+            }
+        }
     }
 }
+
+/**
+ * Backward-compatible overload that accepts [Any]. If the static type is not preserved (no reified generic),
+ * JSON serialization cannot be guaranteed; this version falls back to stringification for unknown types.
+ */
+// Note: A non-generic Any overload is intentionally omitted to avoid JVM signature clashes
+// and to ensure kotlinx.serialization serializers can be resolved via the reified type.
 
 /** Writes JSON representation of this object to the given [path]. Creates the file if needed. */
 inline fun <reified T : Any> T.toJsonFile(

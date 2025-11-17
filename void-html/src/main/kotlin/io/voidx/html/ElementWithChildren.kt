@@ -1,0 +1,80 @@
+package io.voidx.html
+
+import io.voidx.html.exception.ChildNotAllowedException
+import io.voidx.html.exception.FragmentChildNotAllowedException
+import kotlin.reflect.KClass
+
+internal interface HElement
+
+/**
+ * Base class for HTML-like elements that can contain children in the Void DSL.
+ *
+ * - [acceptedChildren] controls which child element types are allowed. If the first entry is null,
+ *   any child type is accepted. Otherwise, only the listed KClasses are allowed.
+ * - During [render], the children are validated against [acceptedChildren] and exceptions are thrown
+ *   if a disallowed child is encountered.
+ */
+abstract class ElementWithChildren internal constructor(
+    override val name: String,
+) : Element(name) {
+    abstract val acceptedChildren: MutableList<KClass<out Element>?>
+
+    /**
+     * Renders this element by first validating child types against [acceptedChildren],
+     * then concatenating each child's [Element.render] inside an opening/closing tag with attributes.
+     *
+     * Throws [ChildNotAllowedException] when a direct child type is not allowed, or
+     * [FragmentChildNotAllowedException] when a [Fractal] contains a disallowed nested child.
+     */
+    override fun render(): String {
+        var attrs = ""
+        attributes.forEach { (name, value) ->
+            attrs += "${name.lowercase()}=\"$value\" "
+        }
+        /**
+         * If the first value in the array is null it means the element can accept any children.
+         *
+         * Else if you added in a child that is not in the accepted list, the ChildNotAllowedException will be thrown.
+         * Optionally if the child is a fragment and one of the first set of children doesn't is not in the accepted list, the FragmentChildNotAllowedException will be thrown.
+         *
+         * @throws ChildNotAllowedException
+         */
+        if (acceptedChildren[0] != null) {
+            children?.forEach { child ->
+                if (!isAccepted(child)) {
+                    if (child is Fractal) {
+                        throw FragmentChildNotAllowedException(
+                            parent = this,
+                        )
+                    } else {
+                        throw ChildNotAllowedException(
+                            child = child,
+                            parent = this,
+                        )
+                    }
+                }
+            }
+        }
+        val content = children!!.joinToString("") { it.render() }
+        return "<$name $attrs>$content</$name>"
+    }
+
+    private fun isAccepted(child: Element): Boolean {
+        if (!acceptedChildren.contains(child::class) || child is Fractal) {
+            if (child is Fractal) {
+                if (child.children?.isNotEmpty() == true) {
+                    child.children!!.forEach { fChild ->
+                        return isAccepted(fChild)
+                    }
+                } else {
+                    return true
+                }
+            } else {
+                return false
+            }
+        } else {
+            return true
+        }
+        return false
+    }
+}

@@ -1,7 +1,7 @@
 package io.voidx.middleware
 
-import io.voidx.dto.http.RequestDTO
-import io.voidx.dto.http.ResponseDTO
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.ResponseDTO
 
 /**
  * Marker interface for a middleware unit ("relay") that can participate in request/response
