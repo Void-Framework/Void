@@ -183,7 +183,7 @@ class Router :
         val rawTarget = requestDTO.target
         val qMark = rawTarget.indexOf('?')
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
-        val query: Map<String, String> = Companion.parseQuery(rawTarget)
+        val query: Map<String, String> = parseQuery(rawTarget)
         val response =
             middlewareProcessBefore(requestDTO.toResult()) ?: when {
                 requestDTO.headers.containsKey("KTS-Request") -> {
@@ -252,11 +252,6 @@ class Router :
             )
         }
     }
-
-    /**
-     * Returns a [PageHandler] for the given static [path], creating and registering one if missing.
-     * Allows a fluent style to register per-method handlers (e.g., on("/api") GET { ... }).
-     */
 
     /**
      * Returns a [PageHandler] for the static [path], creating and registering one

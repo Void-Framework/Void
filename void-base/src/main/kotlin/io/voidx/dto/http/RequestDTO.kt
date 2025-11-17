@@ -194,7 +194,7 @@ fun RequestBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
  *
  * Notes:
  * - `URI.create(url + target)` may throw [IllegalArgumentException] if the resulting string is not a valid URI.
- * - No additional URL encoding is performed here. Pre-encode path/query segments in [target] if needed.
+ * - No additional URL encoding is performed here. Pre-encode path/query segments in [RequestDTO.target] if needed.
  *
  * Example:
  * ```kotlin

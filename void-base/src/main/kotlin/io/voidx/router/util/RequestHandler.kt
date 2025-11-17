@@ -84,9 +84,7 @@ internal interface RequestHandler {
     }
 
     /**
-     * Returns a [ResponseDTO] for a static [page], consulting the cache when present.
-     * If the target path exists in the [io.voidx.cache.Cache], the cached value is
-     * returned; otherwise [Page.content] is evaluated.
+     * Returns a [ResponseDTO] for a static [page], [Page.content] is evaluated.
      */
     fun handleResponse(
         page: Page,
