@@ -22,6 +22,7 @@ dependencies {
     api(project(":backend"))
     api(libs.org.jetbrains.kotlin.kotlin.stdlib)
     api(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
+    implementation("org.jetbrains.compose.runtime:runtime:1.9.3")
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
     testImplementation("org.bouncycastle:bcpkix-jdk18on:1.82")
