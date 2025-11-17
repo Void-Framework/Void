@@ -1,6 +1,13 @@
 package test
 
-import io.voidx.dto.http.*
+import io.voidx.dto.ResponseBody
+import io.voidx.dto.ResponseDTO
+import io.voidx.dto.badRequest
+import io.voidx.dto.fileDownload
+import io.voidx.dto.guessContentType
+import io.voidx.dto.permanentRedirect
+import io.voidx.dto.redirect
+import io.voidx.dto.temporaryRedirect
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -59,25 +66,5 @@ class ResponseHelpersAndLegacyTests {
         assertEquals("text/plain", guessContentType(File("a.txt")))
         // Unknown should fallback to application/octet-stream
         assertEquals("application/octet-stream", guessContentType(File("a.unknownext")))
-    }
-
-    @Test
-    fun legacy_json_builder_serializes_nested_structures() {
-        val entries: JSON =
-            mapOf(
-                "a" to 1,
-                "b" to true,
-                "c" to listOf(1, 2, 3),
-                "d" to mapOf("x" to "y"),
-            )
-
-        val resp = ResponseDTO.json(entries, 200, "OK")
-        assertEquals(200, resp.status)
-        val body = (resp.body as ResponseBody.StringBody).body
-        // Contains top-level keys and nested content
-        assertTrue(body.contains("\"a\":1"))
-        assertTrue(body.contains("\"b\":true"))
-        assertTrue(body.contains("\"c\":[1,2,3]"))
-        assertTrue(body.contains("\"x\":\"y\""))
     }
 }

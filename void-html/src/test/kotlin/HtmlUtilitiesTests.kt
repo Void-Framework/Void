@@ -1,12 +1,13 @@
 package test
 
-import io.voidx.dto.http.ok
+import io.voidx.dto.ResponseBody
+import io.voidx.dto.ok
 import io.voidx.html.Element
 import io.voidx.html.fractal
 import io.voidx.html.generated.Div
 import io.voidx.html.generated.H2
 import io.voidx.html.metadata.Metadata
-import io.voidx.html.page.apiRoute
+import io.voidx.page.apiRoute
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -66,8 +67,8 @@ class HtmlUtilitiesTests {
         // Body is the element's render() output
         val body =
             when (val b = resp.body) {
-                is io.voidx.dto.http.ResponseBody.StringBody -> b.body
-                is io.voidx.dto.http.ResponseBody.ByteArrayBody -> String(b.body)
+                is ResponseBody.StringBody -> b.body
+                is ResponseBody.ByteArrayBody -> String(b.body)
             }
         assertTrue(body.contains("<div"))
     }

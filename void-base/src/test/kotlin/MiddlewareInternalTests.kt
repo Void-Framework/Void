@@ -1,9 +1,9 @@
 package test
 
-import io.voidx.api.method.Method
-import io.voidx.dto.http.ResponseBody
-import io.voidx.dto.http.buildRequest
-import io.voidx.dto.http.buildResponse
+import io.voidx.Method
+import io.voidx.dto.ResponseBody
+import io.voidx.dto.buildRequest
+import io.voidx.dto.buildResponse
 import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
 import io.voidx.router.Router

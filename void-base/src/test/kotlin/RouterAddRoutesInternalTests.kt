@@ -1,8 +1,8 @@
 package test
 
-import io.voidx.dto.http.ok
-import io.voidx.html.page.Page
-import io.voidx.html.page.apiRoute
+import io.voidx.dto.ok
+import io.voidx.page.Page
+import io.voidx.page.apiRoute
 import io.voidx.router.Router
 import kotlin.test.Test
 import kotlin.test.assertEquals

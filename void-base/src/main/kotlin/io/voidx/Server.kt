@@ -1,9 +1,8 @@
-package io.voidx.server
+package io.voidx
 
-import io.voidx.clienthandler.ClientHandler
-import io.voidx.dto.http.buildResponse
-import io.voidx.dto.http.headers
-import io.voidx.dto.http.writeHTTP
+import io.voidx.dto.buildResponse
+import io.voidx.dto.headers
+import io.voidx.dto.writeHTTP
 import io.voidx.router.Router
 import kotlinx.coroutines.*
 import java.io.File
@@ -24,11 +23,11 @@ import javax.net.ssl.SSLSocket
  * - Construct with a [Router]. During initialization, module hooks (see [io.voidx.util.ModuleInit])
  *   are executed and any registered HTML integration is applied to existing routes.
  * - Call [startHTTPServer] and/or [startHTTPSServer] to accept connections.
- * - Each connection is handled on a coroutine via [io.voidx.clienthandler.ClientHandler].
+ * - Each connection is handled on a coroutine via [ClientHandler].
  *
  * @param httpVersion HTTP version used when writing responses.
  */
-class Server internal constructor(
+class Server(
     private val router: Router,
     val httpVersion: Number = 1.1,
 ) {
@@ -37,7 +36,7 @@ class Server internal constructor(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val keystore: KeyStore = KeyStore.getInstance("PKCS12")
     private val context: SSLContext = SSLContext.getInstance("TLS")
-    var isHTTPSOn = false
+    private var isHTTPSOn = false
 
     /** Callback invoked when a server socket (HTTP or HTTPS) throws while starting or accepting. */
     var onServerSocketError: (Exception) -> Unit = {

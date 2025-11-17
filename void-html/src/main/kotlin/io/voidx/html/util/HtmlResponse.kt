@@ -1,7 +1,7 @@
 package io.voidx.html.util
 
-import io.voidx.dto.http.ResponseDTO
-import io.voidx.dto.http.ok
+import io.voidx.dto.ResponseDTO
+import io.voidx.dto.ok
 import io.voidx.html.Element
 import io.voidx.html.metadata.Metadata
 

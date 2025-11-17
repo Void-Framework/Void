@@ -1,12 +1,13 @@
 package io.voidx.router.util
 
-import io.voidx.clienthandler.ClientHandler
-import io.voidx.dto.http.RequestDTO
-import io.voidx.dto.http.ResponseDTO
-import io.voidx.html.page.Page
-import io.voidx.html.page.dynamic.DynamicPage
-import io.voidx.html.page.dynamic.Path
-import io.voidx.router.toResult
+import io.voidx.ClientHandler
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.ResponseDTO
+import io.voidx.page.Page
+import io.voidx.page.DynamicPage
+import io.voidx.page.Path
+import io.voidx.util.toResult
+import io.voidx.util.trimTrailingEmpty
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -91,16 +92,4 @@ internal interface RequestHandler {
         clientHandler: ClientHandler,
         target: String,
     ): ResponseDTO = page.content()
-}
-
-/**
- * Removes a single trailing empty string element from this list if present.
- * Useful when splitting URL paths to ignore a trailing slash.
- *
- * @return true if an empty element was removed; false otherwise.
- */
-fun MutableList<String>.trimTrailingEmpty(): Boolean {
-    val hasEmptyTail = this.lastOrNull()?.isEmpty() == true
-    if (hasEmptyTail) removeAt(lastIndex)
-    return hasEmptyTail
 }

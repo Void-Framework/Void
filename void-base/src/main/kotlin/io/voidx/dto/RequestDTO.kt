@@ -1,7 +1,7 @@
-package io.voidx.dto.http
+package io.voidx.dto
 
-import io.voidx.api.method.Method
-import io.voidx.clienthandler.ClientHandler
+import io.voidx.Method
+import io.voidx.ClientHandler
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader

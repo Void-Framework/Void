@@ -1,4 +1,4 @@
-package io.voidx.api.method
+package io.voidx
 
 /**
  * Standard HTTP request methods supported by the framework.

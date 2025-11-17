@@ -1,9 +1,9 @@
 package io.voidx.docs
 
-import io.voidx.api.method.Method
-import io.voidx.dto.http.ResponseBody
-import io.voidx.dto.http.buildRequest
-import io.voidx.dto.http.headers
+import io.voidx.Method
+import io.voidx.dto.ResponseBody
+import io.voidx.dto.buildRequest
+import io.voidx.dto.headers
 import io.voidx.html.page.metadata
 import io.voidx.router.router
 import java.nio.file.Files

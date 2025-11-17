@@ -1,6 +1,6 @@
 package test
 
-import io.voidx.dto.http.RequestDTO
+import io.voidx.dto.RequestDTO
 import java.io.ByteArrayInputStream
 import java.net.Socket
 import kotlin.test.Test

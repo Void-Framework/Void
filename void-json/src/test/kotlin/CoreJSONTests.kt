@@ -1,7 +1,7 @@
 package test
 
-import io.voidx.dto.http.RequestDTO
-import io.voidx.dto.http.buildRequest
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.buildRequest
 import io.voidx.json.*
 import kotlinx.serialization.Serializable
 import org.junit.jupiter.api.Test

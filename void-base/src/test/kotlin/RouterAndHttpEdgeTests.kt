@@ -1,12 +1,11 @@
 package test
 
-import io.voidx.dto.http.noContent
-import io.voidx.dto.http.ok
-import io.voidx.dto.http.writeHTTP
-import io.voidx.html.page.apiRoute
+import io.voidx.dto.accepted
+import io.voidx.dto.created
+import io.voidx.dto.noContent
+import io.voidx.dto.ok
+import io.voidx.dto.writeHTTP
 import io.voidx.router.Router
-import io.voidx.router.router
-import io.voidx.util.HtmlIntegration
 import java.io.ByteArrayOutputStream
 import kotlin.test.*
 
@@ -40,14 +39,12 @@ class RouterAndHttpEdgeTests {
         assertEquals("OK", okResp.statusText)
 
         val created =
-            io.voidx.dto.http
-                .created("x", mutableMapOf())
+            created("x", mutableMapOf())
         assertEquals(201, created.status)
         assertEquals("Created", created.statusText)
 
         val accepted =
-            io.voidx.dto.http
-                .accepted("y", mutableMapOf())
+            accepted("y", mutableMapOf())
         assertEquals(202, accepted.status)
         assertEquals("Accepted", accepted.statusText)
     }

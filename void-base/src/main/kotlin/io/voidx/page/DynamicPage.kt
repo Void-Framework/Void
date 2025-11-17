@@ -1,8 +1,7 @@
-package io.voidx.html.page.dynamic
+package io.voidx.page
 
-import io.voidx.dto.http.RequestDTO
-import io.voidx.dto.http.ResponseDTO
-import io.voidx.html.page.Page
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.ResponseDTO
 
 typealias Path = String
 

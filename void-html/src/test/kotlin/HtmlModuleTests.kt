@@ -1,11 +1,13 @@
 package test
 
+import io.voidx.dto.ResponseBody
 import io.voidx.html.Element
 import io.voidx.html.fractal
 import io.voidx.html.generated.Div
 import io.voidx.html.metadata.Metadata
 import io.voidx.html.router.RouterUtil // force object initialization
 import io.voidx.html.util.createResponse
+import io.voidx.page.apiRoute
 import io.voidx.util.HtmlIntegration
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -19,8 +21,7 @@ class HtmlModuleTests {
         val meta =
             Metadata(
                 page =
-                    io.voidx.html.page
-                        .apiRoute("/") { createResponse(el) },
+                    apiRoute("/") { createResponse(el) },
             )
 
         val resp = createResponse(el, meta)
@@ -30,8 +31,8 @@ class HtmlModuleTests {
         assertEquals("", attrElement.name)
         val body =
             when (val b = resp.body) {
-                is io.voidx.dto.http.ResponseBody.StringBody -> b.body
-                is io.voidx.dto.http.ResponseBody.ByteArrayBody -> String(b.body)
+                is ResponseBody.StringBody -> b.body
+                is ResponseBody.ByteArrayBody -> String(b.body)
             }
         assertTrue(body.contains("<head>"))
         assertTrue(body.contains("<body>"))
