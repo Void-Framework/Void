@@ -2,10 +2,10 @@ package io.voidx.router
 
 import io.voidx.clienthandler.ClientHandler
 import io.voidx.dto.http.*
-import io.voidx.html.page.ExceptionPage
-import io.voidx.html.page.NotFoundPage
-import io.voidx.html.page.Page
-import io.voidx.html.page.dynamic.DynamicPage
+import io.voidx.page.ExceptionPage
+import io.voidx.page.NotFoundPage
+import io.voidx.page.Page
+import io.voidx.page.dynamic.DynamicPage
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore

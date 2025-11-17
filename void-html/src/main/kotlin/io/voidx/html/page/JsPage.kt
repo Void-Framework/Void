@@ -5,6 +5,7 @@ import io.voidx.dto.http.ResponseDTO
 import io.voidx.dto.http.buildResponse
 import io.voidx.dto.http.headers
 import io.voidx.html.metadata.metadata
+import io.voidx.page.Page
 import java.util.UUID
 
 /**

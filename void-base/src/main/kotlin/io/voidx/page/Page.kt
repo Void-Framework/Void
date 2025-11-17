@@ -1,5 +1,6 @@
-package io.voidx.html.page
+package io.voidx.page
 
+import androidx.compose.runtime.Composable
 import io.voidx.dto.http.RequestDTO
 import io.voidx.dto.http.ResponseDTO
 import io.voidx.middleware.Relay
@@ -50,6 +51,7 @@ abstract class Page(
     lateinit var queries: Map<String, String>
 
     /** Builds the concrete [ContentType] instance to be rendered or returned. */
+    @Composable
     abstract fun content(): ResponseDTO
 
     /**

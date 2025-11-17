@@ -4,7 +4,7 @@ import io.voidx.api.method.Method
 import io.voidx.dto.http.ResponseDTO
 import io.voidx.dto.http.buildResponse
 import io.voidx.dto.http.headers
-import io.voidx.html.page.Page
+import io.voidx.page.Page
 import java.util.*
 
 /**

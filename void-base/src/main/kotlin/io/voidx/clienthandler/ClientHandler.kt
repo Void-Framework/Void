@@ -53,7 +53,7 @@ class ClientHandler(
      *
      * Behavior:
      * - Invokes global BEFORE middleware; if any returns a [ResponseDTO], that is sent immediately.
-     * - Otherwise, delegates to [Router.error] which renders the configured [io.voidx.html.page.ExceptionPage].
+     * - Otherwise, delegates to [Router.error] which renders the configured [io.voidx.page.ExceptionPage].
      * - Closes the client socket in all cases.
      *
      * @param e The exception thrown during request handling.

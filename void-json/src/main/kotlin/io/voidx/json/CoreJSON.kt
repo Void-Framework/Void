@@ -3,7 +3,7 @@ package io.voidx.json
 import io.voidx.dto.http.RequestDTO
 import io.voidx.dto.http.ResponseDTO
 import io.voidx.dto.http.buildResponse
-import io.voidx.html.page.Page
+import io.voidx.page.Page
 import io.voidx.json.JsonConfigs.default
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable

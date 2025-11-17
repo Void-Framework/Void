@@ -3,9 +3,9 @@ package io.voidx.router.util
 import io.voidx.clienthandler.ClientHandler
 import io.voidx.dto.http.RequestDTO
 import io.voidx.dto.http.ResponseDTO
-import io.voidx.html.page.Page
-import io.voidx.html.page.dynamic.DynamicPage
-import io.voidx.html.page.dynamic.Path
+import io.voidx.page.Page
+import io.voidx.page.dynamic.DynamicPage
+import io.voidx.page.dynamic.Path
 import io.voidx.router.toResult
 import java.util.concurrent.ConcurrentHashMap
 

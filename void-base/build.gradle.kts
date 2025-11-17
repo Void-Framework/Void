@@ -8,6 +8,8 @@ plugins {
     kotlin("jvm") version "2.2.21"
     `maven-publish`
     id("org.jetbrains.dokka")
+    id("org.jetbrains.compose") version "1.7.3"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
 }
 
 java {
@@ -23,12 +25,18 @@ kotlin {
 }
 
 dependencies {
+    api(compose.runtime)
     api(libs.org.jetbrains.kotlin.kotlin.stdlib)
     api(libs.org.jetbrains.kotlin.kotlin.reflect)
     api(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
     api("org.slf4j:slf4j-api:2.0.17")
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
+}
+
+repositories {
+    google()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
 description = "void-base"

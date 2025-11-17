@@ -1,13 +1,18 @@
 package io.voidx.html.page
 
+import androidx.compose.runtime.Composable
 import io.voidx.api.CssPage
 import io.voidx.dto.http.RequestDTO
 import io.voidx.html.Element
+import io.voidx.html.Fractal
 import io.voidx.html.metadata.Metadata
 import io.voidx.html.metadata.metadata
-import io.voidx.html.page.dynamic.DynamicPage
+import io.voidx.page.dynamic.DynamicPage
 import io.voidx.html.router.RouterUtil // force class loading to run ModuleInit.init()
 import io.voidx.html.util.createResponse
+import io.voidx.page.ExceptionPage
+import io.voidx.page.NotFoundPage
+import io.voidx.page.Page
 import io.voidx.router.Router
 import io.voidx.router.listResourcePaths
 import io.voidx.router.readResourceText
@@ -33,14 +38,15 @@ var Page.metadata: Metadata?
 fun htmlRoute(
     path: String,
     _metadata: Metadata.() -> Unit,
-    block: Page.(RequestDTO) -> Element,
+    block: @Composable Page.() -> Fractal,
 ): Page =
     object : Page(target = path) {
         init {
             metadata = metadata(this, _metadata)
         }
 
-        override fun content() = createResponse(block(request), metadata as Metadata)
+        @Composable
+        override fun content() = createResponse(block(), metadata as Metadata)
     }
 
 /**
@@ -49,14 +55,15 @@ fun htmlRoute(
  */
 fun exceptionPage(
     _metadata: Metadata.() -> Unit,
-    block: ExceptionPage.(Exception) -> Element,
+    block: @Composable ExceptionPage.() -> Fractal,
 ): ExceptionPage =
     object : ExceptionPage() {
         init {
             metadata = metadata(this, _metadata)
         }
 
-        override fun content() = createResponse(block(exception), metadata as Metadata)
+        @Composable
+        override fun content() = createResponse(block(), metadata as Metadata)
     }
 
 /**
@@ -64,14 +71,15 @@ fun exceptionPage(
  */
 fun notFoundPage(
     _metadata: Metadata.() -> Unit,
-    block: NotFoundPage.(RequestDTO) -> Element,
+    block: @Composable NotFoundPage.() -> Fractal,
 ): NotFoundPage =
     object : NotFoundPage() {
         init {
             metadata = metadata(this, _metadata)
         }
 
-        override fun content() = createResponse(block(request), metadata as Metadata)
+        @Composable
+        override fun content() = createResponse(block(), metadata as Metadata)
     }
 
 /**
@@ -82,14 +90,15 @@ fun notFoundPage(
 fun dynamicHtmlRoute(
     path: String,
     _metadata: Metadata.() -> Unit,
-    block: DynamicPage.(RequestDTO) -> Element,
+    block: @Composable DynamicPage.() -> Fractal,
 ): DynamicPage =
     object : DynamicPage(target = path) {
         init {
             metadata = metadata(this, _metadata)
         }
 
-        override fun content() = createResponse(block(request), metadata as Metadata)
+        @Composable
+        override fun content() = createResponse(block(), metadata as Metadata)
     }
 
 /**

@@ -4,7 +4,7 @@ import io.voidx.api.method.Method
 import io.voidx.dto.http.RequestDTO
 import io.voidx.dto.http.ResponseDTO
 import io.voidx.dto.http.emptyResponse
-import io.voidx.html.page.Page
+import io.voidx.page.Page
 
 /**
  * Lightweight page that dispatches to verb-specific handlers for API-style routes.

@@ -19,14 +19,8 @@ repositories {
 }
 
 dependencies {
-    api(compose.runtime)
     testImplementation(kotlin("test"))
     implementation(project(":void-base"))
-}
-
-repositories {
-    google()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
 kotlin {

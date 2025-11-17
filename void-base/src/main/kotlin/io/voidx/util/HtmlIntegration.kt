@@ -3,7 +3,7 @@ package io.voidx.util
 import io.voidx.clienthandler.ClientHandler
 import io.voidx.dto.http.RequestDTO
 import io.voidx.dto.http.ResponseDTO
-import io.voidx.html.page.Page
+import io.voidx.page.Page
 import io.voidx.router.Router
 
 /**
