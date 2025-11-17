@@ -1,31 +1,18 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.ElementWithChildren
+import io.void.html.*
+import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Nav(
-    vararg attributes: Attribute,
-    function: Element.() -> Unit,
-) : ElementWithChildren(name = "nav") {
+class Nav(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren(name = "nav") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-
-    init {
-        this.apply(function)
-        addAttributes(*attributes)
-    }
+    init { this.apply(function); addAttributes(*attributes) }
 }
-
-fun Element.Nav(
-    vararg attribute: Attribute,
-    _children: Element.() -> Unit,
-): Nav {
-    val Nav =
-        Nav(
-            attributes = attribute,
-            function = _children,
-        )
-    children!!.add(Nav)
-    return Nav
+@Composable
+fun Element.Nav(vararg attribute: Attribute, _children: @Composable Element.() -> Unit): Nav {
+    val node = Nav(attributes = attribute) {
+        Fractal(_children)
+    }
+    children!!.add(node)
+    return node
 }

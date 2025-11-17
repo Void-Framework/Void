@@ -1,31 +1,18 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.ElementWithChildren
+import io.void.html.*
+import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Span(
-    vararg attributes: Attribute,
-    function: Element.() -> Unit,
-) : ElementWithChildren(name = "span") {
+class Span(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren(name = "span") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-
-    init {
-        this.apply(function)
-        addAttributes(*attributes)
-    }
+    init { this.apply(function); addAttributes(*attributes) }
 }
-
-fun Element.Span(
-    vararg attribute: Attribute,
-    _children: Element.() -> Unit,
-): Span {
-    val Span =
-        Span(
-            attributes = attribute,
-            function = _children,
-        )
-    children!!.add(Span)
-    return Span
+@Composable
+fun Element.Span(vararg attribute: Attribute, _children: @Composable Element.() -> Unit): Span {
+    val node = Span(attributes = attribute) {
+        Fractal(_children)
+    }
+    children!!.add(node)
+    return node
 }

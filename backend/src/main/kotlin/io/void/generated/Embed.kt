@@ -1,22 +1,14 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.SelfClosingElement
+import io.void.html.*
+import androidx.compose.runtime.*
+import kotlin.reflect.KClass
 
-class Embed(
-    vararg attributes: Attribute,
-) : SelfClosingElement("embed") {
-    init {
-        addAttributes(*attributes)
-    }
-}
+class Embed(vararg attributes: Attribute) : SelfClosingElement("embed") { init { addAttributes(*attributes) } }
 
+@Composable
 fun Element.Embed(vararg attribute: Attribute): Embed {
-    val Embed =
-        Embed(
-            attributes = attribute,
-        )
-    children!!.add(Embed)
-    return Embed
+    val node = Embed(attributes = attribute)
+    children!!.add(node)
+    return node
 }

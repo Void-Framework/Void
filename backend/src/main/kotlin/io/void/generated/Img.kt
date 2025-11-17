@@ -1,22 +1,14 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.SelfClosingElement
+import io.void.html.*
+import androidx.compose.runtime.*
+import kotlin.reflect.KClass
 
-class Img(
-    vararg attributes: Attribute,
-) : SelfClosingElement("img") {
-    init {
-        addAttributes(*attributes)
-    }
-}
+class Img(vararg attributes: Attribute) : SelfClosingElement("img") { init { addAttributes(*attributes) } }
 
+@Composable
 fun Element.Img(vararg attribute: Attribute): Img {
-    val Img =
-        Img(
-            attributes = attribute,
-        )
-    children!!.add(Img)
-    return Img
+    val node = Img(attributes = attribute)
+    children!!.add(node)
+    return node
 }

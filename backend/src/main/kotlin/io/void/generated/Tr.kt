@@ -1,31 +1,18 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.ElementWithChildren
+import io.void.html.*
+import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Tr(
-    vararg attributes: Attribute,
-    function: Element.() -> Unit,
-) : ElementWithChildren(name = "tr") {
-    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(Th::class, Td::class)
-
-    init {
-        this.apply(function)
-        addAttributes(*attributes)
-    }
+class Tr(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren(name = "tr") {
+    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+    init { this.apply(function); addAttributes(*attributes) }
 }
-
-fun Element.Tr(
-    vararg attribute: Attribute,
-    _children: Element.() -> Unit,
-): Tr {
-    val Tr =
-        Tr(
-            attributes = attribute,
-            function = _children,
-        )
-    children!!.add(Tr)
-    return Tr
+@Composable
+fun Element.Tr(vararg attribute: Attribute, _children: @Composable Element.() -> Unit): Tr {
+    val node = Tr(attributes = attribute) {
+        Fractal(_children)
+    }
+    children!!.add(node)
+    return node
 }

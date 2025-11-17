@@ -1,22 +1,14 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.SelfClosingElement
+import io.void.html.*
+import androidx.compose.runtime.*
+import kotlin.reflect.KClass
 
-class Area(
-    vararg attributes: Attribute,
-) : SelfClosingElement("area") {
-    init {
-        addAttributes(*attributes)
-    }
-}
+class Area(vararg attributes: Attribute) : SelfClosingElement("area") { init { addAttributes(*attributes) } }
 
+@Composable
 fun Element.Area(vararg attribute: Attribute): Area {
-    val Area =
-        Area(
-            attributes = attribute,
-        )
-    children!!.add(Area)
-    return Area
+    val node = Area(attributes = attribute)
+    children!!.add(node)
+    return node
 }

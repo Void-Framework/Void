@@ -1,31 +1,18 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.ElementWithChildren
+import io.void.html.*
+import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Form(
-    vararg attributes: Attribute,
-    function: Element.() -> Unit,
-) : ElementWithChildren(name = "form") {
+class Form(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren(name = "form") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-
-    init {
-        this.apply(function)
-        addAttributes(*attributes)
-    }
+    init { this.apply(function); addAttributes(*attributes) }
 }
-
-fun Element.Form(
-    vararg attribute: Attribute,
-    _children: Element.() -> Unit,
-): Form {
-    val Form =
-        Form(
-            attributes = attribute,
-            function = _children,
-        )
-    children!!.add(Form)
-    return Form
+@Composable
+fun Element.Form(vararg attribute: Attribute, _children: @Composable Element.() -> Unit): Form {
+    val node = Form(attributes = attribute) {
+        Fractal(_children)
+    }
+    children!!.add(node)
+    return node
 }

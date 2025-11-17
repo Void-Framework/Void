@@ -1,31 +1,18 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.ElementWithChildren
+import io.void.html.*
+import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Blockquote(
-    vararg attributes: Attribute,
-    function: Element.() -> Unit,
-) : ElementWithChildren(name = "blockquote") {
+class Blockquote(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren(name = "blockquote") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-
-    init {
-        this.apply(function)
-        addAttributes(*attributes)
-    }
+    init { this.apply(function); addAttributes(*attributes) }
 }
-
-fun Element.Blockquote(
-    vararg attribute: Attribute,
-    _children: Element.() -> Unit,
-): Blockquote {
-    val Blockquote =
-        Blockquote(
-            attributes = attribute,
-            function = _children,
-        )
-    children!!.add(Blockquote)
-    return Blockquote
+@Composable
+fun Element.Blockquote(vararg attribute: Attribute, _children: @Composable Element.() -> Unit): Blockquote {
+    val node = Blockquote(attributes = attribute) {
+        Fractal(_children)
+    }
+    children!!.add(node)
+    return node
 }

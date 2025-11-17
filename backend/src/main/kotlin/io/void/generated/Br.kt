@@ -1,22 +1,14 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.SelfClosingElement
+import io.void.html.*
+import androidx.compose.runtime.*
+import kotlin.reflect.KClass
 
-class Br(
-    vararg attributes: Attribute,
-) : SelfClosingElement("br") {
-    init {
-        addAttributes(*attributes)
-    }
-}
+class Br(vararg attributes: Attribute) : SelfClosingElement("br") { init { addAttributes(*attributes) } }
 
+@Composable
 fun Element.Br(vararg attribute: Attribute): Br {
-    val Br =
-        Br(
-            attributes = attribute,
-        )
-    children!!.add(Br)
-    return Br
+    val node = Br(attributes = attribute)
+    children!!.add(node)
+    return node
 }

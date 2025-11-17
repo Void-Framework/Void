@@ -1,22 +1,14 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.SelfClosingElement
+import io.void.html.*
+import androidx.compose.runtime.*
+import kotlin.reflect.KClass
 
-class Hr(
-    vararg attributes: Attribute,
-) : SelfClosingElement("hr") {
-    init {
-        addAttributes(*attributes)
-    }
-}
+class Hr(vararg attributes: Attribute) : SelfClosingElement("hr") { init { addAttributes(*attributes) } }
 
+@Composable
 fun Element.Hr(vararg attribute: Attribute): Hr {
-    val Hr =
-        Hr(
-            attributes = attribute,
-        )
-    children!!.add(Hr)
-    return Hr
+    val node = Hr(attributes = attribute)
+    children!!.add(node)
+    return node
 }

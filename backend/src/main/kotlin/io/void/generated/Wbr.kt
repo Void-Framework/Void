@@ -1,22 +1,14 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.SelfClosingElement
+import io.void.html.*
+import androidx.compose.runtime.*
+import kotlin.reflect.KClass
 
-class Wbr(
-    vararg attributes: Attribute,
-) : SelfClosingElement("wbr") {
-    init {
-        addAttributes(*attributes)
-    }
-}
+class Wbr(vararg attributes: Attribute) : SelfClosingElement("wbr") { init { addAttributes(*attributes) } }
 
+@Composable
 fun Element.Wbr(vararg attribute: Attribute): Wbr {
-    val Wbr =
-        Wbr(
-            attributes = attribute,
-        )
-    children!!.add(Wbr)
-    return Wbr
+    val node = Wbr(attributes = attribute)
+    children!!.add(node)
+    return node
 }

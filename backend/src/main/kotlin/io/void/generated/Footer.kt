@@ -1,31 +1,18 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.ElementWithChildren
+import io.void.html.*
+import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Footer(
-    vararg attributes: Attribute,
-    function: Element.() -> Unit,
-) : ElementWithChildren(name = "footer") {
+class Footer(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren(name = "footer") {
     override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-
-    init {
-        this.apply(function)
-        addAttributes(*attributes)
-    }
+    init { this.apply(function); addAttributes(*attributes) }
 }
-
-fun Element.Footer(
-    vararg attribute: Attribute,
-    _children: Element.() -> Unit,
-): Footer {
-    val Footer =
-        Footer(
-            attributes = attribute,
-            function = _children,
-        )
-    children!!.add(Footer)
-    return Footer
+@Composable
+fun Element.Footer(vararg attribute: Attribute, _children: @Composable Element.() -> Unit): Footer {
+    val node = Footer(attributes = attribute) {
+        Fractal(_children)
+    }
+    children!!.add(node)
+    return node
 }

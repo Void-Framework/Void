@@ -1,22 +1,14 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.SelfClosingElement
+import io.void.html.*
+import androidx.compose.runtime.*
+import kotlin.reflect.KClass
 
-class Source(
-    vararg attributes: Attribute,
-) : SelfClosingElement("source") {
-    init {
-        addAttributes(*attributes)
-    }
-}
+class Source(vararg attributes: Attribute) : SelfClosingElement("source") { init { addAttributes(*attributes) } }
 
+@Composable
 fun Element.Source(vararg attribute: Attribute): Source {
-    val Source =
-        Source(
-            attributes = attribute,
-        )
-    children!!.add(Source)
-    return Source
+    val node = Source(attributes = attribute)
+    children!!.add(node)
+    return node
 }

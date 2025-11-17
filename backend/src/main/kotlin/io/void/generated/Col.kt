@@ -1,22 +1,14 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.SelfClosingElement
+import io.void.html.*
+import androidx.compose.runtime.*
+import kotlin.reflect.KClass
 
-class Col(
-    vararg attributes: Attribute,
-) : SelfClosingElement("col") {
-    init {
-        addAttributes(*attributes)
-    }
-}
+class Col(vararg attributes: Attribute) : SelfClosingElement("col") { init { addAttributes(*attributes) } }
 
+@Composable
 fun Element.Col(vararg attribute: Attribute): Col {
-    val Col =
-        Col(
-            attributes = attribute,
-        )
-    children!!.add(Col)
-    return Col
+    val node = Col(attributes = attribute)
+    children!!.add(node)
+    return node
 }

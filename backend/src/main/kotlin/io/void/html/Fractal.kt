@@ -1,5 +1,6 @@
 package io.void.html
 
+import androidx.compose.runtime.Composable
 import kotlin.reflect.KClass
 
 /**
@@ -53,7 +54,7 @@ fun Element.Fractal(_text: String): Fractal {
 /**
  * Appends a [Fractal] container node populated by the provided DSL [ _children ].
  */
-fun Element.Fractal(_children: Element.() -> Unit): Fractal {
+fun Element.Fractal(_children: @Composable Element.() -> Unit): Fractal {
     val fractal =
         Fractal(
             children = _children,

@@ -1,22 +1,14 @@
 package io.void.generated
 
-import io.void.html.Attribute
-import io.void.html.Element
-import io.void.html.SelfClosingElement
+import io.void.html.*
+import androidx.compose.runtime.*
+import kotlin.reflect.KClass
 
-class Track(
-    vararg attributes: Attribute,
-) : SelfClosingElement("track") {
-    init {
-        addAttributes(*attributes)
-    }
-}
+class Track(vararg attributes: Attribute) : SelfClosingElement("track") { init { addAttributes(*attributes) } }
 
+@Composable
 fun Element.Track(vararg attribute: Attribute): Track {
-    val Track =
-        Track(
-            attributes = attribute,
-        )
-    children!!.add(Track)
-    return Track
+    val node = Track(attributes = attribute)
+    children!!.add(node)
+    return node
 }
