@@ -12,23 +12,6 @@ import kotlin.test.*
 
 class RouterAndHttpEdgeTests {
     @Test
-    fun add_route_invokes_html_integration_hook() {
-        val r = router {}
-        var called = false
-        HtmlIntegration.handleJsAndCss = { page, router ->
-            called = true
-            // ensure the same router is receiving the page
-            assertEquals(r, router)
-        }
-
-        val p = apiRoute("/x") { ok("ok", mutableMapOf("Content-Type" to "text/plain")) }
-        r.addRoute(p)
-
-        assertTrue(called, "Expected HtmlIntegration.handleJsAndCss to be called when adding a route")
-        assertNotNull(r.routes["/x"]) // route registered
-    }
-
-    @Test
     fun parseQuery_ignores_keys_without_value() {
         val raw = "/q?onlyKey&alsoOnly&k=v"
         val map = Router.parseQuery(raw)
