@@ -5,6 +5,7 @@ import io.voidx.dto.http.ok
 import io.voidx.dto.http.writeHTTP
 import io.voidx.html.page.apiRoute
 import io.voidx.router.Router
+import io.voidx.router.router
 import io.voidx.util.HtmlIntegration
 import java.io.ByteArrayOutputStream
 import kotlin.test.*
@@ -12,12 +13,12 @@ import kotlin.test.*
 class RouterAndHttpEdgeTests {
     @Test
     fun add_route_invokes_html_integration_hook() {
-        val r = Router()
+        val r = router {}
         var called = false
         HtmlIntegration.handleJsAndCss = { page, router ->
             called = true
             // ensure the same router is receiving the page
-            kotlin.test.assertEquals(r, router)
+            assertEquals(r, router)
         }
 
         val p = apiRoute("/x") { ok("ok", mutableMapOf("Content-Type" to "text/plain")) }
