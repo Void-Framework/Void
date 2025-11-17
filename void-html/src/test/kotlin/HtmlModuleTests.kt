@@ -1,7 +1,8 @@
 package test
 
-import io.voidx.generated.Div
 import io.voidx.html.Element
+import io.voidx.html.fractal
+import io.voidx.html.generated.Div
 import io.voidx.html.metadata.Metadata
 import io.voidx.html.router.RouterUtil // force object initialization
 import io.voidx.html.util.createResponse
@@ -14,7 +15,7 @@ import kotlin.test.assertTrue
 class HtmlModuleTests {
     @Test
     fun html_response_sets_headers_and_attributes() {
-        val el = Div("id" to "root") { }
+        val el = fractal { Div("id" to "root") { } }
         val meta =
             Metadata(
                 page =
@@ -26,7 +27,7 @@ class HtmlModuleTests {
         assertEquals("text/html", resp.headers["Content-Type"])
         val attrElement = resp.attributes["Element"] as? Element
         assertNotNull(attrElement)
-        assertEquals("div", attrElement.name)
+        assertEquals("", attrElement.name)
         val body =
             when (val b = resp.body) {
                 is io.voidx.dto.http.ResponseBody.StringBody -> b.body

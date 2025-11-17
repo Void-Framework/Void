@@ -1,9 +1,10 @@
 package test
 
 import io.voidx.dto.http.ok
-import io.voidx.generated.Div
-import io.voidx.generated.H2
 import io.voidx.html.Element
+import io.voidx.html.fractal
+import io.voidx.html.generated.Div
+import io.voidx.html.generated.H2
 import io.voidx.html.metadata.Metadata
 import io.voidx.html.page.apiRoute
 import kotlin.test.Test
@@ -15,9 +16,11 @@ class HtmlUtilitiesTests {
     @Test
     fun element_findElement_matches_by_id_and_class_recursively() {
         val root =
-            Div("id" to "root") {
-                Div("class" to "box") {
-                    H2("id" to "title") { }
+            fractal {
+                Div("id" to "root") {
+                    Div("class" to "box") {
+                        H2("id" to "title") { }
+                    }
                 }
             }
 
@@ -50,7 +53,7 @@ class HtmlUtilitiesTests {
 
     @Test
     fun createResponse_overload_sets_headers_and_element_attribute() {
-        val el = Div("id" to "only") { }
+        val el = fractal { Div("id" to "only") { } }
         val resp =
             io.voidx.html.util
                 .createResponse(el)
@@ -59,7 +62,7 @@ class HtmlUtilitiesTests {
         // Attributes should include original element
         val stored = resp.attributes["Element"] as? Element
         assertNotNull(stored)
-        assertEquals("div", stored.name)
+        assertEquals("", stored.name)
         // Body is the element's render() output
         val body =
             when (val b = resp.body) {
