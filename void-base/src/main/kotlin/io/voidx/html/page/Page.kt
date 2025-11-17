@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
 /**
- * Defines a route/page that produces a [ContentType]. A page can declare metadata,
+ * Defines a route/page that produces a [ResponseDTO]. A page can declare metadata,
  * middleware hooks (before/after), and optional CSS resources.
  *
  * @param target The router path this page responds to (e.g. "/search").
@@ -27,7 +27,7 @@ abstract class Page(
      * Names of external CSS resource files to include for this page.
      *
      * Use the Page invocation operator (page("style.css")) to populate this list with
-     * resources discovered under resources/css. See [io.voidx.html.page.addCssToRouter].
+     * resources discovered under resources/css.
      */
     val cssFiles = mutableListOf<String>()
     internal val relaysBefore = mutableListOf<Relay>()
@@ -48,7 +48,7 @@ abstract class Page(
     /** URL query parameters for the current request. */
     lateinit var queries: Map<String, String>
 
-    /** Builds the concrete [ContentType] instance to be rendered or returned. */
+    /** Builds the concrete [ResponseDTO] instance to be returned. */
     abstract fun content(): ResponseDTO
 
     /**

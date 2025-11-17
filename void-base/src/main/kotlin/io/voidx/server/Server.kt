@@ -161,7 +161,9 @@ class Server internal constructor(
                 )
             }
         } catch (e: Exception) {
-            client.close()
+            withContext(Dispatchers.IO) {
+                runCatching { client.close() }
+            }
         } finally {
             withContext(Dispatchers.IO) {
                 runCatching { client.close() }
