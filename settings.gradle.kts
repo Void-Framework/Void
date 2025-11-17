@@ -28,11 +28,12 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://repo.maven.apache.org/maven2/")
         }
-        google()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
 
 rootProject.name = "void-framework"
-include(":test")
-include(":backend")
+include(":void-base")
+
+include(":void-html")
+include(":void-json")
+include(":docs")
