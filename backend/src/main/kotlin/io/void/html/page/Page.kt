@@ -4,9 +4,11 @@ import io.void.api.CssPage
 import io.void.dto.http.RequestDTO
 import io.void.dto.http.ResponseDTO
 import io.void.html.Element
+import io.void.html.Fractal
 import io.void.html.page.content.ContentType
 import io.void.html.page.metadata.Metadata
 import io.void.html.page.metadata.metadata
+import io.void.html.renderComposableToElement
 import io.void.middleware.Relay
 import io.void.middleware.RelayAfter
 import io.void.middleware.RelayBefore
@@ -152,14 +154,14 @@ abstract class NotFoundPage<T : ContentType> : Page<T>("")
 fun htmlRoute(
     path: String,
     metadata: Metadata.() -> Unit,
-    block: Page<ContentType.HtmlElements>.(RequestDTO) -> Element,
+    block: Page<ContentType.HtmlElements>.(RequestDTO) -> Fractal,
 ): Page<ContentType.HtmlElements> =
     object : Page<ContentType.HtmlElements>(target = path) {
         private val _metadata = metadata(this) { }.apply(metadata)
         override var metadata: Metadata? = _metadata
         override val contentType = ContentType.HtmlElements::class
 
-        override fun content() = ContentType.HtmlElements(block(request), _metadata)
+        override fun content() = ContentType.HtmlElements(renderComposableToElement { block(request) }, _metadata)
     }
 
 /**
@@ -181,14 +183,14 @@ fun apiRoute(
  */
 fun exceptionPage(
     metadata: Metadata.() -> Unit,
-    block: ExceptionPage<ContentType.HtmlElements>.(Exception) -> Element,
+    block: ExceptionPage<ContentType.HtmlElements>.(Exception) -> Fractal,
 ): ExceptionPage<ContentType.HtmlElements> =
     object : ExceptionPage<ContentType.HtmlElements>() {
         private val _metadata = metadata(this) { }.apply(metadata)
         override var metadata: Metadata? = _metadata
         override val contentType = ContentType.HtmlElements::class
 
-        override fun content() = ContentType.HtmlElements(block(exception), _metadata)
+        override fun content() = ContentType.HtmlElements(renderComposableToElement { block(exception) }, _metadata)
     }
 
 /**
@@ -204,14 +206,14 @@ fun exceptionPage(block: ExceptionPage<ContentType.Response>.(Exception) -> Resp
 
 fun notFoundPage(
     metadata: Metadata.() -> Unit,
-    block: NotFoundPage<ContentType.HtmlElements>.(RequestDTO) -> Element,
+    block: NotFoundPage<ContentType.HtmlElements>.(RequestDTO) -> Fractal,
 ): NotFoundPage<ContentType.HtmlElements> =
     object : NotFoundPage<ContentType.HtmlElements>() {
         private val _metadata = metadata(this) { }.apply(metadata)
         override var metadata: Metadata? = _metadata
         override val contentType = ContentType.HtmlElements::class
 
-        override fun content() = ContentType.HtmlElements(block(request), _metadata)
+        override fun content() = ContentType.HtmlElements(renderComposableToElement { block(request) }, _metadata)
     }
 
 fun notFoundPage(block: NotFoundPage<ContentType.Response>.(RequestDTO) -> ResponseDTO): NotFoundPage<ContentType.Response> =

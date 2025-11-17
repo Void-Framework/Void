@@ -8,6 +8,8 @@ plugins {
     kotlin("jvm")
     `maven-publish`
     kotlin("plugin.serialization") version "2.2.0"
+    id("org.jetbrains.compose") version "1.7.3"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
 }
 
 java {
@@ -30,7 +32,7 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.9.0")
     api("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.9.0")
     api("org.slf4j:slf4j-api:2.0.17")
-    implementation("org.jetbrains.compose.runtime:runtime:1.9.3")
+    api(compose.runtime)
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
 }

@@ -4,11 +4,11 @@ import io.void.html.*
 import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Col(vararg attributes: Attribute) : SelfClosingElement("col") { init { addAttributes(*attributes) } }
-
 @Composable
-fun Element.Col(vararg attribute: Attribute): Col {
-    val node = Col(attributes = attribute)
+fun Element.Col(vararg attribute: Attribute) {
+    val node = remember {
+        object : SelfClosingElement("col") {}
+    }
+    node.addAttributes(*attribute)
     children!!.add(node)
-    return node
 }

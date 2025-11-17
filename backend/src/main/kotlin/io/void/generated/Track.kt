@@ -4,11 +4,11 @@ import io.void.html.*
 import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Track(vararg attributes: Attribute) : SelfClosingElement("track") { init { addAttributes(*attributes) } }
-
 @Composable
-fun Element.Track(vararg attribute: Attribute): Track {
-    val node = Track(attributes = attribute)
+fun Element.Track(vararg attribute: Attribute) {
+    val node = remember {
+        object : SelfClosingElement("track") {}
+    }
+    node.addAttributes(*attribute)
     children!!.add(node)
-    return node
 }

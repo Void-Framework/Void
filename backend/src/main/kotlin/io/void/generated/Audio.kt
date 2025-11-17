@@ -4,15 +4,17 @@ import io.void.html.*
 import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Audio(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren(name = "audio") {
-    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-    init { this.apply(function); addAttributes(*attributes) }
-}
 @Composable
-fun Element.Audio(vararg attribute: Attribute, _children: @Composable Element.() -> Unit): Audio {
-    val node = Audio(attributes = attribute) {
-        Fractal(_children)
+fun Element.Audio(vararg attribute: Attribute, _children: @Composable Element.() -> Unit) {
+    val node = remember {
+        object : ElementWithChildren(name = "audio") {
+            // Accept-any-children for now (see notes)
+            override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+        }
     }
+    // apply attributes (remembered instance will keep attributes across recompositions)
+    node.addAttributes(*attribute)
+    // append to parent
     children!!.add(node)
-    return node
+    with(node) { _children() }
 }

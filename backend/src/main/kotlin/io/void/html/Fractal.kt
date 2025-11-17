@@ -1,6 +1,9 @@
 package io.void.html
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposeNode
+import androidx.compose.runtime.movableContentWithReceiverOf
+import androidx.compose.runtime.remember
 import kotlin.reflect.KClass
 
 /**
@@ -42,6 +45,7 @@ open class Fractal internal constructor() : ElementWithChildren(name = "") {
 /**
  * Appends a text [Fractal] node to the receiver [Element].
  */
+@Composable
 fun Element.Fractal(_text: String): Fractal {
     val fractal =
         Fractal(
@@ -54,11 +58,31 @@ fun Element.Fractal(_text: String): Fractal {
 /**
  * Appends a [Fractal] container node populated by the provided DSL [ _children ].
  */
+@Composable
 fun Element.Fractal(_children: @Composable Element.() -> Unit): Fractal {
     val fractal =
-        Fractal(
-            children = _children,
-        )
+        Fractal()
+    fractal._children()
     children!!.add(fractal)
     return fractal
+}
+
+/**
+ * Appends a [Fractal] container node populated by the provided DSL [ _children ].
+ */
+@Composable
+fun fractal(_children: @Composable Element.() -> Unit): Fractal {
+    val root = remember { Fractal() }
+
+    // convert receiver-content into a stable composable lambda
+    val moved = remember { movableContentWithReceiverOf(_children) }
+
+    ComposeNode<Fractal, ElementApplier>(
+        factory = { root },
+        update = {}
+    ) {
+        moved(root)  // call with receiver
+    }
+
+    return root
 }

@@ -4,11 +4,11 @@ import io.void.html.*
 import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Wbr(vararg attributes: Attribute) : SelfClosingElement("wbr") { init { addAttributes(*attributes) } }
-
 @Composable
-fun Element.Wbr(vararg attribute: Attribute): Wbr {
-    val node = Wbr(attributes = attribute)
+fun Element.Wbr(vararg attribute: Attribute) {
+    val node = remember {
+        object : SelfClosingElement("wbr") {}
+    }
+    node.addAttributes(*attribute)
     children!!.add(node)
-    return node
 }

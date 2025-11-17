@@ -4,15 +4,17 @@ import io.void.html.*
 import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Optgroup(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren(name = "optgroup") {
-    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-    init { this.apply(function); addAttributes(*attributes) }
-}
 @Composable
-fun Element.Optgroup(vararg attribute: Attribute, _children: @Composable Element.() -> Unit): Optgroup {
-    val node = Optgroup(attributes = attribute) {
-        Fractal(_children)
+fun Element.Optgroup(vararg attribute: Attribute, _children: @Composable Element.() -> Unit) {
+    val node = remember {
+        object : ElementWithChildren(name = "optgroup") {
+            // Accept-any-children for now (see notes)
+            override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+        }
     }
+    // apply attributes (remembered instance will keep attributes across recompositions)
+    node.addAttributes(*attribute)
+    // append to parent
     children!!.add(node)
-    return node
+    with(node) { _children() }
 }

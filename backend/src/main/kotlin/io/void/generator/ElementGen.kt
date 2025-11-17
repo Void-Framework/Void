@@ -40,37 +40,59 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
     val codeFiles = mutableMapOf<String, String>()
 
     lines.forEach { line ->
-        val kotlinCode = StringBuilder("package io.void.generated\n\nimport io.void.html.*\nimport androidx.compose.runtime.*\nimport kotlin.reflect.KClass\n")
+        val kotlinCode = StringBuilder(
+            "package io.void.generated\n\n" +
+                    "import io.void.html.*\n" +
+                    "import androidx.compose.runtime.*\n" +
+                    "import kotlin.reflect.KClass\n\n"
+        )
+
         val name = line.substringBefore("\":").substringAfter("\"").capitalize()
+        val tagName = name.lowercase()
         val type = line.substringAfter("\"contentModel\": \"").substringBefore("\"").capitalize()
 
-        when(type) {
+        when (type) {
             "Normal" -> {
-                kotlinCode.append("\nclass $name(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren(name = \"${name.lowercase()}\") {\n")
-                kotlinCode.append("    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)\n")
-                kotlinCode.append("    init { this.apply(function); addAttributes(*attributes) }\n}\n")
-
-                // Compose DSL wrapper
-                kotlinCode.append("@Composable\n")
-                kotlinCode.append("fun Element.$name(vararg attribute: Attribute, _children: @Composable Element.() -> Unit): $name {\n")
-                kotlinCode.append("    val node = $name(attributes = attribute) {\n")
-                kotlinCode.append("        Fractal(_children)\n")
-                kotlinCode.append("    }\n")
-                kotlinCode.append("    children!!.add(node)\n")
-                kotlinCode.append("    return node\n")
-                kotlinCode.append("}\n")
-
+                // Generate a composable extension that creates an ElementWithChildren instance (anonymous subclass)
+                kotlinCode.append(
+                    """
+                    @Composable
+                    fun Element.$name(vararg attribute: Attribute, _children: @Composable Element.() -> Unit) {
+                        val node = remember {
+                            object : ElementWithChildren(name = "$tagName") {
+                                // Accept-any-children for now (see notes)
+                                override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+                            }
+                        }
+                        // apply attributes (remembered instance will keep attributes across recompositions)
+                        node.addAttributes(*attribute)
+                        // append to parent
+                        children!!.add(node)
+                        with(node) { _children() }
+                    }
+                    
+                    """.trimIndent()
+                )
             }
 
             "Void" -> {
-                kotlinCode.append("\nclass $name(vararg attributes: Attribute) : SelfClosingElement(\"${name.lowercase()}\") { init { addAttributes(*attributes) } }\n")
-
-                // Compose DSL wrapper
-                kotlinCode.append("\n@Composable\nfun Element.$name(vararg attribute: Attribute): $name {\n")
-                kotlinCode.append("    val node = $name(attributes = attribute)\n    children!!.add(node)\n    return node\n}\n")
+                // Generate a composable extension that creates a SelfClosingElement instance (anonymous subclass)
+                kotlinCode.append(
+                    """
+                    @Composable
+                    fun Element.$name(vararg attribute: Attribute) {
+                        val node = remember {
+                            object : SelfClosingElement("$tagName") {}
+                        }
+                        node.addAttributes(*attribute)
+                        children!!.add(node)
+                    }
+                    
+                    """.trimIndent()
+                )
             }
 
-            else -> throw UnsupportedOperationException()
+            else -> throw UnsupportedOperationException("Unknown contentModel: $type")
         }
 
         codeFiles[name] = kotlinCode.toString()
@@ -78,5 +100,6 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
 
     return codeFiles
 }
+
 
 fun String.capitalize(): String = this.replaceFirstChar { it.uppercase() }

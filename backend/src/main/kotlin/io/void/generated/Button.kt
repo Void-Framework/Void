@@ -4,15 +4,17 @@ import io.void.html.*
 import androidx.compose.runtime.*
 import kotlin.reflect.KClass
 
-class Button(vararg attributes: Attribute, function: Element.() -> Unit) : ElementWithChildren(name = "button") {
-    override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
-    init { this.apply(function); addAttributes(*attributes) }
-}
 @Composable
-fun Element.Button(vararg attribute: Attribute, _children: @Composable Element.() -> Unit): Button {
-    val node = Button(attributes = attribute) {
-        Fractal(_children)
+fun Element.Button(vararg attribute: Attribute, _children: @Composable Element.() -> Unit) {
+    val node = remember {
+        object : ElementWithChildren(name = "button") {
+            // Accept-any-children for now (see notes)
+            override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
+        }
     }
+    // apply attributes (remembered instance will keep attributes across recompositions)
+    node.addAttributes(*attribute)
+    // append to parent
     children!!.add(node)
-    return node
+    with(node) { _children() }
 }

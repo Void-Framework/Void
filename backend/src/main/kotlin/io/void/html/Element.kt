@@ -1,5 +1,6 @@
 package io.void.html
 
+import androidx.compose.runtime.Composable
 import io.void.api.method.Method
 import io.void.dto.http.RequestDTO
 //import io.void.generated.Div
@@ -91,9 +92,10 @@ abstract class Element internal constructor(
 /**
  * Repeats [element] for each index in [range] and returns a [Fractal] fragment holding the produced children.
  */
+@Composable
 fun Element.loop(
     range: IntRange,
-    element: Element.(Int) -> Unit,
+    element: @Composable Element.(Int) -> Unit,
 ): Fractal {
     val fragment =
         Fractal {
@@ -108,34 +110,38 @@ fun Element.loop(
  * Shorthand for a container div with sensible default Tailwind classes.
  * You can override/extend classes via [attrs].
  */
-/*fun Element.Container(
+/*@Composable
+fun Element.Container(
     vararg attrs: Pair<String, String>,
-    content: Element.() -> Unit,
+    content: @Composable Element.() -> Unit,
 ) = Div("class" to "container mx-auto px-4", *attrs, _children = content)
 
 /**
  * Shorthand for a flex container div with default alignment.
  */
+@Composable
 fun Element.Flex(
     vararg attrs: Pair<String, String>,
-    content: Element.() -> Unit,
+    content: @Composable Element.() -> Unit,
 ) = Div("class" to "flex items-center", *attrs, _children = content)
 
 /**
  * Shorthand for a flex container centered both horizontally and vertically.
  */
+@Composable
 fun Element.Center(
     vararg attrs: Pair<String, String>,
-    content: Element.() -> Unit,
+    content: @Composable Element.() -> Unit,
 ) = Div("class" to "flex justify-center items-center", *attrs, _children = content)
 
 /**
  * Section helper that renders a titled block using an H2 followed by custom [content].
  */
+@Composable
 fun Element.Section(
     title: String,
     vararg attrs: Pair<String, String>,
-    content: Element.() -> Unit,
+    content: @Composable Element.() -> Unit,
 ) = Div("class" to "mb-12", *attrs) {
     H2("class" to "text-2xl font-semibold mb-4") { Fractal(title) }
     content()
