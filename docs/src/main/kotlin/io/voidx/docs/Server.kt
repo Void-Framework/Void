@@ -2,9 +2,10 @@ package io.voidx.docs
 
 import io.voidx.dto.http.buildResponse
 import io.voidx.dto.http.headers
-import io.voidx.generated.*
+import io.voidx.html.fractal
 import io.voidx.html.page.htmlRoute
 import io.voidx.server.simpleServer
+import io.voidx.html.generated.*
 
 /**
  * A modern, clean-looking Docs homepage built using Tailwind and Void DSL.
@@ -34,36 +35,37 @@ val docsHomeRoute =
         val codeBlock = "bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm font-mono"
         val footer = "text-center mt-16 py-6 text-gray-500 text-sm border-t border-gray-200"
 
-        Main("class" to container) {
-            Div("class" to inner) {
-                // Hero
-                Div("class" to hero) {
-                    Div("class" to heroInner) {
-                        H1("class" to heroTitle) { +"Void Framework — Documentation" }
-                        P("class" to heroSubtitle) { +"A lightweight Kotlin DSL for building HTML UIs and pages." }
-                        Nav("class" to heroNav) {
-                            listOf(
-                                "Installation" to "#installation",
-                                "Getting Started" to "#getting-started",
-                                "Routing" to "#routing",
-                                "HTML DSL" to "#html-dsl",
-                                "Middleware" to "#middleware",
-                                "Server" to "#server",
-                                "Examples" to "#examples",
-                            ).forEach { (text, href) ->
-                                A("href" to href, "class" to button) { +text }
+        fractal {
+            Main("class" to container) {
+                Div("class" to inner) {
+                    // Hero
+                    Div("class" to hero) {
+                        Div("class" to heroInner) {
+                            H1("class" to heroTitle) { +"Void Framework — Documentation" }
+                            P("class" to heroSubtitle) { +"A lightweight Kotlin DSL for building HTML UIs and pages." }
+                            Nav("class" to heroNav) {
+                                listOf(
+                                    "Installation" to "#installation",
+                                    "Getting Started" to "#getting-started",
+                                    "Routing" to "#routing",
+                                    "HTML DSL" to "#html-dsl",
+                                    "Middleware" to "#middleware",
+                                    "Server" to "#server",
+                                    "Examples" to "#examples",
+                                ).forEach { (text, href) ->
+                                    A("href" to href, "class" to button) { +text }
+                                }
                             }
                         }
                     }
-                }
 
-                // Installation
-                Section("id" to "installation", "class" to section) {
-                    H2("class" to heading) { +"Installation" }
-                    P { +"Add the dependencies to your Gradle build:" }
-                    Pre("class" to codeBlock) {
-                        Code {
-                            +
+                    // Installation
+                    Section("id" to "installation", "class" to section) {
+                        H2("class" to heading) { +"Installation" }
+                        P { +"Add the dependencies to your Gradle build:" }
+                        Pre("class" to codeBlock) {
+                            Code {
+                                +
                                 """
                                 plugins {
                                     kotlin("jvm") version "2.2.21"
@@ -74,17 +76,17 @@ val docsHomeRoute =
                                     implementation("com.github.jadiefication:void-html:${'$'}version")
                                 }
                                 """.trimIndent()
+                            }
                         }
                     }
-                }
 
-                // Getting Started
-                Section("id" to "getting-started", "class" to section) {
-                    H2("class" to heading) { +"Getting Started" }
-                    P { +"Create your first page with the Void DSL:" }
-                    Pre("class" to codeBlock) {
-                        Code {
-                            +
+                    // Getting Started
+                    Section("id" to "getting-started", "class" to section) {
+                        H2("class" to heading) { +"Getting Started" }
+                        P { +"Create your first page with the Void DSL:" }
+                        Pre("class" to codeBlock) {
+                            Code {
+                                +
                                 """
                                 import io.void.generated.Div
                                 import io.void.generated.H1
@@ -94,17 +96,17 @@ val docsHomeRoute =
                                     H1 { +"Hello, Void!" }
                                 }
                                 """.trimIndent()
+                            }
                         }
                     }
-                }
 
-                // Routing
-                Section("id" to "routing", "class" to section) {
-                    H2("class" to heading) { +"Routing" }
-                    P { +"Define routes using htmlRoute/apiRoute and register them in simpleServer:" }
-                    Pre("class" to codeBlock) {
-                        Code {
-                            +
+                    // Routing
+                    Section("id" to "routing", "class" to section) {
+                        H2("class" to heading) { +"Routing" }
+                        P { +"Define routes using htmlRoute/apiRoute and register them in simpleServer:" }
+                        Pre("class" to codeBlock) {
+                            Code {
+                                +
                                 """
                                 val home = htmlRoute("/", {}) { _ ->
                                     Div { H1 { +"Home" } }
@@ -126,17 +128,17 @@ val docsHomeRoute =
                                     }
                                 }
                                 """.trimIndent()
+                            }
                         }
                     }
-                }
 
-                // HTML DSL
-                Section("id" to "html-dsl", "class" to section) {
-                    H2("class" to heading) { +"HTML DSL" }
-                    P { +"Compose UI using generated strongly-typed elements and unaryPlus (+) for text nodes." }
-                    Pre("class" to codeBlock) {
-                        Code {
-                            +
+                    // HTML DSL
+                    Section("id" to "html-dsl", "class" to section) {
+                        H2("class" to heading) { +"HTML DSL" }
+                        P { +"Compose UI using generated strongly-typed elements and unaryPlus (+) for text nodes." }
+                        Pre("class" to codeBlock) {
+                            Code {
+                                +
                                 """
                                 val page = htmlRoute("/dsl", {}) { _ ->
                                     Main("class" to "p-6") {
@@ -146,36 +148,36 @@ val docsHomeRoute =
                                     }
                                 }
                                 """.trimIndent()
-                        }
-                    }
-                }
-
-                // Features
-                Section("id" to "features", "class" to section) {
-                    H2("class" to heading) { +"Features" }
-                    Div("class" to "grid grid-cols-1 md:grid-cols-2 gap-6") {
-                        listOf(
-                            "Type-Safe HTML DSL" to "Build your UI with a fully type-safe Kotlin DSL",
-                            "Composable Components" to "Compose elements and fragments to create reusable building blocks",
-                            // KTS interactions disabled for static export
-                        ).forEach { (title, desc) ->
-                            Article("class" to card) {
-                                H3("class" to subheading) { +title }
-                                if (desc.isNotEmpty()) P { +desc }
                             }
                         }
                     }
-                }
 
-                // KTS demo removed for static deployment
+                    // Features
+                    Section("id" to "features", "class" to section) {
+                        H2("class" to heading) { +"Features" }
+                        Div("class" to "grid grid-cols-1 md:grid-cols-2 gap-6") {
+                            listOf(
+                                "Type-Safe HTML DSL" to "Build your UI with a fully type-safe Kotlin DSL",
+                                "Composable Components" to "Compose elements and fragments to create reusable building blocks",
+                                // KTS interactions disabled for static export
+                            ).forEach { (title, desc) ->
+                                Article("class" to card) {
+                                    H3("class" to subheading) { +title }
+                                    if (desc.isNotEmpty()) P { +desc }
+                                }
+                            }
+                        }
+                    }
 
-                // Middleware
-                Section("id" to "middleware", "class" to section) {
-                    H2("class" to heading) { +"Middleware" }
-                    P { +"Register before/after relays globally or per-page to implement cross-cutting concerns." }
-                    Pre("class" to codeBlock) {
-                        Code {
-                            +
+                    // KTS demo removed for static deployment
+
+                    // Middleware
+                    Section("id" to "middleware", "class" to section) {
+                        H2("class" to heading) { +"Middleware" }
+                        P { +"Register before/after relays globally or per-page to implement cross-cutting concerns." }
+                        Pre("class" to codeBlock) {
+                            Code {
+                                +
                                 """
                                 simpleServer {
                                     +relayAfter { result ->
@@ -184,17 +186,17 @@ val docsHomeRoute =
                                     }
                                 }
                                 """.trimIndent()
+                            }
                         }
                     }
-                }
 
-                // Server
-                Section("id" to "server", "class" to section) {
-                    H2("class" to heading) { +"Server" }
-                    P { +"Boot a server with simpleServer and add pages:" }
-                    Pre("class" to codeBlock) {
-                        Code {
-                            +
+                    // Server
+                    Section("id" to "server", "class" to section) {
+                        H2("class" to heading) { +"Server" }
+                        P { +"Boot a server with simpleServer and add pages:" }
+                        Pre("class" to codeBlock) {
+                            Code {
+                                +
                                 """
                                 fun main() {
                                     simpleServer {
@@ -203,19 +205,20 @@ val docsHomeRoute =
                                     }
                                 }
                                 """.trimIndent()
+                            }
                         }
                     }
-                }
 
-                // Examples
-                Section("id" to "examples", "class" to section) {
-                    H2("class" to heading) { +"Examples" }
-                    P { +"Explore the test module for comprehensive examples and unit tests." }
-                }
+                    // Examples
+                    Section("id" to "examples", "class" to section) {
+                        H2("class" to heading) { +"Examples" }
+                        P { +"Explore the test module for comprehensive examples and unit tests." }
+                    }
 
-                // Footer
-                Footer("class" to footer) {
-                    Small { +"© 2025 Void Framework Docs" }
+                    // Footer
+                    Footer("class" to footer) {
+                        Small { +"© 2025 Void Framework Docs" }
+                    }
                 }
             }
         }
