@@ -1,11 +1,11 @@
 package io.voidx.css
 
-import io.voidx.api.CssPage
+import io.voidx.css.CssPage
 import io.voidx.css.TailwindGen.grabTailwind
 import io.voidx.css.TailwindGen.processTailwind
 import io.voidx.html.Element
 import io.voidx.html.metadata.metadata
-import io.voidx.html.page.Page
+import io.voidx.page.Page
 import io.voidx.html.page.metadata
 import io.voidx.router.Router
 import java.net.URI
@@ -108,27 +108,27 @@ object TailwindGen {
 
         // 1) include some global rules always (html, body, *, ::before, ::after)
         val globalRegex =
-            Regex("""(^|[\s,])(?:html|body|\*|::before|::after)[^{]*\{[^}]*\}""", RegexOption.DOT_MATCHES_ALL)
+            Regex("""(^|[\s,])(?:html|body|\*|::before|::after)[^{]*\{[^}]*}""", RegexOption.DOT_MATCHES_ALL)
         for (m in globalRegex.findAll(resourceFile)) {
             sb.append(m.value).append("\n")
         }
 
         // 2) non-media rules (selectors with a single declaration block)
         // This will match selector blocks that are not part of an @media at the top-level.
-        val ruleRegex = Regex("""([^{@][^{}]*?)\{([^{}]*?)\}""", RegexOption.DOT_MATCHES_ALL)
+        val ruleRegex = Regex("""([^{@][^{}]*?)\{([^{}]*?)}""", RegexOption.DOT_MATCHES_ALL)
         for (m in ruleRegex.findAll(resourceFile)) {
             val selectorBlock = m.groupValues[1].trim()
             val selectors = selectorBlock.split(",").map { it.trim() }
 
             // match either exact selector or selector that starts with the class and then a pseudo, e.g.
             // used ".hover\\:underline" matches CSS ".hover\\:underline:hover"
-            if (selectors.any { sel -> usedClassSelectors.any { used -> sel == used || sel.startsWith("${'$'}used:") } }) {
+            if (selectors.any { sel -> usedClassSelectors.any { used -> sel == used || sel.startsWith($$"$used:") } }) {
                 sb.append(m.value).append("\n")
             }
         }
 
         // 3) media query blocks — include whole block if any used selector appears inside it
-        val mediaRegex = Regex("""@media[^{]+\{(?:(?:[^{}]|\{[^{}]*\})*)\}""", RegexOption.DOT_MATCHES_ALL)
+        val mediaRegex = Regex("""@media[^{]+\{(?:[^{}]|\{[^{}]*})*}""", RegexOption.DOT_MATCHES_ALL)
         for (m in mediaRegex.findAll(resourceFile)) {
             val mediaBlock = m.value
             if (usedClassSelectors.any { mediaBlock.contains(it) }) {

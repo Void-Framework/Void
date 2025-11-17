@@ -1,22 +1,25 @@
 package io.voidx.router
 
-import io.voidx.clienthandler.ClientHandler
-import io.voidx.dto.http.*
-import io.voidx.html.page.ExceptionPage
-import io.voidx.html.page.NotFoundPage
-import io.voidx.html.page.Page
-import io.voidx.html.page.dynamic.DynamicPage
+import io.voidx.ClientHandler
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.ResponseDTO
+import io.voidx.dto.emptyResponse
+import io.voidx.dto.writeHTTP
+import io.voidx.page.ExceptionPage
+import io.voidx.page.NotFoundPage
+import io.voidx.page.Page
+import io.voidx.page.DynamicPage
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
-import io.voidx.router.page.PageHandler
+import io.voidx.page.PageHandler
 import io.voidx.router.util.RequestHandler
 import io.voidx.router.util.RouteCheck
 import io.voidx.util.HtmlIntegration
 import io.voidx.util.ModuleInit
+import io.voidx.util.toResult
 import java.io.File
 import java.net.URLDecoder
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarFile
 
@@ -38,6 +41,43 @@ class Router :
 
     companion object {
         val routers = mutableSetOf<Router>()
+
+        /**
+         * Parses the query parameters from a raw target string (path[?query]) applying URL decoding.
+         * - Keys without values are ignored.
+         * - Decoding uses UTF-8 and treats '+' as space per application/x-www-form-urlencoded.
+         */
+        internal fun parseQuery(rawTarget: String): Map<String, String> {
+            val qMark = rawTarget.indexOf('?')
+            if (qMark < 0 || qMark + 1 >= rawTarget.length) return emptyMap()
+            val qs = rawTarget.substring(qMark + 1)
+            val map = LinkedHashMap<String, String>(4)
+            var start = 0
+            while (start < qs.length) {
+                val amp = qs.indexOf('&', start).let { if (it == -1) qs.length else it }
+                if (amp > start) {
+                    val eq = qs.indexOf('=', start).let { if (it == -1 || it > amp) -1 else it }
+                    if (eq != -1) {
+                        val rawKey = qs.substring(start, eq)
+                        val rawValue = qs.substring(eq + 1, amp)
+                        try {
+                            val key = URLDecoder.decode(rawKey, Charsets.UTF_8)
+                            val value = URLDecoder.decode(rawValue, Charsets.UTF_8)
+                            // Skip if decoding produced Unicode replacement characters (indicates malformed percent-encoding)
+                            if (key.contains('\uFFFD') || value.contains('\uFFFD')) {
+                                // skip malformed pair
+                            } else {
+                                map[key] = value
+                            }
+                        } catch (_: Exception) {
+                            // Skip malformed encodings
+                        }
+                    }
+                }
+                start = amp + 1
+            }
+            return map
+        }
     }
 
     init {
@@ -72,7 +112,7 @@ class Router :
         return null
     }
 
-    internal fun middlewareProcessAfter(response: Result<ResponseDTO>) {
+    fun middlewareProcessAfter(response: Result<ResponseDTO>) {
         val relays = internalRelay
         for (i in 0 until relays.size) {
             (relays[i] as? RelayAfter)?.processAfter(response)
@@ -118,7 +158,7 @@ class Router :
     /**
      * Registers multiple [routes] at once, returning this router for chaining.
      */
-    internal fun addRoutes(routes: List<Page>): Router {
+    fun addRoutes(routes: List<Page>): Router {
         routes.forEach {
             addRoute(route = it)
         }
@@ -136,7 +176,7 @@ class Router :
      * 4. Per-page BEFORE middleware, page content, per-page AFTER middleware
      * 5. Global AFTER middleware
      */
-    fun route(
+    internal fun route(
         requestDTO: RequestDTO,
         clientHandler: ClientHandler,
     ) {
@@ -144,27 +184,7 @@ class Router :
         val rawTarget = requestDTO.target
         val qMark = rawTarget.indexOf('?')
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
-        val query: Map<String, String> =
-            if (qMark >= 0 && qMark + 1 < rawTarget.length) {
-                val map = LinkedHashMap<String, String>(4)
-                val qs = rawTarget.substring(qMark + 1)
-                var start = 0
-                while (start < qs.length) {
-                    val amp = qs.indexOf('&', start).let { if (it == -1) qs.length else it }
-                    if (amp > start) {
-                        val eq = qs.indexOf('=', start).let { if (it == -1 || it > amp) -1 else it }
-                        if (eq != -1) {
-                            val key = qs.substring(start, eq)
-                            val value = qs.substring(eq + 1, amp)
-                            map[key] = value
-                        }
-                    }
-                    start = amp + 1
-                }
-                map
-            } else {
-                emptyMap()
-            }
+        val query: Map<String, String> = parseQuery(rawTarget)
         val response =
             middlewareProcessBefore(requestDTO.toResult()) ?: when {
                 requestDTO.headers.containsKey("KTS-Request") -> {
@@ -219,7 +239,7 @@ class Router :
      * Sends an error response using the configured [ExceptionPage] when an exception [e]
      * occurs during request handling for the given [clientHandler].
      */
-    fun error(
+    internal fun error(
         clientHandler: ClientHandler,
         e: Exception,
     ) {
@@ -233,11 +253,6 @@ class Router :
             )
         }
     }
-
-    /**
-     * Returns a [PageHandler] for the given static [path], creating and registering one if missing.
-     * Allows a fluent style to register per-method handlers (e.g., on("/api") GET { ... }).
-     */
 
     /**
      * Returns a [PageHandler] for the static [path], creating and registering one
@@ -299,35 +314,3 @@ fun router(builder: Router.() -> Unit): Router {
     router.builder()
     return router
 }
-
-/** Wraps this value in a successful [Result]. */
-fun <T> T.toResult(): Result<T> = Result.success(this)
-
-/** Wraps this exception in a failed [Result]. */
-fun <T> Exception.toResult(): Result<T> = Result.failure(this)
-
-/**
- * Reads the classpath resource at [path] using the class loader of [clazz].
- * Useful when loading resources packaged alongside a specific class.
- */
-fun readResourceText(
-    path: String,
-    clazz: Class<*>,
-): String =
-    clazz
-        .getResourceAsStream(path)
-        ?.bufferedReader()
-        ?.use { it.readText() }
-        ?: error("Missing resource: $path")
-
-/**
- * Reads the classpath resource at [path] using the thread context class loader.
- */
-fun readResourceText(path: String): String =
-    Thread
-        .currentThread()
-        .contextClassLoader
-        .getResourceAsStream(path)
-        ?.bufferedReader()
-        ?.use { it.readText() }
-        ?: error("Missing resource: $path")

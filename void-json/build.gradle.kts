@@ -18,7 +18,9 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
+    // Unit test dependencies (JUnit 5 platform)
+    testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
+    testImplementation(libs.org.junit.jupiter.junit.jupiter)
     api(project(":void-base"))
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     api("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.9.0")
@@ -30,6 +32,16 @@ kotlin {
 }
 
 description = "void-json"
+
+tasks.test {
+    // Use JUnit Platform (JUnit 5)
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = true
+    }
+}
 
 publishing {
     publications {
