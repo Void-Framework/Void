@@ -1,12 +1,12 @@
 package test
 
-import io.voidx.clienthandler.ClientHandler
-import io.voidx.dto.http.buildResponse
-import io.voidx.html.page.exceptionPage
+import io.voidx.ClientHandler
+import io.voidx.dto.buildResponse
+import io.voidx.page.exceptionPage
 import io.voidx.router.Router
 import io.voidx.router.router
 import io.voidx.router.util.RouteCheck
-import io.voidx.server.Server
+import io.voidx.Server
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream

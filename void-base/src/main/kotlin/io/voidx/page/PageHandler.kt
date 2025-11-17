@@ -1,10 +1,9 @@
-package io.voidx.router.page
+package io.voidx.page
 
-import io.voidx.api.method.Method
-import io.voidx.dto.http.RequestDTO
-import io.voidx.dto.http.ResponseDTO
-import io.voidx.dto.http.emptyResponse
-import io.voidx.html.page.Page
+import io.voidx.Method
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.ResponseDTO
+import io.voidx.dto.emptyResponse
 
 /**
  * Lightweight page that dispatches to verb-specific handlers for API-style routes.

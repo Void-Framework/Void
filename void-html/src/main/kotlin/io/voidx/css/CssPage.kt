@@ -1,11 +1,11 @@
-package io.voidx.api
+package io.voidx.css
 
-import io.voidx.api.method.Method
-import io.voidx.dto.http.ResponseDTO
-import io.voidx.dto.http.buildResponse
-import io.voidx.dto.http.headers
-import io.voidx.html.page.Page
-import java.util.*
+import io.voidx.Method
+import io.voidx.dto.ResponseDTO
+import io.voidx.dto.buildResponse
+import io.voidx.dto.headers
+import io.voidx.page.Page
+import java.util.UUID
 
 /**
  * Internal page that serves a generated CSS asset at a unique UUID-backed path.

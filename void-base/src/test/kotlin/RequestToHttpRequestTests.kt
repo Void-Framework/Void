@@ -1,8 +1,8 @@
 package test
 
-import io.voidx.api.method.Method
-import io.voidx.dto.http.buildRequest
-import io.voidx.dto.http.toHttpRequest
+import io.voidx.Method
+import io.voidx.dto.buildRequest
+import io.voidx.dto.toHttpRequest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

@@ -1,10 +1,10 @@
 package test
 
-import io.voidx.dto.http.buildResponse
-import io.voidx.html.page.apiRoute
+import io.voidx.dto.buildResponse
+import io.voidx.page.apiRoute
 import io.voidx.router.router
-import io.voidx.server.Server
-import io.voidx.server.handle
+import io.voidx.Server
+import io.voidx.handle
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream

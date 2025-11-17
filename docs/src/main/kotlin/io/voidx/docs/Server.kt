@@ -1,10 +1,10 @@
 package io.voidx.docs
 
-import io.voidx.dto.http.buildResponse
-import io.voidx.dto.http.headers
+import io.voidx.dto.buildResponse
+import io.voidx.dto.headers
 import io.voidx.html.fractal
 import io.voidx.html.page.htmlRoute
-import io.voidx.server.simpleServer
+import io.voidx.simpleServer
 import io.voidx.html.generated.*
 
 /**

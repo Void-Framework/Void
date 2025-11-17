@@ -1,22 +1,23 @@
 package io.voidx.router
 
-import io.voidx.clienthandler.ClientHandler
-import io.voidx.dto.http.RequestDTO
-import io.voidx.dto.http.ResponseDTO
-import io.voidx.dto.http.emptyResponse
-import io.voidx.dto.http.writeHTTP
-import io.voidx.html.page.ExceptionPage
-import io.voidx.html.page.NotFoundPage
-import io.voidx.html.page.Page
-import io.voidx.html.page.dynamic.DynamicPage
+import io.voidx.ClientHandler
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.ResponseDTO
+import io.voidx.dto.emptyResponse
+import io.voidx.dto.writeHTTP
+import io.voidx.page.ExceptionPage
+import io.voidx.page.NotFoundPage
+import io.voidx.page.Page
+import io.voidx.page.DynamicPage
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
-import io.voidx.router.page.PageHandler
+import io.voidx.page.PageHandler
 import io.voidx.router.util.RequestHandler
 import io.voidx.router.util.RouteCheck
 import io.voidx.util.HtmlIntegration
 import io.voidx.util.ModuleInit
+import io.voidx.util.toResult
 import java.io.File
 import java.net.URLDecoder
 import java.util.concurrent.ConcurrentHashMap
@@ -111,7 +112,7 @@ class Router :
         return null
     }
 
-    internal fun middlewareProcessAfter(response: Result<ResponseDTO>) {
+    fun middlewareProcessAfter(response: Result<ResponseDTO>) {
         val relays = internalRelay
         for (i in 0 until relays.size) {
             (relays[i] as? RelayAfter)?.processAfter(response)
@@ -157,7 +158,7 @@ class Router :
     /**
      * Registers multiple [routes] at once, returning this router for chaining.
      */
-    internal fun addRoutes(routes: List<Page>): Router {
+    fun addRoutes(routes: List<Page>): Router {
         routes.forEach {
             addRoute(route = it)
         }
@@ -175,7 +176,7 @@ class Router :
      * 4. Per-page BEFORE middleware, page content, per-page AFTER middleware
      * 5. Global AFTER middleware
      */
-    fun route(
+    internal fun route(
         requestDTO: RequestDTO,
         clientHandler: ClientHandler,
     ) {
@@ -238,7 +239,7 @@ class Router :
      * Sends an error response using the configured [ExceptionPage] when an exception [e]
      * occurs during request handling for the given [clientHandler].
      */
-    fun error(
+    internal fun error(
         clientHandler: ClientHandler,
         e: Exception,
     ) {
@@ -313,35 +314,3 @@ fun router(builder: Router.() -> Unit): Router {
     router.builder()
     return router
 }
-
-/** Wraps this value in a successful [Result]. */
-fun <T> T.toResult(): Result<T> = Result.success(this)
-
-/** Wraps this exception in a failed [Result]. */
-fun <T> Exception.toResult(): Result<T> = Result.failure(this)
-
-/**
- * Reads the classpath resource at [path] using the class loader of [clazz].
- * Useful when loading resources packaged alongside a specific class.
- */
-fun readResourceText(
-    path: String,
-    clazz: Class<*>,
-): String =
-    clazz
-        .getResourceAsStream(path)
-        ?.bufferedReader()
-        ?.use { it.readText() }
-        ?: error("Missing resource: $path")
-
-/**
- * Reads the classpath resource at [path] using the thread context class loader.
- */
-fun readResourceText(path: String): String =
-    Thread
-        .currentThread()
-        .contextClassLoader
-        .getResourceAsStream(path)
-        ?.bufferedReader()
-        ?.use { it.readText() }
-        ?: error("Missing resource: $path")

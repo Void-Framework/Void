@@ -1,10 +1,9 @@
-package io.voidx.clienthandler
+package io.voidx
 
-import io.voidx.dto.http.RequestDTO
-import io.voidx.dto.http.writeHTTP
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.writeHTTP
 import io.voidx.router.Router
-import io.voidx.router.toResult
-import io.voidx.server.Server
+import io.voidx.util.toResult
 import java.net.Socket
 
 /**
@@ -27,13 +26,13 @@ class ClientHandler(
      * Flow:
      * - Parse a [RequestDTO] from [client].
      * - Delegate to [Router.route] which runs global and per-page middleware and renders content.
-     * - Write the [io.voidx.dto.http.ResponseDTO] back using [Server.httpVersion].
+     * - Write the [io.voidx.dto.ResponseDTO] back using [Server.httpVersion].
      * - On any exception, delegate to [error].
      */
-    fun start() {
+    internal fun start() {
         try {
             val request =
-                RequestDTO.parse(
+                RequestDTO.Companion.parse(
                     inputStream = client.getInputStream(),
                     clientHandler = this,
                 )
@@ -52,13 +51,13 @@ class ClientHandler(
      * Handles an exception from request processing.
      *
      * Behavior:
-     * - Invokes global BEFORE middleware; if any returns a [io.voidx.dto.http.ResponseDTO], that is sent immediately.
-     * - Otherwise, delegates to [Router.error] which renders the configured [io.voidx.html.page.ExceptionPage].
+     * - Invokes global BEFORE middleware; if any returns a [io.voidx.dto.ResponseDTO], that is sent immediately.
+     * - Otherwise, delegates to [Router.error] which renders the configured [io.voidx.page.ExceptionPage].
      * - Closes the client socket in all cases.
      *
      * @param e The exception thrown during request handling.
      */
-    fun error(e: Exception) {
+    internal fun error(e: Exception) {
         val response = router.middlewareProcessBefore(e.toResult())
         if (response != null) {
             client.getOutputStream().writeHTTP(

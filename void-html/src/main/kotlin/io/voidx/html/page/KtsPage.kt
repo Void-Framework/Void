@@ -1,8 +1,9 @@
 package io.voidx.html.page
 
-import io.voidx.dto.http.RequestDTO
+import io.voidx.dto.RequestDTO
 import io.voidx.html.Element
 import io.voidx.html.util.createResponse
+import io.voidx.page.Page
 
 /**
  * Base page for KTS-driven interactions.

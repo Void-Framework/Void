@@ -1,10 +1,11 @@
 package io.voidx.html.page
 
-import io.voidx.api.method.Method
-import io.voidx.dto.http.ResponseDTO
-import io.voidx.dto.http.buildResponse
-import io.voidx.dto.http.headers
+import io.voidx.Method
+import io.voidx.dto.ResponseDTO
+import io.voidx.dto.buildResponse
+import io.voidx.dto.headers
 import io.voidx.html.metadata.metadata
+import io.voidx.page.Page
 import java.util.*
 
 /**

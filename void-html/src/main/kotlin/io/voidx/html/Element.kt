@@ -1,7 +1,7 @@
 package io.voidx.html
 
-import io.voidx.api.method.Method
-import io.voidx.dto.http.RequestDTO
+import io.voidx.Method
+import io.voidx.dto.RequestDTO
 //import io.voidx.html.generated.Div
 //import io.voidx.html.generated.H2
 import java.util.Locale.getDefault

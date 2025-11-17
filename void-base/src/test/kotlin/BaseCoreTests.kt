@@ -1,11 +1,16 @@
 package test
 
-import io.voidx.api.method.Method
-import io.voidx.dto.http.*
-import io.voidx.html.page.apiRoute
-import io.voidx.html.page.dynamic.DynamicPage
-import io.voidx.html.page.dynamic.dynamicApiRoute
-import io.voidx.html.page.dynamic.path
+import io.voidx.Method
+import io.voidx.dto.ResponseBody
+import io.voidx.dto.buildRequest
+import io.voidx.dto.buildResponse
+import io.voidx.dto.emptyResponse
+import io.voidx.dto.headers
+import io.voidx.dto.toHttpRequest
+import io.voidx.page.apiRoute
+import io.voidx.page.DynamicPage
+import io.voidx.page.dynamicApiRoute
+import io.voidx.page.path
 import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
 import org.junit.jupiter.api.Test

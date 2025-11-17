@@ -1,8 +1,8 @@
 package test
 
-import io.voidx.dto.http.ResponseBody
-import io.voidx.dto.http.buildRequest
-import io.voidx.html.page.Page
+import io.voidx.dto.ResponseBody
+import io.voidx.dto.buildRequest
+import io.voidx.page.Page
 import io.voidx.json.autoSerialize
 import kotlinx.serialization.Serializable
 import kotlin.test.Test

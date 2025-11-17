@@ -1,9 +1,9 @@
-package io.voidx.fetch
+package io.voidx
 
-import io.voidx.dto.http.RequestDTO
-import io.voidx.dto.http.ResponseDTO
-import io.voidx.dto.http.buildResponse
-import io.voidx.dto.http.toHttpRequest
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.ResponseDTO
+import io.voidx.dto.buildResponse
+import io.voidx.dto.toHttpRequest
 import java.net.http.HttpClient
 import java.net.http.HttpResponse
 

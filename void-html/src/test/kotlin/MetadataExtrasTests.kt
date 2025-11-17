@@ -1,8 +1,8 @@
 package test
 
-import io.voidx.dto.http.ok
+import io.voidx.dto.ok
 import io.voidx.html.metadata.Metadata
-import io.voidx.html.page.apiRoute
+import io.voidx.page.apiRoute
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

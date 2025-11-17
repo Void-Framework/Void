@@ -1,7 +1,7 @@
 package test
 
-import io.voidx.dto.http.buildResponse
-import io.voidx.dto.http.writeHTTP
+import io.voidx.dto.buildResponse
+import io.voidx.dto.writeHTTP
 import java.io.ByteArrayOutputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals

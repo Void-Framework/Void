@@ -1,6 +1,6 @@
 package io.voidx.middleware
 
-import io.voidx.dto.http.RequestDTO
+import io.voidx.dto.RequestDTO
 import org.slf4j.Logger
 import java.util.*
 

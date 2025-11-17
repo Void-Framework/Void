@@ -1,7 +1,7 @@
-package io.voidx.html.page
+package io.voidx.page
 
-import io.voidx.dto.http.RequestDTO
-import io.voidx.dto.http.ResponseDTO
+import io.voidx.dto.RequestDTO
+import io.voidx.dto.ResponseDTO
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore

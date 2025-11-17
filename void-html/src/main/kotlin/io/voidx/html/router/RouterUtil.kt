@@ -1,9 +1,9 @@
 package io.voidx.html.router
 
-import io.voidx.api.CssPage
+import io.voidx.css.CssPage
 import io.voidx.css.TailwindGen
-import io.voidx.dto.http.buildRequest
-import io.voidx.dto.http.emptyResponse
+import io.voidx.dto.buildRequest
+import io.voidx.dto.emptyResponse
 import io.voidx.html.Element
 import io.voidx.html.page.JsPage
 import io.voidx.html.page.KtsPage
@@ -11,10 +11,10 @@ import io.voidx.html.page.addCssToRouter
 import io.voidx.html.page.metadata
 import io.voidx.router.Router
 import io.voidx.router.listResourcePaths
-import io.voidx.router.readResourceText
-import io.voidx.router.toResult
 import io.voidx.util.HtmlIntegration
 import io.voidx.util.ModuleInit
+import io.voidx.util.readResourceText
+import io.voidx.util.toResult
 import java.util.*
 
 /**
@@ -33,7 +33,7 @@ object RouterUtil : ModuleInit() {
     /** Called by the base module at startup to install integration hooks. */
     override fun init() {
         if (initialized) return
-        HtmlIntegration.getKtsPage = { target, query, requestDTO, clientHandler ->
+        HtmlIntegration.registerKtsPage { target, query, requestDTO, clientHandler ->
             if (routes.containsKey(target)) {
                 val page = routes[target] as KtsPage
                 page.queries = query
@@ -54,7 +54,7 @@ object RouterUtil : ModuleInit() {
                 emptyResponse()
             }
         }
-        HtmlIntegration.handleJsAndCss = { route, router ->
+        HtmlIntegration.registerJsAndCss { route, router ->
             route.addCssToRouter(router)
             if (route::class != CssPage::class) {
                 if (route.metadata != null) {
@@ -68,7 +68,7 @@ object RouterUtil : ModuleInit() {
         paths.forEach { path ->
             val content = readResourceText("/$path", this::class.java)
             val jsPage = JsPage(UUID.randomUUID(), content)
-            HtmlIntegration.jsPages.add(jsPage)
+            HtmlIntegration.addJsPage(jsPage)
             Router.routers.forEach { it.addRoute(jsPage) }
         }
         initialized = true

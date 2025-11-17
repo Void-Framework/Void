@@ -1,11 +1,11 @@
 package io.voidx.css
 
-import io.voidx.api.CssPage
+import io.voidx.css.CssPage
 import io.voidx.css.TailwindGen.grabTailwind
 import io.voidx.css.TailwindGen.processTailwind
 import io.voidx.html.Element
 import io.voidx.html.metadata.metadata
-import io.voidx.html.page.Page
+import io.voidx.page.Page
 import io.voidx.html.page.metadata
 import io.voidx.router.Router
 import java.net.URI
