@@ -40,7 +40,7 @@ class SocketHandleTests {
     fun socket_handle_end_to_end_writes_response_and_closes_socket() {
         val r = router { }
         r.addRoute(
-            route("/") {
+            route("/ping") {
                 GET {
                     buildResponse<String> {
                         status = 200
