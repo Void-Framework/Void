@@ -3,6 +3,7 @@ package io.voidx
 import io.voidx.dto.buildResponse
 import io.voidx.dto.headers
 import io.voidx.dto.writeHTTP
+import io.voidx.middleware.NotEnoughCarriers
 import io.voidx.router.Router
 import kotlinx.coroutines.*
 import java.io.File
@@ -38,6 +39,8 @@ class Server(
     private val context: SSLContext = SSLContext.getInstance("TLS")
     private var isHTTPSOn = false
 
+    var useCarriers = false
+
     /** Callback invoked when a server socket (HTTP or HTTPS) throws while starting or accepting. */
     var onServerSocketError: (Exception) -> Unit = {
         it.printStackTrace()
@@ -58,6 +61,9 @@ class Server(
         port: Int,
         routeToHTTPS: Boolean = false,
     ) {
+        if (useCarriers) {
+            throw NotEnoughCarriers()
+        }
         Thread {
             try {
                 socket = ServerSocket(port)
@@ -99,6 +105,9 @@ class Server(
         file: File,
         needsAuth: Boolean,
     ) {
+        if (useCarriers) {
+            throw NotEnoughCarriers()
+        }
         Thread {
             val paswd = password.toCharArray()
             try {
