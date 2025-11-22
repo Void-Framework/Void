@@ -7,11 +7,11 @@ import io.voidx.dto.buildResponse
 import io.voidx.dto.emptyResponse
 import io.voidx.dto.headers
 import io.voidx.dto.toHttpRequest
-import io.voidx.page.route
-import io.voidx.page.DynamicPage
-import io.voidx.page.path
 import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
+import io.voidx.page.DynamicPage
+import io.voidx.page.path
+import io.voidx.page.route
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

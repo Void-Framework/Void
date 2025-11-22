@@ -2,10 +2,10 @@ package io.voidx.docs
 
 import io.voidx.dto.buildResponse
 import io.voidx.dto.headers
-import io.voidx.simpleServer
 import io.voidx.html.generated.*
 import io.voidx.html.page.html
 import io.voidx.page.route
+import io.voidx.simpleServer
 
 /**
  * A modern, clean-looking Docs homepage built using Tailwind and Void DSL.
@@ -67,16 +67,16 @@ val docsHomeRoute =
                             Pre("class" to codeBlock) {
                                 Code {
                                     +
-                                    """
-                                plugins {
-                                    kotlin("jvm") version "2.2.21"
-                                }
+                                        """
+                                        plugins {
+                                            kotlin("jvm") version "2.2.21"
+                                        }
 
-                                dependencies {
-                                    implementation("com.github.jadiefication:void-base:${'$'}version")
-                                    implementation("com.github.jadiefication:void-html:${'$'}version")
-                                }
-                                """.trimIndent()
+                                        dependencies {
+                                            implementation("com.github.jadiefication:void-base:${'$'}version")
+                                            implementation("com.github.jadiefication:void-html:${'$'}version")
+                                        }
+                                        """.trimIndent()
                                 }
                             }
                         }
@@ -88,15 +88,15 @@ val docsHomeRoute =
                             Pre("class" to codeBlock) {
                                 Code {
                                     +
-                                    """
-                                import io.void.generated.Div
-                                import io.void.generated.H1
-                                import io.void.html.Element
+                                        """
+                                        import io.void.generated.Div
+                                        import io.void.generated.H1
+                                        import io.void.html.Element
 
-                                fun hello(): Element = Div {
-                                    H1 { +"Hello, Void!" }
-                                }
-                                """.trimIndent()
+                                        fun hello(): Element = Div {
+                                            H1 { +"Hello, Void!" }
+                                        }
+                                        """.trimIndent()
                                 }
                             }
                         }
@@ -108,27 +108,27 @@ val docsHomeRoute =
                             Pre("class" to codeBlock) {
                                 Code {
                                     +
-                                    """
-                                val home = htmlRoute("/", {}) { _ ->
-                                    Div { H1 { +"Home" } }
-                                }
+                                        """
+                                        val home = htmlRoute("/", {}) { _ ->
+                                            Div { H1 { +"Home" } }
+                                        }
 
-                                val api = apiRoute("/api/ping") { _ ->
-                                    buildResponse {
-                                        status = 200
-                                        statusText = "OK"
-                                        headers { put("Content-Type", "application/json") }
-                                        body = "{\"pong\":true}"
-                                    }
-                                }
+                                        val api = apiRoute("/api/ping") { _ ->
+                                            buildResponse {
+                                                status = 200
+                                                statusText = "OK"
+                                                headers { put("Content-Type", "application/json") }
+                                                body = "{\"pong\":true}"
+                                            }
+                                        }
 
-                                fun main() {
-                                    simpleServer {
-                                        +home
-                                        +api
-                                    }
-                                }
-                                """.trimIndent()
+                                        fun main() {
+                                            simpleServer {
+                                                +home
+                                                +api
+                                            }
+                                        }
+                                        """.trimIndent()
                                 }
                             }
                         }
@@ -140,15 +140,15 @@ val docsHomeRoute =
                             Pre("class" to codeBlock) {
                                 Code {
                                     +
-                                    """
-                                val page = htmlRoute("/dsl", {}) { _ ->
-                                    Main("class" to "p-6") {
-                                        Header { H1 { +"Title" } }
-                                        Section { P { +"Body paragraph" } }
-                                        Footer { Small { +"Footer text" } }
-                                    }
-                                }
-                                """.trimIndent()
+                                        """
+                                        val page = htmlRoute("/dsl", {}) { _ ->
+                                            Main("class" to "p-6") {
+                                                Header { H1 { +"Title" } }
+                                                Section { P { +"Body paragraph" } }
+                                                Footer { Small { +"Footer text" } }
+                                            }
+                                        }
+                                        """.trimIndent()
                                 }
                             }
                         }
@@ -179,14 +179,14 @@ val docsHomeRoute =
                             Pre("class" to codeBlock) {
                                 Code {
                                     +
-                                    """
-                                simpleServer {
-                                    +relayAfter { result ->
-                                        result.fold(onSuccess = { println(it) }, onFailure = { println(it) })
-                                        null
-                                    }
-                                }
-                                """.trimIndent()
+                                        """
+                                        simpleServer {
+                                            +relayAfter { result ->
+                                                result.fold(onSuccess = { println(it) }, onFailure = { println(it) })
+                                                null
+                                            }
+                                        }
+                                        """.trimIndent()
                                 }
                             }
                         }
@@ -198,14 +198,14 @@ val docsHomeRoute =
                             Pre("class" to codeBlock) {
                                 Code {
                                     +
-                                    """
-                                fun main() {
-                                    simpleServer {
-                                        +docsHomeRoute
-                                        on("/health") GET { _ -> ok("OK") }
-                                    }
-                                }
-                                """.trimIndent()
+                                        """
+                                        fun main() {
+                                            simpleServer {
+                                                +docsHomeRoute
+                                                on("/health") GET { _ -> ok("OK") }
+                                            }
+                                        }
+                                        """.trimIndent()
                                 }
                             }
                         }

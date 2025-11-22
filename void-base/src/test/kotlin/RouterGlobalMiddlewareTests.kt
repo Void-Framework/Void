@@ -1,13 +1,13 @@
 package test
 
+import io.voidx.Server
 import io.voidx.dto.buildResponse
 import io.voidx.dto.ok
+import io.voidx.handle
 import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
 import io.voidx.page.route
 import io.voidx.router.router
-import io.voidx.Server
-import io.voidx.handle
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -24,7 +24,9 @@ private class MemSocket(
     private val outBytes = ByteArrayOutputStream()
 
     override fun getInputStream(): InputStream = inBytes
+
     override fun getOutputStream(): OutputStream = outBytes
+
     fun text(): String = outBytes.toString().replace("\r\n", "\n")
 }
 
@@ -68,10 +70,11 @@ class RouterGlobalMiddlewareTests {
             },
         )
 
-        val sock = MemSocket(
-            "GET /x HTTP/1.1\r\n" +
-                "Host: example.com\r\n\r\n",
-        )
+        val sock =
+            MemSocket(
+                "GET /x HTTP/1.1\r\n" +
+                    "Host: example.com\r\n\r\n",
+            )
         val srv = Server(r, 1.1)
         sock.handle(srv, r)
 

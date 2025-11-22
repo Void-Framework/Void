@@ -8,7 +8,7 @@ package io.voidx.exception
  * actually transmit data this way, so enabling `useCarriers = true`
  * will immediately throw this exception when the server is run.
  */
-class NotEnoughCarriers : Exception(
-    "There aren't enough carriers available to support transmission of the packets."
-) {
-}
+class NotEnoughCarriers :
+    Exception(
+        "There aren't enough carriers available to support transmission of the packets.",
+    )

@@ -1,14 +1,14 @@
 package test
 
 import io.voidx.Method
+import io.voidx.Server
 import io.voidx.dto.ResponseBody
 import io.voidx.dto.buildResponse
+import io.voidx.handle
 import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
 import io.voidx.page.route
 import io.voidx.router.router
-import io.voidx.Server
-import io.voidx.handle
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -23,8 +23,11 @@ private class Sock(
 ) : Socket() {
     private val inBytes = ByteArrayInputStream(raw.toByteArray())
     private val outBytes = ByteArrayOutputStream()
+
     override fun getInputStream(): InputStream = inBytes
+
     override fun getOutputStream(): OutputStream = outBytes
+
     fun text(): String = outBytes.toString().replace("\r\n", "\n")
 }
 

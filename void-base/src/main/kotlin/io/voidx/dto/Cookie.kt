@@ -14,25 +14,31 @@ import io.voidx.page.Path
  */
 @ConsistentCopyVisibility
 data class Cookie internal constructor(
-    val nothing: Unit
+    val nothing: Unit,
 ) {
     /** Cookie name (required). */
     lateinit var name: String
+
     /** Cookie value (required). */
     lateinit var value: String
+
     /** Path scope for the cookie (e.g. "/"). */
     lateinit var path: Path
+
     /** Max age in seconds; when null, the cookie is a session cookie. */
     var maxAge: Long? = null
+
     /** When true, the cookie is not accessible via client-side scripts. */
     var httpOnly: Boolean = false
+
     /** When true, the cookie is only sent over HTTPS. */
     var secure: Boolean = false
+
     /** SameSite attribute controlling cross-site transmission. */
     lateinit var sameSite: SameSite
 
     constructor(name: String, value: String, path: Path, maxAge: Long?, httpOnly: Boolean, secure: Boolean, sameSite: SameSite) : this(
-        Unit
+        Unit,
     ) {
         this.name = name
         this.value = value
