@@ -443,11 +443,12 @@ fun guessContentType(file: File): String =
 
 fun teapot(
     headers: Headers = mutableMapOf(),
-    cookies: List<Cookie> = emptyList()
-): ResponseDTO = buildResponse {
-    status = 418
-    statusText = "I'm a teapot"
-    this.headers = headers
-    this.cookies.addAll(cookies)
-    body = "may be short and stout"
-}
+    cookies: List<Cookie> = emptyList(),
+): ResponseDTO =
+    buildResponse {
+        status = 418
+        statusText = "I'm a teapot"
+        this.headers = headers
+        this.cookies.addAll(cookies)
+        body = "may be short and stout"
+    }

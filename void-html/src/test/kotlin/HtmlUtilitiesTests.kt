@@ -38,11 +38,12 @@ class HtmlUtilitiesTests {
 
     @Test
     fun metadata_render_includes_external_css_and_js_and_defaults() {
-        val page = route("/") {
-            GET {
-                ok("", mutableMapOf("Content-Type" to "text/plain"))
+        val page =
+            route("/") {
+                GET {
+                    ok("", mutableMapOf("Content-Type" to "text/plain"))
+                }
             }
-        }
         val meta = Metadata(page)
         meta.title = "Test Page"
         meta.externalCss = mutableListOf("/css/site.css")
@@ -79,11 +80,12 @@ class HtmlUtilitiesTests {
 
     @Test
     fun metadata_style_uuid_injects_css_link() {
-        val page = route("/") {
-            GET {
-                ok("", mutableMapOf("Content-Type" to "text/plain"))
+        val page =
+            route("/") {
+                GET {
+                    ok("", mutableMapOf("Content-Type" to "text/plain"))
+                }
             }
-        }
         val meta = Metadata(page)
         val id = java.util.UUID.randomUUID()
         // internal property is visible within module tests

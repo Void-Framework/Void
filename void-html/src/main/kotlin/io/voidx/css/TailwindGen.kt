@@ -5,8 +5,8 @@ import io.voidx.css.TailwindGen.grabTailwind
 import io.voidx.css.TailwindGen.processTailwind
 import io.voidx.html.Element
 import io.voidx.html.metadata.metadata
-import io.voidx.page.Page
 import io.voidx.html.page.metadata
+import io.voidx.page.Page
 import io.voidx.router.Router
 import java.net.URI
 import java.net.http.HttpClient

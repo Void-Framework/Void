@@ -10,11 +10,12 @@ import kotlin.test.assertTrue
 class MetadataExtrasTests {
     @Test
     fun favicon_and_keywords_and_canonical_render() {
-        val page = route("/") {
-            GET {
-                ok("", mutableMapOf("Content-Type" to "text/plain"))
+        val page =
+            route("/") {
+                GET {
+                    ok("", mutableMapOf("Content-Type" to "text/plain"))
+                }
             }
-        }
         val meta = Metadata(page)
         meta.favicon = "/favicon.ico" to "image/x-icon"
         meta.keywords = listOf("kotlin", "void")
@@ -28,11 +29,12 @@ class MetadataExtrasTests {
 
     @Test
     fun external_js_defer_false_is_rendered_without_defer_and_order_preserved() {
-        val page = route("/") {
-            GET {
-                ok("", mutableMapOf("Content-Type" to "text/plain"))
+        val page =
+            route("/") {
+                GET {
+                    ok("", mutableMapOf("Content-Type" to "text/plain"))
+                }
             }
-        }
         val meta = Metadata(page)
         meta.externalJS =
             linkedMapOf(

@@ -3,8 +3,12 @@ package io.voidx.html.generated
 import io.voidx.html.*
 import kotlin.reflect.KClass
 
-fun Element.U(vararg attribute: Attribute, child: Element.() -> Unit): ElementWithChildren {
-    val node = object : ElementWithChildren(name = "u") {
+fun Element.U(
+    vararg attribute: Attribute,
+    child: Element.() -> Unit,
+): ElementWithChildren {
+    val node =
+        object : ElementWithChildren(name = "u") {
             override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
         }
     // apply attributes (remembered instance will keep attributes across recompositions)

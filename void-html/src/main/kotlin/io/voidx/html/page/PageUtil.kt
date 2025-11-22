@@ -7,9 +7,9 @@ import io.voidx.html.Element
 import io.voidx.html.fractal
 import io.voidx.html.metadata.Metadata
 import io.voidx.html.metadata.metadata
-import io.voidx.page.DynamicPage
 import io.voidx.html.router.RouterUtil
 import io.voidx.html.util.createResponse
+import io.voidx.page.DynamicPage
 import io.voidx.page.ExceptionPage
 import io.voidx.page.NotFoundPage
 import io.voidx.page.Page
@@ -50,6 +50,7 @@ fun Page.html(builder: Element.() -> Unit): ResponseDTO {
  * registration of those files as router pages and injection into HTML metadata happens in
  * [addCssToRouter]. Returns this page for fluent configuration.
  */
+
 /**
  * Marks one or more CSS file names to be included for this [Page].
  *
@@ -73,6 +74,7 @@ operator fun Page.invoke(vararg cssFileName: String): Page {
  * by creating a [CssPage], and that URL is appended to the page's metadata so it is linked
  * in the final HTML head.
  */
+
 /**
  * Registers previously selected CSS resources as router pages and injects their
  * URLs into this page's [metadata] as external stylesheets.

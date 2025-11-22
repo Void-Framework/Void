@@ -1,11 +1,11 @@
 package test
 
-import io.voidx.dto.buildResponse
-import io.voidx.page.route
-import io.voidx.page.path
-import io.voidx.router.router
 import io.voidx.Server
+import io.voidx.dto.buildResponse
 import io.voidx.handle
+import io.voidx.page.path
+import io.voidx.page.route
+import io.voidx.router.router
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -20,8 +20,11 @@ private class DynSock(
 ) : Socket() {
     private val inBytes = ByteArrayInputStream(raw.toByteArray())
     private val outBytes = ByteArrayOutputStream()
+
     override fun getInputStream(): InputStream = inBytes
+
     override fun getOutputStream(): OutputStream = outBytes
+
     fun text(): String = outBytes.toString().replace("\r\n", "\n")
 }
 
@@ -39,16 +42,17 @@ class RouterDynamicAndMethodDispatchTests {
                         status = 200
                         statusText = "OK"
                         headers["Content-Type"] = "text/plain"
-                        body = "${id}:${name ?: "-"}"
+                        body = "$id:${name ?: "-"}"
                     }
                 }
             },
         )
 
-        val sock = DynSock(
-            "GET /u/42 HTTP/1.1\r\n" +
-                "Host: example.com\r\n\r\n",
-        )
+        val sock =
+            DynSock(
+                "GET /u/42 HTTP/1.1\r\n" +
+                    "Host: example.com\r\n\r\n",
+            )
         val srv = Server(r, 1.1)
         sock.handle(srv, r)
 
@@ -84,17 +88,19 @@ class RouterDynamicAndMethodDispatchTests {
 
         val srv = Server(r, 1.1)
 
-        val getSock = DynSock(
-            "GET /m HTTP/1.1\r\nHost: x\r\n\r\n",
-        )
+        val getSock =
+            DynSock(
+                "GET /m HTTP/1.1\r\nHost: x\r\n\r\n",
+            )
         getSock.handle(srv, r)
         val getResp = getSock.text()
         assertTrue(getResp.startsWith("HTTP/1.1 200 OK\n"), getResp)
         assertEquals("g", getResp.substringAfter("\n\n"))
 
-        val postSock = DynSock(
-            "POST /m HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\n\r\n",
-        )
+        val postSock =
+            DynSock(
+                "POST /m HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\n\r\n",
+            )
         postSock.handle(srv, r)
         val postResp = postSock.text()
         assertTrue(postResp.startsWith("HTTP/1.1 200 OK\n"), postResp)
@@ -118,9 +124,10 @@ class RouterDynamicAndMethodDispatchTests {
             },
         )
 
-        val sock = DynSock(
-            "GET /u/42/ HTTP/1.1\r\nHost: x\r\n\r\n",
-        )
+        val sock =
+            DynSock(
+                "GET /u/42/ HTTP/1.1\r\nHost: x\r\n\r\n",
+            )
         val srv = Server(r, 1.1)
         sock.handle(srv, r)
 
@@ -146,9 +153,10 @@ class RouterDynamicAndMethodDispatchTests {
             },
         )
 
-        val sock = DynSock(
-            "GET /favicon.ico HTTP/1.1\r\nHost: x\r\n\r\n",
-        )
+        val sock =
+            DynSock(
+                "GET /favicon.ico HTTP/1.1\r\nHost: x\r\n\r\n",
+            )
         val srv = Server(r, 1.1)
         sock.handle(srv, r)
 

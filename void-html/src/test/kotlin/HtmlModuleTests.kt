@@ -20,11 +20,14 @@ class HtmlModuleTests {
     @Test
     fun html_response_sets_headers_and_attributes() {
         val el = fractal { Div("id" to "root") { } }
-        val meta = Metadata(route("/") {
-            GET {
-                createResponse(el)
-            }
-        })
+        val meta =
+            Metadata(
+                route("/") {
+                    GET {
+                        createResponse(el)
+                    }
+                },
+            )
 
         val resp = createResponse(el, meta)
         assertEquals("text/html", resp.headers["Content-Type"])

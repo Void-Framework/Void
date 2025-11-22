@@ -2,8 +2,8 @@ package io.voidx.html
 
 import io.voidx.Method
 import io.voidx.dto.RequestDTO
-//import io.voidx.html.generated.Div
-//import io.voidx.html.generated.H2
+// import io.voidx.html.generated.Div
+// import io.voidx.html.generated.H2
 import java.util.Locale.getDefault
 
 /**

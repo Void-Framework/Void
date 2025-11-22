@@ -1,20 +1,20 @@
 package test
 
+import io.voidx.Server
 import io.voidx.dto.buildResponse
+import io.voidx.handle
 import io.voidx.page.exceptionPage
 import io.voidx.page.notFoundPage
 import io.voidx.page.route
 import io.voidx.router.router
 import io.voidx.router.util.RouteCheck
-import io.voidx.Server
-import io.voidx.handle
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -48,6 +48,7 @@ class RouterNotFoundAndExceptionFlowTests {
         RouteCheck.exceptionPage = prevExceptionPage
         RouteCheck.nullPage = prevNullPage
     }
+
     @Test
     fun unknown_route_uses_default_404_page() {
         val r = router { }

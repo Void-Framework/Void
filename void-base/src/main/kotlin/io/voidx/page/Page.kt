@@ -127,7 +127,10 @@ abstract class NotFoundPage : Page("")
  * if it does not exist yet. Allows fluent per-method handlers, e.g.:
  * router.on("/api").GET { ... }
  */
-fun route(path: String, builder: PageHandler.() -> Unit): PageHandler {
+fun route(
+    path: String,
+    builder: PageHandler.() -> Unit,
+): PageHandler {
     val page = PageHandler(path)
     page.builder()
     return page

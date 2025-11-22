@@ -42,5 +42,5 @@ enum class Method {
     PROPFIND,
 
     /** A playful method causing the teapot to stop pouring milk, used for testing or jokes. */
-    WHEN
+    WHEN,
 }
