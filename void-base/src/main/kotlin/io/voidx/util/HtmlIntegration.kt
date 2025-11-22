@@ -41,7 +41,6 @@ typealias HandleJsAndCss = (Page, Router) -> Unit
  * arbitrary replacement of handlers and ensures read-only access to pages.
  */
 object HtmlIntegration {
-
     /** Handler for KTS requests, if provided by the HTML module. */
     private var _getKtsPage: GetKtsPageFn? = null
     val getKtsPage: GetKtsPageFn? get() = _getKtsPage
@@ -83,4 +82,3 @@ object HtmlIntegration {
         _jsPages += page
     }
 }
-

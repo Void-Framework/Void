@@ -3,8 +3,12 @@ package io.voidx.html.generated
 import io.voidx.html.*
 import kotlin.reflect.KClass
 
-fun Element.Section(vararg attribute: Attribute, child: Element.() -> Unit): ElementWithChildren {
-    val node = object : ElementWithChildren(name = "section") {
+fun Element.Section(
+    vararg attribute: Attribute,
+    child: Element.() -> Unit,
+): ElementWithChildren {
+    val node =
+        object : ElementWithChildren(name = "section") {
             override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
         }
     // apply attributes (remembered instance will keep attributes across recompositions)

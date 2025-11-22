@@ -3,8 +3,12 @@ package io.voidx.html.generated
 import io.voidx.html.*
 import kotlin.reflect.KClass
 
-fun Element.Cite(vararg attribute: Attribute, child: Element.() -> Unit): ElementWithChildren {
-    val node = object : ElementWithChildren(name = "cite") {
+fun Element.Cite(
+    vararg attribute: Attribute,
+    child: Element.() -> Unit,
+): ElementWithChildren {
+    val node =
+        object : ElementWithChildren(name = "cite") {
             override val acceptedChildren: MutableList<KClass<out Element>?> = mutableListOf(null)
         }
     // apply attributes (remembered instance will keep attributes across recompositions)

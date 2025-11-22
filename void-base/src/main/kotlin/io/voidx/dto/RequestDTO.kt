@@ -1,7 +1,7 @@
 package io.voidx.dto
 
-import io.voidx.Method
 import io.voidx.ClientHandler
+import io.voidx.Method
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -35,6 +35,27 @@ data class RequestDTO(
      * Intended for internal use by middleware and handlers.
      */
     val attributes: MutableMap<String, Any> = mutableMapOf()
+
+    val cookies: Map<String, String>
+        get() {
+            val percentRegex = "%([0-9A-Fa-f]{2})".toRegex()
+            val pairs = headers["Cookie"]?.split(";") ?: return mapOf()
+            val map = mutableMapOf<String, String>()
+            for (it in pairs) {
+                val pair = it.trim().split("=", limit = 2)
+                if (pair.size != 2) continue
+                val name = pair[0].trim()
+                val value =
+                    percentRegex.replace(pair[1].trim()) { match ->
+                        match.groupValues[1]
+                            .toInt(16)
+                            .toChar()
+                            .toString()
+                    }
+                map[name] = value
+            }
+            return map
+        }
 
     companion object {
         /**

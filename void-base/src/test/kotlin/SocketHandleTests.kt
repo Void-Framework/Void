@@ -1,10 +1,11 @@
 package test
 
-import io.voidx.dto.buildResponse
-import io.voidx.page.apiRoute
-import io.voidx.router.router
 import io.voidx.Server
+import io.voidx.dto.buildResponse
+import io.voidx.dto.ok
 import io.voidx.handle
+import io.voidx.page.route
+import io.voidx.router.router
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -37,9 +38,10 @@ private class InMemorySocket(
 class SocketHandleTests {
     @Test
     fun socket_handle_end_to_end_writes_response_and_closes_socket() {
-        val r =
-            router {
-                +apiRoute("/ping") { _ ->
+        val r = router { }
+        r.addRoute(
+            route("/ping") {
+                GET {
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -47,7 +49,8 @@ class SocketHandleTests {
                         body = "pong"
                     }
                 }
-            }
+            },
+        )
 
         val rawRequest = (
             "GET /ping HTTP/1.1\r\n" +

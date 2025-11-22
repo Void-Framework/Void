@@ -15,10 +15,14 @@ fun main(args: Array<String>) {
     } else {
         throw NoOutputException()
     }
-    val stream = object {}.javaClass.getResourceAsStream("/elements.json")
-        ?: error("Could not find elements.json")
+    val stream =
+        object {}.javaClass.getResourceAsStream("/elements.json")
+            ?: error("Could not find elements.json")
 
-    val temp = kotlin.io.path.createTempFile("elements", ".json").toFile()
+    val temp =
+        kotlin.io.path
+            .createTempFile("elements", ".json")
+            .toFile()
     temp.outputStream().use { out ->
         stream.copyTo(out)
     }
@@ -64,11 +68,12 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
     val codeFiles = mutableMapOf<String, String>()
 
     lines.forEach { line ->
-        val kotlinCode = StringBuilder(
-            "package io.voidx.html.generated\n\n" +
+        val kotlinCode =
+            StringBuilder(
+                "package io.voidx.html.generated\n\n" +
                     "import io.voidx.html.*\n" +
-                    "import kotlin.reflect.KClass\n\n"
-        )
+                    "import kotlin.reflect.KClass\n\n",
+            )
 
         val name = line.substringBefore("\":").substringAfter("\"").capitalize()
         val tagName = name.lowercase()
@@ -90,7 +95,7 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
                         return node
                     }
                     
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
             }
 
@@ -105,10 +110,13 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
                         return node
                     }
                     
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
             }
-            else -> throw UnsupportedOperationException("Unknown contentModel: $type")
+
+            else -> {
+                throw UnsupportedOperationException("Unknown contentModel: $type")
+            }
         }
 
         codeFiles[name] = kotlinCode.toString()
@@ -116,7 +124,6 @@ fun processLinesToCodeFiles(lines: MutableList<String>): MutableMap<String, Stri
 
     return codeFiles
 }
-
 
 fun String.capitalize(): String =
     this.replaceFirstChar {

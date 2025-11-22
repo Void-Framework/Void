@@ -5,13 +5,13 @@ import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.dto.emptyResponse
 import io.voidx.dto.writeHTTP
-import io.voidx.page.ExceptionPage
-import io.voidx.page.NotFoundPage
-import io.voidx.page.Page
-import io.voidx.page.DynamicPage
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
+import io.voidx.page.DynamicPage
+import io.voidx.page.ExceptionPage
+import io.voidx.page.NotFoundPage
+import io.voidx.page.Page
 import io.voidx.page.PageHandler
 import io.voidx.router.util.RequestHandler
 import io.voidx.router.util.RouteCheck
@@ -87,8 +87,8 @@ class Router :
     }
 
     /** Adds this page to the router using unary plus syntax: +page. */
-    operator fun Page.unaryPlus() {
-        addRoute(this)
+    fun route(page: Page) {
+        addRoute(page)
     }
 
     operator fun Relay.unaryPlus() {
@@ -141,6 +141,15 @@ class Router :
 
             is NotFoundPage -> {
                 RouteCheck.nullPage = route
+            }
+
+            is PageHandler -> {
+                if (route.target.contains("\\{[^}]+}".toRegex())) {
+                    val target = route.target.split("/")
+                    dynamicRoutes[target] = route
+                } else {
+                    handleTargetChecking(route, routes)
+                }
             }
 
             is DynamicPage -> {
@@ -259,14 +268,22 @@ class Router :
      * if it does not exist yet. Allows fluent per-method handlers, e.g.:
      * router.on("/api").GET { ... }
      */
-    fun on(path: String): PageHandler =
-        if (routes.containsKey(path)) {
-            routes[path] as PageHandler
-        } else {
-            val page = PageHandler(path)
-            addRoute(page)
-            page
-        }
+    fun route(
+        path: String,
+        builder: PageHandler.() -> Unit,
+    ) {
+        val page =
+            if (routes.containsKey(path)) {
+                routes[path] as PageHandler
+            } else if (dynamicRoutes.contains(path)) {
+                dynamicRoutes[path.split("/")] as PageHandler
+            } else {
+                val page = PageHandler(path)
+                addRoute(page)
+                page
+            }
+        page.builder()
+    }
 }
 
 /**

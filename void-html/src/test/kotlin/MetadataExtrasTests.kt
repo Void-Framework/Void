@@ -2,14 +2,20 @@ package test
 
 import io.voidx.dto.ok
 import io.voidx.html.metadata.Metadata
-import io.voidx.page.apiRoute
+import io.voidx.page.Page
+import io.voidx.page.route
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class MetadataExtrasTests {
     @Test
     fun favicon_and_keywords_and_canonical_render() {
-        val page = apiRoute("/") { ok("", mutableMapOf("Content-Type" to "text/plain")) }
+        val page =
+            route("/") {
+                GET {
+                    ok("", mutableMapOf("Content-Type" to "text/plain"))
+                }
+            }
         val meta = Metadata(page)
         meta.favicon = "/favicon.ico" to "image/x-icon"
         meta.keywords = listOf("kotlin", "void")
@@ -23,7 +29,12 @@ class MetadataExtrasTests {
 
     @Test
     fun external_js_defer_false_is_rendered_without_defer_and_order_preserved() {
-        val page = apiRoute("/") { ok("", mutableMapOf("Content-Type" to "text/plain")) }
+        val page =
+            route("/") {
+                GET {
+                    ok("", mutableMapOf("Content-Type" to "text/plain"))
+                }
+            }
         val meta = Metadata(page)
         meta.externalJS =
             linkedMapOf(

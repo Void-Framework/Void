@@ -21,7 +21,7 @@ fun main() {
     // Create a minimal router, add the docs page so hooks run (Tailwind + external CSS wiring)
     val router =
         router {
-            +docsHomeRoute
+            route(docsHomeRoute)
         }
 
     // Prepare a minimal GET request to bind to the page before rendering
