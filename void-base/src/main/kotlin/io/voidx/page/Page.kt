@@ -123,29 +123,29 @@ abstract class ExceptionPage : Page("") {
 abstract class NotFoundPage : Page("")
 
 /**
- * Defines an API route at [path] that returns a raw [ResponseDTO] via [block].
+ * Returns a [PageHandler] for the static [path], creating and registering one
+ * if it does not exist yet. Allows fluent per-method handlers, e.g.:
+ * router.on("/api").GET { ... }
  */
-fun apiRoute(
-    path: String,
-    block: Page.(RequestDTO) -> ResponseDTO,
-): Page =
-    object : Page(target = path) {
-        override fun content() = block(request)
-    }
+fun route(path: String, builder: PageHandler.() -> Unit): PageHandler {
+    val page = PageHandler(path)
+    page.builder()
+    return page
+}
 
 /**
  * Defines an exception page that returns a raw [ResponseDTO] via [block].
  */
-fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPage =
+fun exceptionPage(block: ExceptionPage.() -> ResponseDTO): ExceptionPage =
     object : ExceptionPage() {
-        override fun content() = block(exception)
+        override fun content() = block()
     }
 
 /**
  * Defines a 404 page rendered when no route matches the request.
  * The [block] is invoked to produce a raw [ResponseDTO].
  */
-fun notFoundPage(block: NotFoundPage.(RequestDTO) -> ResponseDTO): NotFoundPage =
+fun notFoundPage(block: NotFoundPage.() -> ResponseDTO): NotFoundPage =
     object : NotFoundPage() {
-        override fun content() = block(request)
+        override fun content() = block()
     }
