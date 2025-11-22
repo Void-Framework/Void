@@ -2,7 +2,7 @@ package test
 
 import io.voidx.dto.ok
 import io.voidx.page.Page
-import io.voidx.page.apiRoute
+import io.voidx.page.route
 import io.voidx.router.Router
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -12,9 +12,9 @@ class RouterAddRoutesInternalTests {
     @Test
     fun addRoutes_registers_all_pages_and_returns_router() {
         val r = Router()
-        val p1: Page = apiRoute("/a") { ok("a", mutableMapOf("Content-Type" to "text/plain")) }
-        val p2: Page = apiRoute("/b") { ok("b", mutableMapOf("Content-Type" to "text/plain")) }
-        val p3: Page = apiRoute("/c") { ok("c", mutableMapOf("Content-Type" to "text/plain")) }
+        val p1: Page = route("/a") { GET { ok("a", mutableMapOf("Content-Type" to "text/plain")) } }
+        val p2: Page = route("/b") { GET { ok("b", mutableMapOf("Content-Type" to "text/plain")) } }
+        val p3: Page = route("/c") { GET { ok("c", mutableMapOf("Content-Type" to "text/plain")) } }
 
         val returned = r.addRoutes(listOf(p1, p2, p3))
         assertEquals(r, returned)

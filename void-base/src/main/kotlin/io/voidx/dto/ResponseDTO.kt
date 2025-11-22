@@ -33,6 +33,8 @@ data class ResponseDTO(
     /** Mutable map of response headers. "Content-Length" will be added if missing during write. */
     var headers = mutableMapOf<String, String>()
 
+    val cookies = mutableListOf<Cookie>()
+
     /**
      * Back-reference to the originating [RequestDTO].
      * Set internally by the router so middleware can correlate requests and responses.
@@ -57,6 +59,7 @@ interface ResponseBuilder<T> {
     var status: Int
     var statusText: String
     var headers: MutableMap<String, String>
+    var cookies: MutableList<Cookie>
     var body: T
 }
 
@@ -66,11 +69,13 @@ class StringResponseBuilder : ResponseBuilder<String> {
     override var statusText: String = "OK"
     override var headers: MutableMap<String, String> = mutableMapOf()
     override var body: String = ""
+    override var cookies: MutableList<Cookie> = mutableListOf()
 
     fun build(): ResponseDTO =
         ResponseDTO(status, statusText, ResponseBody.StringBody(body)).apply {
             headers =
                 this@StringResponseBuilder.headers
+            cookies.addAll(this@StringResponseBuilder.cookies)
         }
 }
 
@@ -80,11 +85,13 @@ class ByteResponseBuilder : ResponseBuilder<ByteArray> {
     override var statusText: String = "OK"
     override var headers: MutableMap<String, String> = mutableMapOf()
     override var body: ByteArray = ByteArray(1)
+    override var cookies: MutableList<Cookie> = mutableListOf()
 
     fun build(): ResponseDTO =
         ResponseDTO(status, statusText, ResponseBody.ByteArrayBody(body)).apply {
             headers =
                 this@ByteResponseBuilder.headers
+            cookies.addAll(this@ByteResponseBuilder.cookies)
         }
 }
 
@@ -108,8 +115,14 @@ inline fun <reified T> buildResponse(builder: ResponseBuilder<T>.() -> Unit): Re
 }
 
 /** Applies header mutations within the response builder DSL. */
-fun ResponseBuilder<*>.headers(block: MutableMap<String, String>.() -> Unit) {
+fun ResponseBuilder<*>.headers(block: Headers.() -> Unit) {
     headers.block()
+}
+
+fun headers(block: Headers.() -> Unit): Headers {
+    val map = mutableMapOf<String, String>()
+    map.block()
+    return map
 }
 
 /**
@@ -142,6 +155,9 @@ fun OutputStream.writeHTTP(
 
     for ((key, value) in response.headers.entries) {
         writer.println("$key: $value")
+    }
+    for (cookie in response.cookies) {
+        writer.println("Set-Cookie: $cookie")
     }
     writer.println()
     writer.flush()
@@ -176,207 +192,263 @@ sealed class ResponseBody<T>(
 inline fun <reified T> ok(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 200
         this.statusText = "OK"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> created(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 201
         this.statusText = "Created"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> accepted(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 202
         this.statusText = "Accepted"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
-fun noContent(headers: Headers): ResponseDTO =
+fun noContent(
+    headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
+): ResponseDTO =
     buildResponse<String> {
         this.status = 204
         this.statusText = "No Content"
         this.body = ""
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 fun redirect(
     location: String,
     permanent: Boolean = false,
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse<String> {
         this.status = if (permanent) 301 else 302
         this.statusText = if (permanent) "Moved Permanently" else "Found"
         this.headers = mutableMapOf("Location" to location)
         this.body = ""
+        this.cookies.addAll(cookies)
     }
 
-fun temporaryRedirect(location: String): ResponseDTO =
+fun temporaryRedirect(
+    location: String,
+    cookies: List<Cookie> = emptyList(),
+): ResponseDTO =
     buildResponse<String> {
         this.status = 307
         this.statusText = "Temporary Redirect"
         this.headers = mutableMapOf("Location" to location)
         this.body = ""
+        this.cookies.addAll(cookies)
     }
 
-fun permanentRedirect(location: String): ResponseDTO =
+fun permanentRedirect(
+    location: String,
+    cookies: List<Cookie> = emptyList(),
+): ResponseDTO =
     buildResponse<String> {
         this.status = 308
         this.statusText = "Permanent Redirect"
         this.headers = mutableMapOf("Location" to location)
         this.body = ""
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> badRequest(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 400
         this.statusText = "Bad Request"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> unauthorized(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 401
         this.statusText = "Unauthorized"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> forbidden(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 403
         this.statusText = "Forbidden"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> notFound(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 404
         this.statusText = "Not Found"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> conflict(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 409
         this.statusText = "Conflict"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> tooManyRequests(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 429
         this.statusText = "Too Many Requests"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> internalServerError(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 500
         this.statusText = "Internal Server Error"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> notImplemented(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 501
         this.statusText = "Not Implemented"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> badGateway(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 502
         this.statusText = "Bad Gateway"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> serviceUnavailable(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 503
         this.statusText = "Service Unavailable"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 inline fun <reified T> gatewayTimeout(
     body: T,
     headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
     buildResponse {
         this.status = 504
         this.statusText = "Gateway Timeout"
         this.body = body
         this.headers = headers
+        this.cookies.addAll(cookies)
     }
 
 fun fileDownload(
     file: File,
     contentType: String? = null,
+    cookies: List<Cookie> = emptyList(),
 ): ResponseDTO =
-    buildResponse {
+    buildResponse<ByteArray> {
         status = 200
         statusText = "OK"
         headers {
             put("Content-Type", contentType ?: guessContentType(file))
             put("Content-Disposition", "attachment; filename=\"${file.name}\"")
         }
-        body = file.readBytes() // or InputStream for streaming
+        body = file.readBytes()
+        this.cookies.addAll(cookies)
     }
 
 fun guessContentType(file: File): String =
     Files.probeContentType(file.toPath())
         ?: URLConnection.guessContentTypeFromName(file.name)
         ?: "application/octet-stream"
+
+fun teapot(
+    headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList(),
+): ResponseDTO =
+    buildResponse {
+        status = 418
+        statusText = "I'm a teapot"
+        this.headers = headers
+        this.cookies.addAll(cookies)
+        body = "may be short and stout"
+    }

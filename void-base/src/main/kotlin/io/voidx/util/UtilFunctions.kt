@@ -1,6 +1,5 @@
 package io.voidx.util
 
-
 /** Wraps this value in a successful [Result]. */
 fun <T> T.toResult(): Result<T> = Result.success(this)
 
@@ -32,8 +31,6 @@ fun readResourceText(path: String): String =
         ?.bufferedReader()
         ?.use { it.readText() }
         ?: error("Missing resource: $path")
-
-
 
 /**
  * Removes a single trailing empty string element from this list if present.

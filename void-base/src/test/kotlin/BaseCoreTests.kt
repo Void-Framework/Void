@@ -7,12 +7,11 @@ import io.voidx.dto.buildResponse
 import io.voidx.dto.emptyResponse
 import io.voidx.dto.headers
 import io.voidx.dto.toHttpRequest
-import io.voidx.page.apiRoute
-import io.voidx.page.DynamicPage
-import io.voidx.page.dynamicApiRoute
-import io.voidx.page.path
 import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
+import io.voidx.page.DynamicPage
+import io.voidx.page.path
+import io.voidx.page.route
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -63,11 +62,13 @@ class BaseCoreTests {
     fun page_middleware_before_after_and_short_circuit() {
         var afterCalled = false
         val page =
-            apiRoute("/hello") { _ ->
-                buildResponse<String> {
-                    status = 200
-                    statusText = "OK"
-                    body = "handled"
+            route("/hello") {
+                GET { _ ->
+                    buildResponse<String> {
+                        status = 200
+                        statusText = "OK"
+                        body = "handled"
+                    }
                 }
             }
 
@@ -100,14 +101,16 @@ class BaseCoreTests {
 
     @Test
     fun dynamic_page_path_accessor_and_execution() {
-        val dyn: DynamicPage =
-            dynamicApiRoute("/users/{id}/{name?}") { _ ->
-                val id: String? = path("id")
-                val name: String? = path("name?")
-                buildResponse<String> {
-                    status = 200
-                    statusText = "OK"
-                    body = "$id:${name ?: "-"}"
+        val dyn =
+            route("/users/{id}/{name?}") {
+                GET {
+                    buildResponse<String> {
+                        status = 200
+                        statusText = "OK"
+                        val id: String? = path("id")
+                        val name: String? = path("name?")
+                        body = "$id:${name ?: "-"}"
+                    }
                 }
             }
 

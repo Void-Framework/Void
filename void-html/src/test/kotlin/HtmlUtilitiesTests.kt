@@ -7,7 +7,9 @@ import io.voidx.html.fractal
 import io.voidx.html.generated.Div
 import io.voidx.html.generated.H2
 import io.voidx.html.metadata.Metadata
-import io.voidx.page.apiRoute
+import io.voidx.html.util.createResponse
+import io.voidx.page.Page
+import io.voidx.page.route
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -36,7 +38,12 @@ class HtmlUtilitiesTests {
 
     @Test
     fun metadata_render_includes_external_css_and_js_and_defaults() {
-        val page = apiRoute("/") { ok("", mutableMapOf("Content-Type" to "text/plain")) }
+        val page =
+            route("/") {
+                GET {
+                    ok("", mutableMapOf("Content-Type" to "text/plain"))
+                }
+            }
         val meta = Metadata(page)
         meta.title = "Test Page"
         meta.externalCss = mutableListOf("/css/site.css")
@@ -55,9 +62,7 @@ class HtmlUtilitiesTests {
     @Test
     fun createResponse_overload_sets_headers_and_element_attribute() {
         val el = fractal { Div("id" to "only") { } }
-        val resp =
-            io.voidx.html.util
-                .createResponse(el)
+        val resp = createResponse(el)
         // Header
         assertEquals("text/html", resp.headers["Content-Type"])
         // Attributes should include original element
@@ -75,7 +80,12 @@ class HtmlUtilitiesTests {
 
     @Test
     fun metadata_style_uuid_injects_css_link() {
-        val page = apiRoute("/") { ok("", mutableMapOf("Content-Type" to "text/plain")) }
+        val page =
+            route("/") {
+                GET {
+                    ok("", mutableMapOf("Content-Type" to "text/plain"))
+                }
+            }
         val meta = Metadata(page)
         val id = java.util.UUID.randomUUID()
         // internal property is visible within module tests

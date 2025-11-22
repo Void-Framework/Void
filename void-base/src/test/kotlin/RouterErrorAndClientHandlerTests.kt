@@ -1,12 +1,12 @@
 package test
 
 import io.voidx.ClientHandler
+import io.voidx.Server
 import io.voidx.dto.buildResponse
 import io.voidx.page.exceptionPage
 import io.voidx.router.Router
 import io.voidx.router.router
 import io.voidx.router.util.RouteCheck
-import io.voidx.Server
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -37,12 +37,12 @@ class RouterErrorAndClientHandlerTests {
         val r = Router()
         // Install an ExceptionPage that returns a distinct response
         val ex =
-            exceptionPage { e ->
+            exceptionPage {
                 buildResponse<String> {
                     status = 500
                     statusText = "Internal Server Error"
                     headers["Content-Type"] = "text/plain"
-                    body = "boom:${e.message}"
+                    body = "boom:${exception.message}"
                 }
             }
         RouteCheck.exceptionPage = ex
@@ -64,7 +64,7 @@ class RouterErrorAndClientHandlerTests {
         val r = router { }
         // Minimal exception page to ensure write happens
         RouteCheck.exceptionPage =
-            exceptionPage { _ ->
+            exceptionPage {
                 buildResponse<String> {
                     status = 500
                     statusText = "Internal Server Error"
