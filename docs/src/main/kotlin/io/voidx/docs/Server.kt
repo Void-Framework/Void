@@ -1,3 +1,5 @@
+// Uses softer neutrals, better spacing, cleaner typography, and simpler layouts
+
 package io.voidx.docs
 
 import io.voidx.dto.buildResponse
@@ -9,70 +11,68 @@ import io.voidx.html.page.metadata
 import io.voidx.page.route
 import io.voidx.simpleServer
 
-/**
- * A modern, clean-looking Docs homepage built using Tailwind and Void DSL.
- */
 val docsHomeRoute =
     route("/") {
-        html({
-            title = "Docs"
-        }) {
+        html({ title = "Docs" }) {
 
-            // Global layout classes
-            val container = "min-h-screen bg-gray-50 text-gray-800 antialiased"
-            val inner = "max-w-6xl mx-auto px-6 py-12"
+            // Base styles
+            val container = "min-h-screen bg-slate-50 text-slate-800 antialiased"
+            val inner = "max-w-4xl mx-auto px-6 py-14"
 
-            // Hero section
+            // Hero
             val hero =
-                "relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-xl mb-12"
-            val heroInner = "rounded-3xl bg-white/95 backdrop-blur-md px-10 py-12 md:px-16 md:py-16"
-            val heroTitle = "text-5xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow"
-            val heroSubtitle = "mt-4 text-lg md:text-xl text-white/90"
+                "relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 shadow-2xl mb-14"
+            val heroInner = "px-10 py-14"
+            val heroTitle = "text-5xl md:text-6xl font-black tracking-tight text-white"
+            val heroSubtitle = "mt-4 text-xl text-slate-300 max-w-2xl"
             val heroNav = "mt-8 flex flex-wrap gap-3"
             val button =
-                "inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 active:bg-indigo-800 shadow-md transition duration-200"
+                "inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/20 transition"
 
-            // Section styling
-            val section = "bg-white rounded-2xl shadow ring-1 ring-gray-100 p-8 mb-8"
-            val heading = "text-3xl font-bold text-gray-900 mb-4"
-            val subheading = "text-lg font-semibold text-gray-800 mb-2"
-            val link = "text-indigo-600 hover:text-indigo-700 underline underline-offset-4 transition-colors duration-200"
-            val card = "bg-gray-50 p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-shadow duration-300"
-            val codeBlock = "bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm font-mono"
-            val footer = "text-center mt-16 py-6 text-gray-500 text-sm border-t border-gray-200"
+            // Sections
+            val section = "bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm ring-1 ring-slate-200 p-8 mb-10"
+            val heading = "text-3xl font-bold text-slate-900 tracking-tight mb-4"
+            val paragraph = "prose prose-slate max-w-none"
+
+            val codeBlock =
+                "bg-slate-900/90 text-slate-100 p-4 rounded-xl overflow-x-auto text-sm font-mono border border-slate-800"
+
+            val card =
+                "bg-white/60 backdrop-blur-sm p-6 rounded-xl border border-slate-200 hover:shadow-md transition-all"
+
+            val link = "text-slate-700 hover:text-slate-900 font-medium transition-colors"
+
+            val footer = "text-center mt-16 py-6 text-slate-500 text-sm border-t border-slate-200"
 
             Main("class" to container) {
                 Div("class" to inner) {
-                    // Hero
+
+                    // HERO
                     Div("class" to hero) {
                         Div("class" to heroInner) {
-                            H1("class" to heroTitle) { +"Void Framework — Documentation" }
-                            P("class" to heroSubtitle) { +"A lightweight Kotlin DSL for building HTML UIs, API endpoints, and pages." }
+                            H1("class" to heroTitle) { +"Void Framework Documentation" }
+                            P("class" to heroSubtitle) {
+                                +"A lightweight Kotlin DSL for building UIs, API routes, and full pages — clean, fast, and type‑safe."
+                            }
                             Nav("class" to heroNav) {
                                 listOf(
-                                    "Installation" to "#installation",
-                                    "Getting Started" to "#getting-started",
+                                    "Install" to "#installation",
+                                    "Start" to "#getting-started",
                                     "Routing" to "#routing",
-                                    "Dynamic Routes" to "#dynamic-routes",
                                     "HTML DSL" to "#html-dsl",
-                                    "Middleware" to "#middleware",
                                     "Server" to "#server",
-                                    "Metadata" to "#metadata",
-                                    "Errors" to "#error-handling",
-                                    "Testing" to "#testing",
-                                    "Deployment" to "#deployment",
                                     "Examples" to "#examples",
-                                ).forEach { (text, href) ->
-                                    A("href" to href, "class" to button) { +text }
+                                ).forEach { (t, href) ->
+                                    A("href" to href, "class" to button) { +t }
                                 }
                             }
                         }
                     }
 
-                    // Table of Contents
+                    // TOC
                     Section("class" to section) {
-                        H2("class" to heading) { +"Table of Contents" }
-                        Ul {
+                        H2("class" to heading) { +"Contents" }
+                        Ul("class" to "space-y-2") {
                             listOf(
                                 "Installation" to "#installation",
                                 "Getting Started" to "#getting-started",
@@ -82,121 +82,97 @@ val docsHomeRoute =
                                 "HTML DSL" to "#html-dsl",
                                 "Middleware" to "#middleware",
                                 "Server" to "#server",
-                                "Metadata & Assets" to "#metadata",
-                                "Error Handling" to "#error-handling",
-                                "Testing" to "#testing",
+                                "Metadata" to "#metadata",
                                 "Deployment" to "#deployment",
-                                "FAQ" to "#faq",
-                            ).forEach { (t, href) -> Li { A("href" to href, "class" to link) { +t } } }
+                                "Examples" to "#examples",
+                            ).forEach { (t, href) ->
+                                Li { A("href" to href, "class" to link) { +t } }
+                            }
                         }
                     }
 
-                    // Installation
+                    // INSTALLATION
                     Section("id" to "installation", "class" to section) {
                         H2("class" to heading) { +"Installation" }
-                        P { +"Add the dependencies to your Gradle build:" }
+                        P("class" to paragraph) { +"Add these dependencies to your Gradle build:" }
                         Pre("class" to codeBlock) {
                             Code {
                                 +
                                 """
-                                        plugins {
-                                            kotlin("jvm") version "2.2.21"
-                                        }
+                                    plugins {
+                                        kotlin("jvm") version "2.2.21"
+                                    }
 
-                                        dependencies {
-                                            implementation("com.github.jadiefication:void-base:${'$'}version")
-                                            implementation("com.github.jadiefication:void-html:${'$'}version")
-                                        }
-                                        """.trimIndent()
+                                    dependencies {
+                                        implementation("com.github.jadiefication:void-base:\${'$'}version")
+                                        implementation("com.github.jadiefication:void-html:\${'$'}version")
+                                    }
+                                    """.trimIndent()
                             }
                         }
                     }
 
-                    // Getting Started
+                    // GETTING STARTED
                     Section("id" to "getting-started", "class" to section) {
                         H2("class" to heading) { +"Getting Started" }
-                        P { +"Create your first page with the Void DSL:" }
+                        P("class" to paragraph) { +"Create your first page:" }
                         Pre("class" to codeBlock) {
                             Code {
                                 +
                                 """
-                                        import io.voidx.html.generated.Div
-                                        import io.voidx.html.generated.H1
-                                        import io.voidx.html.Element
-
-                                        fun hello(): Element = Div {
-                                            H1 { +"Hello, Void!" }
-                                        }
-                                        """.trimIndent()
+                                    fun hello(): Element = Div {
+                                        H1 { +"Hello, Void!" }
+                                    }
+                                    """.trimIndent()
                             }
                         }
                     }
 
-                    // Concepts
+                    // CONCEPTS
                     Section("id" to "concepts", "class" to section) {
                         H2("class" to heading) { +"Core Concepts" }
-                        Ul {
-                            Li { Strong { +"Page" }; +": a unit that produces a ResponseDTO (HTML or raw)." }
-                            Li { Strong { +"Route" }; +": path mapped to a Page or PageHandler (e.g. /, /api/ping)." }
-                            Li { Strong { +"Middleware" }; +": before/after relays that can short‑circuit or observe responses." }
-                            Li { Strong { +"Metadata" }; +": title, description, and asset links injected into <head>." }
+                        Ul("class" to "prose prose-slate max-w-none") {
+                            Li { Strong { +"Page" }; +": returns a ResponseDTO." }
+                            Li { Strong { +"Route" }; +": maps a path to a handler or page." }
+                            Li { Strong { +"Middleware" }; +": before/after pipeline hooks." }
+                            Li { Strong { +"Metadata" }; +": controls <head> tags and assets." }
                         }
                     }
 
-                    // Routing
+                    // ROUTING
                     Section("id" to "routing", "class" to section) {
                         H2("class" to heading) { +"Routing" }
-                        P { +"Define routes with route(\"/path\") and register them in simpleServer:" }
+                        P("class" to paragraph) { +"Define your first route:" }
                         Pre("class" to codeBlock) {
                             Code {
                                 +
                                 """
-                                        val home = route("/") {
-                                            GET { _ ->
-                                                html {
-                                                    Div { H1 { +"Home" } }
-                                                }
-                                            }
-                                        }
+                                    val home = route("/") {
+                                        GET { _ -> html { H1 { +"Home" } } }
+                                    }
 
-                                        val api = route("/api/ping") {
-                                            GET { _ ->
-                                                buildResponse {
-                                                    status = 200
-                                                    statusText = "OK"
-                                                    headers { put("Content-Type", "application/json") }
-                                                    body = "{\"pong\":true}"
-                                                }
-                                            }
-                                        }
-
-                                        fun main() {
-                                            simpleServer {
-                                                route(home)
-                                                route(api)
-                                            }
-                                        }
-                                        """.trimIndent()
+                                    fun main() {
+                                        simpleServer { route(home) }
+                                    }
+                                    """.trimIndent()
                             }
                         }
                     }
 
-                    // Dynamic Routes
+                    // DYNAMIC ROUTES
                     Section("id" to "dynamic-routes", "class" to section) {
-                        H2("class" to heading) { +"Dynamic Routes & Query Params" }
-                        P { +"Use typed handlers and read queries from the bound Page instance:" }
+                        H2("class" to heading) { +"Dynamic Routes" }
                         Pre("class" to codeBlock) {
                             Code {
                                 +
                                 """
-                                        val search = route("/search") {
-                                            GET { _ ->
-                                                // Inside handlers, the page is bound: use docsHomeRoute.queries or your own page ref
-                                                val q = docsHomeRoute.queries["q"] ?: ""
-                                                html { Div { H1 { +"Results for: ${'$'}q" } } }
-                                            }
+                                    val search = route("/search") {
+                                        GET { _ ->
+                                            val q = docsHomeRoute.queries["q"] ?: ""
+                                            html { H1 { +"Results for: \${'$'}q" } }
                                         }
-                                        """.trimIndent()
+                                    }
+                                    """.trimIndent()
                             }
                         }
                     }
@@ -204,189 +180,97 @@ val docsHomeRoute =
                     // HTML DSL
                     Section("id" to "html-dsl", "class" to section) {
                         H2("class" to heading) { +"HTML DSL" }
-                        P { +"Compose UI using generated strongly-typed elements and unaryPlus (+) for text nodes." }
                         Pre("class" to codeBlock) {
                             Code {
                                 +
                                 """
-                                        val page = route("/dsl") {
-                                            GET { _ ->
-                                                html {
-                                                    Main("class" to "p-6") {
-                                                        Header { H1 { +"Title" } }
-                                                        Section { P { +"Body paragraph" } }
-                                                        Footer { Small { +"Footer text" } }
-                                                    }
+                                    val page = route("/dsl") {
+                                        GET { _ ->
+                                            html {
+                                                Main("class" to "p-6") {
+                                                    H1 { +"Title" }
+                                                    P { +"Paragraph" }
                                                 }
                                             }
                                         }
-                                        """.trimIndent()
+                                    }
+                                    """.trimIndent()
                             }
                         }
                     }
 
-                    // Features
-                    Section("id" to "features", "class" to section) {
-                        H2("class" to heading) { +"Features" }
-                        Div("class" to "grid grid-cols-1 md:grid-cols-2 gap-6") {
-                            listOf(
-                                "Type-Safe HTML DSL" to "Build your UI with a fully type-safe Kotlin DSL",
-                                "Composable Components" to "Compose elements and fragments to create reusable building blocks",
-                                // KTS interactions disabled for static export
-                            ).forEach { (title, desc) ->
-                                Article("class" to card) {
-                                    H3("class" to subheading) { +title }
-                                    if (desc.isNotEmpty()) P { +desc }
-                                }
-                            }
-                        }
-                    }
-
-                    // KTS demo removed for static deployment
-
-                    // Middleware
-                    Section("id" to "middleware", "class" to section) {
-                        H2("class" to heading) { +"Middleware" }
-                        P { +"Register before/after relays globally or per-page to implement cross-cutting concerns." }
-                        Pre("class" to codeBlock) {
-                            Code {
-                                +
-                                """
-                                        simpleServer {
-                                            +relayAfter { result ->
-                                                result.fold(onSuccess = { println(it) }, onFailure = { println(it) })
-                                                null
-                                            }
-                                        }
-                                        """.trimIndent()
-                            }
-                        }
-                    }
-
-                    // Server
+                    // SERVER
                     Section("id" to "server", "class" to section) {
                         H2("class" to heading) { +"Server" }
-                        P { +"Boot a server with simpleServer and add pages:" }
                         Pre("class" to codeBlock) {
                             Code {
                                 +
                                 """
-                                        fun main() {
-                                            simpleServer {
-                                                route(docsHomeRoute)
-                                                on("/health") GET { _ -> ok("OK") }
-                                            }
+                                    fun main() {
+                                        simpleServer {
+                                            route(docsHomeRoute)
                                         }
-                                        """.trimIndent()
+                                    }
+                                    """.trimIndent()
                             }
                         }
                     }
 
-                    // Metadata
+                    // METADATA
                     Section("id" to "metadata", "class" to section) {
-                        H2("class" to heading) { +"Metadata & Assets" }
-                        P { +"Customize <head> tags and include external CSS/JS:" }
+                        H2("class" to heading) { +"Metadata" }
                         Pre("class" to codeBlock) {
                             Code {
                                 +
                                 """
-                                        // Assign metadata to a page
-                                        docsHomeRoute.metadata = metadata(docsHomeRoute) {
-                                            title = "Docs — Void"
-                                            description = "My app docs"
-                                            externalCss = mutableListOf("/assets/styles.css")
-                                        }
-                                        """.trimIndent()
+                                    docsHomeRoute.metadata = metadata(docsHomeRoute) {
+                                        title = "Docs — Void"
+                                        description = "My docs"
+                                        externalCss = mutableListOf("/assets/main.css")
+                                    }
+                                    """.trimIndent()
                             }
                         }
                     }
 
-                    // Error Handling
-                    Section("id" to "error-handling", "class" to section) {
-                        H2("class" to heading) { +"Error Handling" }
-                        P { +"Provide custom pages for 404 and exceptions via notFoundPage/exceptionPage." }
-                        Pre("class" to codeBlock) {
-                            Code {
-                                +
-                                """
-                                        val notFound = notFoundPage {
-                                            buildResponse { status = 404; statusText = "Not Found"; body = "Missing" }
-                                        }
-                                        val onError = exceptionPage {
-                                            buildResponse { status = 500; statusText = "Error"; body = exception.message ?: "error" }
-                                        }
-                                        """.trimIndent()
-                            }
-                        }
-                    }
-
-                    // Testing
-                    Section("id" to "testing", "class" to section) {
-                        H2("class" to heading) { +"Testing" }
-                        P { +"Use the test modules to validate routes and HTML generation. See void-base and void-html tests." }
-                    }
-
-                    // Deployment
+                    // DEPLOYMENT
                     Section("id" to "deployment", "class" to section) {
                         H2("class" to heading) { +"Deployment" }
-                        P { +"Export static pages for GitHub Pages using the docs Export.kt utility:" }
                         Pre("class" to codeBlock) {
                             Code {
                                 +
                                 """
-                                        // In docs module
-                                        fun main() = io.voidx.docs.main() // writes build/pages/index.html
-                                        """.trimIndent()
+                                    fun main() = io.voidx.docs.main() // build/pages/index.html
+                                    """.trimIndent()
                             }
                         }
                     }
 
-                    // Examples
+                    // EXAMPLES
                     Section("id" to "examples", "class" to section) {
                         H2("class" to heading) { +"Examples" }
-                        P { +"Explore the test modules for comprehensive examples and unit tests." }
+                        P("class" to paragraph) { +"Check the test modules for real examples." }
                     }
 
-                    // FAQ
-                    Section("id" to "faq", "class" to section) {
-                        H2("class" to heading) { +"FAQ" }
-                        Div("class" to "grid gap-4") {
-                            Article("class" to card) {
-                                H3("class" to subheading) { +"Is Tailwind required?" }
-                                P { +"No. Classes are optional; you can ship your own CSS via Metadata.externalCss." }
-                            }
-                            Article("class" to card) {
-                                H3("class" to subheading) { +"Can I return JSON?" }
-                                P { +"Yes. Use buildResponse and set Content-Type to application/json." }
-                            }
-                        }
-                    }
-
-                    // Footer
-                    Footer("class" to footer) {
-                        Small { +"© 2025 Void Framework Docs" }
-                    }
+                    // FOOTER
+                    Footer("class" to footer) { Small { +"© 2025 Void Framework Docs" } }
                 }
             }
         }
     }
 
 fun main() {
-    // Starts an HTTP server using the same DSL style as the test module.
-    val server =
-        simpleServer {
-            route(docsHomeRoute)
-
-            // Health endpoint
-            route("/health") {
-                GET {
-                    buildResponse {
-                        status = 200
-                        statusText = "OK"
-                        headers { put("Content-Type", "text/plain") }
-                        body = "OK"
-                    }
+    simpleServer {
+        route(docsHomeRoute)
+        route("/health") {
+            GET {
+                buildResponse {
+                    status = 200
+                    statusText = "OK"
+                    headers { put("Content-Type", "text/plain") }
+                    body = "OK"
                 }
             }
         }
+    }
 }
