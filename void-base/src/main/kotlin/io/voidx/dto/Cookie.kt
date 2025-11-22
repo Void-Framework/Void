@@ -3,7 +3,7 @@ package io.voidx.dto
 import io.voidx.page.Path
 
 @ConsistentCopyVisibility
-data class Cookies internal constructor(
+data class Cookie internal constructor(
     val nothing: Unit
 ) {
     lateinit var name: String
@@ -40,8 +40,8 @@ data class Cookies internal constructor(
 
 enum class SameSite { LAX, STRICT, NONE }
 
-fun cookie(builder: Cookies.() -> Unit): Cookies {
-    val cookie = Cookies(Unit)
+fun cookie(builder: Cookie.() -> Unit): Cookie {
+    val cookie = Cookie(Unit)
     cookie.builder()
     return cookie
 }
