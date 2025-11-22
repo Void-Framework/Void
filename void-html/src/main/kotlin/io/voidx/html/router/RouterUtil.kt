@@ -1,5 +1,6 @@
 package io.voidx.html.router
 
+import io.voidx.Method
 import io.voidx.css.CssPage
 import io.voidx.css.TailwindGen
 import io.voidx.dto.buildRequest
@@ -57,8 +58,8 @@ object RouterUtil : ModuleInit() {
         HtmlIntegration.registerJsAndCss { route, router ->
             route.addCssToRouter(router)
             if (route::class != CssPage::class) {
+                route.request = buildRequest { method = Method.GET }
                 if (route.metadata != null) {
-                    route.request = buildRequest { }
                     if (route.includeTailwind) TailwindGen.processTailwind(route, router)
                     if (route.includeKts) JsPage.addToMetadata(route, HtmlIntegration.jsPages.toList() as List<JsPage>)
                 }
