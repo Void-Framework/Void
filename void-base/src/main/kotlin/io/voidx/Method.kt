@@ -34,9 +34,13 @@ enum class Method {
     /** Apply partial modifications to a resource. */
     PATCH,
 
+    /** Brews coffee on the HTCPCP server. Using POST is also allowed but deprecated;
+     *  a proposed "Accept-Additions" header can request extras like Cream, Vanilla, or Whisky. */
     BREW,
 
+    /** Retrieves metadata about the coffee, e.g., its properties and current state. */
     PROPFIND,
 
+    /** A playful method causing the teapot to stop pouring milk, used for testing or jokes. */
     WHEN
 }

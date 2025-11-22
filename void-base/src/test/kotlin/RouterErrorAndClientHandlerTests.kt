@@ -37,12 +37,12 @@ class RouterErrorAndClientHandlerTests {
         val r = Router()
         // Install an ExceptionPage that returns a distinct response
         val ex =
-            exceptionPage { e ->
+            exceptionPage {
                 buildResponse<String> {
                     status = 500
                     statusText = "Internal Server Error"
                     headers["Content-Type"] = "text/plain"
-                    body = "boom:${e.message}"
+                    body = "boom:${exception.message}"
                 }
             }
         RouteCheck.exceptionPage = ex
@@ -64,7 +64,7 @@ class RouterErrorAndClientHandlerTests {
         val r = router { }
         // Minimal exception page to ensure write happens
         RouteCheck.exceptionPage =
-            exceptionPage { _ ->
+            exceptionPage {
                 buildResponse<String> {
                     status = 500
                     statusText = "Internal Server Error"
