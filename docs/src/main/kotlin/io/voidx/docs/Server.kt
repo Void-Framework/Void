@@ -231,7 +231,7 @@ fun main() {
             +docsHomeRoute
 
             // Health endpoint
-            on("/health") GET { _ ->
+            route("/health") GET { _ ->
                 buildResponse {
                     status = 200
                     statusText = "OK"
