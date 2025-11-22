@@ -440,3 +440,14 @@ fun guessContentType(file: File): String =
     Files.probeContentType(file.toPath())
         ?: URLConnection.guessContentTypeFromName(file.name)
         ?: "application/octet-stream"
+
+fun teapot(
+    headers: Headers = mutableMapOf(),
+    cookies: List<Cookie> = emptyList()
+): ResponseDTO = buildResponse {
+    status = 418
+    statusText = "I'm a teapot"
+    this.headers = headers
+    this.cookies.addAll(cookies)
+    body = "may be short and stout"
+}
