@@ -4,4 +4,3 @@ jdk:
 install:
   - ./gradlew :void-base:publishToMavenLocal
   - ./gradlew :void-html:publishToMavenLocal
-  - ./gradlew :void-json:publishToMavenLocal
