@@ -12,7 +12,7 @@ import io.voidx.dto.emptyResponse
  */
 class PageHandler(
     override val target: String,
-) : Page(
+) : DynamicPage(
         target = target,
     ) {
     private val responses = mutableMapOf<Method, (RequestDTO) -> ResponseDTO>()
