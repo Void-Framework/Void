@@ -3,7 +3,7 @@ package io.voidx
 import io.voidx.dto.buildResponse
 import io.voidx.dto.headers
 import io.voidx.dto.writeHTTP
-import io.voidx.middleware.NotEnoughCarriers
+import io.voidx.exception.NotEnoughCarriers
 import io.voidx.router.Router
 import kotlinx.coroutines.*
 import java.io.File

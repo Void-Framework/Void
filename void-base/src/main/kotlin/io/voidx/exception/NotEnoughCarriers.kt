@@ -1,4 +1,4 @@
-package io.voidx.middleware
+package io.voidx.exception
 
 class NotEnoughCarriers : Exception("There isn't enough carriers available to support transmition of the packets.") {
 }
