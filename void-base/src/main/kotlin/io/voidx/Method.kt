@@ -33,4 +33,10 @@ enum class Method {
 
     /** Apply partial modifications to a resource. */
     PATCH,
+
+    BREW,
+
+    PROPFIND,
+
+    WHEN
 }
