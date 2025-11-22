@@ -18,7 +18,7 @@ abstract class Page(
     open val target: String,
 ) {
     /** List of css classes. */
-    val classAttributes: MutableList<String> = mutableListOf()
+    val classAttributes: MutableSet<String> = mutableSetOf()
 
     /** The current request bound to this page during handling. */
     lateinit var request: RequestDTO
