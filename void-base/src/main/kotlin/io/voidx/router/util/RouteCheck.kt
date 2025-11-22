@@ -39,7 +39,8 @@ internal interface RouteCheck {
      */
     companion object {
         internal var exceptionPage: ExceptionPage =
-            exceptionPage { e ->
+            exceptionPage {
+                val ex = exception
                 return@exceptionPage buildResponse {
                     status = 500
                     statusText = "Server Error"
@@ -112,15 +113,15 @@ internal interface RouteCheck {
                             "<div id=\"__next-dev-overlay\">\n" +
                             "  <div class=\"overlay\">\n" +
                             "    <div class=\"overlay__header\">\n" +
-                            "      <span class=\"overlay__title\">${e::class.simpleName}: ${e.localizedMessage}</span>\n" +
+                            "      <span class=\"overlay__title\">${ex::class.simpleName}: ${ex.message ?: ""}</span>\n" +
                             "    </div>\n" +
                             "    <div class=\"overlay__content\">\n" +
                             "      <div class=\"error-message\">\n" +
-                            "        <pre>${e::class.simpleName}: ${e.localizedMessage}</pre>\n" +
+                            "        <pre>${ex::class.simpleName}: ${ex.message ?: ""}</pre>\n" +
                             "      </div>\n" +
                             "      <div class=\"stack-trace\">\n" +
                             "        <pre>\n" +
-                            "          ${e.stackTrace.joinToString("\n")}\n" +
+                            "          ${ex.stackTrace.joinToString("\n")}\n" +
                             "        </pre>\n" +
                             "      </div>\n" +
                             "    </div>\n" +
@@ -131,7 +132,8 @@ internal interface RouteCheck {
                 }
             }
         internal var nullPage: NotFoundPage =
-            notFoundPage { request ->
+            notFoundPage {
+                val req = request
                 return@notFoundPage buildResponse {
                     status = 404
                     statusText = "Not Found"
@@ -196,7 +198,7 @@ internal interface RouteCheck {
                                 <h1>404</h1>
                                 <p>The page you're looking for could not be found.</p>
                                 <a href="/">Return Home</a>
-                                <div class="path">Requested: ${request.target}</div>
+                                <div class="path">Requested: ${req.target}</div>
                             </div>
                         </body>
                         </html>

@@ -22,13 +22,22 @@ import java.util.*
 @Suppress("unused")
 private val ensureRouterUtilInit = RouterUtil
 
-/** Optional HTML metadata associated with this page. */
+/**
+ * Optional HTML metadata associated with this page.
+ *
+ * Stored in [Page.attributes] and used to populate elements like title, description,
+ * and external stylesheets. If null, helpers like [metadata] can initialize it lazily.
+ */
 var Page.metadata: Metadata?
     get() = attributes["metadata"] as? Metadata
     set(value) {
         attributes["metadata"] = value as Any
     }
 
+/**
+ * Renders an HTML response by building a fractal [Element] tree and packaging it
+ * into a [ResponseDTO]. If [metadata] is not set, a default one is created.
+ */
 fun Page.html(builder: Element.() -> Unit): ResponseDTO {
     val fractal = fractal(builder)
     return createResponse(fractal, metadata ?: metadata(this) {})
@@ -40,6 +49,12 @@ fun Page.html(builder: Element.() -> Unit): ResponseDTO {
  * This looks up files under resources/css and remembers matches in [Page.cssFiles]. Actual
  * registration of those files as router pages and injection into HTML metadata happens in
  * [addCssToRouter]. Returns this page for fluent configuration.
+ */
+/**
+ * Marks one or more CSS file names to be included for this [Page].
+ *
+ * Filenames are looked up under the classpath folder "css". Matching resources
+ * are remembered and later registered as routes via [addCssToRouter].
  */
 operator fun Page.invoke(vararg cssFileName: String): Page {
     listResourcePaths("css").forEach {
@@ -57,6 +72,10 @@ operator fun Page.invoke(vararg cssFileName: String): Page {
  * For each discovered resource, a unique route like "/css/{uuid}/styles.css" is registered
  * by creating a [CssPage], and that URL is appended to the page's metadata so it is linked
  * in the final HTML head.
+ */
+/**
+ * Registers previously selected CSS resources as router pages and injects their
+ * URLs into this page's [metadata] as external stylesheets.
  */
 internal fun Page.addCssToRouter(router: Router) {
     cssFiles.forEach {
