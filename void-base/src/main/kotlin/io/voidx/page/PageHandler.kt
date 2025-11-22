@@ -15,7 +15,7 @@ class PageHandler(
 ) : DynamicPage(
         target = target,
     ) {
-    private val responses = mutableMapOf<Method, (RequestDTO) -> ResponseDTO>()
+    val responses = mutableMapOf<Method, (RequestDTO) -> ResponseDTO>()
 
     /** Returns the response from the registered handler for [RequestDTO.method], or an empty response if none. */
     override fun content(): ResponseDTO = responses[request.method]?.invoke(request) ?: emptyResponse()

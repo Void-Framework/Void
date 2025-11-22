@@ -1,6 +1,8 @@
 package io.voidx.html.page
 
+import io.voidx.Method
 import io.voidx.css.CssPage
+import io.voidx.css.TailwindGen
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.html.Element
@@ -13,6 +15,7 @@ import io.voidx.page.DynamicPage
 import io.voidx.page.ExceptionPage
 import io.voidx.page.NotFoundPage
 import io.voidx.page.Page
+import io.voidx.page.PageHandler
 import io.voidx.router.Router
 import io.voidx.router.listResourcePaths
 import io.voidx.util.readResourceText
@@ -38,9 +41,10 @@ var Page.metadata: Metadata?
  * Renders an HTML response by building a fractal [Element] tree and packaging it
  * into a [ResponseDTO]. If [metadata] is not set, a default one is created.
  */
-fun Page.html(builder: Element.() -> Unit): ResponseDTO {
-    val fractal = fractal(builder)
-    return createResponse(fractal, metadata ?: metadata(this) {})
+fun PageHandler.html(metadata: Metadata.() -> Unit, builder: Element.() -> Unit) {
+    val data = metadata(this, metadata)
+    this.metadata = data
+    responses[Method.GET] = { createResponse(fractal(builder), data) }
 }
 
 /**
