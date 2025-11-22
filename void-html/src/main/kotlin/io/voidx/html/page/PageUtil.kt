@@ -2,7 +2,9 @@ package io.voidx.html.page
 
 import io.voidx.css.CssPage
 import io.voidx.dto.RequestDTO
+import io.voidx.dto.ResponseDTO
 import io.voidx.html.Element
+import io.voidx.html.fractal
 import io.voidx.html.metadata.Metadata
 import io.voidx.html.metadata.metadata
 import io.voidx.page.DynamicPage
@@ -27,71 +29,10 @@ var Page.metadata: Metadata?
         attributes["metadata"] = value as Any
     }
 
-/**
- * Defines a static HTML route at [path]. The page-level [\_metadata] builder runs once when the
- * page is created; the [block] is invoked per-request to build the root [Element] of the page.
- */
-fun htmlRoute(
-    path: String,
-    _metadata: Metadata.() -> Unit,
-    block: Page.(RequestDTO) -> Element,
-): Page =
-    object : Page(target = path) {
-        init {
-            metadata = metadata(this, _metadata)
-        }
-
-        override fun content() = createResponse(block(request), metadata as Metadata)
-    }
-
-/**
- * Defines an HTML exception page that renders when an error bubbles to the router. The [\_metadata]
- * builder runs once; the [block] is invoked with the thrown [Exception].
- */
-fun exceptionPage(
-    _metadata: Metadata.() -> Unit,
-    block: ExceptionPage.(Exception) -> Element,
-): ExceptionPage =
-    object : ExceptionPage() {
-        init {
-            metadata = metadata(this, _metadata)
-        }
-
-        override fun content() = createResponse(block(exception), metadata as Metadata)
-    }
-
-/**
- * Defines an HTML 404 page that renders when no route matches. The [block] is invoked per-request.
- */
-fun notFoundPage(
-    _metadata: Metadata.() -> Unit,
-    block: NotFoundPage.(RequestDTO) -> Element,
-): NotFoundPage =
-    object : NotFoundPage() {
-        init {
-            metadata = metadata(this, _metadata)
-        }
-
-        override fun content() = createResponse(block(request), metadata as Metadata)
-    }
-
-/**
- * Defines a dynamic HTML route at [path]. Path parameters are denoted with curly braces, e.g.
- * "/users/{id}" or optional as "/blog/{slug?}". The [block] receives a [DynamicPage] so you can
- * read path parameters via DynamicPage._data.
- */
-fun dynamicHtmlRoute(
-    path: String,
-    _metadata: Metadata.() -> Unit,
-    block: DynamicPage.(RequestDTO) -> Element,
-): DynamicPage =
-    object : DynamicPage(target = path) {
-        init {
-            metadata = metadata(this, _metadata)
-        }
-
-        override fun content() = createResponse(block(request), metadata as Metadata)
-    }
+fun Page.html(builder: Element.() -> Unit): ResponseDTO {
+    val fractal = fractal(builder)
+    return createResponse(fractal, metadata ?: metadata(this) {})
+}
 
 /**
  * Marks one or more CSS resource files (by file name) to be included with this page.

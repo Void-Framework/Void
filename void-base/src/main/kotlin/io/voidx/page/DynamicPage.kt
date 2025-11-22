@@ -28,14 +28,3 @@ abstract class DynamicPage(
 
 /** Type-safe accessor for a dynamic path segment named [name], cast to [T] when possible. */
 inline fun <reified T : Any> DynamicPage.path(name: String): T? = data[name] as? T
-
-/**
- * Defines a dynamic API route at [path]. The [block] returns a [ResponseDTO] for the given request.
- */
-fun dynamicApiRoute(
-    path: String,
-    block: DynamicPage.(RequestDTO) -> ResponseDTO,
-): DynamicPage =
-    object : DynamicPage(target = path) {
-        override fun content() = block(request)
-    }
