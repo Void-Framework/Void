@@ -21,7 +21,7 @@ dependencies {
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
     // Needed by some tests for TLS cert generation
-    testImplementation("org.bouncycastle:bcpkix-jdk18on:1.82")
+    testImplementation("org.bouncycastle:bcpkix-jdk18on:1.83")
     implementation(project(":void-base"))
 }
 
