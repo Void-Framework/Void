@@ -22,7 +22,7 @@ application {
 
 dependencies {
     implementation(project(":void-base"))
-    implementation(project(":void-html"))
+    implementation("com.github.Jadiefication:Void-HTML:v1.0.0")
 }
 
 tasks.register<JavaExec>("buildDocs") {
