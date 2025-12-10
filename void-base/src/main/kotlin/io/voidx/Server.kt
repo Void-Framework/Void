@@ -4,6 +4,7 @@ import io.voidx.dto.buildResponse
 import io.voidx.dto.headers
 import io.voidx.dto.writeHTTP
 import io.voidx.exception.NotEnoughCarriers
+import io.voidx.bootstrap.Bootstrap
 import io.voidx.router.Router
 import kotlinx.coroutines.*
 import java.io.File
@@ -66,7 +67,9 @@ class Server(
         }
         Thread {
             try {
+                Bootstrap.fireBeforeServerStart(Bootstrap.ServerKind.HTTP, port)
                 socket = ServerSocket(port)
+                Bootstrap.fireAfterServerStart(Bootstrap.ServerKind.HTTP, port)
                 while (socket.isBound) {
                     val client = socket.accept()
                     if (routeToHTTPS) {
@@ -89,6 +92,7 @@ class Server(
                 if (::socket.isInitialized) {
                     onServerSocketClose(socket)
                 }
+                Bootstrap.fireShutdown()
             }
         }.start()
     }
@@ -119,9 +123,11 @@ class Server(
                 context.init(kmf.keyManagers, null, SecureRandom())
                 val factory = context.serverSocketFactory
 
+                Bootstrap.fireBeforeServerStart(Bootstrap.ServerKind.HTTPS, port)
                 httpsSocket = factory.createServerSocket(port) as SSLServerSocket
                 isHTTPSOn = true
                 httpsSocket.needClientAuth = needsAuth
+                Bootstrap.fireAfterServerStart(Bootstrap.ServerKind.HTTPS, port)
                 while (httpsSocket.isBound) {
                     val client = httpsSocket.accept() as SSLSocket
                     client.startHandshake()
@@ -139,6 +145,7 @@ class Server(
                 if (::httpsSocket.isInitialized) {
                     onServerSocketClose(httpsSocket)
                 }
+                Bootstrap.fireShutdown()
             }
         }.start()
     }
