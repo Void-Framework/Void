@@ -2,7 +2,6 @@ package test
 
 import io.voidx.Server
 import io.voidx.bootstrap.Bootstrap
-import io.voidx.bootstrap.Event
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.dto.buildResponse
@@ -96,17 +95,17 @@ class RouterSpecialRoutesTests {
     }
 
     @Test
-    fun no_page_events_for_special_routes() {
+    fun special_routes_bypass_page_before_after_middleware() {
         val r = router { }
-        val seen = mutableListOf<String>()
-        val listener: (Event) -> Unit = {
-            when (it) {
-                is Event.PageBefore -> seen += "before"
-                is Event.PageAfter -> seen += "after"
-                else -> {}
-            }
+        val pageCalls = mutableListOf<String>()
+        // Register a page with per-page before/after middleware to observe calls
+        val p = route("/anything") {
+            GET { ok("P") }
+        }.apply {
+            before(io.voidx.middleware.relayBefore { _ -> pageCalls += "before"; null })
+            after(io.voidx.middleware.relayAfter { resp -> if (resp.isSuccess) pageCalls += "after" })
         }
-        Bootstrap.registerListener(listener)
+        r.addRoute(p)
         val handle = Bootstrap.addSpecialRoute(priority = 42) { _, _, _ -> ok("z") }
 
         try {
@@ -114,11 +113,10 @@ class RouterSpecialRoutesTests {
             val srv = Server(r, 1.1)
             sock.handle(srv, r)
 
-            // No per-page events expected since special route bypasses page system
-            assertTrue(seen.isEmpty(), "Per-page events should not fire for special routes: $seen")
+            // Per-page middleware should not run because special route short-circuited
+            assertTrue(pageCalls.isEmpty(), "Per-page middleware should not run for special routes: $pageCalls")
         } finally {
             handle.close()
-            Bootstrap.unregisterListener(listener)
         }
     }
 

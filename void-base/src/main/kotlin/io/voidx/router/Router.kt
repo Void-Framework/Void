@@ -17,7 +17,6 @@ import io.voidx.router.util.RequestHandler
 import io.voidx.router.util.RouteCheck
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.util.toResult
-import io.voidx.bootstrap.Event
 import java.io.File
 import java.net.URLDecoder
 import java.util.concurrent.ConcurrentHashMap
@@ -130,8 +129,8 @@ class Router :
      * @return this router for chaining.
      */
     fun addRoute(route: Page): Router {
-        // Notify bootstrap page handlers (JS/CSS/resource wiring)
-        Bootstrap.firePageAdded(route, this)
+        // Run Bootstrap page decorators (resource wiring, etc.)
+        Bootstrap.runPageDecorators(route, this)
         when (route) {
             is ExceptionPage -> {
                 RouteCheck.exceptionPage = route
@@ -188,9 +187,7 @@ class Router :
         clientHandler: ClientHandler,
     ) {
         val client = clientHandler.client
-        // Emit request start and before-global-middleware events
-        Bootstrap.fireRequestStart(requestDTO)
-        Bootstrap.fireBeforeGlobalMiddleware(requestDTO)
+        // Request lifecycle events removed; Bootstrap manages explicit hooks only
         val rawTarget = requestDTO.target
         val qMark = rawTarget.indexOf('?')
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
@@ -215,9 +212,7 @@ class Router :
                     synchronized(page) {
                         page.queries = query
                         page.request = requestDTO
-                        // Per-page lifecycle event: before page processing
-                        Bootstrap.emit(Event.PageBefore(requestDTO, page))
-                        pageBeforeEmitted = true
+                        // Per-page event system removed; keep behavior otherwise
 
                         page.middlewareProcessBefore(requestDTO.toResult())
                             ?: handleResponse(page, clientHandler, target)
@@ -230,9 +225,7 @@ class Router :
                             synchronized(page) {
                                 page.queries = query
                                 page.request = requestDTO
-                                // Per-page lifecycle event for 404 page
-                                Bootstrap.emit(Event.PageBefore(requestDTO, page))
-                                pageBeforeEmitted = true
+                                // No per-page events; just run middleware/content
                                 page.middlewareProcessBefore(requestDTO.toResult())
                                     ?: page.content()
                             }
@@ -242,9 +235,7 @@ class Router :
         }
 
         // After deciding the response from BEFORE middleware/handler
-        // Defer PageAfter until after per-page AFTER middleware runs (below)
-        Bootstrap.fireAfterGlobalMiddleware(response)
-
+        
         response._request = requestDTO
 
         if (usedPage != null) {
@@ -252,17 +243,11 @@ class Router :
             synchronized(page) {
                 page.middlewareProcessAfter(response.toResult())
             }
-            // Per-page lifecycle event: after page processing and per-page AFTER middleware
-            if (pageBeforeEmitted) {
-                Bootstrap.emit(Event.PageAfter(response, page))
-            }
         }
 
         middlewareProcessAfter(
             response.toResult(),
         )
-        // Right before writing the response back, emit request end
-        Bootstrap.fireRequestEnd(requestDTO, response)
         val out = client.getOutputStream()
         out.writeHTTP(
             response,
@@ -279,7 +264,7 @@ class Router :
         e: Exception,
     ) {
         val client = clientHandler.client
-        // Emit error event; request is unknown at this point
+        // Invoke Bootstrap error handlers; request is unknown at this point
         Bootstrap.fireError(null, e)
         val exPage = RouteCheck.exceptionPage
         synchronized(exPage) {
