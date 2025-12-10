@@ -192,13 +192,7 @@ class Router :
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
         val query: Map<String, String> = parseQuery(rawTarget)
         val response =
-            middlewareProcessBefore(requestDTO.toResult()) ?: when {
-                requestDTO.headers.containsKey("KTS-Request") -> {
-                    Bootstrap.handleKtsIfPresent(this, target, query, requestDTO, clientHandler)
-                        ?: emptyResponse()
-                }
-
-                else -> {
+            middlewareProcessBefore(requestDTO.toResult()) ?: run {
                     val staticPage = routes[target]
                     if (staticPage != null) {
                         val page = staticPage
@@ -221,7 +215,6 @@ class Router :
                                 }
                             }
                     }
-                }
             }
 
         response._request = requestDTO
