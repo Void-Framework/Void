@@ -30,8 +30,10 @@ import java.util.ServiceLoader
  */
 object Bootstrap {
     // ---- Hook registries (explicit Bootstrap-managed, no generic events) ----
-    private val pageDecorators = mutableSetOf<(Page, Router) -> Unit>()
-    @Volatile private var pageDecoratorsSnapshot: List<(Page, Router) -> Unit> = emptyList()
+    private data class DecoratorEntry(val id: Long, val fn: (Page, Router) -> Unit, var active: Boolean = true)
+    private val pageDecorators = mutableListOf<DecoratorEntry>()
+    @Volatile private var pageDecoratorsSnapshot: List<DecoratorEntry> = emptyList()
+    private var nextDecoratorId = 1L
 
     private val errorHandlers = mutableSetOf<(RequestDTO?, Throwable) -> Unit>()
     @Volatile private var errorHandlersSnapshot: List<(RequestDTO?, Throwable) -> Unit> = emptyList()
@@ -43,24 +45,30 @@ object Bootstrap {
 
     // ---- Page decorators ----
     fun registerPageDecorator(decorator: (Page, Router) -> Unit) {
-        pageDecorators += decorator
-        pageDecoratorsSnapshot = pageDecorators.toList()
+        val entry = DecoratorEntry(nextDecoratorId++, decorator, active = true)
+        pageDecorators += entry
+        pageDecoratorsSnapshot = pageDecorators.filter { it.active }
     }
 
     fun unregisterPageDecorator(decorator: (Page, Router) -> Unit) {
-        pageDecorators.remove(decorator)
-        pageDecoratorsSnapshot = pageDecorators.toList()
+        pageDecorators.forEach { if (it.fn === decorator || it.fn == decorator) it.active = false }
+        pageDecoratorsSnapshot = pageDecorators.filter { it.active }
     }
 
     fun addPageDecorator(decorator: (Page, Router) -> Unit): AutoCloseable {
-        registerPageDecorator(decorator)
-        return AutoCloseable { unregisterPageDecorator(decorator) }
+        val entry = DecoratorEntry(nextDecoratorId++, decorator, active = true)
+        pageDecorators += entry
+        pageDecoratorsSnapshot = pageDecorators.filter { it.active }
+        return AutoCloseable {
+            entry.active = false
+            pageDecoratorsSnapshot = pageDecorators.filter { it.active }
+        }
     }
 
     internal fun runPageDecorators(page: Page, router: Router) {
         val snapshot = pageDecoratorsSnapshot
         for (d in snapshot) {
-            try { d(page, router) } catch (_: Throwable) {}
+            try { d.fn(page, router) } catch (_: Throwable) {}
         }
     }
 
@@ -131,6 +139,24 @@ object Bootstrap {
         }
         return null
     }
+
+    /**
+     * Test-only helper: resets all Bootstrap registries to a clean state.
+     * This is internal to avoid exposure in public API and used only from tests
+     * to guarantee isolation between suites that mutate global registries.
+     */
+    internal fun __resetForTests() {
+        pageDecorators.clear()
+        pageDecoratorsSnapshot = emptyList()
+        nextDecoratorId = 1L
+        errorHandlers.clear()
+        errorHandlersSnapshot = emptyList()
+        specialRoutes.clear()
+        specialRoutesSnapshot = emptyList()
+        modules.clear()
+        serviceLoaderLoaded = false
+        // legacyInitRun remains as-is; router creation bridge semantics are tested separately
+    }
     /** Context object offered to modules to access core services safely. */
     class Context internal constructor(
         /** Underlying router instance. Exposed for advanced uses; prefer helpers below. */
@@ -164,14 +190,16 @@ object Bootstrap {
          * resources like classpath `public/main.css` at `/static/main.css`.
          */
         fun serveClasspathResources(prefix: String, folder: String) {
-            val normalizedPrefix = if (prefix.endsWith('/')) prefix.dropLast(1) else prefix
+            // Ensure single leading '/'
+            val base = if (prefix.startsWith('/')) prefix else "/$prefix"
+            val normalizedPrefix = if (base.endsWith('/')) base.dropLast(1) else base
             val resources = listResourcePaths(folder)
             if (resources.isEmpty()) return
             val cl = Thread.currentThread().contextClassLoader
             for (cpPath in resources) {
                 val relative = if (cpPath.startsWith("$folder/")) cpPath.removePrefix("$folder/") else cpPath
                 val urlPath = "$normalizedPrefix/$relative"
-                route("/$urlPath") {
+                route(urlPath) {
                     GET {
                         val stream = cl.getResourceAsStream(cpPath)
                         if (stream == null) {
@@ -278,6 +306,8 @@ object Bootstrap {
     private val modules = mutableSetOf<Module>()
     private var serviceLoaderLoaded = false
     private var legacyInitRun = false
+    // Test-only flag to disable ServiceLoader discovery to keep tests isolated
+    @Volatile private var disableServiceLoaderForTests = false
 
     /** Register a module programmatically. Safe to call multiple times; duplicates ignored. */
     fun register(module: Module) {
@@ -286,6 +316,7 @@ object Bootstrap {
 
     /** Load modules using Java ServiceLoader; only performed once. */
     fun loadFromServiceLoader() {
+        if (disableServiceLoaderForTests) return
         if (serviceLoaderLoaded) return
         serviceLoaderLoaded = true
         try {
@@ -330,5 +361,10 @@ object Bootstrap {
         modules.forEach { m ->
             try { m.onShutdown() } catch (_: Throwable) {}
         }
+    }
+
+    /** Test-only helper to disable/enable ServiceLoader discovery. */
+    internal fun __disableServiceLoaderForTests(flag: Boolean) {
+        disableServiceLoaderForTests = flag
     }
 }

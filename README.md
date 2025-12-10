@@ -6,7 +6,7 @@
 
   <p>
     <a href="https://jitpack.io/#Jadiefication/Void"><img alt="JitPack" src="https://jitpack.io/v/Jadiefication/Void.svg"></a>
-    <a href="https://kotlinlang.org"><img alt="Kotlin" src="https://img.shields.io/badge/kotlin-2.2.10-blue.svg?logo=kotlin"></a>
+    <a href="https://kotlinlang.org"><img alt="Kotlin" src="https://img.shields.io/badge/kotlin-2.2.21-blue.svg?logo=kotlin"></a>
     <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
     <a href="https://gitpod.io/#https://github.com/Jadiefication/Void"><img alt="Contribute with Gitpod" src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod"></a>
   </p>
@@ -14,13 +14,11 @@
 
 Void is a small, unopinionated framework you can embed into your app. It provides:
 
-- Type-safe HTML DSL with generated elements (io.voidx.generated)
-- Simple router with static, dynamic, and KTS interaction routes
+- Simple router with static and dynamic routes
 - Middleware (before/after) with priorities
-- First-class API endpoints returning ResponseDTO
+- First-class API endpoints returning `ResponseDTO`
 - Minimal HTTP/HTTPS server (no servlet container)
-- Optional per-page Tailwind CSS extraction at runtime
-- In-memory page caching via @Cacheable
+- Bootstrapper for external modules (page decorators, special routes, error handlers)
 
 Quick links
 
@@ -35,8 +33,8 @@ Quick links
 
 Requirements
 
-- Java 17+
-- Kotlin 2.2.10 (Gradle Kotlin DSL recommended)
+- Java 8+
+- Kotlin 2.2.21 (Gradle Kotlin DSL recommended)
 
 ### Installation (JitPack)
 
@@ -55,36 +53,44 @@ dependencies {
 
 ### Hello, Void
 
-Create a minimal server with one HTML route and one API route:
+Create a minimal server with one text route and one JSON route (no imports in snippet to keep it copy‑paste friendly):
 
 ```kotlin
-import io.voidx.router.router
-import io.voidx.html.page.htmlRoute
-import io.voidx.html.page.apiRoute
-import io.voidx.generated.Div
-import io.voidx.html.Fractal
-import io.voidx.server.server
-import io.voidx.dto.http.ok
-
 fun main() {
-    val r = router {
-        +htmlRoute("/", { title = "Home" }) { _ ->
-            Div("class" to "p-6 text-xl") { Fractal("Hello, Void!") }
-        }
-        +apiRoute("/api/health") { _ ->
-            ok("ok", mutableMapOf("Content-Type" to "text/plain"))
-        }
+    val r = io.voidx.router.router {
+        // Simple text route
+        addRoute(
+            io.voidx.page.route("/") {
+                GET {
+                    io.voidx.dto.ok(
+                        "Hello, Void!",
+                        mutableMapOf("Content-Type" to "text/plain"),
+                    )
+                }
+            },
+        )
+
+        // JSON route
+        addRoute(
+            io.voidx.page.route("/api/health") {
+                GET {
+                    io.voidx.dto.buildResponse<String> {
+                        status = 200
+                        statusText = "OK"
+                        headers["Content-Type"] = "application/json"
+                        body = "{\"status\":\"ok\"}"
+                    }
+                }
+            },
+        )
     }
 
-    server {
-        router = r
-        port = 8080
-        routeToHTTPS = false
-    }
+    val server = io.voidx.Server(r)
+    server.startHTTPServer(8080)
 }
 ```
 
-Then open http://localhost:8080.
+Then open http://localhost:8080
 
 ## Principles
 
@@ -104,11 +110,80 @@ handlers directly or run the tiny server in integration tests.
 
 ## Documentation
 
-Until a dedicated site is available, see this README and the test module for examples. Core entry points:
+Until a dedicated site is available, see this README and the test sources for examples. Core entry points:
 
-- io.voidx.router.router { }
-- io.voidx.html.page.htmlRoute / apiRoute / dynamicHtmlRoute / dynamicApiRoute
-- io.voidx.server.server { }
+- `io.voidx.router.router { }` — create and configure a router
+- `io.voidx.page.route("/path") { GET { ... } }` — define a page/route
+- `io.voidx.Server` — start HTTP/HTTPS servers
+- `io.voidx.middleware.relayBefore / relayAfter` — global middleware
+- `io.voidx.bootstrap.Bootstrap` — module bootstrapper and DX helpers
+
+### External modules via Bootstrap
+
+Void exposes a lightweight bootstrapper so external modules can hook into internals without ad‑hoc globals:
+
+- Page decorators: run once when a page is added (e.g., register assets, inject metadata)
+- Special routes: prioritized pre‑dispatch handlers that can return a response and short‑circuit normal routing
+- Error handlers: observe/handle errors produced by the router
+
+Example module (using fully‑qualified names to keep the snippet standalone):
+
+```kotlin
+class MyModule : io.voidx.bootstrap.Bootstrap.Module {
+    override fun onRouterCreated(ctx: io.voidx.bootstrap.Bootstrap.Context) {
+        // Add a route
+        ctx.addRoute(
+            io.voidx.page.route("/hello") { GET { io.voidx.dto.ok("hi", mutableMapOf("Content-Type" to "text/plain")) } },
+        )
+
+        // Register a high‑priority special route
+        ctx.addSpecialRoute(priority = 100) { req, query, client ->
+            if (req.headers["X-Special"] == "1") io.voidx.dto.ok("special!") else null
+        }
+
+        // Decorate pages when they are registered
+        ctx.addPageDecorator { page, router ->
+            // e.g., register static resources or annotate page metadata
+        }
+
+        // Observe router errors
+        ctx.addErrorHandler { request, throwable ->
+            // log/telemetry
+        }
+    }
+}
+```
+
+Modules can be discovered automatically using Java ServiceLoader by adding a file:
+
+```
+META-INF/services/io.voidx.bootstrap.Bootstrap$Module
+```
+
+whose contents are the fully‑qualified class name, e.g. `com.example.MyModule`.
+
+### Serving static assets from the classpath
+
+From a bootstrap module you can expose resources packaged within your JAR:
+
+```kotlin
+class Assets : io.voidx.bootstrap.Bootstrap.Module {
+    override fun onRouterCreated(ctx: io.voidx.bootstrap.Bootstrap.Context) {
+        ctx.serveClasspathResources("/static", "public")     // serves classpath: public/** under /static/**
+        ctx.serveClasspathFile("/elements.json", "elements.json") // serves a single file
+    }
+}
+```
+
+### HTML/KTS integration
+
+Legacy `io.voidx.util.HtmlIntegration` is deprecated and kept as a no‑op shim. HTML/CSS/JS and KTS integration should
+be provided by an external extension module using the Bootstrap hooks described above.
+
+## Testing philosophy
+
+- The test suite is authoritative and aims for very high (ideally 100%) coverage.
+- When a test reveals a mismatch, prefer updating the framework code to satisfy the test rather than deleting or weakening the test. Tests exist to capture supported behavior and edge cases; removing cases is discouraged.
 
 ## Reporting Issues / Support
 

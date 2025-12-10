@@ -12,6 +12,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
 import kotlin.test.Test
+import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -29,14 +30,18 @@ private class SockBR(
 }
 
 class BootstrapHookRobustnessTests {
+    @BeforeTest
+    fun reset() {
+        Bootstrap.__resetForTests()
+    }
     @Test
     fun page_decorators_are_isolated_when_one_throws() {
         val called = mutableListOf<String>()
+        val r = router { }
         val h1 = Bootstrap.addPageDecorator { _, _ -> called += "ok1" }
         val h2 = Bootstrap.addPageDecorator { _, _ -> throw RuntimeException("boom") }
         val h3 = Bootstrap.addPageDecorator { _, _ -> called += "ok3" }
         try {
-            val r = router { }
             r.addRoute(route("/x") { GET { ok("x") } })
             assertEquals(listOf("ok1", "ok3"), called)
         } finally {

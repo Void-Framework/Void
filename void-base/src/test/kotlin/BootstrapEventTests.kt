@@ -14,6 +14,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
 import kotlin.test.Test
+import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -31,6 +32,12 @@ private class TestSocketHooks(
 }
 
 class BootstrapHookTests {
+    @BeforeTest
+    fun reset() {
+        // Ensure global bootstrap registries are clean before each test
+        Bootstrap.__resetForTests()
+        Bootstrap.__disableServiceLoaderForTests(true)
+    }
     @Test
     fun page_decorator_runs_for_added_pages() {
         val targets = mutableListOf<String>()
