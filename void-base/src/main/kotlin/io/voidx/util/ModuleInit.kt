@@ -32,6 +32,14 @@ abstract class ModuleInit {
     companion object {
         /** Registry of all constructed module instances. */
         internal val initializers = mutableSetOf<ModuleInit>()
+
+        /**
+         * Executes all registered legacy module initializers.
+         * Exposed for the new bootstrap service to bridge old behavior.
+         */
+        fun runAllInitializers() {
+            initializers.forEach { it.init() }
+        }
     }
 
     init {

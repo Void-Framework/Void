@@ -15,8 +15,7 @@ import io.voidx.page.Page
 import io.voidx.page.PageHandler
 import io.voidx.router.util.RequestHandler
 import io.voidx.router.util.RouteCheck
-import io.voidx.util.HtmlIntegration
-import io.voidx.util.ModuleInit
+import io.voidx.bootstrap.Bootstrap
 import io.voidx.util.toResult
 import java.io.File
 import java.net.URLDecoder
@@ -83,7 +82,8 @@ class Router :
     init {
         recomputeMiddlewareSnapshot()
         routers.add(this)
-        ModuleInit.initializers.forEach { it.init() }
+        // Notify bootstrap modules that a Router is ready.
+        Bootstrap.fireRouterCreated(this)
     }
 
     /** Adds this page to the router using unary plus syntax: +page. */
@@ -129,11 +129,8 @@ class Router :
      * @return this router for chaining.
      */
     fun addRoute(route: Page): Router {
-        if (HtmlIntegration.handleJsAndCss == null) {
-            ModuleInit.initializers.forEach { it.init() }
-        }
-
-        HtmlIntegration.handleJsAndCss?.let { it(route, this) }
+        // Notify bootstrap page handlers (JS/CSS/resource wiring)
+        Bootstrap.firePageAdded(route, this)
         when (route) {
             is ExceptionPage -> {
                 RouteCheck.exceptionPage = route
@@ -197,7 +194,7 @@ class Router :
         val response =
             middlewareProcessBefore(requestDTO.toResult()) ?: when {
                 requestDTO.headers.containsKey("KTS-Request") -> {
-                    HtmlIntegration.getKtsPage?.let { it(this, target, query, requestDTO, clientHandler) }
+                    Bootstrap.handleKtsIfPresent(this, target, query, requestDTO, clientHandler)
                         ?: emptyResponse()
                 }
 
