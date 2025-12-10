@@ -24,11 +24,11 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://repo.maven.apache.org/maven2/")
         }
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
 rootProject.name = "void-framework"
 include(":void-base")
 
-include(":void-html")
 include(":docs")
