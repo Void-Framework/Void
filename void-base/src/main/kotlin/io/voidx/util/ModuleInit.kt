@@ -28,6 +28,14 @@ import io.voidx.util.ModuleInit.Companion.initializers
  * - `initializers` is a `MutableSet` to avoid duplicate registrations.
  * - Modules may be instantiated anywhere; they are picked up automatically.
  */
+@Deprecated(
+    message = "ModuleInit is deprecated and will be removed. Use Bootstrap.Module and onRouterCreated(Context) instead.",
+    replaceWith = ReplaceWith(
+        expression = "io.voidx.bootstrap.Bootstrap.Module",
+        imports = ["io.voidx.bootstrap.Bootstrap"],
+    ),
+    level = DeprecationLevel.WARNING,
+)
 abstract class ModuleInit {
     companion object {
         /** Registry of all constructed module instances. */

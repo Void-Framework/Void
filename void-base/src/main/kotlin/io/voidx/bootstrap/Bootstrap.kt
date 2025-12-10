@@ -13,24 +13,6 @@ import io.voidx.router.listResourcePaths
 import io.voidx.util.ModuleInit
 import java.util.ServiceLoader
 
-// Event system to allow external modules to hook into internals without hard deps
-sealed interface Event {
-    data class RouterCreated(val router: Router) : Event
-    data class PageAdded(val page: Page, val router: Router) : Event
-    // Per-page lifecycle events (static and fallback pages)
-    data class PageBefore(val request: RequestDTO, val page: Page) : Event
-    data class PageAfter(val response: ResponseDTO, val page: Page) : Event
-    data class ServerStarting(val kind: Bootstrap.ServerKind, val port: Int) : Event
-    data class ServerStarted(val kind: Bootstrap.ServerKind, val port: Int) : Event
-    // Request lifecycle (observability only)
-    data class RequestStart(val request: RequestDTO) : Event
-    data class BeforeGlobalMiddleware(val request: RequestDTO) : Event
-    data class AfterGlobalMiddleware(val response: ResponseDTO) : Event
-    data class RequestEnd(val request: RequestDTO, val response: ResponseDTO) : Event
-    data class Error(val request: RequestDTO?, val throwable: Throwable) : Event
-    data object ServerShutdown : Event
-}
-
 /**
  * Lightweight bootstrapping service and module lifecycle for Void.
  *
@@ -47,63 +29,62 @@ sealed interface Event {
  * during the first [onRouterCreated] call to preserve current behavior.
  */
 object Bootstrap {
-    // ---- Event listeners ----
-    private val listeners = mutableSetOf<(Event) -> Unit>()
+    // ---- Hook registries (explicit Bootstrap-managed, no generic events) ----
+    private val pageDecorators = mutableSetOf<(Page, Router) -> Unit>()
+    @Volatile private var pageDecoratorsSnapshot: List<(Page, Router) -> Unit> = emptyList()
+
+    private val errorHandlers = mutableSetOf<(RequestDTO?, Throwable) -> Unit>()
+    @Volatile private var errorHandlersSnapshot: List<(RequestDTO?, Throwable) -> Unit> = emptyList()
     
     // ---- Special route handlers (pre-dispatch short-circuit) ----
     private data class SpecialRoute(val priority: Int, val handler: (RequestDTO, Map<String, String>, ClientHandler) -> ResponseDTO?)
     private val specialRoutes = mutableSetOf<SpecialRoute>()
     @Volatile private var specialRoutesSnapshot: List<SpecialRoute> = emptyList()
 
-    fun registerListener(listener: (Event) -> Unit) {
-        listeners += listener
+    // ---- Page decorators ----
+    fun registerPageDecorator(decorator: (Page, Router) -> Unit) {
+        pageDecorators += decorator
+        pageDecoratorsSnapshot = pageDecorators.toList()
     }
 
-    /**
-     * Registers [listener] and returns an [AutoCloseable] handle that can be used to unregister it.
-     * Existing overload [registerListener] remains for backward compatibility.
-     */
-    fun addListener(listener: (Event) -> Unit): AutoCloseable {
-        registerListener(listener)
-        return AutoCloseable { unregisterListener(listener) }
+    fun unregisterPageDecorator(decorator: (Page, Router) -> Unit) {
+        pageDecorators.remove(decorator)
+        pageDecoratorsSnapshot = pageDecorators.toList()
     }
 
-    fun unregisterListener(listener: (Event) -> Unit) {
-        listeners -= listener
+    fun addPageDecorator(decorator: (Page, Router) -> Unit): AutoCloseable {
+        registerPageDecorator(decorator)
+        return AutoCloseable { unregisterPageDecorator(decorator) }
     }
 
-    internal fun emit(event: Event) {
-        // snapshot to avoid concurrent modification
-        val snapshot = listeners.toList()
-        for (l in snapshot) {
-            try { l(event) } catch (_: Throwable) {}
+    internal fun runPageDecorators(page: Page, router: Router) {
+        val snapshot = pageDecoratorsSnapshot
+        for (d in snapshot) {
+            try { d(page, router) } catch (_: Throwable) {}
         }
     }
 
-    /** Notify listeners that a page has been added to a router. */
-    fun firePageAdded(page: Page, router: Router) {
-        emit(Event.PageAdded(page, router))
+    // ---- Error handlers ----
+    fun registerErrorHandler(handler: (RequestDTO?, Throwable) -> Unit) {
+        errorHandlers += handler
+        errorHandlersSnapshot = errorHandlers.toList()
     }
 
-    // ---- Request lifecycle event helpers ----
-    fun fireRequestStart(request: RequestDTO) {
-        emit(Event.RequestStart(request))
+    fun unregisterErrorHandler(handler: (RequestDTO?, Throwable) -> Unit) {
+        errorHandlers.remove(handler)
+        errorHandlersSnapshot = errorHandlers.toList()
     }
 
-    fun fireBeforeGlobalMiddleware(request: RequestDTO) {
-        emit(Event.BeforeGlobalMiddleware(request))
+    fun addErrorHandler(handler: (RequestDTO?, Throwable) -> Unit): AutoCloseable {
+        registerErrorHandler(handler)
+        return AutoCloseable { unregisterErrorHandler(handler) }
     }
 
-    fun fireAfterGlobalMiddleware(response: ResponseDTO) {
-        emit(Event.AfterGlobalMiddleware(response))
-    }
-
-    fun fireRequestEnd(request: RequestDTO, response: ResponseDTO) {
-        emit(Event.RequestEnd(request, response))
-    }
-
-    fun fireError(request: RequestDTO?, throwable: Throwable) {
-        emit(Event.Error(request, throwable))
+    internal fun fireError(request: RequestDTO?, throwable: Throwable) {
+        val snapshot = errorHandlersSnapshot
+        for (h in snapshot) {
+            try { h(request, throwable) } catch (_: Throwable) {}
+        }
     }
     
     // ---- Special route API ----
@@ -176,11 +157,100 @@ object Bootstrap {
         /** List resource paths bundled in classpath under a folder (supports jars). */
         fun listResources(folder: String): List<String> = listResourcePaths(folder)
 
-        /** Subscribe to bootstrap events. */
-        fun onEvent(listener: (Event) -> Unit) = registerListener(listener)
+        /**
+         * Serve all classpath resources under the given [folder] at the provided URL [prefix].
+         *
+         * Example: serveClasspathResources(prefix = "/static", folder = "public") will expose
+         * resources like classpath `public/main.css` at `/static/main.css`.
+         */
+        fun serveClasspathResources(prefix: String, folder: String) {
+            val normalizedPrefix = if (prefix.endsWith('/')) prefix.dropLast(1) else prefix
+            val resources = listResourcePaths(folder)
+            if (resources.isEmpty()) return
+            val cl = Thread.currentThread().contextClassLoader
+            for (cpPath in resources) {
+                val relative = if (cpPath.startsWith("$folder/")) cpPath.removePrefix("$folder/") else cpPath
+                val urlPath = "$normalizedPrefix/$relative"
+                route("/$urlPath") {
+                    GET {
+                        val stream = cl.getResourceAsStream(cpPath)
+                        if (stream == null) {
+                            io.voidx.dto.buildResponse<String> {
+                                status = 404
+                                statusText = "Not Found"
+                                headers["Content-Type"] = "text/plain"
+                                body = "Not Found"
+                            }
+                        } else {
+                            val bytes = stream.use { it.readAllBytes() }
+                            val ct = contentTypeFor(urlPath)
+                            io.voidx.dto.buildResponse<ByteArray> {
+                                status = 200
+                                statusText = "OK"
+                                headers["Content-Type"] = ct
+                                body = bytes
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-        /** Subscribe and get a handle you can close to unsubscribe. */
-        fun onEventHandle(listener: (Event) -> Unit): AutoCloseable = addListener(listener)
+        /** Serve a single classpath resource [resourcePath] at the URL path [urlPath]. */
+        fun serveClasspathFile(urlPath: String, resourcePath: String) {
+            val normalizedUrl = if (urlPath.startsWith('/')) urlPath else "/$urlPath"
+            val cl = Thread.currentThread().contextClassLoader
+            route(normalizedUrl) {
+                GET {
+                    val stream = cl.getResourceAsStream(resourcePath)
+                    if (stream == null) {
+                        io.voidx.dto.buildResponse<String> {
+                            status = 404
+                            statusText = "Not Found"
+                            headers["Content-Type"] = "text/plain"
+                            body = "Not Found"
+                        }
+                    } else {
+                        val bytes = stream.use { it.readAllBytes() }
+                        val ct = contentTypeFor(normalizedUrl)
+                        io.voidx.dto.buildResponse<ByteArray> {
+                            status = 200
+                            statusText = "OK"
+                            headers["Content-Type"] = ct
+                            body = bytes
+                        }
+                    }
+                }
+            }
+        }
+
+        private fun contentTypeFor(path: String): String {
+            val ext = path.substringAfterLast('.', "").lowercase()
+            return when (ext) {
+                "html", "htm" -> "text/html"
+                "css" -> "text/css"
+                "js" -> "application/javascript"
+                "json" -> "application/json"
+                "svg" -> "image/svg+xml"
+                "png" -> "image/png"
+                "jpg", "jpeg" -> "image/jpeg"
+                "gif" -> "image/gif"
+                "txt" -> "text/plain"
+                else -> "application/octet-stream"
+            }
+        }
+
+        /** Register a page decorator. */
+        fun registerPageDecorator(decorator: (Page, Router) -> Unit) = Bootstrap.registerPageDecorator(decorator)
+
+        /** Register a page decorator and get a handle to unregister. */
+        fun addPageDecorator(decorator: (Page, Router) -> Unit): AutoCloseable = Bootstrap.addPageDecorator(decorator)
+
+        /** Register an error handler. */
+        fun registerErrorHandler(handler: (RequestDTO?, Throwable) -> Unit) = Bootstrap.registerErrorHandler(handler)
+
+        /** Register an error handler and get a handle to unregister. */
+        fun addErrorHandler(handler: (RequestDTO?, Throwable) -> Unit): AutoCloseable = Bootstrap.addErrorHandler(handler)
 
         /** Register a prioritized special route handler (pre-dispatch). */
         fun registerSpecialRoute(
@@ -225,7 +295,7 @@ object Bootstrap {
         }
     }
 
-    /** Internal: fire router created event. */
+    /** Internal: notify modules that router is created. */
     fun fireRouterCreated(router: Router) {
         loadFromServiceLoader()
         // Bridge: run legacy ModuleInit initializers once when router is first created.
@@ -240,7 +310,6 @@ object Bootstrap {
         modules.forEach { m ->
             try { m.onRouterCreated(ctx) } catch (_: Throwable) {}
         }
-        emit(Event.RouterCreated(router))
     }
 
     fun fireBeforeServerStart(kind: ServerKind, port: Int) {
@@ -248,7 +317,6 @@ object Bootstrap {
         modules.forEach { m ->
             try { m.beforeServerStart(kind, port) } catch (_: Throwable) {}
         }
-        emit(Event.ServerStarting(kind, port))
     }
 
     fun fireAfterServerStart(kind: ServerKind, port: Int) {
@@ -256,13 +324,11 @@ object Bootstrap {
         modules.forEach { m ->
             try { m.afterServerStart(kind, port) } catch (_: Throwable) {}
         }
-        emit(Event.ServerStarted(kind, port))
     }
 
     fun fireShutdown() {
         modules.forEach { m ->
             try { m.onShutdown() } catch (_: Throwable) {}
         }
-        emit(Event.ServerShutdown)
     }
 }
