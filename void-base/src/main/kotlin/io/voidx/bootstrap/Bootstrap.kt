@@ -1,8 +1,5 @@
 package io.voidx.bootstrap
 
-import io.voidx.ClientHandler
-import io.voidx.dto.RequestDTO
-import io.voidx.dto.ResponseDTO
 import io.voidx.page.Page
 import io.voidx.page.PageHandler
 import io.voidx.middleware.Relay
@@ -13,9 +10,14 @@ import io.voidx.router.listResourcePaths
 import io.voidx.util.ModuleInit
 import java.util.ServiceLoader
 
-// ---- HTML/Resources integration types (formerly HtmlIntegration) ----
-typealias GetKtsPageFn = Router.(String, Map<String, String>, RequestDTO, ClientHandler) -> ResponseDTO
-typealias HandleJsAndCss = (Page, Router) -> Unit
+// Event system to allow external modules to hook into internals without hard deps
+sealed interface Event {
+    data class RouterCreated(val router: Router) : Event
+    data class PageAdded(val page: Page, val router: Router) : Event
+    data class ServerStarting(val kind: Bootstrap.ServerKind, val port: Int) : Event
+    data class ServerStarted(val kind: Bootstrap.ServerKind, val port: Int) : Event
+    data object ServerShutdown : Event
+}
 
 /**
  * Lightweight bootstrapping service and module lifecycle for Void.
@@ -33,43 +35,34 @@ typealias HandleJsAndCss = (Page, Router) -> Unit
  * during the first [onRouterCreated] call to preserve current behavior.
  */
 object Bootstrap {
-    // ---- HTML/Resources integration replaced here (was HtmlIntegration) ----
+    // ---- Event listeners ----
+    private val listeners = mutableSetOf<(Event) -> Unit>()
 
-    private var ktsHandler: GetKtsPageFn? = null
-    private val pageHandlers = mutableListOf<HandleJsAndCss>()
-
-    /** Register the KTS page handler. Can only be registered once. */
-    fun registerKtsHandler(fn: GetKtsPageFn) {
-        check(ktsHandler == null) { "KTS handler already registered" }
-        ktsHandler = fn
+    fun registerListener(listener: (Event) -> Unit) {
+        listeners += listener
     }
 
-    /** Register a page decoration handler. Multiple handlers are allowed. */
-    fun registerJsAndCss(fn: HandleJsAndCss) {
-        pageHandlers += fn
+    fun unregisterListener(listener: (Event) -> Unit) {
+        listeners -= listener
     }
 
-    internal fun firePageAdded(page: Page, router: Router) {
-        pageHandlers.forEach { h ->
-            try { h(page, router) } catch (_: Throwable) {}
+    internal fun emit(event: Event) {
+        // snapshot to avoid concurrent modification
+        val snapshot = listeners.toList()
+        for (l in snapshot) {
+            try { l(event) } catch (_: Throwable) {}
         }
     }
 
-    internal fun handleKtsIfPresent(router: Router, target: String, query: Map<String, String>, requestDTO: RequestDTO, clientHandler: ClientHandler): ResponseDTO? {
-        val handler = ktsHandler ?: return null
-        return try { handler.invoke(router, target, query, requestDTO, clientHandler) } catch (_: Throwable) { null }
+    /** Notify listeners that a page has been added to a router. */
+    fun firePageAdded(page: Page, router: Router) {
+        emit(Event.PageAdded(page, router))
     }
     /** Context object offered to modules to access core services safely. */
     class Context internal constructor(
         /** Underlying router instance. Exposed for advanced uses; prefer helpers below. */
         val router: Router,
     ) {
-        /** Register KTS handler used by Router when KTS-Request header is present. */
-        fun registerKtsHandler(fn: GetKtsPageFn) = Bootstrap.registerKtsHandler(fn)
-
-        /** Register a page decoration hook to attach JS/CSS/resources. */
-        fun registerJsAndCss(fn: HandleJsAndCss) = Bootstrap.registerJsAndCss(fn)
-
         /** Add a single page/route to the router. */
         fun addRoute(page: Page) { router.addRoute(page) }
 
@@ -90,6 +83,9 @@ object Bootstrap {
 
         /** List resource paths bundled in classpath under a folder (supports jars). */
         fun listResources(folder: String): List<String> = listResourcePaths(folder)
+
+        /** Subscribe to bootstrap events. */
+        fun onEvent(listener: (Event) -> Unit) = registerListener(listener)
     }
 
     /** Lifecycle interface for bootstrap modules. Provide default no-op methods. */
@@ -137,6 +133,7 @@ object Bootstrap {
         modules.forEach { m ->
             try { m.onRouterCreated(ctx) } catch (_: Throwable) {}
         }
+        emit(Event.RouterCreated(router))
     }
 
     fun fireBeforeServerStart(kind: ServerKind, port: Int) {
@@ -144,6 +141,7 @@ object Bootstrap {
         modules.forEach { m ->
             try { m.beforeServerStart(kind, port) } catch (_: Throwable) {}
         }
+        emit(Event.ServerStarting(kind, port))
     }
 
     fun fireAfterServerStart(kind: ServerKind, port: Int) {
@@ -151,11 +149,13 @@ object Bootstrap {
         modules.forEach { m ->
             try { m.afterServerStart(kind, port) } catch (_: Throwable) {}
         }
+        emit(Event.ServerStarted(kind, port))
     }
 
     fun fireShutdown() {
         modules.forEach { m ->
             try { m.onShutdown() } catch (_: Throwable) {}
         }
+        emit(Event.ServerShutdown)
     }
 }
