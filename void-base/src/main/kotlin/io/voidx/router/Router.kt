@@ -17,6 +17,7 @@ import io.voidx.router.util.RequestHandler
 import io.voidx.router.util.RouteCheck
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.util.toResult
+import io.voidx.bootstrap.Event
 import java.io.File
 import java.net.URLDecoder
 import java.util.concurrent.ConcurrentHashMap
@@ -187,46 +188,81 @@ class Router :
         clientHandler: ClientHandler,
     ) {
         val client = clientHandler.client
+        // Emit request start and before-global-middleware events
+        Bootstrap.fireRequestStart(requestDTO)
+        Bootstrap.fireBeforeGlobalMiddleware(requestDTO)
         val rawTarget = requestDTO.target
         val qMark = rawTarget.indexOf('?')
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
         val query: Map<String, String> = parseQuery(rawTarget)
-        val response =
-            middlewareProcessBefore(requestDTO.toResult()) ?: run {
-                    val staticPage = routes[target]
-                    if (staticPage != null) {
-                        val page = staticPage
-                        synchronized(page) {
-                            page.queries = query
-                            page.request = requestDTO
+        var usedPage: Page? = null
+        var pageBeforeEmitted = false
+        val pre = middlewareProcessBefore(requestDTO.toResult())
+        val response = if (pre != null) {
+            // Global BEFORE short-circuited: still run per-page AFTER for the target page (or 404)
+            usedPage = routes[target] ?: RouteCheck.nullPage
+            pre
+        } else {
+            // Give special routes a chance to short-circuit (no per-page hooks when they do)
+            val special = Bootstrap.tryHandleSpecialRoute(requestDTO, query, clientHandler)
+            if (special != null) {
+                special
+            } else {
+                val staticPage = routes[target]
+                if (staticPage != null) {
+                    val page = staticPage
+                    usedPage = page
+                    synchronized(page) {
+                        page.queries = query
+                        page.request = requestDTO
+                        // Per-page lifecycle event: before page processing
+                        Bootstrap.emit(Event.PageBefore(requestDTO, page))
+                        pageBeforeEmitted = true
 
-                            page.middlewareProcessBefore(requestDTO.toResult())
-                                ?: handleResponse(page, clientHandler, target)
-                        }
-                    } else {
-                        handleDynamic(requestDTO, query)
-                            ?: run {
-                                val page = RouteCheck.nullPage
-                                synchronized(page) {
-                                    page.queries = query
-                                    page.request = requestDTO
-                                    page.middlewareProcessBefore(requestDTO.toResult())
-                                        ?: page.content()
-                                }
-                            }
+                        page.middlewareProcessBefore(requestDTO.toResult())
+                            ?: handleResponse(page, clientHandler, target)
                     }
+                } else {
+                    handleDynamic(requestDTO, query)
+                        ?: run {
+                            val page = RouteCheck.nullPage
+                            usedPage = page
+                            synchronized(page) {
+                                page.queries = query
+                                page.request = requestDTO
+                                // Per-page lifecycle event for 404 page
+                                Bootstrap.emit(Event.PageBefore(requestDTO, page))
+                                pageBeforeEmitted = true
+                                page.middlewareProcessBefore(requestDTO.toResult())
+                                    ?: page.content()
+                            }
+                        }
+                }
             }
+        }
+
+        // After deciding the response from BEFORE middleware/handler
+        // Defer PageAfter until after per-page AFTER middleware runs (below)
+        Bootstrap.fireAfterGlobalMiddleware(response)
 
         response._request = requestDTO
 
-        val page = routes[target] ?: RouteCheck.nullPage
-        synchronized(page) {
-            page.middlewareProcessAfter(response.toResult())
+        if (usedPage != null) {
+            val page = usedPage!!
+            synchronized(page) {
+                page.middlewareProcessAfter(response.toResult())
+            }
+            // Per-page lifecycle event: after page processing and per-page AFTER middleware
+            if (pageBeforeEmitted) {
+                Bootstrap.emit(Event.PageAfter(response, page))
+            }
         }
 
         middlewareProcessAfter(
             response.toResult(),
         )
+        // Right before writing the response back, emit request end
+        Bootstrap.fireRequestEnd(requestDTO, response)
         val out = client.getOutputStream()
         out.writeHTTP(
             response,
@@ -243,6 +279,8 @@ class Router :
         e: Exception,
     ) {
         val client = clientHandler.client
+        // Emit error event; request is unknown at this point
+        Bootstrap.fireError(null, e)
         val exPage = RouteCheck.exceptionPage
         synchronized(exPage) {
             exPage.exception = e

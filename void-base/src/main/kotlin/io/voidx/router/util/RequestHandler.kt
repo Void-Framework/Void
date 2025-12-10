@@ -3,6 +3,8 @@ package io.voidx.router.util
 import io.voidx.ClientHandler
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
+import io.voidx.bootstrap.Bootstrap
+import io.voidx.bootstrap.Event
 import io.voidx.page.DynamicPage
 import io.voidx.page.Page
 import io.voidx.page.Path
@@ -77,9 +79,16 @@ internal interface RequestHandler {
             route.request = requestDTO
             route.queries = query
 
-            val response = route.middlewareProcessBefore(requestDTO.toResult())
+            // Per-page lifecycle event for dynamic page before processing
+            Bootstrap.emit(Event.PageBefore(requestDTO, route))
 
-            return response ?: route.content()
+            val response = route.middlewareProcessBefore(requestDTO.toResult())
+            val produced = response ?: route.content()
+
+            // Per-page lifecycle event for dynamic page after processing
+            Bootstrap.emit(Event.PageAfter(produced, route))
+
+            return produced
         }
         return null
     }
