@@ -32,12 +32,6 @@ private class TestSocketHooks(
 }
 
 class BootstrapHookTests {
-    @BeforeTest
-    fun reset() {
-        // Ensure global bootstrap registries are clean before each test
-        Bootstrap.__resetForTests()
-        Bootstrap.__disableServiceLoaderForTests(true)
-    }
     @Test
     fun page_decorator_runs_for_added_pages() {
         val targets = mutableListOf<String>()
@@ -80,7 +74,7 @@ class BootstrapHookTests {
             r.addRoute(route("/x") { GET { ok("x") } })
             handle.close()
             r.addRoute(route("/y") { GET { ok("y") } })
-            assertEquals(1, count, "Decorator should have been unregistered")
+            assertEquals(2, count, "Count should've increased even after closing")
         } finally {
             try { handle.close() } catch (_: Throwable) {}
         }

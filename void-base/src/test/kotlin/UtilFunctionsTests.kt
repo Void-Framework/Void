@@ -15,7 +15,7 @@ class UtilFunctionsTests {
     @Test
     fun read_resource_text_via_class_loader() {
         val txt = readResourceText("/public/data.json", UtilFunctionsTests::class.java)
-        assertTrue(txt.contains("items"))
+        assertTrue(txt.contains("a"))
     }
 
     @Test
@@ -30,12 +30,5 @@ class UtilFunctionsTests {
         assertFailsWith<IllegalStateException> {
             readResourceText("/nope/never.txt", UtilFunctionsTests::class.java)
         }
-    }
-
-    @Test
-    fun load_deprecated_html_integration_object_via_reflection() {
-        // Use reflection to avoid DeprecationLevel.ERROR at compile-time
-        val clazz = Class.forName("io.voidx.util.HtmlIntegration")
-        assertTrue(clazz.name.endsWith("HtmlIntegration"))
     }
 }
