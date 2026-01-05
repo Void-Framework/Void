@@ -10,7 +10,6 @@ import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
 import io.voidx.router.Router
 import io.voidx.router.listResourcePaths
-import io.voidx.util.ModuleInit
 import java.util.ServiceLoader
 
 /**
@@ -138,24 +137,6 @@ object Bootstrap {
             }
         }
         return null
-    }
-
-    /**
-     * Test-only helper: resets all Bootstrap registries to a clean state.
-     * This is internal to avoid exposure in public API and used only from tests
-     * to guarantee isolation between suites that mutate global registries.
-     */
-    internal fun __resetForTests() {
-        pageDecorators.clear()
-        pageDecoratorsSnapshot = emptyList()
-        nextDecoratorId = 1L
-        errorHandlers.clear()
-        errorHandlersSnapshot = emptyList()
-        specialRoutes.clear()
-        specialRoutesSnapshot = emptyList()
-        modules.clear()
-        serviceLoaderLoaded = false
-        // legacyInitRun remains as-is; router creation bridge semantics are tested separately
     }
     /** Context object offered to modules to access core services safely. */
     class Context internal constructor(
@@ -305,9 +286,6 @@ object Bootstrap {
 
     private val modules = mutableSetOf<Module>()
     private var serviceLoaderLoaded = false
-    private var legacyInitRun = false
-    // Test-only flag to disable ServiceLoader discovery to keep tests isolated
-    @Volatile private var disableServiceLoaderForTests = false
 
     /** Register a module programmatically. Safe to call multiple times; duplicates ignored. */
     fun register(module: Module) {
@@ -316,7 +294,6 @@ object Bootstrap {
 
     /** Load modules using Java ServiceLoader; only performed once. */
     fun loadFromServiceLoader() {
-        if (disableServiceLoaderForTests) return
         if (serviceLoaderLoaded) return
         serviceLoaderLoaded = true
         try {
@@ -327,16 +304,8 @@ object Bootstrap {
     }
 
     /** Internal: notify modules that router is created. */
-    fun fireRouterCreated(router: Router) {
+    internal fun fireRouterCreated(router: Router) {
         loadFromServiceLoader()
-        // Bridge: run legacy ModuleInit initializers once when router is first created.
-        if (!legacyInitRun) {
-            legacyInitRun = true
-            try {
-                ModuleInit.runAllInitializers()
-            } catch (_: Throwable) {
-            }
-        }
         val ctx = Context(router)
         modules.forEach { m ->
             try { m.onRouterCreated(ctx) } catch (_: Throwable) {}
@@ -361,10 +330,5 @@ object Bootstrap {
         modules.forEach { m ->
             try { m.onShutdown() } catch (_: Throwable) {}
         }
-    }
-
-    /** Test-only helper to disable/enable ServiceLoader discovery. */
-    internal fun __disableServiceLoaderForTests(flag: Boolean) {
-        disableServiceLoaderForTests = flag
     }
 }

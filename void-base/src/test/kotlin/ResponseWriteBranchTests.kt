@@ -52,7 +52,7 @@ class ResponseWriteBranchTests {
         val rawHeaders = out.toString().substringBefore("\r\n\r\n").replace("\r\n", "\n")
         val cl = Regex("Content-Length: (\\d+)").find(rawHeaders)?.groupValues?.get(1)?.toInt() ?: 0
         assertEquals(payload.size, cl)
-        assertTrue(rawHeaders.contains("Set-Cookie: a=1; Path=/\n"), rawHeaders)
-        assertTrue(rawHeaders.contains("Set-Cookie: b=2; Path=/\n"), rawHeaders)
+        assertTrue(rawHeaders.contains("Set-Cookie: a=1; Path=/"), rawHeaders)
+        assertTrue(rawHeaders.contains("Set-Cookie: b=2; Path=/"), rawHeaders)
     }
 }

@@ -30,10 +30,6 @@ private class SockBR(
 }
 
 class BootstrapHookRobustnessTests {
-    @BeforeTest
-    fun reset() {
-        Bootstrap.__resetForTests()
-    }
     @Test
     fun page_decorators_are_isolated_when_one_throws() {
         val called = mutableListOf<String>()
