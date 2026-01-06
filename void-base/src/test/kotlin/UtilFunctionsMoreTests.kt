@@ -2,11 +2,11 @@ package test
 
 import io.voidx.util.toResult
 import io.voidx.util.trimTrailingEmpty
-import io.voidx.util.toResult as exToResult
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import io.voidx.util.toResult as exToResult
 
 class UtilFunctionsMoreTests {
     @Test

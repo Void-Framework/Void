@@ -67,10 +67,11 @@ internal interface RequestHandler {
                     return@forEachIndexed
                 } else if (segmentRegex.matches(targetValue) || optionalSegment.matches(targetValue)) {
                     val match =
-                        if (segmentRegex.matches(targetValue))
+                        if (segmentRegex.matches(targetValue)) {
                             segmentRegex.matchEntire(targetValue)!!.groupValues[1]
-                        else
+                        } else {
                             optionalSegment.matchEntire(targetValue)!!.groupValues[1]
+                        }
                     dynamics[match] = url[i]
                 } else {
                     return@forEach

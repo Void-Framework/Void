@@ -30,12 +30,13 @@ class BootstrapServeClasspathFileTests {
     @Test
     fun serve_single_classpath_file_and_missing_file() {
         // Register a bootstrap module that exposes a classpath file and a missing one
-        val module = object : Bootstrap.Module {
-            override fun onRouterCreated(ctx: Bootstrap.Context) {
-                ctx.serveClasspathFile("/static/elements.json", "elements.json")
-                ctx.serveClasspathFile("/static/missing.js", "nope.js")
+        val module =
+            object : Bootstrap.Module {
+                override fun onRouterCreated(ctx: Bootstrap.Context) {
+                    ctx.serveClasspathFile("/static/elements.json", "elements.json")
+                    ctx.serveClasspathFile("/static/missing.js", "nope.js")
+                }
             }
-        }
         Bootstrap.register(module)
 
         val r = router { }

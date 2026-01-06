@@ -14,6 +14,7 @@ import kotlin.test.assertTrue
 
 class TestBefore : RelayBefore {
     override val priority: Int = 0
+
     override fun processBefore(requestDTO: Result<RequestDTO>): ResponseDTO? =
         buildResponse<String> {
             status = 401
@@ -25,6 +26,7 @@ class TestBefore : RelayBefore {
 private class TestAfter : RelayAfter {
     override val priority: Int = 0
     var observedStatus: Int? = null
+
     override fun processAfter(response: Result<ResponseDTO>) {
         observedStatus = response.getOrNull()?.status
     }

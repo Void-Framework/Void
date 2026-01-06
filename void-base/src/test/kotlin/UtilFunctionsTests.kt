@@ -2,8 +2,8 @@ package test
 
 import io.voidx.util.readResourceText
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class UtilFunctionsTests {
     @Test

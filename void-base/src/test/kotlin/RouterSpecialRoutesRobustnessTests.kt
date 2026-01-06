@@ -83,7 +83,8 @@ class RouterSpecialRoutesRobustnessTests {
             sock2.handle(srv, r)
             assertEquals(1, count, "self should not be invoked again after unregister")
         } finally {
-            h1.close(); h2.close()
+            h1.close()
+            h2.close()
         }
     }
 }

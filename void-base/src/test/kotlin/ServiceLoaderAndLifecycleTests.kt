@@ -41,19 +41,32 @@ class ServiceLoaderAndLifecycleTests {
 
     @Test
     fun lifecycle_hooks_fire_to_registered_module() {
-        data class Counts(var before: Int = 0, var after: Int = 0, var shutdown: Int = 0)
+        data class Counts(
+            var before: Int = 0,
+            var after: Int = 0,
+            var shutdown: Int = 0,
+        )
         val counts = Counts()
-        val mod = object : Bootstrap.Module {
-            override fun beforeServerStart(serverKind: Bootstrap.ServerKind, port: Int) {
-                counts.before += 1
+        val mod =
+            object : Bootstrap.Module {
+                override fun beforeServerStart(
+                    serverKind: Bootstrap.ServerKind,
+                    port: Int,
+                ) {
+                    counts.before += 1
+                }
+
+                override fun afterServerStart(
+                    serverKind: Bootstrap.ServerKind,
+                    port: Int,
+                ) {
+                    counts.after += 1
+                }
+
+                override fun onShutdown() {
+                    counts.shutdown += 1
+                }
             }
-            override fun afterServerStart(serverKind: Bootstrap.ServerKind, port: Int) {
-                counts.after += 1
-            }
-            override fun onShutdown() {
-                counts.shutdown += 1
-            }
-        }
         Bootstrap.register(mod)
 
         // Fire lifecycle events directly (unit-level verification)

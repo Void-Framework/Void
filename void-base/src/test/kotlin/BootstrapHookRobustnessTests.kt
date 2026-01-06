@@ -11,8 +11,8 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
-import kotlin.test.Test
 import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -41,7 +41,9 @@ class BootstrapHookRobustnessTests {
             r.addRoute(route("/x") { GET { ok("x") } })
             assertEquals(listOf("ok1", "ok3"), called)
         } finally {
-            h1.close(); h2.close(); h3.close()
+            h1.close()
+            h2.close()
+            h3.close()
         }
     }
 
@@ -59,7 +61,9 @@ class BootstrapHookRobustnessTests {
             r.error(ch, RuntimeException("err"))
             assertEquals(listOf("ok1", "ok3"), called)
         } finally {
-            h1.close(); h2.close(); h3.close()
+            h1.close()
+            h2.close()
+            h3.close()
         }
     }
 }

@@ -1,6 +1,7 @@
 package io.voidx.router
 
 import io.voidx.ClientHandler
+import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.dto.emptyResponse
@@ -15,7 +16,6 @@ import io.voidx.page.Page
 import io.voidx.page.PageHandler
 import io.voidx.router.util.RequestHandler
 import io.voidx.router.util.RouteCheck
-import io.voidx.bootstrap.Bootstrap
 import io.voidx.util.toResult
 import java.io.File
 import java.net.URLDecoder
@@ -195,47 +195,48 @@ class Router :
         var usedPage: Page? = null
         var pageBeforeEmitted = false
         val pre = middlewareProcessBefore(requestDTO.toResult())
-        val response = if (pre != null) {
-            // Global BEFORE short-circuited: still run per-page AFTER for the target page (or 404)
-            usedPage = routes[target] ?: RouteCheck.nullPage
-            pre
-        } else {
-            // Give special routes a chance to short-circuit (no per-page hooks when they do)
-            val special = Bootstrap.tryHandleSpecialRoute(requestDTO, query, clientHandler)
-            if (special != null) {
-                special
+        val response =
+            if (pre != null) {
+                // Global BEFORE short-circuited: still run per-page AFTER for the target page (or 404)
+                usedPage = routes[target] ?: RouteCheck.nullPage
+                pre
             } else {
-                val staticPage = routes[target]
-                if (staticPage != null) {
-                    val page = staticPage
-                    usedPage = page
-                    synchronized(page) {
-                        page.queries = query
-                        page.request = requestDTO
-                        // Per-page event system removed; keep behavior otherwise
-
-                        page.middlewareProcessBefore(requestDTO.toResult())
-                            ?: handleResponse(page, clientHandler, target)
-                    }
+                // Give special routes a chance to short-circuit (no per-page hooks when they do)
+                val special = Bootstrap.tryHandleSpecialRoute(requestDTO, query, clientHandler)
+                if (special != null) {
+                    special
                 } else {
-                    handleDynamic(requestDTO, query)
-                        ?: run {
-                            val page = RouteCheck.nullPage
-                            usedPage = page
-                            synchronized(page) {
-                                page.queries = query
-                                page.request = requestDTO
-                                // No per-page events; just run middleware/content
-                                page.middlewareProcessBefore(requestDTO.toResult())
-                                    ?: page.content()
-                            }
+                    val staticPage = routes[target]
+                    if (staticPage != null) {
+                        val page = staticPage
+                        usedPage = page
+                        synchronized(page) {
+                            page.queries = query
+                            page.request = requestDTO
+                            // Per-page event system removed; keep behavior otherwise
+
+                            page.middlewareProcessBefore(requestDTO.toResult())
+                                ?: handleResponse(page, clientHandler, target)
                         }
+                    } else {
+                        handleDynamic(requestDTO, query)
+                            ?: run {
+                                val page = RouteCheck.nullPage
+                                usedPage = page
+                                synchronized(page) {
+                                    page.queries = query
+                                    page.request = requestDTO
+                                    // No per-page events; just run middleware/content
+                                    page.middlewareProcessBefore(requestDTO.toResult())
+                                        ?: page.content()
+                                }
+                            }
+                    }
                 }
             }
-        }
 
         // After deciding the response from BEFORE middleware/handler
-        
+
         response._request = requestDTO
 
         if (usedPage != null) {

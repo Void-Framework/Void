@@ -99,12 +99,18 @@ class RouterSpecialRoutesTests {
         val r = router { }
         val pageCalls = mutableListOf<String>()
         // Register a page with per-page before/after middleware to observe calls
-        val p = route("/anything") {
-            GET { ok("P") }
-        }.apply {
-            before(io.voidx.middleware.relayBefore { _ -> pageCalls += "before"; null })
-            after(io.voidx.middleware.relayAfter { resp -> if (resp.isSuccess) pageCalls += "after" })
-        }
+        val p =
+            route("/anything") {
+                GET { ok("P") }
+            }.apply {
+                before(
+                    io.voidx.middleware.relayBefore { _ ->
+                        pageCalls += "before"
+                        null
+                    },
+                )
+                after(io.voidx.middleware.relayAfter { resp -> if (resp.isSuccess) pageCalls += "after" })
+            }
         r.addRoute(p)
         val handle = Bootstrap.addSpecialRoute(priority = 42) { _, _, _ -> ok("z") }
 
@@ -124,10 +130,11 @@ class RouterSpecialRoutesTests {
     fun unregistration_via_handle() {
         val r = router { }
         var count = 0
-        val handle = Bootstrap.addSpecialRoute(priority = 1) { _, _, _ ->
-            count += 1
-            ok("once")
-        }
+        val handle =
+            Bootstrap.addSpecialRoute(priority = 1) { _, _, _ ->
+                count += 1
+                ok("once")
+            }
 
         val srv = Server(r, 1.1)
         val sock1 = TestSocketSR("GET /a HTTP/1.1\r\nHost: x\r\n\r\n")

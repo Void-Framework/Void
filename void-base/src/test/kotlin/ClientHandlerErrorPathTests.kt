@@ -46,7 +46,9 @@ class ClientHandlerErrorPathTests {
                         headers["Content-Type"] = "text/plain"
                         body = "short"
                     }
-                } else null
+                } else {
+                    null
+                }
             }
         }
 
