@@ -1,13 +1,13 @@
 package io.voidx.bootstrap
 
+import io.voidx.ClientHandler
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
-import io.voidx.ClientHandler
-import io.voidx.page.Page
-import io.voidx.page.PageHandler
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
+import io.voidx.page.Page
+import io.voidx.page.PageHandler
 import io.voidx.router.Router
 import io.voidx.router.listResourcePaths
 import java.util.ServiceLoader
@@ -29,17 +29,29 @@ import java.util.ServiceLoader
  */
 object Bootstrap {
     // ---- Hook registries (explicit Bootstrap-managed, no generic events) ----
-    private data class DecoratorEntry(val id: Long, val fn: (Page, Router) -> Unit, var active: Boolean = true)
+    private data class DecoratorEntry(
+        val id: Long,
+        val fn: (Page, Router) -> Unit,
+        var active: Boolean = true,
+    )
+
     private val pageDecorators = mutableListOf<DecoratorEntry>()
+
     @Volatile private var pageDecoratorsSnapshot: List<DecoratorEntry> = emptyList()
     private var nextDecoratorId = 1L
 
     private val errorHandlers = mutableSetOf<(RequestDTO?, Throwable) -> Unit>()
+
     @Volatile private var errorHandlersSnapshot: List<(RequestDTO?, Throwable) -> Unit> = emptyList()
-    
+
     // ---- Special route handlers (pre-dispatch short-circuit) ----
-    private data class SpecialRoute(val priority: Int, val handler: (RequestDTO, Map<String, String>, ClientHandler) -> ResponseDTO?)
+    private data class SpecialRoute(
+        val priority: Int,
+        val handler: (RequestDTO, Map<String, String>, ClientHandler) -> ResponseDTO?,
+    )
+
     private val specialRoutes = mutableSetOf<SpecialRoute>()
+
     @Volatile private var specialRoutesSnapshot: List<SpecialRoute> = emptyList()
 
     // ---- Page decorators ----
@@ -64,10 +76,16 @@ object Bootstrap {
         }
     }
 
-    internal fun runPageDecorators(page: Page, router: Router) {
+    internal fun runPageDecorators(
+        page: Page,
+        router: Router,
+    ) {
         val snapshot = pageDecoratorsSnapshot
         for (d in snapshot) {
-            try { d.fn(page, router) } catch (_: Throwable) {}
+            try {
+                d.fn(page, router)
+            } catch (_: Throwable) {
+            }
         }
     }
 
@@ -87,14 +105,21 @@ object Bootstrap {
         return AutoCloseable { unregisterErrorHandler(handler) }
     }
 
-    internal fun fireError(request: RequestDTO?, throwable: Throwable) {
+    internal fun fireError(
+        request: RequestDTO?,
+        throwable: Throwable,
+    ) {
         val snapshot = errorHandlersSnapshot
         for (h in snapshot) {
-            try { h(request, throwable) } catch (_: Throwable) {}
+            try {
+                h(request, throwable)
+            } catch (_: Throwable) {
+            }
         }
     }
-    
+
     // ---- Special route API ----
+
     /** Register a prioritized pre-dispatch special route handler. Higher [priority] runs first. */
     fun registerSpecialRoute(
         priority: Int = 0,
@@ -138,28 +163,44 @@ object Bootstrap {
         }
         return null
     }
+
     /** Context object offered to modules to access core services safely. */
     class Context internal constructor(
         /** Underlying router instance. Exposed for advanced uses; prefer helpers below. */
         val router: Router,
     ) {
         /** Add a single page/route to the router. */
-        fun addRoute(page: Page) { router.addRoute(page) }
+        fun addRoute(page: Page) {
+            router.addRoute(page)
+        }
 
         /** Add multiple routes to the router. */
-        fun addRoutes(pages: List<Page>) { router.addRoutes(pages) }
+        fun addRoutes(pages: List<Page>) {
+            router.addRoutes(pages)
+        }
 
         /** DSL helper to register a route via builder. */
-        fun route(path: String, builder: PageHandler.() -> Unit) { router.route(path, builder) }
+        fun route(
+            path: String,
+            builder: PageHandler.() -> Unit,
+        ) {
+            router.route(path, builder)
+        }
 
         /** Register a middleware relay (before/after). */
-        fun registerMiddleware(relay: Relay) { with(router) { +relay } }
+        fun registerMiddleware(relay: Relay) {
+            with(router) { +relay }
+        }
 
         /** Convenience to register a BEFORE middleware. */
-        fun registerBefore(relay: RelayBefore) { registerMiddleware(relay) }
+        fun registerBefore(relay: RelayBefore) {
+            registerMiddleware(relay)
+        }
 
         /** Convenience to register an AFTER middleware. */
-        fun registerAfter(relay: RelayAfter) { registerMiddleware(relay) }
+        fun registerAfter(relay: RelayAfter) {
+            registerMiddleware(relay)
+        }
 
         /** List resource paths bundled in classpath under a folder (supports jars). */
         fun listResources(folder: String): List<String> = listResourcePaths(folder)
@@ -170,7 +211,10 @@ object Bootstrap {
          * Example: serveClasspathResources(prefix = "/static", folder = "public") will expose
          * resources like classpath `public/main.css` at `/static/main.css`.
          */
-        fun serveClasspathResources(prefix: String, folder: String) {
+        fun serveClasspathResources(
+            prefix: String,
+            folder: String,
+        ) {
             // Ensure single leading '/'
             val base = if (prefix.startsWith('/')) prefix else "/$prefix"
             val normalizedPrefix = if (base.endsWith('/')) base.dropLast(1) else base
@@ -206,7 +250,10 @@ object Bootstrap {
         }
 
         /** Serve a single classpath resource [resourcePath] at the URL path [urlPath]. */
-        fun serveClasspathFile(urlPath: String, resourcePath: String) {
+        fun serveClasspathFile(
+            urlPath: String,
+            resourcePath: String,
+        ) {
             val normalizedUrl = if (urlPath.startsWith('/')) urlPath else "/$urlPath"
             val cl = Thread.currentThread().contextClassLoader
             route(normalizedUrl) {
@@ -277,8 +324,17 @@ object Bootstrap {
     /** Lifecycle interface for bootstrap modules. Provide default no-op methods. */
     interface Module {
         fun onRouterCreated(ctx: Context) {}
-        fun beforeServerStart(serverKind: ServerKind, port: Int) {}
-        fun afterServerStart(serverKind: ServerKind, port: Int) {}
+
+        fun beforeServerStart(
+            serverKind: ServerKind,
+            port: Int,
+        ) {}
+
+        fun afterServerStart(
+            serverKind: ServerKind,
+            port: Int,
+        ) {}
+
         fun onShutdown() {}
     }
 
@@ -308,27 +364,45 @@ object Bootstrap {
         loadFromServiceLoader()
         val ctx = Context(router)
         modules.forEach { m ->
-            try { m.onRouterCreated(ctx) } catch (_: Throwable) {}
+            try {
+                m.onRouterCreated(ctx)
+            } catch (_: Throwable) {
+            }
         }
     }
 
-    fun fireBeforeServerStart(kind: ServerKind, port: Int) {
+    fun fireBeforeServerStart(
+        kind: ServerKind,
+        port: Int,
+    ) {
         loadFromServiceLoader()
         modules.forEach { m ->
-            try { m.beforeServerStart(kind, port) } catch (_: Throwable) {}
+            try {
+                m.beforeServerStart(kind, port)
+            } catch (_: Throwable) {
+            }
         }
     }
 
-    fun fireAfterServerStart(kind: ServerKind, port: Int) {
+    fun fireAfterServerStart(
+        kind: ServerKind,
+        port: Int,
+    ) {
         loadFromServiceLoader()
         modules.forEach { m ->
-            try { m.afterServerStart(kind, port) } catch (_: Throwable) {}
+            try {
+                m.afterServerStart(kind, port)
+            } catch (_: Throwable) {
+            }
         }
     }
 
     fun fireShutdown() {
         modules.forEach { m ->
-            try { m.onShutdown() } catch (_: Throwable) {}
+            try {
+                m.onShutdown()
+            } catch (_: Throwable) {
+            }
         }
     }
 }

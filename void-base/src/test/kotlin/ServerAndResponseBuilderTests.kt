@@ -1,9 +1,9 @@
 package test
 
 import io.voidx.Server
+import io.voidx.dto.buildResponse
 import io.voidx.router.Router
 import io.voidx.server
-import io.voidx.dto.buildResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

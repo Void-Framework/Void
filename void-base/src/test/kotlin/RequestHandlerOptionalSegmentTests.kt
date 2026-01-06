@@ -31,9 +31,10 @@ class RequestHandlerOptionalSegmentTests {
     @Test
     fun optional_trailing_segment_absent_is_allowed() {
         val r = router { }
-        val p = object : DynamicPage("/blog/{slug?}") {
-            override fun content() = ok(data["slug"] ?: "index")
-        }
+        val p =
+            object : DynamicPage("/blog/{slug?}") {
+                override fun content() = ok(data["slug"] ?: "index")
+            }
         r.addRoute(p)
         val srv = Server(r, 1.1)
         val sock = SockROS("GET /blog HTTP/1.1\r\nHost: x\r\n\r\n")
@@ -47,9 +48,10 @@ class RequestHandlerOptionalSegmentTests {
     fun favicon_is_ignored_by_dynamic_matching_and_yields_404() {
         val r = router { }
         // A dynamic that would match anything under root if not for favicon bypass
-        val p = object : DynamicPage("/{x}") {
-            override fun content() = ok("dyn")
-        }
+        val p =
+            object : DynamicPage("/{x}") {
+                override fun content() = ok("dyn")
+            }
         r.addRoute(p)
 
         val srv = Server(r, 1.1)

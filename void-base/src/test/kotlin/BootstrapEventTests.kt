@@ -13,8 +13,8 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
-import kotlin.test.Test
 import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -76,7 +76,10 @@ class BootstrapHookTests {
             r.addRoute(route("/y") { GET { ok("y") } })
             assertEquals(2, count, "Count should've increased even after closing")
         } finally {
-            try { handle.close() } catch (_: Throwable) {}
+            try {
+                handle.close()
+            } catch (_: Throwable) {
+            }
         }
     }
 
@@ -94,7 +97,10 @@ class BootstrapHookTests {
             r.error(ch, RuntimeException("boom2"))
             assertEquals(1, count, "Error handler should have been unregistered by handle")
         } finally {
-            try { handle.close() } catch (_: Throwable) {}
+            try {
+                handle.close()
+            } catch (_: Throwable) {
+            }
         }
     }
 
