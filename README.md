@@ -6,7 +6,7 @@
 
   <p>
     <a href="https://jitpack.io/#Jadiefication/Void"><img alt="JitPack" src="https://jitpack.io/v/Jadiefication/Void.svg"></a>
-    <a href="https://kotlinlang.org"><img alt="Kotlin" src="https://img.shields.io/badge/kotlin-2.2.10-blue.svg?logo=kotlin"></a>
+    <a href="https://kotlinlang.org"><img alt="Kotlin" src="https://img.shields.io/badge/kotlin-2.2.21-blue.svg?logo=kotlin"></a>
     <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
     <a href="https://gitpod.io/#https://github.com/Jadiefication/Void"><img alt="Contribute with Gitpod" src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod"></a>
   </p>
@@ -14,29 +14,44 @@
 
 Void is a small, unopinionated framework you can embed into your app. It provides:
 
-- Type-safe HTML DSL with generated elements (io.voidx.generated)
-- Simple router with static, dynamic, and KTS interaction routes
+- Simple router with static and dynamic routes
 - Middleware (before/after) with priorities
-- First-class API endpoints returning ResponseDTO
+- First-class API endpoints returning `ResponseDTO`
 - Minimal HTTP/HTTPS server (no servlet container)
-- Optional per-page Tailwind CSS extraction at runtime
-- In-memory page caching via @Cacheable
+- Bootstrapper for external modules (page decorators, special routes, error handlers)
 
 Quick links
 
-- Security policy: SECURITY.md
-- Roadmap/TODO: TODO.md
-- Contributing guide: CONTRIBUTING.md
-- Code of Conduct: CODE_OF_CONDUCT.md
-- Support: SUPPORT.md
-- License: MIT (LICENSE)
+- Security policy: [SECURITY.md](SECURITY.md)
+- Roadmap/TODO: [TODO.md](TODO.md)
+- Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Code of Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Support: [SUPPORT.md](SUPPORT.md)
+- License: MIT ([LICENSE](LICENSE))
+
+## Tech Stack
+
+- **Language:** [Kotlin 2.2.21](https://kotlinlang.org/)
+- **Build System:** [Gradle 8.x+](https://gradle.org/) (Kotlin DSL)
+- **Minimum Java:** 8 (for library consumers), 21 (for building the project)
+- **Frameworks:** kotlinx-serialization (JSON, CBOR, Protobuf), SLF4J
+- **Distribution:** [JitPack](https://jitpack.io/)
+
+## Project Structure
+
+- `void-base/`: The core framework library.
+  - `src/main/kotlin/io/voidx/`: Core server, router, and DTO logic.
+  - `src/main/kotlin/io/voidx/bootstrap/`: Module bootstrapping system.
+- `docs/`: Documentation module containing a built-in server and static site generator.
+  - `src/main/kotlin/io/voidx/docs/`: Documentation server and export logic.
+- `gradle/`: Gradle wrapper and version catalogs.
 
 ## Get started
 
-Requirements
+### Requirements
 
-- Java 17+
-- Kotlin 2.2.10 (Gradle Kotlin DSL recommended)
+- JDK 21+ (to build)
+- JDK 8+ (to run)
 
 ### Installation (JitPack)
 
@@ -49,81 +64,110 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Jadiefication:Void:<version>")
+    implementation("com.github.Jadiefication:Void:v2.0.0")
 }
 ```
 
 ### Hello, Void
 
-Create a minimal server with one HTML route and one API route:
+Create a minimal server with one text route and one JSON route:
 
 ```kotlin
-import io.voidx.router.router
-import io.voidx.html.page.htmlRoute
-import io.voidx.html.page.apiRoute
-import io.voidx.generated.Div
-import io.voidx.html.Fractal
-import io.voidx.server.server
-import io.voidx.dto.http.ok
-
 fun main() {
-    val r = router {
-        +htmlRoute("/", { title = "Home" }) { _ ->
-            Div("class" to "p-6 text-xl") { Fractal("Hello, Void!") }
+    val server = io.voidx.simpleServer {
+      io.voidx.page.route("/") {
+        GET {
+          io.voidx.dto.ok("Hello, Void!", mutableMapOf("Content-Type" to "text/plain"))
         }
-        +apiRoute("/api/health") { _ ->
-            ok("ok", mutableMapOf("Content-Type" to "text/plain"))
-        }
-    }
+      }
 
-    server {
-        router = r
-        port = 8080
-        routeToHTTPS = false
+      // JSON route
+      io.voidx.page.route("/api/health") {
+        GET {
+          io.voidx.dto.buildResponse<String> {
+            status = 200
+            statusText = "OK"
+            headers["Content-Type"] = "application/json"
+            body = "{\"status\":\"ok\"}"
+          }
+        }
+      }
     }
 }
 ```
 
-Then open http://localhost:8080.
+Then open [http://localhost:8080](http://localhost:8080)
+
+## Commands & Scripts
+
+The project uses Gradle for all common tasks:
+
+- `./gradlew build`: Build all modules.
+- `./gradlew test`: Run all tests.
+- `./gradlew jacocoRootReport`: Generate an aggregate test coverage report (found in `build/reports/jacoco/jacocoRootReport/html/index.html`).
+- `./gradlew docs`: Generate API documentation using Dokka.
+- `./gradlew :docs:run`: Start the documentation server.
+- `./gradlew :docs:buildDocs`: Generate the static documentation site.
+- `./gradlew :docs:exportServerPages`: Export server-rendered doc pages to static HTML.
+- `./gradlew ktlintCheck`: Run linting checks.
+
+## Configuration & Env Vars
+
+Void is designed to be unopinionated and doesn't rely on specific environment variables by default.
 
 ## Principles
 
 #### Unopinionated
-
-Void doesn’t force a particular logging, DI, templating, or persistence stack. Compose apps using functions and small
-DSLs. Middleware integrates via a simple interception mechanism.
+Void doesn’t force a particular logging, DI, templating, or persistence stack. Compose apps using functions and small DSLs. Middleware integrates via a simple interception mechanism.
 
 #### Asynchronous
-
 Request handling uses Kotlin coroutines under the hood to keep I/O non-blocking with a straightforward API.
 
 #### Testable
-
-Pages and routers can be constructed and invoked in tests without spinning up external containers. You can exercise
-handlers directly or run the tiny server in integration tests.
+Pages and routers can be constructed and invoked in tests without spinning up external containers. You can exercise handlers directly or run the tiny server in integration tests.
 
 ## Documentation
 
-Until a dedicated site is available, see this README and the test module for examples. Core entry points:
+Core entry points:
 
-- io.voidx.router.router { }
-- io.voidx.html.page.htmlRoute / apiRoute / dynamicHtmlRoute / dynamicApiRoute
-- io.voidx.server.server { }
+- `io.voidx.router.router { }` — Create and configure a router.
+- `io.voidx.page.route("/path") { GET { ... } }` — Define a page/route.
+- `io.voidx.Server` — Start HTTP/HTTPS servers.
+- `io.voidx.middleware.Relay` — Middleware base for `relayBefore` / `relayAfter`.
+- `io.voidx.bootstrap.Bootstrap` — Module bootstrapper and DX helpers.
 
-## Reporting Issues / Support
+### External modules via Bootstrap
 
-- File bugs and feature requests using GitHub Issues.
-- For questions, Discussions or StackOverflow (tag: kotlin) are recommended.
+Void exposes a lightweight bootstrapper so external modules can hook into internals:
 
-## Reporting Security Vulnerabilities
+- **Page decorators:** Run once when a page is added.
+- **Special routes:** Prioritized pre-dispatch handlers.
+- **Error handlers:** Observe/handle errors produced by the router.
 
-Please follow the process in SECURITY.md for private disclosure.
+Example module:
+
+```kotlin
+class MyModule : io.voidx.bootstrap.Bootstrap.Module {
+    override fun onRouterCreated(ctx: io.voidx.bootstrap.Bootstrap.Context) {
+        ctx.addRoute(
+            io.voidx.page.route("/hello") { GET { io.voidx.dto.ok("hi", mutableMapOf("Content-Type" to "text/plain")) } }
+        )
+    }
+}
+```
+
+Register modules via `META-INF/services/io.voidx.bootstrap.Bootstrap$Module`.
+
+## Testing
+
+The test suite is authoritative and aims for high coverage.
+- Run tests: `./gradlew test`
+- Coverage: `./gradlew jacocoRootReport`
 
 ## Contributing
 
-We welcome contributions of all kinds. Before large changes, please open an issue to discuss direction. Keep PRs
-focused; add tests or examples where appropriate.
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## License
 
-MIT — see LICENSE for details.
+[MIT](LICENSE) — © 2025 Jadiefication
