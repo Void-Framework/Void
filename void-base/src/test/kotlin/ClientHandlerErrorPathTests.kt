@@ -4,7 +4,6 @@ import io.voidx.ClientHandler
 import io.voidx.Server
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.buildResponse
-import io.voidx.handle
 import io.voidx.middleware.relayBefore
 import io.voidx.router.router
 import java.io.ByteArrayInputStream
@@ -13,7 +12,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 

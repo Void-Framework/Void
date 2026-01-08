@@ -4,16 +4,11 @@ import io.voidx.ClientHandler
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
-import io.voidx.dto.emptyResponse
 import io.voidx.dto.writeHTTP
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
-import io.voidx.page.DynamicPage
-import io.voidx.page.ExceptionPage
-import io.voidx.page.NotFoundPage
-import io.voidx.page.Page
-import io.voidx.page.PageHandler
+import io.voidx.page.*
 import io.voidx.router.util.RequestHandler
 import io.voidx.router.util.RouteCheck
 import io.voidx.util.toResult

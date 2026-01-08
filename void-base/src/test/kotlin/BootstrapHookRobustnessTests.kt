@@ -3,7 +3,6 @@ package test
 import io.voidx.Server
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.ok
-import io.voidx.handle
 import io.voidx.page.route
 import io.voidx.router.router
 import java.io.ByteArrayInputStream
@@ -11,10 +10,8 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 private class SockBR(
     private val raw: String,

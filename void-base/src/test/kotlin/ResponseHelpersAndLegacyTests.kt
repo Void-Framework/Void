@@ -1,13 +1,6 @@
 package test
 
-import io.voidx.dto.ResponseBody
-import io.voidx.dto.ResponseDTO
-import io.voidx.dto.badRequest
-import io.voidx.dto.fileDownload
-import io.voidx.dto.guessContentType
-import io.voidx.dto.permanentRedirect
-import io.voidx.dto.redirect
-import io.voidx.dto.temporaryRedirect
+import io.voidx.dto.*
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals

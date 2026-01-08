@@ -1,10 +1,6 @@
 package test
 
-import io.voidx.dto.Cookie
-import io.voidx.dto.ResponseBody
-import io.voidx.dto.SameSite
-import io.voidx.dto.buildResponse
-import io.voidx.dto.cookie
+import io.voidx.dto.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs

@@ -4,7 +4,6 @@ import io.voidx.Server
 import io.voidx.dto.ok
 import io.voidx.handle
 import io.voidx.page.DynamicPage
-import io.voidx.page.route
 import io.voidx.router.router
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
