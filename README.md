@@ -22,19 +22,36 @@ Void is a small, unopinionated framework you can embed into your app. It provide
 
 Quick links
 
-- Security policy: SECURITY.md
-- Roadmap/TODO: TODO.md
-- Contributing guide: CONTRIBUTING.md
-- Code of Conduct: CODE_OF_CONDUCT.md
-- Support: SUPPORT.md
-- License: MIT (LICENSE)
+- Security policy: [SECURITY.md](SECURITY.md)
+- Roadmap/TODO: [TODO.md](TODO.md)
+- Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Code of Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Support: [SUPPORT.md](SUPPORT.md)
+- License: MIT ([LICENSE](LICENSE))
+
+## Tech Stack
+
+- **Language:** [Kotlin 2.2.21](https://kotlinlang.org/)
+- **Build System:** [Gradle 8.x+](https://gradle.org/) (Kotlin DSL)
+- **Minimum Java:** 8 (for library consumers), 21 (for building the project)
+- **Frameworks:** kotlinx-serialization (JSON, CBOR, Protobuf), SLF4J
+- **Distribution:** [JitPack](https://jitpack.io/)
+
+## Project Structure
+
+- `void-base/`: The core framework library.
+  - `src/main/kotlin/io/voidx/`: Core server, router, and DTO logic.
+  - `src/main/kotlin/io/voidx/bootstrap/`: Module bootstrapping system.
+- `docs/`: Documentation module containing a built-in server and static site generator.
+  - `src/main/kotlin/io/voidx/docs/`: Documentation server and export logic.
+- `gradle/`: Gradle wrapper and version catalogs.
 
 ## Get started
 
-Requirements
+### Requirements
 
-- Java 8+
-- Kotlin 2.2.21 (Gradle Kotlin DSL recommended)
+- JDK 21+ (to build)
+- JDK 8+ (to run)
 
 ### Installation (JitPack)
 
@@ -47,158 +64,110 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Jadiefication:Void:<version>")
+    implementation("com.github.Jadiefication:Void:v2.0.0")
 }
 ```
 
 ### Hello, Void
 
-Create a minimal server with one text route and one JSON route (no imports in snippet to keep it copy‑paste friendly):
+Create a minimal server with one text route and one JSON route:
 
 ```kotlin
 fun main() {
-    val r = io.voidx.router.router {
-        // Simple text route
-        addRoute(
-            io.voidx.page.route("/") {
-                GET {
-                    io.voidx.dto.ok(
-                        "Hello, Void!",
-                        mutableMapOf("Content-Type" to "text/plain"),
-                    )
-                }
-            },
-        )
+    val server = io.voidx.simpleServer {
+      io.voidx.page.route("/") {
+        GET {
+          io.voidx.dto.ok("Hello, Void!", mutableMapOf("Content-Type" to "text/plain"))
+        }
+      }
 
-        // JSON route
-        addRoute(
-            io.voidx.page.route("/api/health") {
-                GET {
-                    io.voidx.dto.buildResponse<String> {
-                        status = 200
-                        statusText = "OK"
-                        headers["Content-Type"] = "application/json"
-                        body = "{\"status\":\"ok\"}"
-                    }
-                }
-            },
-        )
+      // JSON route
+      io.voidx.page.route("/api/health") {
+        GET {
+          io.voidx.dto.buildResponse<String> {
+            status = 200
+            statusText = "OK"
+            headers["Content-Type"] = "application/json"
+            body = "{\"status\":\"ok\"}"
+          }
+        }
+      }
     }
-
-    val server = io.voidx.Server(r)
-    server.startHTTPServer(8080)
 }
 ```
 
-Then open http://localhost:8080
+Then open [http://localhost:8080](http://localhost:8080)
+
+## Commands & Scripts
+
+The project uses Gradle for all common tasks:
+
+- `./gradlew build`: Build all modules.
+- `./gradlew test`: Run all tests.
+- `./gradlew jacocoRootReport`: Generate an aggregate test coverage report (found in `build/reports/jacoco/jacocoRootReport/html/index.html`).
+- `./gradlew docs`: Generate API documentation using Dokka.
+- `./gradlew :docs:run`: Start the documentation server.
+- `./gradlew :docs:buildDocs`: Generate the static documentation site.
+- `./gradlew :docs:exportServerPages`: Export server-rendered doc pages to static HTML.
+- `./gradlew ktlintCheck`: Run linting checks.
+
+## Configuration & Env Vars
+
+Void is designed to be unopinionated and doesn't rely on specific environment variables by default.
 
 ## Principles
 
 #### Unopinionated
-
-Void doesn’t force a particular logging, DI, templating, or persistence stack. Compose apps using functions and small
-DSLs. Middleware integrates via a simple interception mechanism.
+Void doesn’t force a particular logging, DI, templating, or persistence stack. Compose apps using functions and small DSLs. Middleware integrates via a simple interception mechanism.
 
 #### Asynchronous
-
 Request handling uses Kotlin coroutines under the hood to keep I/O non-blocking with a straightforward API.
 
 #### Testable
-
-Pages and routers can be constructed and invoked in tests without spinning up external containers. You can exercise
-handlers directly or run the tiny server in integration tests.
+Pages and routers can be constructed and invoked in tests without spinning up external containers. You can exercise handlers directly or run the tiny server in integration tests.
 
 ## Documentation
 
-Until a dedicated site is available, see this README and the test sources for examples. Core entry points:
+Core entry points:
 
-- `io.voidx.router.router { }` — create and configure a router
-- `io.voidx.page.route("/path") { GET { ... } }` — define a page/route
-- `io.voidx.Server` — start HTTP/HTTPS servers
-- `io.voidx.middleware.relayBefore / relayAfter` — global middleware
-- `io.voidx.bootstrap.Bootstrap` — module bootstrapper and DX helpers
+- `io.voidx.router.router { }` — Create and configure a router.
+- `io.voidx.page.route("/path") { GET { ... } }` — Define a page/route.
+- `io.voidx.Server` — Start HTTP/HTTPS servers.
+- `io.voidx.middleware.Relay` — Middleware base for `relayBefore` / `relayAfter`.
+- `io.voidx.bootstrap.Bootstrap` — Module bootstrapper and DX helpers.
 
 ### External modules via Bootstrap
 
-Void exposes a lightweight bootstrapper so external modules can hook into internals without ad‑hoc globals:
+Void exposes a lightweight bootstrapper so external modules can hook into internals:
 
-- Page decorators: run once when a page is added (e.g., register assets, inject metadata)
-- Special routes: prioritized pre‑dispatch handlers that can return a response and short‑circuit normal routing
-- Error handlers: observe/handle errors produced by the router
+- **Page decorators:** Run once when a page is added.
+- **Special routes:** Prioritized pre-dispatch handlers.
+- **Error handlers:** Observe/handle errors produced by the router.
 
-Example module (using fully‑qualified names to keep the snippet standalone):
+Example module:
 
 ```kotlin
 class MyModule : io.voidx.bootstrap.Bootstrap.Module {
     override fun onRouterCreated(ctx: io.voidx.bootstrap.Bootstrap.Context) {
-        // Add a route
         ctx.addRoute(
-            io.voidx.page.route("/hello") { GET { io.voidx.dto.ok("hi", mutableMapOf("Content-Type" to "text/plain")) } },
+            io.voidx.page.route("/hello") { GET { io.voidx.dto.ok("hi", mutableMapOf("Content-Type" to "text/plain")) } }
         )
-
-        // Register a high‑priority special route
-        ctx.addSpecialRoute(priority = 100) { req, query, client ->
-            if (req.headers["X-Special"] == "1") io.voidx.dto.ok("special!") else null
-        }
-
-        // Decorate pages when they are registered
-        ctx.addPageDecorator { page, router ->
-            // e.g., register static resources or annotate page metadata
-        }
-
-        // Observe router errors
-        ctx.addErrorHandler { request, throwable ->
-            // log/telemetry
-        }
     }
 }
 ```
 
-Modules can be discovered automatically using Java ServiceLoader by adding a file:
+Register modules via `META-INF/services/io.voidx.bootstrap.Bootstrap$Module`.
 
-```
-META-INF/services/io.voidx.bootstrap.Bootstrap$Module
-```
+## Testing
 
-whose contents are the fully‑qualified class name, e.g. `com.example.MyModule`.
-
-### Serving static assets from the classpath
-
-From a bootstrap module you can expose resources packaged within your JAR:
-
-```kotlin
-class Assets : io.voidx.bootstrap.Bootstrap.Module {
-    override fun onRouterCreated(ctx: io.voidx.bootstrap.Bootstrap.Context) {
-        ctx.serveClasspathResources("/static", "public")     // serves classpath: public/** under /static/**
-        ctx.serveClasspathFile("/elements.json", "elements.json") // serves a single file
-    }
-}
-```
-
-### HTML/KTS integration
-
-Legacy `io.voidx.util.HtmlIntegration` is deprecated and kept as a no‑op shim. HTML/CSS/JS and KTS integration should
-be provided by an external extension module using the Bootstrap hooks described above.
-
-## Testing philosophy
-
-- The test suite is authoritative and aims for very high (ideally 100%) coverage.
-- When a test reveals a mismatch, prefer updating the framework code to satisfy the test rather than deleting or weakening the test. Tests exist to capture supported behavior and edge cases; removing cases is discouraged.
-
-## Reporting Issues / Support
-
-- File bugs and feature requests using GitHub Issues.
-- For questions, Discussions or StackOverflow (tag: kotlin) are recommended.
-
-## Reporting Security Vulnerabilities
-
-Please follow the process in SECURITY.md for private disclosure.
+The test suite is authoritative and aims for high coverage.
+- Run tests: `./gradlew test`
+- Coverage: `./gradlew jacocoRootReport`
 
 ## Contributing
 
-We welcome contributions of all kinds. Before large changes, please open an issue to discuss direction. Keep PRs
-focused; add tests or examples where appropriate.
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ## License
 
-MIT — see LICENSE for details.
+[MIT](LICENSE) — © 2025 Jadiefication
