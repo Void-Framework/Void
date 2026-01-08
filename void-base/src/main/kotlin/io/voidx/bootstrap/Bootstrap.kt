@@ -23,9 +23,6 @@ import java.util.ServiceLoader
  * - beforeServerStart: Right before a server socket is started.
  * - afterServerStart: After a server socket has started successfully.
  * - onShutdown: When a server socket stops or the application is shutting down.
- *
- * Backward compatibility: existing [ModuleInit] initializers are invoked through a bridge
- * during the first [onRouterCreated] call to preserve current behavior.
  */
 object Bootstrap {
     // ---- Hook registries (explicit Bootstrap-managed, no generic events) ----
@@ -62,7 +59,7 @@ object Bootstrap {
     }
 
     fun unregisterPageDecorator(decorator: (Page, Router) -> Unit) {
-        pageDecorators.forEach { if (it.fn === decorator || it.fn == decorator) it.active = false }
+        pageDecorators.forEach { if (it.fn === decorator) it.active = false }
         pageDecoratorsSnapshot = pageDecorators.filter { it.active }
     }
 
