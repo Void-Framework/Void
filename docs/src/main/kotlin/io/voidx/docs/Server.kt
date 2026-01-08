@@ -98,7 +98,7 @@ val docsHomeRoute =
                         Pre("class" to codeBlock) {
                             Code {
                                 +
-                                """
+                                    """
                                     plugins {
                                         kotlin("jvm") version "2.2.21"
                                     }
@@ -119,7 +119,7 @@ val docsHomeRoute =
                         Pre("class" to codeBlock) {
                             Code {
                                 +
-                                """
+                                    """
                                     fun hello(): Element = Div {
                                         H1 { +"Hello, Void!" }
                                     }
@@ -132,10 +132,22 @@ val docsHomeRoute =
                     Section("id" to "concepts", "class" to section) {
                         H2("class" to heading) { +"Core Concepts" }
                         Ul("class" to "prose prose-slate max-w-none") {
-                            Li { Strong { +"Page" }; +": returns a ResponseDTO." }
-                            Li { Strong { +"Route" }; +": maps a path to a handler or page." }
-                            Li { Strong { +"Middleware" }; +": before/after pipeline hooks." }
-                            Li { Strong { +"Metadata" }; +": controls <head> tags and assets." }
+                            Li {
+                                Strong { +"Page" }
+                                +": returns a ResponseDTO."
+                            }
+                            Li {
+                                Strong { +"Route" }
+                                +": maps a path to a handler or page."
+                            }
+                            Li {
+                                Strong { +"Middleware" }
+                                +": before/after pipeline hooks."
+                            }
+                            Li {
+                                Strong { +"Metadata" }
+                                +": controls <head> tags and assets."
+                            }
                         }
                     }
 
@@ -146,7 +158,7 @@ val docsHomeRoute =
                         Pre("class" to codeBlock) {
                             Code {
                                 +
-                                """
+                                    """
                                     val home = route("/") {
                                         GET { _ -> html { H1 { +"Home" } } }
                                     }
@@ -165,7 +177,7 @@ val docsHomeRoute =
                         Pre("class" to codeBlock) {
                             Code {
                                 +
-                                """
+                                    """
                                     val search = route("/search") {
                                         GET { _ ->
                                             val q = docsHomeRoute.queries["q"] ?: ""
@@ -183,7 +195,7 @@ val docsHomeRoute =
                         Pre("class" to codeBlock) {
                             Code {
                                 +
-                                """
+                                    """
                                     val page = route("/dsl") {
                                         GET { _ ->
                                             html {
@@ -205,7 +217,7 @@ val docsHomeRoute =
                         Pre("class" to codeBlock) {
                             Code {
                                 +
-                                """
+                                    """
                                     fun main() {
                                         simpleServer {
                                             route(docsHomeRoute)
@@ -222,7 +234,7 @@ val docsHomeRoute =
                         Pre("class" to codeBlock) {
                             Code {
                                 +
-                                """
+                                    """
                                     docsHomeRoute.metadata = metadata(docsHomeRoute) {
                                         title = "Docs — Void"
                                         description = "My docs"
@@ -239,7 +251,7 @@ val docsHomeRoute =
                         Pre("class" to codeBlock) {
                             Code {
                                 +
-                                """
+                                    """
                                     fun main() = io.voidx.docs.main() // build/pages/index.html
                                     """.trimIndent()
                             }
