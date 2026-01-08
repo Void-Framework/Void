@@ -1,8 +1,5 @@
 package io.voidx.page
 
-import io.voidx.dto.RequestDTO
-import io.voidx.dto.ResponseDTO
-
 typealias Path = String
 
 /**

@@ -5,9 +5,7 @@ package io.voidx.docs
 import io.voidx.dto.buildResponse
 import io.voidx.dto.headers
 import io.voidx.html.generated.*
-import io.voidx.html.metadata.metadata
 import io.voidx.html.page.html
-import io.voidx.html.page.metadata
 import io.voidx.page.route
 import io.voidx.simpleServer
 

@@ -5,7 +5,6 @@ import io.voidx.dto.buildResponse
 import io.voidx.dto.cookie
 import io.voidx.dto.writeHTTP
 import java.io.ByteArrayOutputStream
-import java.io.PrintWriter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

@@ -10,7 +10,7 @@ import io.voidx.page.Page
 import io.voidx.page.PageHandler
 import io.voidx.router.Router
 import io.voidx.router.listResourcePaths
-import java.util.ServiceLoader
+import java.util.*
 
 /**
  * Lightweight bootstrapping service and module lifecycle for Void.

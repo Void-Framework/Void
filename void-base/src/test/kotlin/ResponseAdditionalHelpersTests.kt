@@ -1,20 +1,6 @@
 package test
 
-import io.voidx.dto.Cookie
-import io.voidx.dto.ResponseBody
-import io.voidx.dto.SameSite
-import io.voidx.dto.badGateway
-import io.voidx.dto.conflict
-import io.voidx.dto.forbidden
-import io.voidx.dto.gatewayTimeout
-import io.voidx.dto.internalServerError
-import io.voidx.dto.notFound
-import io.voidx.dto.notImplemented
-import io.voidx.dto.serviceUnavailable
-import io.voidx.dto.teapot
-import io.voidx.dto.tooManyRequests
-import io.voidx.dto.unauthorized
-import io.voidx.dto.writeHTTP
+import io.voidx.dto.*
 import java.io.ByteArrayOutputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals

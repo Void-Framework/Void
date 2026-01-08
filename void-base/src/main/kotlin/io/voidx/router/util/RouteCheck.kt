@@ -2,11 +2,7 @@ package io.voidx.router.util
 
 import io.voidx.dto.buildResponse
 import io.voidx.dto.headers
-import io.voidx.page.ExceptionPage
-import io.voidx.page.NotFoundPage
-import io.voidx.page.Page
-import io.voidx.page.exceptionPage
-import io.voidx.page.notFoundPage
+import io.voidx.page.*
 import io.voidx.router.exceptions.RouteNoTargetException
 import io.voidx.router.exceptions.RouteTargetUsedException
 import java.util.concurrent.ConcurrentHashMap
