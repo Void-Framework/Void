@@ -43,8 +43,6 @@ Quick links
 - `void-base/`: The core framework library.
   - `src/main/kotlin/io/voidx/`: Core server, router, and DTO logic.
   - `src/main/kotlin/io/voidx/bootstrap/`: Module bootstrapping system.
-- `docs/`: Documentation module containing a built-in server and static site generator.
-  - `src/main/kotlin/io/voidx/docs/`: Documentation server and export logic.
 - `gradle/`: Gradle wrapper and version catalogs.
 
 ## Get started
