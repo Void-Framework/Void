@@ -54,7 +54,6 @@ tasks.register<JacocoReport>("jacocoRootReport") {
 
     dependsOn("test")
     dependsOn("ktlintKotlinScriptCheck")
-    dependsOn("docs:startScripts")
 
     // Collect execution data from subprojects
     executionData(
