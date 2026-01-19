@@ -30,5 +30,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "void-framework"
 include(":void-base")
-
-include(":docs")

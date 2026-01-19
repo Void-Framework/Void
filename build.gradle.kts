@@ -14,7 +14,6 @@ plugins {
 
 group = "io.jadiefication"
 version = "2.1.0"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
@@ -25,11 +24,6 @@ tasks.withType<Javadoc> {
 }
 
 // Convenience task to build multi-module HTML docs under build/dokka
-tasks.register("docs") {
-    group = "documentation"
-    description = "Generates aggregated HTML API docs for all modules"
-    dependsOn(":dokkaHtmlMultiModule")
-}
 
 // Configure JaCoCo coverage for all subprojects
 subprojects {
