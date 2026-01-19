@@ -28,6 +28,7 @@ Quick links
 - Code of Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 - Support: [SUPPORT.md](SUPPORT.md)
 - License: MIT ([LICENSE](LICENSE))
+- Wiki: [DeepWiki](https://deepwiki.com/Void-Framework/Void)
 
 ## Tech Stack
 
@@ -64,7 +65,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Jadiefication:Void:v2.0.0")
+    implementation("com.github.Jadiefication:Void:VERSION")
 }
 ```
 
@@ -105,10 +106,6 @@ The project uses Gradle for all common tasks:
 - `./gradlew build`: Build all modules.
 - `./gradlew test`: Run all tests.
 - `./gradlew jacocoRootReport`: Generate an aggregate test coverage report (found in `build/reports/jacoco/jacocoRootReport/html/index.html`).
-- `./gradlew docs`: Generate API documentation using Dokka.
-- `./gradlew :docs:run`: Start the documentation server.
-- `./gradlew :docs:buildDocs`: Generate the static documentation site.
-- `./gradlew :docs:exportServerPages`: Export server-rendered doc pages to static HTML.
 - `./gradlew ktlintCheck`: Run linting checks.
 
 ## Configuration & Env Vars
