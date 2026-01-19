@@ -4,7 +4,7 @@
 
 plugins {
     `java-library`
-    kotlin("jvm") version "2.2.21"
+    kotlin("jvm") version "2.3.0"
 
     id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
     // API docs generation
