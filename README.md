@@ -9,6 +9,9 @@
     <a href="https://kotlinlang.org"><img alt="Kotlin" src="https://img.shields.io/badge/kotlin-2.2.21-blue.svg?logo=kotlin"></a>
     <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
     <a href="https://gitpod.io/#https://github.com/Jadiefication/Void"><img alt="Contribute with Gitpod" src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod"></a>
+<a href="https://codecov.io/github/Void-Framework/Void" > 
+ <img src="https://codecov.io/github/Void-Framework/Void/graph/badge.svg?token=YW4IFKF62X"/> 
+ </a>
   </p>
 </div>
 
