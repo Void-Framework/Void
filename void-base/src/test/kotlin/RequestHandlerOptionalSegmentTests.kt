@@ -60,6 +60,6 @@ class RequestHandlerOptionalSegmentTests {
         val out = sock.text()
         // Should hit 404 rather than dynamic route
         assertTrue(out.startsWith("HTTP/1.1 200 OK\n"), out)
-        assertEquals(out.substringAfter("\n\n").trim(), "dyn", out)
+        assertEquals("dyn", out.substringAfter("\n\n").trim(), out)
     }
 }
