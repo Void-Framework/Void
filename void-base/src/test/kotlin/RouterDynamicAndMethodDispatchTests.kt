@@ -137,7 +137,7 @@ class RouterDynamicAndMethodDispatchTests {
     }
 
     @Test
-    fun dynamic_routes_ignore_favicon_and_fall_back_to_404() {
+    fun dynamic_routes_dont_ignore_favicon() {
         val r = router { }
         // This would normally match any single segment, including "favicon.ico" without the special-case bypass
         r.addRoute(
@@ -161,8 +161,7 @@ class RouterDynamicAndMethodDispatchTests {
         sock.handle(srv, r)
 
         val raw = sock.text()
-        assertTrue(raw.startsWith("HTTP/1.1 404 Not Found\n"), raw)
-        // Default 404 page contains this marker in the HTML title
-        assertTrue(raw.contains("404 | Page Not Found"), raw)
+        assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
+        assertEquals("matched", raw.substringAfter("\n\n"))
     }
 }
