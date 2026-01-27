@@ -43,7 +43,6 @@ internal interface RequestHandler {
         query: Map<String, String>,
     ): ResponseDTO? {
         val requestTarget = requestDTO.target
-        if (requestTarget.endsWith("favicon.ico")) return null
         val url = requestTarget.split('/').toMutableList()
         dynamicRoutes.forEach { (target, route) ->
             val dynamics = mutableMapOf<Path, String>()
