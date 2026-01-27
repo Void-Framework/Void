@@ -23,20 +23,13 @@ internal interface RequestHandler {
     }
 
     /**
-     * Attempts to resolve the incoming [requestDTO] against registered dynamic routes.
+     * Resolve the incoming request against registered dynamic routes and produce a response for the first matching route.
      *
-     * Matching rules:
-     * - Route patterns are tokenized by '/'. Static segments must match exactly.
-     * - Dynamic segments use "{name}" syntax and accept any single path token; the
-     *   captured values are exposed to the page in [DynamicPage._data].
-     * - Optional trailing segments use "{name?}" and may be omitted by the request.
-     * - A single trailing slash at the end of either the request or pattern is ignored.
+     * Dynamic route segments use `{name}` to capture a single path token and `{name?}` for an optional trailing segment; static segments must match exactly and a single trailing slash on either side is ignored. When a match is found the page's `_data`, `request`, and `queries` are populated, the page's "before" middleware is executed, and the page content is returned.
      *
-     * If a route matches, the page's request context and [query] map are populated, the
-     * page BEFORE middleware is executed, and finally [DynamicPage.content] is produced.
-     *
-     * @return a [ResponseDTO] when a dynamic route matches; null otherwise so callers can
-     *         fall back to static routes or 404 handling.
+     * @param requestDTO The incoming request to match.
+     * @param query Map of query parameters to attach to the matched page.
+     * @return A `ResponseDTO` for the matched dynamic route, or `null` if no dynamic route matches.
      */
     fun handleDynamic(
         requestDTO: RequestDTO,
