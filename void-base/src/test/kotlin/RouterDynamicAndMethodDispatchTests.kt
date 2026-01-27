@@ -161,8 +161,7 @@ class RouterDynamicAndMethodDispatchTests {
         sock.handle(srv, r)
 
         val raw = sock.text()
-        assertTrue(!raw.startsWith("HTTP/1.1 404 Not Found\n"), raw)
-        // Default 404 page contains this marker in the HTML title
-        assertTrue(!raw.contains("404 | Page Not Found"), raw)
+        assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
+        assertEquals("matched", raw.substringAfter("\n\n"))
     }
 }
