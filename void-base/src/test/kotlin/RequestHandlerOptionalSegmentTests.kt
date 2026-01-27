@@ -11,10 +11,11 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 private class SockROS(
-    private val raw: String,
+    raw: String,
 ) : Socket() {
     private val inBytes = ByteArrayInputStream(raw.toByteArray())
     private val outBytes = ByteArrayOutputStream()
@@ -44,7 +45,7 @@ class RequestHandlerOptionalSegmentTests {
     }
 
     @Test
-    fun favicon_is_ignored_by_dynamic_matching_and_yields_404() {
+    fun favicon_is_not_ignored_by_dynamic_matching() {
         val r = router { }
         // A dynamic that would match anything under root if not for favicon bypass
         val p =
@@ -58,6 +59,7 @@ class RequestHandlerOptionalSegmentTests {
         sock.handle(srv, r)
         val out = sock.text()
         // Should hit 404 rather than dynamic route
-        assertTrue(out.startsWith("HTTP/1.1 404 Not Found\n"), out)
+        assertTrue(out.startsWith("HTTP/1.1 200 OK\n"), out)
+        assertEquals("dyn", out.substringAfter("\n\n").trim(), out)
     }
 }
