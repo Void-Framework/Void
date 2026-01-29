@@ -87,7 +87,7 @@ class BaseCoreTests {
 
         val req = buildRequest { target = "/hello" }
         page.request = req
-        val short = page.middlewareProcessBefore(Result.success(req))
+        val short = page.middlewareProcessBefore()
         assertNotNull(short)
         page.middlewareProcessAfter(Result.success(short))
         assertTrue(afterCalled)
