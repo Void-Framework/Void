@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "io.jadiefication"
-version = "2.1.1"
+version = "2.2.0"
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
