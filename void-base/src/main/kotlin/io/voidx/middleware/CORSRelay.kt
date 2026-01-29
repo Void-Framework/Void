@@ -11,10 +11,12 @@ fun Page.corsMiddleware(allowedOrigins: Set<String>? = null) {
             val origin = req["Origin"]
             val allowOrigin =
                 when {
+                    origin == null -> null
                     allowedOrigins == null -> "*"
-                    origin != null && origin in allowedOrigins -> origin
+                    origin in allowedOrigins -> origin
                     else -> null
                 }
+            val allowCredentials = allowOrigin != "*" && allowOrigin != null
 
             if (req.method == Method.OPTIONS) {
                 val headers = mutableMapOf<String, String>()
@@ -22,7 +24,9 @@ fun Page.corsMiddleware(allowedOrigins: Set<String>? = null) {
                     headers["Access-Control-Allow-Origin"] = allowOrigin
                     headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
                     headers["Access-Control-Allow-Headers"] = "*"
-                    headers["Access-Control-Allow-Credentials"] = "true"
+                    if (allowCredentials) {
+                        headers["Access-Control-Allow-Credentials"] = "true"
+                    }
                 }
                 return@relayBefore buildResponse {
                     status = 200
@@ -43,16 +47,20 @@ fun Page.corsMiddleware(allowedOrigins: Set<String>? = null) {
             val origin = resp.request["Origin"]
             val allowOrigin =
                 when {
+                    origin == null -> null
                     allowedOrigins == null -> "*"
-                    origin != null && origin in allowedOrigins -> origin
+                    origin in allowedOrigins -> origin
                     else -> null
                 }
+            val allowCredentials = allowOrigin != "*" && allowOrigin != null
 
             if (allowOrigin != null) {
                 resp.headers["Access-Control-Allow-Origin"] = allowOrigin
                 resp.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
                 resp.headers["Access-Control-Allow-Headers"] = "*"
-                resp.headers["Access-Control-Allow-Credentials"] = "true"
+                if (allowCredentials) {
+                    resp.headers["Access-Control-Allow-Credentials"] = "true"
+                }
             }
         },
     )
