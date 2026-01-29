@@ -9,6 +9,7 @@ import io.voidx.page.Page
 import io.voidx.page.route
 import io.voidx.router.router
 import io.voidx.util.toResult
+import org.junit.jupiter.api.Assertions.assertNotNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -26,16 +27,18 @@ class CorsMiddlewareTests {
             buildRequest {
                 method = Method.OPTIONS
                 headers["Origin"] = "http://example.com"
+                headers["Access-Control-Request-Method"] = "POST" // required for preflight
             }
 
         val resp = page.middlewareProcessBefore()
         resp?.let { page.middlewareProcessAfter(resp.toResult()) }
+        assertNotNull(resp)
         assertEquals(200, resp?.status)
         assertEquals("", resp?.body?.body as String)
         assertEquals("*", resp.headers["Access-Control-Allow-Origin"])
         assertEquals("GET, POST, PUT, DELETE, OPTIONS", resp.headers["Access-Control-Allow-Methods"])
         assertEquals("*", resp.headers["Access-Control-Allow-Headers"])
-        assertEquals("true", resp.headers["Access-Control-Allow-Credentials"])
+        assertNull(resp.headers["Access-Control-Allow-Credentials"])
     }
 
     @Test
