@@ -74,7 +74,7 @@ internal interface RequestHandler {
             route.request = requestDTO
             route.queries = query
 
-            val response = route.middlewareProcessBefore(requestDTO.toResult())
+            val response = route.middlewareProcessBefore()
             val produced = response ?: route.content()
 
             return produced

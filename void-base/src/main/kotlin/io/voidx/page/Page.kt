@@ -5,6 +5,7 @@ import io.voidx.dto.ResponseDTO
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
+import io.voidx.util.toResult
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -72,10 +73,11 @@ abstract class Page(
      * Runs all registered [RelayBefore] middlewares. If any returns a non-null [ResponseDTO],
      * the processing is short-circuited and that response is returned.
      */
-    fun middlewareProcessBefore(requestDTO: Result<RequestDTO>): ResponseDTO? {
+    fun middlewareProcessBefore(): ResponseDTO? {
         relaysBefore.forEach {
-            val newResponse = (it as? RelayBefore)?.processBefore(requestDTO)
+            val newResponse = (it as? RelayBefore)?.processBefore(request.toResult())
             if (newResponse != null) {
+                newResponse._request = request
                 return newResponse
             }
         }
