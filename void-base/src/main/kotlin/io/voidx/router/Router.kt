@@ -210,7 +210,7 @@ class Router :
                             page.request = requestDTO
                             // Per-page event system removed; keep behavior otherwise
 
-                            page.middlewareProcessBefore(requestDTO.toResult())
+                            page.middlewareProcessBefore()
                                 ?: handleResponse(page, clientHandler, target)
                         }
                     } else {
@@ -222,7 +222,7 @@ class Router :
                                     page.queries = query
                                     page.request = requestDTO
                                     // No per-page events; just run middleware/content
-                                    page.middlewareProcessBefore(requestDTO.toResult())
+                                    page.middlewareProcessBefore()
                                         ?: page.content()
                                 }
                             }
