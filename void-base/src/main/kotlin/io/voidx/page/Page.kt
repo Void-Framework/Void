@@ -5,6 +5,7 @@ import io.voidx.dto.ResponseDTO
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
+import io.voidx.util.toResult
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -17,7 +18,6 @@ import kotlin.reflect.full.createInstance
 abstract class Page(
     open val target: String,
 ) {
-
     /** The current request bound to this page during handling. */
     lateinit var request: RequestDTO
     internal val relaysBefore = mutableListOf<Relay>()
@@ -70,13 +70,18 @@ abstract class Page(
     }
 
     /**
-     * Runs all registered [RelayBefore] middlewares. If any returns a non-null [ResponseDTO],
-     * the processing is short-circuited and that response is returned.
+     * Execute registered BEFORE middlewares and return the first middleware-produced response.
+     *
+     * If a middleware returns a non-null ResponseDTO, that response will have its `_request`
+     * property set to this page's current request before being returned.
+     *
+     * @return The first `ResponseDTO` produced by a BEFORE middleware with its `_request` set, or `null` if none produced a response.
      */
-    fun middlewareProcessBefore(requestDTO: Result<RequestDTO>): ResponseDTO? {
+    fun middlewareProcessBefore(): ResponseDTO? {
         relaysBefore.forEach {
-            val newResponse = (it as? RelayBefore)?.processBefore(requestDTO)
+            val newResponse = (it as? RelayBefore)?.processBefore(request.toResult())
             if (newResponse != null) {
+                newResponse._request = request
                 return newResponse
             }
         }

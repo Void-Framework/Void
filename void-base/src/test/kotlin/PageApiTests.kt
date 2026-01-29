@@ -59,7 +59,8 @@ class PageApiTests {
         val req = RequestDTO(method = io.voidx.Method.GET, target = "/p", headers = mutableMapOf(), body = "")
 
         // BEFORE should short-circuit and return a response
-        val short = page.middlewareProcessBefore(Result.success(req))
+        page.request = req
+        val short = page.middlewareProcessBefore()
         assertNotNull(short)
         assertEquals(401, short.status)
         assertTrue(short.body is ResponseBody.StringBody)
