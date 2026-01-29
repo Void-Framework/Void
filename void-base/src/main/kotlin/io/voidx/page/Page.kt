@@ -70,8 +70,12 @@ abstract class Page(
     }
 
     /**
-     * Runs all registered [RelayBefore] middlewares. If any returns a non-null [ResponseDTO],
-     * the processing is short-circuited and that response is returned.
+     * Execute registered BEFORE middlewares and return the first middleware-produced response.
+     *
+     * If a middleware returns a non-null ResponseDTO, that response will have its `_request`
+     * property set to this page's current request before being returned.
+     *
+     * @return The first `ResponseDTO` produced by a BEFORE middleware with its `_request` set, or `null` if none produced a response.
      */
     fun middlewareProcessBefore(): ResponseDTO? {
         relaysBefore.forEach {

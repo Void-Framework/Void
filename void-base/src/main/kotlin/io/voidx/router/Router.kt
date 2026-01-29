@@ -167,15 +167,12 @@ class Router :
     }
 
     /**
-     * Dispatches an incoming [requestDTO] through middleware and the matched page, then
-     * writes the response to the [clientHandler]'s socket.
+     * Dispatches an incoming request through middleware and the matched page, then writes the resulting HTTP response to the client's socket.
      *
-     * Order of operations:
-     * 1. Global BEFORE middleware
-     * 2. KTS handler if request contains the header "KTS-Request"
-     * 3. Static page by exact path, or dynamic route matching
-     * 4. Per-page BEFORE middleware, page content, per-page AFTER middleware
-     * 5. Global AFTER middleware
+     * Resolves the target and query from the request, runs global BEFORE middleware (which may short-circuit), gives special/KTS handlers a chance to handle the request, then resolves a static or dynamic page (falling back to the configured 404). For resolved pages the function runs per-page BEFORE (which may short-circuit) and per-page AFTER middleware, runs global AFTER middleware, attaches the original request to the response, and writes the response using the server's HTTP version.
+     *
+     * @param requestDTO The incoming request data transfer object.
+     * @param clientHandler The client handler containing the socket and server context used to write the response.
      */
     internal fun route(
         requestDTO: RequestDTO,
