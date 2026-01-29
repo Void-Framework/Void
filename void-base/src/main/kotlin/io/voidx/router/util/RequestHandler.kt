@@ -23,13 +23,18 @@ internal interface RequestHandler {
     }
 
     /**
-     * Resolve the incoming request against registered dynamic routes and produce a response for the first matching route.
+     * Resolves an incoming request against registered dynamic routes and returns the response for the first matching route.
      *
-     * Dynamic route segments use `{name}` to capture a single path token and `{name?}` for an optional trailing segment; static segments must match exactly and a single trailing slash on either side is ignored. When a match is found the page's `_data`, `request`, and `queries` are populated, the page's "before" middleware is executed, and the page content is returned.
+     * Dynamic route segments use `{name}` to capture a single path token and `{name?}` for an optional trailing segment.
+     * Static segments must match exactly; a single trailing empty segment (a trailing slash) on either side is ignored.
      *
-     * @param requestDTO The incoming request to match.
-     * @param query Map of query parameters to attach to the matched page.
-     * @return A `ResponseDTO` for the matched dynamic route, or `null` if no dynamic route matches.
+     * When a route matches, the route's `_data` is populated with captured segments, `request` is set to `requestDTO`,
+     * `queries` is set to `query`, the route's before-middleware is executed, and the middleware result is used if not null;
+     * otherwise the route's content is returned.
+     *
+     * @param requestDTO The incoming request whose target path will be matched against dynamic routes.
+     * @param query Query parameters to attach to the matched page.
+     * @return A `ResponseDTO` produced by the matched route (middleware result or page content), or `null` if no route matches.
      */
     fun handleDynamic(
         requestDTO: RequestDTO,
@@ -83,7 +88,12 @@ internal interface RequestHandler {
     }
 
     /**
-     * Returns a [ResponseDTO] for a static [page], [Page.content] is evaluated.
+     * Obtain the response for a static page by evaluating its content.
+     *
+     * @param page The static page whose content will be evaluated to build the response.
+     * @param clientHandler The client handler associated with the request (provided for context).
+     * @param target The request target path that led to this page.
+     * @return The ResponseDTO produced by the page's content.
      */
     fun handleResponse(
         page: Page,

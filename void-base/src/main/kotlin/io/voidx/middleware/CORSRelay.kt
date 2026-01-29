@@ -4,6 +4,18 @@ import io.voidx.Method
 import io.voidx.dto.buildResponse
 import io.voidx.page.Page
 
+/**
+ * Registers CORS middleware on this Page to handle OPTIONS preflight requests and to attach
+ * Access-Control-Allow-* headers to normal responses.
+ *
+ * When a request is an OPTIONS preflight, the middleware short-circuits with a 200 OK response
+ * and appropriate CORS headers. For non-OPTIONS requests, the middleware adds the same CORS
+ * headers to the outgoing response when the origin is allowed.
+ *
+ * @param allowedOrigins Set of allowed Origin values. If `null`, the middleware uses the wildcard
+ *   `"*"` for Access-Control-Allow-Origin; if non-null, only requests whose Origin exactly matches
+ *   an entry in the set will receive CORS headers.
+ */
 fun Page.corsMiddleware(allowedOrigins: Set<String>? = null) {
     before(
         relayBefore { pReq ->
