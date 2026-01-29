@@ -46,13 +46,6 @@ class PageApiTests {
     fun page_defaults_and_middleware_via_kclass_and_instance() {
         val page = P()
 
-        // Defaults
-        assertTrue(page.includeTailwind)
-        assertTrue(page.includeKts)
-        assertTrue(page.classAttributes.isEmpty())
-        assertTrue(page.cssFiles.isEmpty())
-        assertTrue(page.attributes.isEmpty())
-
         // Register BEFORE via KClass (createInstance path) with unchecked cast to match signature
         @Suppress("UNCHECKED_CAST")
         val k: kotlin.reflect.KClass<io.voidx.middleware.RelayBefore> = TestBefore::class as kotlin.reflect.KClass<io.voidx.middleware.RelayBefore>

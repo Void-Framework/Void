@@ -17,19 +17,9 @@ import kotlin.reflect.full.createInstance
 abstract class Page(
     open val target: String,
 ) {
-    /** List of css classes. */
-    val classAttributes: MutableSet<String> = mutableSetOf()
 
     /** The current request bound to this page during handling. */
     lateinit var request: RequestDTO
-
-    /**
-     * Names of external CSS resource files to include for this page.
-     *
-     * Use the Page invocation operator (page("style.css")) to populate this list with
-     * resources discovered under resources/css.
-     */
-    val cssFiles = mutableListOf<String>()
     internal val relaysBefore = mutableListOf<Relay>()
     internal val relaysAfter = mutableListOf<Relay>()
 
@@ -38,12 +28,6 @@ abstract class Page(
      * Intended for internal use by middleware and handlers.
      */
     val attributes: MutableMap<String, Any> = mutableMapOf()
-
-    /** Whether to include the compiled Tailwind. */
-    val includeTailwind = true
-
-    /** Whether to include the kts script. */
-    val includeKts = true
 
     /** URL query parameters for the current request. */
     lateinit var queries: Map<String, String>
