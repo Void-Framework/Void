@@ -17,7 +17,6 @@ import kotlin.reflect.full.createInstance
 abstract class Page(
     open val target: String,
 ) {
-
     /** The current request bound to this page during handling. */
     lateinit var request: RequestDTO
     internal val relaysBefore = mutableListOf<Relay>()
