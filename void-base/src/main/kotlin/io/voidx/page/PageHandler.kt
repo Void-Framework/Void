@@ -10,7 +10,7 @@ import io.voidx.dto.emptyResponse
  *
  * Use infix functions like `on("/path") GET { ... }` to register handlers per HTTP method.
  */
-class PageHandler(
+open class PageHandler(
     override val target: String,
 ) : DynamicPage(
         target = target,
