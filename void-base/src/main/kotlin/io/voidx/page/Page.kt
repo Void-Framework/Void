@@ -19,7 +19,8 @@ abstract class Page(
     open val target: String,
 ) {
     /** The current request bound to this page during handling. */
-    lateinit var request: RequestDTO
+    open lateinit var request: RequestDTO
+        internal set
     internal val relaysBefore = mutableListOf<Relay>()
     internal val relaysAfter = mutableListOf<Relay>()
 
