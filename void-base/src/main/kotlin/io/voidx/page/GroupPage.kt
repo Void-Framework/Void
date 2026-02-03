@@ -4,6 +4,29 @@ import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.dto.emptyResponse
 
+/**
+ * Lightweight page container that supports route grouping and hierarchical dispatching.
+ *
+ * `GroupPage` allows organizing related routes under a common path prefix. It extends [PageHandler],
+ * meaning it can handle HTTP methods directly while also delegating to nested routes.
+ *
+ * Typical usage involves using [groupRoute] or [group] to define a hierarchy:
+ * ```kotlin
+ * groupRoute("/api") {
+ *     group("/v1") {
+ *         GET { ok("version 1") }
+ *     }
+ * }
+ * ```
+ *
+ * Behavior and Guarantees:
+ * - Nested routes inherit middleware ([relaysBefore], [relaysAfter]) from their parent group at the time of creation.
+ * - When [content] is called, it first attempts to delegate to a child route that matches the [request] target.
+ * - If no child matches, it falls back to method handlers registered on the group itself.
+ * - [target] paths are concatenated: a group "/api" with a sub-group "/v1" results in a target of "/api/v1".
+ *
+ * @param target The base path prefix for this group (e.g., "/api").
+ */
 class GroupPage(
     override val target: String,
 ) : PageHandler(target) {
