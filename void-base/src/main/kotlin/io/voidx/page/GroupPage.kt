@@ -36,7 +36,7 @@ class GroupPage(
             super.request = value
             routes.forEach { it.request = value }
         }
-    private val routes = mutableSetOf<PageHandler>()
+    private val routes = mutableListOf<PageHandler>()
 
     /**
      * Creates and registers a nested GroupPage under the current page using the given path.
@@ -67,9 +67,12 @@ class GroupPage(
     override fun content(): ResponseDTO {
         val handledByChild =
             routes
+                .sortedByDescending { it.target.length }
                 .find { child ->
                     when (child) {
-                        is GroupPage -> child.target == request.target || request.target.startsWith(child.target)
+                        is GroupPage -> child.target == request.target ||
+                                (request.target.startsWith(child.target) &&
+                                (request.target.length == child.target.length || request.target[child.target.length] == '/'))
                         else -> child.target == request.target
                     }
                 }?.content()
