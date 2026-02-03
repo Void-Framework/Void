@@ -1,5 +1,6 @@
 package test
 
+import io.voidx.ClientHandler
 import io.voidx.Method
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.buildRequest
@@ -9,6 +10,9 @@ import io.voidx.page.PageHandler
 import io.voidx.page.path
 import io.voidx.page.route
 import io.voidx.router.Router
+import io.voidx.router.router
+import io.voidx.simpleServer
+import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -339,7 +343,7 @@ class RequestHandlerEnhancedTests {
             }
         page.request = buildRequest { method = Method.GET }
 
-        val resp = handler.handleResponse(page, null as io.voidx.ClientHandler?, "/test")
+        val resp = handler.handleResponse(page, ClientHandler(Socket(), simpleServer {  }, router {      }), "/test")
 
         assertEquals("response", resp.body.body as String)
     }

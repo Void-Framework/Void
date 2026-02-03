@@ -16,6 +16,7 @@ import io.voidx.page.Page
 import io.voidx.page.exceptionPage
 import io.voidx.page.notFoundPage
 import io.voidx.util.toResult
+import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -65,7 +66,7 @@ class PageEnhancedTests {
         }
 
         val page = TestPage()
-        page.before(TestBeforeRelay::class)
+        page.before(TestBeforeRelay::class as KClass<RelayBefore>)
         page.request = buildRequest { method = Method.GET }
 
         val resp = page.middlewareProcessBefore()
@@ -86,7 +87,7 @@ class PageEnhancedTests {
 
         val page = TestPage()
         val afterRelay = TestAfterRelay()
-        page.after(afterRelay::class)
+        page.after(afterRelay::class as KClass<RelayAfter>)
         page.request = buildRequest { method = Method.GET }
 
         val resp = page.content()

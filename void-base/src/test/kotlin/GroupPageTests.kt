@@ -5,9 +5,12 @@ import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseBody
 import io.voidx.dto.ok
 import io.voidx.middleware.RelayBefore
+import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
 import io.voidx.page.GroupPage
 import io.voidx.page.groupRoute
+import io.voidx.util.toResult
+import org.junit.jupiter.api.Assertions.assertNotNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -335,7 +338,7 @@ class GroupPageTests {
         root.request = RequestDTO(Method.GET, "/api/v1", mutableMapOf(), "")
         val middlewareResp = root.middlewareProcessBefore()
         assertNotNull(middlewareResp)
-        assertEquals("blocked", (middlewareResp.body as ResponseBody.StringBody).body)
+        assertEquals("blocked", (middlewareResp?.body as ResponseBody.StringBody).body)
     }
 
     @Test
