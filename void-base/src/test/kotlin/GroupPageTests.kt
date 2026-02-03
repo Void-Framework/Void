@@ -9,15 +9,15 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GroupPageTests {
-
     @Test
     fun `test basic grouping and routing`() {
-        val root = groupRoute("/api") {
-            group("/v1") {
-                GET { ok("v1 get") }
+        val root =
+            groupRoute("/api") {
+                group("/v1") {
+                    GET { ok("v1 get") }
+                }
+                GET { ok("api get") }
             }
-            GET { ok("api get") }
-        }
 
         // Test root group GET
         root.request = RequestDTO(Method.GET, "/api", mutableMapOf(), "")
@@ -38,13 +38,14 @@ class GroupPageTests {
 
     @Test
     fun `test nested grouping targets`() {
-        val root = groupRoute("/a") {
-            group("/b") {
-                group("/c") {
-                    GET { ok("abc") }
+        val root =
+            groupRoute("/a") {
+                group("/b") {
+                    group("/c") {
+                        GET { ok("abc") }
+                    }
                 }
             }
-        }
 
         val req = RequestDTO(Method.GET, "/a/b/c", mutableMapOf(), "")
         root.request = req
@@ -54,19 +55,22 @@ class GroupPageTests {
         assertEquals("abc", (resp.body as ResponseBody.StringBody).body)
     }
 
-    class TestRelay(override val priority: Int = 0) : RelayBefore {
+    class TestRelay(
+        override val priority: Int = 0,
+    ) : RelayBefore {
         override fun processBefore(requestDTO: Result<RequestDTO>) = null
     }
 
     @Test
     fun `test middleware propagation`() {
         val relay1 = TestRelay(1)
-        val root = groupRoute("/api") {
-            before(relay1)
-            group("/v1") {
-                GET { ok("v1") }
+        val root =
+            groupRoute("/api") {
+                before(relay1)
+                group("/v1") {
+                    GET { ok("v1") }
+                }
             }
-        }
 
         // Check if relay1 was propagated to nested group
         // We need to access 'routes' which is private in GroupPage
@@ -82,7 +86,7 @@ class GroupPageTests {
         /*
         override fun content(): ResponseDTO = routes.firstOrNull { it.target == this.request.target }?.content() ?:
             responses[request.method]?.invoke(request) ?: emptyResponse()
-        */
+         */
 
         // It calls .content() on the nested page, but Router is what normally calls middlewareProcessBefore().
         // If GroupPage is used as a single route in Router, Router only calls middleware on the GroupPage itself.
@@ -90,13 +94,14 @@ class GroupPageTests {
 
     @Test
     fun `test content delegation and recursion`() {
-        val root = groupRoute("/api") {
-            group("/v1") {
-                group("/users") {
-                    GET { ok("users") }
+        val root =
+            groupRoute("/api") {
+                group("/v1") {
+                    group("/users") {
+                        GET { ok("users") }
+                    }
                 }
             }
-        }
 
         root.request = RequestDTO(Method.GET, "/api/v1/users", mutableMapOf(), "")
         val resp = root.content()

@@ -4,8 +4,9 @@ import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.dto.emptyResponse
 
-class GroupPage(override val target: String) : PageHandler(target) {
-
+class GroupPage(
+    override val target: String,
+) : PageHandler(target) {
     override var request: RequestDTO
         get() = super.request
         set(value) {
@@ -26,12 +27,14 @@ class GroupPage(override val target: String) : PageHandler(target) {
     }
 
     override fun content(): ResponseDTO {
-        val handledByChild = routes.find { child ->
-            when (child) {
-                is GroupPage -> child.target == request.target || request.target.startsWith(child.target)
-                else -> child.target == request.target
-            }
-        }?.content()
+        val handledByChild =
+            routes
+                .find { child ->
+                    when (child) {
+                        is GroupPage -> child.target == request.target || request.target.startsWith(child.target)
+                        else -> child.target == request.target
+                    }
+                }?.content()
 
         return handledByChild
             ?: responses[request.method]?.invoke(request)
@@ -39,7 +42,10 @@ class GroupPage(override val target: String) : PageHandler(target) {
     }
 }
 
-fun groupRoute(path: String, block: GroupPage.() -> Unit): GroupPage {
+fun groupRoute(
+    path: String,
+    block: GroupPage.() -> Unit,
+): GroupPage {
     val page = GroupPage(path)
     page.block()
     return page

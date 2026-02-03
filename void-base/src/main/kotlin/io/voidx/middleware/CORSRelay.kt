@@ -32,8 +32,8 @@ fun Page.corsMiddleware(allowedOrigins: Set<String>? = null) {
 
             val isPreflight =
                 req.method == Method.OPTIONS &&
-                origin != null &&
-                req["Access-Control-Request-Method"] != null
+                    origin != null &&
+                    req["Access-Control-Request-Method"] != null
             if (isPreflight) {
                 val headers = mutableMapOf<String, String>()
                 if (allowOrigin != null) {
