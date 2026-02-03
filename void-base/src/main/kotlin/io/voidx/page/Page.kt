@@ -135,10 +135,17 @@ fun exceptionPage(block: ExceptionPage.() -> ResponseDTO): ExceptionPage =
     }
 
 /**
- * Defines a 404 page rendered when no route matches the request.
- * The [block] is invoked to produce a raw [ResponseDTO].
- */
+     * Creates a NotFoundPage that renders when no route matches the request.
+     *
+     * @param block Lambda executed as the page's `content()` to produce the response.
+     * @return A NotFoundPage whose `content()` returns the `ResponseDTO` produced by `block`.
+     */
 fun notFoundPage(block: NotFoundPage.() -> ResponseDTO): NotFoundPage =
     object : NotFoundPage() {
-        override fun content() = block()
+        /**
+ * Execute the configured block to build the page response.
+ *
+ * @return The ResponseDTO produced by the provided block.
+ */
+override fun content() = block()
     }
