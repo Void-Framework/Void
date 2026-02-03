@@ -115,8 +115,8 @@ class CorsMiddlewareTests {
         val resp = page.middlewareProcessBefore()
         assertNotNull(resp)
         assertEquals(200, resp?.status)
-        assertEquals("https://trusted.com", resp.headers["Access-Control-Allow-Origin"])
-        assertEquals("true", resp.headers["Access-Control-Allow-Credentials"])
+        assertEquals("https://trusted.com", resp?.headers["Access-Control-Allow-Origin"])
+        assertEquals("true", resp?.headers["Access-Control-Allow-Credentials"])
     }
 
     @Test
@@ -135,8 +135,8 @@ class CorsMiddlewareTests {
 
         val resp = page.middlewareProcessBefore()
         assertNotNull(resp)
-        assertEquals("*", resp.headers["Access-Control-Allow-Origin"])
-        assertNull(resp.headers["Access-Control-Allow-Credentials"])
+        assertEquals("*", resp?.headers["Access-Control-Allow-Origin"])
+        assertNull(resp?.headers["Access-Control-Allow-Credentials"])
     }
 
     @Test
@@ -193,8 +193,8 @@ class CorsMiddlewareTests {
         val resp = page.middlewareProcessBefore()
         assertNotNull(resp)
         assertEquals(200, resp?.status)
-        assertNull(resp.headers["Access-Control-Allow-Origin"])
-        assertNull(resp.headers["Access-Control-Allow-Methods"])
+        assertNull(resp?.headers["Access-Control-Allow-Origin"])
+        assertNull(resp?.headers["Access-Control-Allow-Methods"])
     }
 
     @Test
