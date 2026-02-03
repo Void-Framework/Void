@@ -136,14 +136,20 @@ class GroupPage(
                         if (child.target == request.target) {
                             child
                         } else if (request.target.startsWith(child.target) &&
-                            (request.target.length == child.target.length ||
-                                    request.target[child.target.length] == '/')) {
+                            (
+                                request.target.length == child.target.length ||
+                                    request.target[child.target.length] == '/'
+                            )
+                        ) {
                             child.findProperRoute()
                         } else {
                             null
                         }
                     }
-                    else -> if (child.target == request.target) child else null
+
+                    else -> {
+                        if (child.target == request.target) child else null
+                    }
                 }
             }
     }

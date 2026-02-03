@@ -67,10 +67,11 @@ class GroupPageTests {
     @Test
     fun `test middleware propagation`() {
         var called = false
-        val relay1 = relayBefore(1) {
-            called = true
-            null
-        }
+        val relay1 =
+            relayBefore(1) {
+                called = true
+                null
+            }
         val root =
             groupRoute("/api") {
                 before(relay1)
@@ -82,11 +83,11 @@ class GroupPageTests {
         // We need to trigger middlewareProcessBefore on the matched page.
         // But GroupPage.content() currently only calls .content() on children, not middleware!
         // This is a structural error that should be pointed out.
-        
+
         val req = RequestDTO(Method.GET, "/api/v1", mutableMapOf(), "")
         root.request = req
         root.middlewareProcessBefore()
-        
+
         assertEquals(true, called, "Middleware should be called on nested routes")
     }
 
