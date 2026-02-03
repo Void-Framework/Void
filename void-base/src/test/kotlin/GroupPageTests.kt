@@ -1,3 +1,5 @@
+package test
+
 import io.voidx.Method
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseBody
