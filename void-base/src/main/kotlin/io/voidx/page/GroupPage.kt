@@ -3,6 +3,10 @@ package io.voidx.page
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.dto.emptyResponse
+import io.voidx.middleware.RelayAfter
+import io.voidx.middleware.RelayBefore
+import io.voidx.util.toResult
+import kotlin.collections.find
 
 /**
  * Lightweight page container that supports route grouping and hierarchical dispatching.
@@ -36,7 +40,7 @@ class GroupPage(
             super.request = value
             routes.forEach { it.request = value }
         }
-    private val routes = mutableListOf<PageHandler>()
+    internal val routes = mutableListOf<PageHandler>()
 
     /**
      * Creates and registers a nested GroupPage under the current page using the given path.
@@ -59,23 +63,65 @@ class GroupPage(
         routes.add(page)
     }
 
+    override fun middlewareProcessBefore(): ResponseDTO? {
+        val targetRoute = findProperRoute()
+
+        if (targetRoute != null && targetRoute !is GroupPage) {
+            return targetRoute.middlewareProcessBefore()
+        } else {
+            targetRoute?.relaysBefore?.forEach {
+                val newResponse = (it as? RelayBefore)?.processBefore(request.toResult())
+                if (newResponse != null) {
+                    newResponse._request = request
+                    return newResponse
+                }
+            }
+        }
+        return null
+    }
+
+    override fun middlewareProcessAfter(response: Result<ResponseDTO>) {
+        val targetRoute = findProperRoute()
+        if (targetRoute != null && targetRoute !is GroupPage) {
+            targetRoute.middlewareProcessAfter(response)
+        } else {
+            targetRoute?.relaysAfter?.forEach {
+                (it as? RelayAfter)?.processAfter(response)
+            }
+        }
+    }
+
+    private fun findProperRoute(): PageHandler? {
+        if (target == request.target) return this
+
+        return routes
+            .sortedByDescending { it.target.length }
+            .firstNotNullOfOrNull { child ->
+                when (child) {
+                    is GroupPage -> {
+                        if (child.target == request.target) {
+                            child
+                        } else if (request.target.startsWith(child.target) &&
+                            (request.target.length == child.target.length ||
+                                    request.target[child.target.length] == '/')) {
+                            child.findProperRoute()
+                        } else {
+                            null
+                        }
+                    }
+                    else -> if (child.target == request.target) child else null
+                }
+            }
+    }
+
     /**
      * Resolve and return the response for the current request by delegating to a matching child route, a registered method handler, or an empty response.
      *
      * @return The resolved ResponseDTO: the response produced by a matching child route if one handles the request, the response from a handler registered for the request method if present, or an empty response otherwise.
      */
     override fun content(): ResponseDTO {
-        val handledByChild =
-            routes
-                .sortedByDescending { it.target.length }
-                .find { child ->
-                    when (child) {
-                        is GroupPage -> child.target == request.target ||
-                                (request.target.startsWith(child.target) &&
-                                (request.target.length == child.target.length || request.target[child.target.length] == '/'))
-                        else -> child.target == request.target
-                    }
-                }?.content()
+        val route = findProperRoute()
+        val handledByChild = if (route == this) super.content() else route?.content()
 
         return handledByChild
             ?: responses[request.method]?.invoke(request)

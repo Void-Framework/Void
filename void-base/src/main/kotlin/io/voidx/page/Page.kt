@@ -78,7 +78,7 @@ abstract class Page(
      *
      * @return The first `ResponseDTO` produced by a BEFORE middleware with its `_request` set, or `null` if none produced a response.
      */
-    fun middlewareProcessBefore(): ResponseDTO? {
+    internal open fun middlewareProcessBefore(): ResponseDTO? {
         relaysBefore.forEach {
             val newResponse = (it as? RelayBefore)?.processBefore(request.toResult())
             if (newResponse != null) {
@@ -92,7 +92,7 @@ abstract class Page(
     /**
      * Runs all registered [RelayAfter] middlewares with the produced [response].
      */
-    internal fun middlewareProcessAfter(response: Result<ResponseDTO>) {
+    internal open fun middlewareProcessAfter(response: Result<ResponseDTO>) {
         relaysAfter.forEach {
             (it as? RelayAfter)?.processAfter(response)
         }
