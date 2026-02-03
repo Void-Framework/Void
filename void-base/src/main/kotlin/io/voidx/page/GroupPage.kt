@@ -41,7 +41,7 @@ class GroupPage(
      */
     override var request: RequestDTO
         get() = super.request
-        set(value) {
+        internal set(value) {
             super.request = value
             routes.forEach { it.request = value }
         }
