@@ -34,12 +34,19 @@ import kotlin.collections.find
 class GroupPage(
     override val target: String,
 ) : PageHandler(target) {
+    /**
+     * The current request for this page and all nested routes.
+     *
+     * Updating this request automatically propagates the new value to every child route registered in [routes].
+     */
     override var request: RequestDTO
         get() = super.request
         set(value) {
             super.request = value
             routes.forEach { it.request = value }
         }
+
+    /** The collection of nested [PageHandler] routes registered within this group. */
     internal val routes = mutableListOf<PageHandler>()
 
     /**
@@ -63,6 +70,15 @@ class GroupPage(
         routes.add(page)
     }
 
+    /**
+     * Executes the BEFORE middleware chain for the most specific matching route.
+     *
+     * This method resolves the target route for the current request. If the resolved route is a
+     * leaf node (not a GroupPage), it delegates middleware processing to that route. Otherwise,
+     * it executes the [relaysBefore] registered on the matched group.
+     *
+     * @return The first [ResponseDTO] produced by a middleware, or `null` if none intercepted the request.
+     */
     override fun middlewareProcessBefore(): ResponseDTO? {
         val targetRoute = findProperRoute()
 
@@ -80,6 +96,15 @@ class GroupPage(
         return null
     }
 
+    /**
+     * Executes the AFTER middleware chain for the most specific matching route.
+     *
+     * Resolves the target route for the current request and delegates the processing of [response]
+     * to it if it's a leaf node. If the matched route is a group, it executes that group's
+     * [relaysAfter] chain.
+     *
+     * @param response The [Result] containing either the [ResponseDTO] or an exception.
+     */
     override fun middlewareProcessAfter(response: Result<ResponseDTO>) {
         val targetRoute = findProperRoute()
         if (targetRoute != null && targetRoute !is GroupPage) {
@@ -91,6 +116,15 @@ class GroupPage(
         }
     }
 
+    /**
+     * Identifies the most specific route matching the current request's target path.
+     *
+     * Performs a recursive search through the registered [routes], prioritizing longer (more specific)
+     * paths. It ensures that path matches occur only at segment boundaries (i.e., matching "/api/v1"
+     * against "/api/v1/users" but not against "/api/v1-legacy").
+     *
+     * @return The [PageHandler] that best matches the request path, or `null` if no match is found.
+     */
     private fun findProperRoute(): PageHandler? {
         if (target == request.target) return this
 
