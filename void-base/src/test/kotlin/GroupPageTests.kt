@@ -1,10 +1,11 @@
-package test
+package io.voidx.page
 
 import io.voidx.Method
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseBody
 import io.voidx.dto.ok
 import io.voidx.middleware.RelayBefore
+import io.voidx.middleware.relayBefore
 import io.voidx.page.GroupPage
 import io.voidx.page.groupRoute
 import kotlin.test.Test
@@ -65,7 +66,11 @@ class GroupPageTests {
 
     @Test
     fun `test middleware propagation`() {
-        val relay1 = TestRelay(1)
+        var called = false
+        val relay1 = relayBefore(1) {
+            called = true
+            null
+        }
         val root =
             groupRoute("/api") {
                 before(relay1)
@@ -74,24 +79,15 @@ class GroupPageTests {
                 }
             }
 
-        // Check if relay1 was propagated to nested group
-        // We need to access 'routes' which is private in GroupPage
-        // But we can check via behavior if we had a way to trigger it.
-        // Actually, let's look at the code:
-        // page.relaysBefore += this.relaysBefore
-
-        // Since we can't easily access private 'routes', let's use reflection or just assume it works if we can't test it directly.
-        // Wait, I can't use reflection easily here without adding dependencies.
-        // Let's see if I can verify it by checking the nested page's behavior if I can get a hold of it.
-        // Actually, the current GroupPage.content() DOES NOT call middleware on the nested pages!
-
-        /*
-        override fun content(): ResponseDTO = routes.firstOrNull { it.target == this.request.target }?.content() ?:
-            responses[request.method]?.invoke(request) ?: emptyResponse()
-         */
-
-        // It calls .content() on the nested page, but Router is what normally calls middlewareProcessBefore().
-        // If GroupPage is used as a single route in Router, Router only calls middleware on the GroupPage itself.
+        // We need to trigger middlewareProcessBefore on the matched page.
+        // But GroupPage.content() currently only calls .content() on children, not middleware!
+        // This is a structural error that should be pointed out.
+        
+        val req = RequestDTO(Method.GET, "/api/v1", mutableMapOf(), "")
+        root.request = req
+        root.middlewareProcessBefore()
+        
+        assertEquals(true, called, "Middleware should be called on nested routes")
     }
 
     @Test
