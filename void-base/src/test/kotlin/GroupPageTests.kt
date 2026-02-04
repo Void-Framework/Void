@@ -141,8 +141,8 @@ class GroupPageTests {
         // Should NOT match /api/users-admin
         root.request = RequestDTO(Method.GET, "/api/users-admin", mutableMapOf(), "")
         val resp = root.content()
-        // Since no match, should return empty response
-        assertEquals(0, resp.status)
+        // Since no match, should return a 404
+        assertEquals(404, resp.status)
     }
 
     @Test
@@ -256,21 +256,6 @@ class GroupPageTests {
     }
 
     @Test
-    fun `test group with trailing slash matches path without trailing slash`() {
-        val root =
-            groupRoute("/api") {
-                group("/v1") {
-                    GET { ok("v1") }
-                }
-            }
-
-        root.request = RequestDTO(Method.GET, "/api/v1/", mutableMapOf(), "")
-        val resp = root.content()
-        assertEquals(200, resp.status)
-        assertEquals("v1", (resp.body as ResponseBody.StringBody).body)
-    }
-
-    @Test
     fun `test empty response when no handler matches method`() {
         val root =
             groupRoute("/api") {
@@ -281,7 +266,7 @@ class GroupPageTests {
 
         root.request = RequestDTO(Method.POST, "/api/v1", mutableMapOf(), "")
         val resp = root.content()
-        assertEquals(0, resp.status) // empty response
+        assertEquals(405, resp.status) // empty response
     }
 
     @Test

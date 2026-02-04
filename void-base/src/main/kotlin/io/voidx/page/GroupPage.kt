@@ -5,6 +5,7 @@ import io.voidx.dto.ResponseDTO
 import io.voidx.dto.emptyResponse
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
+import io.voidx.router.util.RouteCheck
 import io.voidx.util.toResult
 import kotlin.collections.find
 
@@ -165,7 +166,7 @@ class GroupPage(
 
         return handledByChild
             ?: responses[request.method]?.invoke(request)
-            ?: emptyResponse()
+            ?: RouteCheck.nullPage.apply { this.request = this@GroupPage.request }.content()
     }
 }
 
