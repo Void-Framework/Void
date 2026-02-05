@@ -188,32 +188,54 @@ class GroupPage(
      * @return The [PageHandler] that best matches the request path, or `null` if no match is found.
      */
     private fun findProperRoute(): PageHandler? {
-        if (target == request.target) return this
+        val rootParams = match(target, request.target)
+        if (rootParams != null) {
+            _data = rootParams.toMutableMap()
+            return this
+        }
 
         return routes
             .sortedByDescending { it.target.length }
             .firstNotNullOfOrNull { child ->
                 when (child) {
                     is GroupPage -> {
-                        if (match(child.target, request.target) != null) {
+                        val params = match(child.target, request.target)
+                        if (params != null) {
+                            child._data = params.toMutableMap()
                             child
-                        } else if (request.target.startsWith(child.target) &&
-                            (
-                                request.target.length == child.target.length ||
-                                    request.target[child.target.length] == '/'
-                            )
-                        ) {
-                            child.findProperRoute()
                         } else {
-                            null
+                            val prefixParams = matchPrefix(child.target, request.target)
+                            if (prefixParams != null) {
+                                child._data = prefixParams.toMutableMap()
+                                child.findProperRoute()
+                            } else {
+                                null
+                            }
                         }
                     }
 
                     else -> {
-                        if (match(child.target, request.target) != null) child else null
+                        val params = match(child.target, request.target)
+                        if (params != null) {
+                            child._data = params.toMutableMap()
+                            child
+                        } else {
+                            null
+                        }
                     }
                 }
             }
+    }
+
+    private fun matchPrefix(
+        routeTarget: String,
+        requestTarget: String,
+    ): Map<String, String>? {
+        val route = routeTarget.split('/').toMutableList().apply { trimTrailingEmpty() }
+        val url = requestTarget.split('/').toMutableList().apply { trimTrailingEmpty() }
+        if (url.size < route.size) return null
+        val prefix = url.take(route.size).joinToString("/")
+        return match(routeTarget, prefix)
     }
 
     /**
