@@ -237,7 +237,7 @@ class PageHandlerEnhancedTests {
                 POST { ok("post") }
             }
 
-        assertEquals(12, handler.responses.size) // Since we default populate it with 405s
+        assertEquals(Method.entries.size, handler.responses.size) // Since we default populate it with 405s
         assertTrue(handler.responses.containsKey(Method.GET))
         assertTrue(handler.responses.containsKey(Method.POST))
     }
