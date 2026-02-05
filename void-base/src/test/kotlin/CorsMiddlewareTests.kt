@@ -2,18 +2,14 @@ package test
 
 import io.voidx.Method
 import io.voidx.dto.buildRequest
-import io.voidx.dto.buildResponse
 import io.voidx.dto.ok
 import io.voidx.middleware.corsMiddleware
-import io.voidx.page.Page
 import io.voidx.page.route
-import io.voidx.router.router
 import io.voidx.util.toResult
 import org.junit.jupiter.api.Assertions.assertNotNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class CorsMiddlewareTests {
     @Test

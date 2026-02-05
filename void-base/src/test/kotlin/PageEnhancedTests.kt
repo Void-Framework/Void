@@ -1,27 +1,16 @@
 package test
 
 import io.voidx.Method
-import io.voidx.dto.RequestDTO
-import io.voidx.dto.ResponseDTO
-import io.voidx.dto.buildRequest
-import io.voidx.dto.buildResponse
-import io.voidx.dto.ok
-import io.voidx.middleware.RelayAfter
+import io.voidx.dto.*
 import io.voidx.middleware.RelayBefore
 import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
-import io.voidx.page.ExceptionPage
-import io.voidx.page.NotFoundPage
 import io.voidx.page.Page
 import io.voidx.page.exceptionPage
 import io.voidx.page.notFoundPage
 import io.voidx.util.toResult
 import kotlin.reflect.KClass
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class PageEnhancedTests {
     private class TestPage : Page("/test") {
@@ -200,7 +189,11 @@ class PageEnhancedTests {
     fun `test middleware before sets request on returned response`() {
         val page = TestPage()
         page.before(relayBefore { ok("response") })
-        val req = buildRequest { method = Method.GET; target = "/test" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/test"
+            }
         page.request = req
 
         val resp = page.middlewareProcessBefore()
@@ -292,9 +285,24 @@ class PageEnhancedTests {
         val order = mutableListOf<String>()
 
         // Lower priority should execute later, but relays are sorted by descending priority
-        page.before(relayBefore(10) { order.add("high"); null })
-        page.before(relayBefore(1) { order.add("low"); null })
-        page.before(relayBefore(5) { order.add("med"); null })
+        page.before(
+            relayBefore(10) {
+                order.add("high")
+                null
+            },
+        )
+        page.before(
+            relayBefore(1) {
+                order.add("low")
+                null
+            },
+        )
+        page.before(
+            relayBefore(5) {
+                order.add("med")
+                null
+            },
+        )
 
         page.request = buildRequest { method = Method.GET }
         page.middlewareProcessBefore()
