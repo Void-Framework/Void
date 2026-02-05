@@ -75,25 +75,18 @@ class PageEnhancedTests {
     }
 
     @Test
-    fun `test after middleware with KClass registration`() {
-        class TestAfterRelay : RelayAfter {
-            override val priority = 5
-            var wasCalled = false
-
-            override fun processAfter(response: Result<ResponseDTO>) {
-                wasCalled = true
-            }
-        }
+    fun `test after middleware with instance registration`() {
+        var wasCalled = false
+        val afterRelay = relayAfter { wasCalled = true }
 
         val page = TestPage()
-        val afterRelay = TestAfterRelay()
-        page.after(afterRelay::class as KClass<RelayAfter>)
+        page.after(afterRelay)
         page.request = buildRequest { method = Method.GET }
 
         val resp = page.content()
         page.middlewareProcessAfter(resp.toResult())
-        // Note: The registered instance is different from afterRelay, so we can't check its state
-        // This test validates that the registration works without errors
+
+        assertTrue(wasCalled)
     }
 
     @Test

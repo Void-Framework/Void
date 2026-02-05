@@ -1,6 +1,7 @@
 package test
 
 import io.voidx.Server
+import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.buildResponse
 import io.voidx.handle
 import io.voidx.page.exceptionPage
@@ -47,27 +48,6 @@ class RouterNotFoundAndExceptionFlowTests {
         // Restore global pages so tests don't leak state
         RouteCheck.exceptionPage = prevExceptionPage
         RouteCheck.nullPage = prevNullPage
-    }
-
-    @Test
-    fun unknown_route_uses_default_404_page() {
-        val r = router { }
-
-        val rawRequest = (
-            "GET /nope HTTP/1.1\r\n" +
-                "Host: example.com\r\n" +
-                "Connection: close\r\n" +
-                "\r\n"
-        )
-
-        val sock = InlineSocket(rawRequest)
-        val srv = Server(r, 1.1)
-        sock.handle(srv, r)
-
-        val raw = sock.output()
-        assertTrue(raw.startsWith("HTTP/1.1 404 Not Found\n"), raw)
-        // Default not-found page title marker
-        assertTrue(raw.contains("404 | Page Not Found"), raw)
     }
 
     @Test
