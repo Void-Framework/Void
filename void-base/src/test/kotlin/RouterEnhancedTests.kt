@@ -130,9 +130,10 @@ class RouterEnhancedTests {
                 route("/page2") { GET { ok("2") } },
                 route("/page3") { GET { ok("3") } },
             )
-        r.addRoutes(pages)
 
-        assertEquals(4, r.routes.size) // Since SLModule adds it's own
+        val before = r.routes.size
+        r.addRoutes(pages)
+        assertEquals(before + pages.size, r.routes.size)
     }
 
     @Test

@@ -123,9 +123,7 @@ class PageEnhancedTests {
         page.request = buildRequest { method = Method.GET }
         page.middlewareProcessBefore()
 
-        // Note: The sorting happens but doesn't affect execution order in current implementation
-        // This test verifies all middlewares are called
-        assertEquals(3, callOrder.size)
+        assertEquals(listOf(1, 2, 3), callOrder)
     }
 
     @Test
@@ -150,6 +148,7 @@ class PageEnhancedTests {
 
         assertNotNull(resp)
         assertEquals("stopped", resp.body.body as String)
+        assertEquals(false, secondCalled)
     }
 
     @Test
@@ -307,10 +306,7 @@ class PageEnhancedTests {
         page.request = buildRequest { method = Method.GET }
         page.middlewareProcessBefore()
 
-        // Current implementation doesn't resort after adding, so order is as added
-        assertTrue(order.contains("high"))
-        assertTrue(order.contains("low"))
-        assertTrue(order.contains("med"))
+        assertEquals(listOf("high", "low", "med"), order)
     }
 
     @Test
