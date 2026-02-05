@@ -23,7 +23,7 @@ open class PageHandler(
                 buildResponse {
                     status = 405
                     statusText = "Method Not Allowed"
-                    body = "Method not allow"
+                    body = "Method Not Allowed"
                 }
             }
         }
