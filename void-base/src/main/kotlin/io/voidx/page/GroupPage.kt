@@ -7,6 +7,7 @@ import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
 import io.voidx.router.util.RouteCheck
 import io.voidx.util.toResult
+import io.voidx.util.trimTrailingEmpty
 import kotlin.collections.find
 
 /**
@@ -49,6 +50,61 @@ class GroupPage(
 
     /** The collection of nested [PageHandler] routes registered within this group. */
     internal val routes = mutableListOf<PageHandler>()
+
+    private val segmentRegex = Regex("""^\{([^{}]+)}$""")
+    private val optionalSegment = Regex("""^\{([^{}?]+)\?}$""")
+
+    /**
+     * Attempts to match a route target pattern against an actual request target path.
+     *
+     * This method splits both paths into segments and compares them. It supports:
+     * - Literal segment matching (e.g., "users" matches "users").
+     * - Required dynamic segments (e.g., "{id}" matches "123").
+     * - Optional trailing segments (e.g., "{slug?}" matches "my-post" or is omitted if the request path is shorter).
+     *
+     * If a match is successful, it extracts all dynamic segment values into a map.
+     *
+     * @param routeTarget The template path defined in the route (may contain curly braces for dynamic segments).
+     * @param requestTarget The actual path from the HTTP request.
+     * @return A map of parameter names to values if the path matches, or `null` if it doesn't.
+     */
+    private fun match(
+        routeTarget: String,
+        requestTarget: String,
+    ): Map<String, String>? {
+        val route = routeTarget.split('/').toMutableList().apply { trimTrailingEmpty() }
+        val url = requestTarget.split('/').toMutableList().apply { trimTrailingEmpty() }
+
+        val params = mutableMapOf<String, String>()
+
+        if (route.size != url.size) {
+            if (route.lastOrNull()?.matches(optionalSegment) == true &&
+                route.size == url.size + 1
+            ) {
+                route.removeLast()
+            } else {
+                return null
+            }
+        }
+
+        for (i in route.indices) {
+            val r = route[i]
+            val u = url[i]
+
+            when {
+                r == u -> Unit
+                segmentRegex.matches(r) -> {
+                    params[segmentRegex.matchEntire(r)!!.groupValues[1]] = u
+                }
+                optionalSegment.matches(r) -> {
+                    params[optionalSegment.matchEntire(r)!!.groupValues[1]] = u
+                }
+                else -> return null
+            }
+        }
+
+        return params
+    }
 
     /**
      * Creates and registers a nested GroupPage under the current page using the given path.
@@ -163,10 +219,14 @@ class GroupPage(
     override fun content(): ResponseDTO {
         val route = findProperRoute()
         val handledByChild = if (route == this) super.content() else route?.content()
+        val isThisIt = route == this && match(target, request.target) != null
 
         return handledByChild
-            ?: responses[request.method]?.invoke(request)
-            ?: RouteCheck.nullPage.apply { this.request = this@GroupPage.request }.content()
+            ?: if(isThisIt) {
+                responses[request.method]?.invoke(request)
+            } else {
+                RouteCheck.nullPage.apply { this.request = this@GroupPage.request }.content()
+            }!!
     }
 }
 
