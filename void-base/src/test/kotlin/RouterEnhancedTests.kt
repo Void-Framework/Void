@@ -1,7 +1,6 @@
 package test
 
 import io.voidx.Method
-import io.voidx.dto.RequestDTO
 import io.voidx.dto.buildRequest
 import io.voidx.dto.ok
 import io.voidx.middleware.relayAfter
@@ -11,7 +10,6 @@ import io.voidx.page.exceptionPage
 import io.voidx.page.notFoundPage
 import io.voidx.page.route
 import io.voidx.router.Router
-import io.voidx.router.listResourcePaths
 import io.voidx.router.router
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -134,7 +132,7 @@ class RouterEnhancedTests {
             )
         r.addRoutes(pages)
 
-        assertEquals(3, r.routes.size)
+        assertEquals(4, r.routes.size) // Since SLModule adds it's own
     }
 
     @Test
@@ -149,6 +147,7 @@ class RouterEnhancedTests {
         r.relay.add(relay)
 
         val req = buildRequest { method = Method.GET }
+        r.recomputeMiddlewareSnapshot()
         r.middlewareProcessBefore(Result.success(req))
 
         assertTrue(called)
@@ -165,6 +164,7 @@ class RouterEnhancedTests {
         r.relay.add(relay)
 
         val resp = ok("test")
+        r.recomputeMiddlewareSnapshot()
         r.middlewareProcessAfter(Result.success(resp))
 
         assertTrue(called)
@@ -180,10 +180,11 @@ class RouterEnhancedTests {
         r.relay.add(relay)
 
         val req = buildRequest { method = Method.GET }
+        r.recomputeMiddlewareSnapshot()
         val resp = r.middlewareProcessBefore(Result.success(req))
 
         assertNotNull(resp)
-        assertEquals("blocked", resp?.body?.body as String)
+        assertEquals("blocked", resp.body.body as String)
     }
 
     @Test
@@ -196,6 +197,7 @@ class RouterEnhancedTests {
         r.relay.add(relayBefore(5) { order.add(5); null })
 
         val req = buildRequest { method = Method.GET }
+        r.recomputeMiddlewareSnapshot()
         r.middlewareProcessBefore(Result.success(req))
 
         // Higher priority (10) should run before lower priority
@@ -223,7 +225,8 @@ class RouterEnhancedTests {
         }
 
         val page = r.routes["/test"] as PageHandler
-        assertEquals(2, page.responses.size)
+        page.request = buildRequest { method = Method.GET }
+        assertEquals(page.content().body.body as String, "get")
     }
 
     @Test
@@ -345,6 +348,7 @@ class RouterEnhancedTests {
         r.relay.add(relayAfter { calls.add(3) })
 
         val resp = ok("test")
+        r.recomputeMiddlewareSnapshot()
         r.middlewareProcessAfter(Result.success(resp))
 
         assertTrue(calls.size >= 3)

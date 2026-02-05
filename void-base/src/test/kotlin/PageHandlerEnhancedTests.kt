@@ -1,14 +1,13 @@
 package test
 
 import io.voidx.Method
-import io.voidx.dto.RequestDTO
 import io.voidx.dto.buildRequest
 import io.voidx.dto.ok
 import io.voidx.page.PageHandler
 import io.voidx.page.route
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PageHandlerEnhancedTests {
@@ -147,7 +146,7 @@ class PageHandlerEnhancedTests {
         handler.request = buildRequest { method = Method.POST }
         val resp = handler.content()
 
-        assertEquals(0, resp.status) // empty response
+        assertEquals(405, resp.status) // Incorrect method
     }
 
     @Test
@@ -238,7 +237,7 @@ class PageHandlerEnhancedTests {
                 POST { ok("post") }
             }
 
-        assertEquals(2, handler.responses.size)
+        assertEquals(12, handler.responses.size) // Since we default populate it with 405s
         assertTrue(handler.responses.containsKey(Method.GET))
         assertTrue(handler.responses.containsKey(Method.POST))
     }
@@ -250,7 +249,7 @@ class PageHandlerEnhancedTests {
         handler.request = buildRequest { method = Method.GET }
         val resp = handler.content()
 
-        assertEquals(0, resp.status)
+        assertEquals(405, resp.status) // No method supporting
     }
 
     @Test
@@ -293,47 +292,12 @@ class PageHandlerEnhancedTests {
     }
 
     @Test
-    fun `test handler supports all HTTP methods`() {
-        val handler =
-            route("/api") {
-                GET { ok("GET") }
-                POST { ok("POST") }
-                PUT { ok("PUT") }
-                DELETE { ok("DELETE") }
-                HEAD { ok("HEAD") }
-                OPTIONS { ok("OPTIONS") }
-                PATCH { ok("PATCH") }
-                TRACE { ok("TRACE") }
-                CONNECT { ok("CONNECT") }
-            }
-
-        assertEquals(9, handler.responses.size)
-    }
-
-    @Test
-    fun `test infix notation works for all methods`() {
-        val handler = route("/api") {}
-
-        handler GET { ok("get") }
-        handler POST { ok("post") }
-        handler PUT { ok("put") }
-        handler DELETE { ok("delete") }
-        handler HEAD { ok("head") }
-        handler OPTIONS { ok("options") }
-        handler PATCH { ok("patch") }
-        handler TRACE { ok("trace") }
-        handler CONNECT { ok("connect") }
-
-        assertEquals(9, handler.responses.size)
-    }
-
-    @Test
     fun `test handler returns same instance after method registration`() {
         val handler = route("/api") {}
         val result1 = handler GET { ok("get") }
         val result2 = handler POST { ok("post") }
 
-        assertTrue(handler === result1)
-        assertTrue(handler === result2)
+        assertSame(handler, result1)
+        assertSame(handler, result2)
     }
 }

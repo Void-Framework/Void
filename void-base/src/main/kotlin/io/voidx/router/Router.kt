@@ -91,7 +91,7 @@ class Router :
         recomputeMiddlewareSnapshot()
     }
 
-    private fun recomputeMiddlewareSnapshot() {
+    internal fun recomputeMiddlewareSnapshot() {
         internalRelay = relay.sortedByDescending { it.priority }
     }
 
