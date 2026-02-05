@@ -1,7 +1,6 @@
 package test
 
 import io.voidx.Server
-import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.buildResponse
 import io.voidx.handle
 import io.voidx.page.exceptionPage

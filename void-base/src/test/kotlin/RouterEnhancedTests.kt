@@ -11,11 +11,7 @@ import io.voidx.page.notFoundPage
 import io.voidx.page.route
 import io.voidx.router.Router
 import io.voidx.router.router
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class RouterEnhancedTests {
     @Test
@@ -193,9 +189,24 @@ class RouterEnhancedTests {
         val r = Router()
         val order = mutableListOf<Int>()
 
-        r.relay.add(relayBefore(1) { order.add(1); null })
-        r.relay.add(relayBefore(10) { order.add(10); null })
-        r.relay.add(relayBefore(5) { order.add(5); null })
+        r.relay.add(
+            relayBefore(1) {
+                order.add(1)
+                null
+            },
+        )
+        r.relay.add(
+            relayBefore(10) {
+                order.add(10)
+                null
+            },
+        )
+        r.relay.add(
+            relayBefore(5) {
+                order.add(5)
+                null
+            },
+        )
 
         val req = buildRequest { method = Method.GET }
         r.recomputeMiddlewareSnapshot()

@@ -3,23 +3,15 @@ package test
 import io.voidx.ClientHandler
 import io.voidx.Method
 import io.voidx.Server
-import io.voidx.dto.RequestDTO
 import io.voidx.dto.buildRequest
 import io.voidx.dto.ok
 import io.voidx.page.DynamicPage
-import io.voidx.page.PageHandler
 import io.voidx.page.path
 import io.voidx.page.route
-import io.voidx.router.Router
 import io.voidx.router.router
-import io.voidx.simpleServer
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class RequestHandlerEnhancedTests {
     private class TestRequestHandler : io.voidx.router.util.RequestHandler {
@@ -38,7 +30,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "user", "{id}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/user/123" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/user/123"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -58,7 +54,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "user", "{id}", "post", "{postId}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/user/42/post/99" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/user/42/post/99"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -77,7 +77,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "blog", "{slug?}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/blog/my-post" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/blog/my-post"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -96,7 +100,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "blog", "{slug?}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/blog" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/blog"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -115,7 +123,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "user", "{id}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/user/123/" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/user/123/"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -131,7 +143,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "user", "{id}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/product/123" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/product/123"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNull(resp)
@@ -146,7 +162,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "user", "{id}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/user/123/extra" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/user/123/extra"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNull(resp)
@@ -164,7 +184,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "api", "v1", "user", "{id}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/api/v1/user/456" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/api/v1/user/456"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -180,7 +204,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "api", "v1", "user", "{id}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/api/v2/user/123" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/api/v2/user/123"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNull(resp)
@@ -197,7 +225,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "search", "{query}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/search/test" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/search/test"
+            }
         val resp = handler.handleDynamic(req, mapOf("page" to "1"))
 
         assertNotNull(resp)
@@ -218,7 +250,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "protected", "{id}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/protected/123" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/protected/123"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -235,7 +271,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "user", "{id}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/user/123" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/user/123"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -256,7 +296,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "{a}", "{b}", "{c}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/one/two/three" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/one/two/three"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -275,7 +319,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "file", "{name}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/file/my-file.txt" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/file/my-file.txt"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -294,7 +342,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "item", "{id}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/item/12345" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/item/12345"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -313,7 +365,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "{page}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/home" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/home"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -329,7 +385,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "a", "{b}", "c")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/a/b" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/a/b"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNull(resp)
@@ -365,7 +425,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "user", "{id}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/user/123" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/user/123"
+            }
         handler.handleDynamic(req, emptyMap())
 
         assertEquals("/user/123", capturedTarget)
@@ -385,13 +449,21 @@ class RequestHandlerEnhancedTests {
         handler.dynamicRoutes[listOf("", "docs", "{category}", "{page?}")] = page
 
         // With optional segment
-        val req1 = buildRequest { method = Method.GET; target = "/docs/api/setup" }
+        val req1 =
+            buildRequest {
+                method = Method.GET
+                target = "/docs/api/setup"
+            }
         val resp1 = handler.handleDynamic(req1, emptyMap())
         assertNotNull(resp1)
         assertEquals("cat: api, page: setup", resp1?.body?.body as String)
 
         // Without optional segment
-        val req2 = buildRequest { method = Method.GET; target = "/docs/api" }
+        val req2 =
+            buildRequest {
+                method = Method.GET
+                target = "/docs/api"
+            }
         val resp2 = handler.handleDynamic(req2, emptyMap())
         assertNotNull(resp2)
         assertEquals("cat: api, page: index", resp2?.body?.body as String)
@@ -411,7 +483,11 @@ class RequestHandlerEnhancedTests {
         handler.dynamicRoutes[listOf("", "item", "{id}")] = page1
         handler.dynamicRoutes[listOf("", "item", "{name}")] = page2
 
-        val req = buildRequest { method = Method.GET; target = "/item/123" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/item/123"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)
@@ -432,7 +508,11 @@ class RequestHandlerEnhancedTests {
             }
         handler.dynamicRoutes[listOf("", "{a}", "{b}")] = page
 
-        val req = buildRequest { method = Method.GET; target = "/foo/bar" }
+        val req =
+            buildRequest {
+                method = Method.GET
+                target = "/foo/bar"
+            }
         val resp = handler.handleDynamic(req, emptyMap())
 
         assertNotNull(resp)

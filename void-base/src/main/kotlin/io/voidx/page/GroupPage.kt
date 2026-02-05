@@ -2,13 +2,11 @@ package io.voidx.page
 
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
-import io.voidx.dto.emptyResponse
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
 import io.voidx.router.util.RouteCheck
 import io.voidx.util.toResult
 import io.voidx.util.trimTrailingEmpty
-import kotlin.collections.find
 
 /**
  * Lightweight page container that supports route grouping and hierarchical dispatching.
@@ -92,14 +90,21 @@ class GroupPage(
             val u = url[i]
 
             when {
-                r == u -> Unit
+                r == u -> {
+                    Unit
+                }
+
                 segmentRegex.matches(r) -> {
                     params[segmentRegex.matchEntire(r)!!.groupValues[1]] = u
                 }
+
                 optionalSegment.matches(r) -> {
                     params[optionalSegment.matchEntire(r)!!.groupValues[1]] = u
                 }
-                else -> return null
+
+                else -> {
+                    return null
+                }
             }
         }
 
@@ -222,7 +227,7 @@ class GroupPage(
         val isThisIt = route == this && match(target, request.target) != null
 
         return handledByChild
-            ?: if(isThisIt) {
+            ?: if (isThisIt) {
                 responses[request.method]?.invoke(request)
             } else {
                 RouteCheck.nullPage.apply { this.request = this@GroupPage.request }.content()
