@@ -190,7 +190,7 @@ class GroupPage(
             .firstNotNullOfOrNull { child ->
                 when (child) {
                     is GroupPage -> {
-                        if (child.target == request.target) {
+                        if (match(child.target, request.target) != null) {
                             child
                         } else if (request.target.startsWith(child.target) &&
                             (
@@ -205,7 +205,7 @@ class GroupPage(
                     }
 
                     else -> {
-                        if (child.target == request.target) child else null
+                        if (match(child.target, request.target) != null) child else null
                     }
                 }
             }
