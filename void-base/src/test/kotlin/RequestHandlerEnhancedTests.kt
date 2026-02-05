@@ -2,6 +2,7 @@ package test
 
 import io.voidx.ClientHandler
 import io.voidx.Method
+import io.voidx.Server
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.buildRequest
 import io.voidx.dto.ok
@@ -343,7 +344,10 @@ class RequestHandlerEnhancedTests {
             }
         page.request = buildRequest { method = Method.GET }
 
-        val resp = handler.handleResponse(page, ClientHandler(Socket(), simpleServer {  }, router {      }), "/test")
+        val r = router { }
+        val srv = Server(r, 1.1)
+        val clientHandler = ClientHandler(Socket(), srv, r)
+        val resp = handler.handleResponse(page, clientHandler, "/test")
 
         assertEquals("response", resp.body.body as String)
     }
