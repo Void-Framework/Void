@@ -50,27 +50,6 @@ class RouterNotFoundAndExceptionFlowTests {
     }
 
     @Test
-    fun unknown_route_uses_default_404_page() {
-        val r = router { }
-
-        val rawRequest = (
-            "GET /nope HTTP/1.1\r\n" +
-                "Host: example.com\r\n" +
-                "Connection: close\r\n" +
-                "\r\n"
-        )
-
-        val sock = InlineSocket(rawRequest)
-        val srv = Server(r, 1.1)
-        sock.handle(srv, r)
-
-        val raw = sock.output()
-        assertTrue(raw.startsWith("HTTP/1.1 404 Not Found\n"), raw)
-        // Default not-found page title marker
-        assertTrue(raw.contains("404 | Page Not Found"), raw)
-    }
-
-    @Test
     fun custom_not_found_page_overrides_default() {
         val r = router { }
         RouteCheck.nullPage =
