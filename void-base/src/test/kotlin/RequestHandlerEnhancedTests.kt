@@ -23,7 +23,7 @@ class RequestHandlerEnhancedTests {
         val handler = TestRequestHandler()
         val page =
             route("/user/{id}") {
-                GET { req ->
+                GET {
                     val id = path<String>("id")
                     ok("user id: $id")
                 }
