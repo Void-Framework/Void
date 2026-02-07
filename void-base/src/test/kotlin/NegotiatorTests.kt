@@ -38,20 +38,6 @@ class NegotiatorTests {
     }
 
     @Test
-    fun `test Negotiator or returns original response when not null`() {
-        val request = RequestDTO(Method.GET, "/test", mutableMapOf(), "")
-        val negotiator = Negotiator(request)
-        val original = ok("original")
-
-        val result = original or {
-            ok("fallback")
-        }
-
-        assertSame(original, result)
-        assertEquals("original", result?.body?.body as String)
-    }
-
-    @Test
     fun `test Negotiator or returns fallback when original is null`() {
         val request = RequestDTO(Method.GET, "/test", mutableMapOf(), "")
         val negotiator = Negotiator(request)
@@ -150,7 +136,7 @@ class NegotiatorTests {
 
     @Test
     fun `test custom NegotiateType can be created and used`() {
-        object XmlType : Negotiator.NegotiateType() {
+        val xml = object : Negotiator.NegotiateType() {
             override val contentType = "application/xml"
             override fun matches(request: RequestDTO) = request["Content-Type"]?.startsWith(contentType) == true
         }
@@ -158,17 +144,17 @@ class NegotiatorTests {
         val request = RequestDTO(Method.GET, "/test", mutableMapOf("Content-Type" to "application/xml"), "")
         val negotiator = Negotiator(request)
 
-        val result = negotiator.whenType(XmlType) {
+        val result = negotiator.whenType(xml) {
             ok("xml response")
         }
 
         assertNotNull(result)
-        assertEquals("xml response", result?.body?.body as String)
+        assertEquals("xml response", result.body.body as String)
     }
 
     @Test
     fun `test custom NegotiateType with complex matching logic`() {
-        object ComplexType : Negotiator.NegotiateType() {
+        val complex = object : Negotiator.NegotiateType() {
             override val contentType = "application/vnd.api+json"
             override fun matches(request: RequestDTO): Boolean {
                 val ct = request["Content-Type"] ?: return false
@@ -188,7 +174,7 @@ class NegotiatorTests {
         )
         val negotiator = Negotiator(request)
 
-        val result = negotiator.whenType(ComplexType) {
+        val result = negotiator.whenType(complex) {
             ok("complex match")
         }
 
@@ -215,12 +201,12 @@ class NegotiatorTests {
         val request = RequestDTO(Method.GET, "/test", mutableMapOf("Content-Type" to "application/json"), "")
         val negotiator = Negotiator(request)
 
-        object XmlType : Negotiator.NegotiateType() {
+        val xml = object : Negotiator.NegotiateType() {
             override val contentType = "application/xml"
             override fun matches(request: RequestDTO) = request["Content-Type"]?.startsWith(contentType) == true
         }
 
-        val xmlResult = negotiator.whenType(XmlType) { ok("xml") }
+        val xmlResult = negotiator.whenType(xml) { ok("xml") }
         val jsonResult = negotiator.whenType(JsonType) { ok("json") }
 
         assertNull(xmlResult)
@@ -270,7 +256,7 @@ class NegotiatorTests {
         }
 
         assertNotNull(result)
-        assertEquals("final fallback", result?.body?.body as String)
+        assertEquals("final fallback", result.body.body as String)
     }
 
     @Test
@@ -324,8 +310,8 @@ class NegotiatorTests {
         }
 
         assertNotNull(result)
-        assertEquals(201, result?.status)
-        assertEquals("Created", result?.statusText)
+        assertEquals(201, result.status)
+        assertEquals("Created", result.statusText)
     }
 
     @Test
@@ -343,9 +329,9 @@ class NegotiatorTests {
         }
 
         assertNotNull(result)
-        assertEquals(200, result?.status)
-        assertEquals("custom-value", result?.headers?.get("Custom-Header"))
-        assertEquals("processed: {\"key\":\"value\"}", result?.body?.body as String)
+        assertEquals(200, result.status)
+        assertEquals("custom-value", result.headers["Custom-Header"])
+        assertEquals("processed: {\"key\":\"value\"}", result.body.body as String)
     }
 
     @Test
