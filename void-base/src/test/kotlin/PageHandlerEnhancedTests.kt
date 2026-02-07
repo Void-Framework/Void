@@ -2,9 +2,11 @@ package test
 
 import io.voidx.Method
 import io.voidx.dto.buildRequest
+import io.voidx.dto.buildResponse
 import io.voidx.dto.ok
 import io.voidx.page.PageHandler
 import io.voidx.page.route
+import org.junit.jupiter.api.Assertions.assertNotNull
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
