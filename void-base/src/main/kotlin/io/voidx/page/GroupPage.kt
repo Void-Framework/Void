@@ -2,6 +2,7 @@ package io.voidx.page
 
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
+import io.voidx.json.Negotiator
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
 import io.voidx.router.util.RouteCheck
@@ -250,7 +251,7 @@ class GroupPage(
 
         return handledByChild
             ?: if (isThisIt) {
-                responses[request.method]?.invoke(request)
+                responses[request.method]?.invoke(Negotiator(request))
             } else {
                 RouteCheck.nullPage.apply { this.request = this@GroupPage.request }.content()
             }!!
