@@ -87,7 +87,7 @@ object JsonType : Negotiator.NegotiateType {
      * @param request The request to inspect.
      * @return `true` if the request's "Content-Type" header starts with `contentType`, `false` otherwise.
      */
-    override fun matches(request: RequestDTO): Boolean = request["Content-Type"]?.startsWith(contentType) == true
+    override fun matches(request: RequestDTO): Boolean = request["Content-Type"]?.startsWith(contentType, true) == true
 }
 
 /**

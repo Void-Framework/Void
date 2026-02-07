@@ -274,8 +274,8 @@ class NegotiatorTests {
     @Test
     fun `test JsonType matches case sensitive content type`() {
         val request = RequestDTO(Method.GET, "/test", mutableMapOf("Content-Type" to "Application/JSON"), "")
-        // Assuming the implementation is case-sensitive
-        assertFalse(JsonType.matches(request))
+        // Assuming the implementation is case-insensitive
+        assertTrue(JsonType.matches(request))
     }
 
     @Test
