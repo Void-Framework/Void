@@ -18,11 +18,11 @@ class Negotiator(
     /**
      * Defines a type used for content negotiation based on a content type string.
      */
-    abstract class NegotiateType {
+    interface NegotiateType {
         /**
          * The primary MIME type associated with this negotiate type.
          */
-        abstract val contentType: String
+        val contentType: String
 
         /**
          * Determines whether the given request satisfies this negotiate type's criteria.
@@ -30,7 +30,7 @@ class Negotiator(
          * @param request The request to evaluate.
          * @return `true` if the request matches this negotiate type's criteria, `false` otherwise.
          */
-        abstract fun matches(request: RequestDTO): Boolean
+        fun matches(request: RequestDTO): Boolean
     }
 
     /**
@@ -78,7 +78,7 @@ class Negotiator(
 /**
  * A [Negotiator.NegotiateType] implementation for "application/json".
  */
-object JsonType : Negotiator.NegotiateType() {
+object JsonType : Negotiator.NegotiateType {
     override val contentType: String = "application/json"
 
     /**
