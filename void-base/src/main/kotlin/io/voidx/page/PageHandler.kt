@@ -5,21 +5,35 @@ import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.dto.emptyResponse
 import io.voidx.json.Negotiator
+import io.voidx.dto.buildResponse
+import io.voidx.router.util.RouteCheck
 
 /**
  * Lightweight page that dispatches to verb-specific handlers for API-style routes.
  *
  * Use infix functions like `on("/path") GET { ... }` to register handlers per HTTP method.
  */
-class PageHandler(
+open class PageHandler(
     override val target: String,
 ) : DynamicPage(
         target = target,
     ) {
-    val responses = mutableMapOf<Method, Negotiator.() -> ResponseDTO>()
+    val responses =
+        mutableMapOf<Method, Negotiator.() -> ResponseDTO>().apply {
+            Method.entries.forEach {
+                put(it) {
+                    buildResponse {
+                        status = 405
+                        statusText = "Method Not Allowed"
+                        body = "Method Not Allowed"
+                    }
+                }
+            }
+        }
 
     /** Returns the response from the registered handler for [RequestDTO.method], or an empty response if none. */
-    override fun content(): ResponseDTO = responses[request.method]?.invoke(Negotiator(request)) ?: emptyResponse()
+    override fun content(): ResponseDTO =
+        responses[request.method]?.invoke(Negotiator(request)) ?: RouteCheck.nullPage.apply { this.request = this@PageHandler.request }.content()
 
     /** Registers a GET handler. */
     infix fun GET(body: Negotiator.() -> ResponseDTO): PageHandler = apply { responses[Method.GET] = body }
