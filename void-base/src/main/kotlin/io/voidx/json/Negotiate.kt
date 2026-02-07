@@ -3,19 +3,30 @@ package io.voidx.json
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 
+/**
+ * Handles content negotiation for a given [RequestDTO].
+ *
+ * @property request The request to perform negotiation on.
+ */
 class Negotiator(
     val request: RequestDTO,
 ) {
+    /**
+     * Defines a type used for content negotiation based on a content type string.
+     */
     abstract class NegotiateType {
+        /**
+         * The primary MIME type associated with this negotiate type.
+         */
         abstract val contentType: String
 
         /**
- * Determines whether the given request satisfies this negotiate type's criteria.
- *
- * @param request The request to evaluate.
- * @return `true` if the request matches this negotiate type's criteria, `false` otherwise.
- */
-abstract fun matches(request: RequestDTO): Boolean
+         * Determines whether the given request satisfies this negotiate type's criteria.
+         *
+         * @param request The request to evaluate.
+         * @return `true` if the request matches this negotiate type's criteria, `false` otherwise.
+         */
+        abstract fun matches(request: RequestDTO): Boolean
     }
 
     /**
@@ -31,24 +42,27 @@ abstract fun matches(request: RequestDTO): Boolean
     ): T? = if (type.matches(request)) block() else null
 
     /**
- * Provide a fallback ResponseDTO by invoking the given Negotiator-scoped block when the receiver is null.
- *
- * @param block Fallback factory invoked on a Negotiator when the receiver is null; may return null.
- * @return The original response if not null, otherwise the response produced by `block`.
- */
-infix fun ResponseDTO?.or(block: Negotiator.() -> ResponseDTO?): ResponseDTO? = this ?: block()
+     * Provide a fallback ResponseDTO by invoking the given Negotiator-scoped block when the receiver is null.
+     *
+     * @param block Fallback factory invoked on a Negotiator when the receiver is null; may return null.
+     * @return The original response if not null, otherwise the response produced by `block`.
+     */
+    infix fun ResponseDTO?.or(block: Negotiator.() -> ResponseDTO?): ResponseDTO? = this ?: block()
 }
 
+/**
+ * A [Negotiator.NegotiateType] implementation for "application/json".
+ */
 object JsonType : Negotiator.NegotiateType() {
     override val contentType: String = "application/json"
 
     /**
- * Checks whether the request's "Content-Type" header starts with this negotiate type's content type.
- *
- * @param request The request to inspect.
- * @return `true` if the request's "Content-Type" header starts with `contentType`, `false` otherwise.
- */
-override fun matches(request: RequestDTO): Boolean = request["Content-Type"]?.startsWith(contentType) == true
+     * Checks whether the request's "Content-Type" header starts with this negotiate type's content type.
+     *
+     * @param request The request to inspect.
+     * @return `true` if the request's "Content-Type" header starts with `contentType`, `false` otherwise.
+     */
+    override fun matches(request: RequestDTO): Boolean = request["Content-Type"]?.startsWith(contentType) == true
 }
 
 /**
