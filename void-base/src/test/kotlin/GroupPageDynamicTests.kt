@@ -209,7 +209,7 @@ class GroupPageDynamicTests {
 
         root.request = RequestDTO(Method.GET, "/api/products", mutableMapOf(), "")
         val resp = root.content()
-        // Should return 404 or empty response for unmatched route
+        assertEquals(404, resp.status)
         assertNotNull(resp)
     }
 
@@ -461,9 +461,10 @@ class GroupPageDynamicTests {
         val resp = root.content()
         root.middlewareProcessAfter(Result.success(resp))
 
-        // Child should have inherited parent middleware
-        assert(parentBeforeCalled || childBeforeCalled) { "Before middleware should be called" }
-        assert(parentAfterCalled || childAfterCalled) { "After middleware should be called" }
+        assert(parentBeforeCalled) { "Parent before middleware should be called" }
+        assert(childBeforeCalled) { "Child before middleware should be called" }
+        assert(parentAfterCalled) { "Parent after middleware should be called" }
+        assert(childAfterCalled) { "Child after middleware should be called" }
     }
 
     @Test
