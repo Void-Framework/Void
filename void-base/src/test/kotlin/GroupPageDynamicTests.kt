@@ -130,6 +130,7 @@ class GroupPageDynamicTests {
             }
 
         root.request = RequestDTO(Method.GET, "/api/v1", mutableMapOf(), "")
+        root.middlewareProcessBefore()
         root.content()
 
         // Both middleware should be called due to inheritance
@@ -152,7 +153,7 @@ class GroupPageDynamicTests {
             }
 
         root.request = RequestDTO(Method.GET, "/protected/123", mutableMapOf(), "")
-        val resp = root.content()
+        val resp = root.middlewareProcessBefore() ?: root.content()
         assertEquals("blocked", (resp.body as ResponseBody.StringBody).body)
     }
 
@@ -455,6 +456,7 @@ class GroupPageDynamicTests {
             }
 
         root.request = RequestDTO(Method.GET, "/api/v1", mutableMapOf(), "")
+        root.middlewareProcessBefore()
         val resp = root.content()
         root.middlewareProcessAfter(Result.success(resp))
 
