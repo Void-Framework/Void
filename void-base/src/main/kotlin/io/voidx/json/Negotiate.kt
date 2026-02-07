@@ -48,6 +48,15 @@ class Negotiator(
      * @return The original response if not null, otherwise the response produced by `block`.
      */
     infix fun ResponseDTO?.or(block: Negotiator.() -> ResponseDTO?): ResponseDTO? = this ?: block()
+
+
+    /**
+     * Provide a fallback ResponseDTO by invoking the given block when the receiver is null.
+     *
+     * @param block Fallback factory when the receiver is null.
+     * @return The original response if not null, otherwise the response produced by `block`.
+     */
+    infix fun ResponseDTO?.orElse(block: (RequestDTO) -> ResponseDTO): ResponseDTO = this ?: block(request)
 }
 
 /**
