@@ -16,6 +16,12 @@ class Negotiator(
         type: NegotiateType,
         block: () -> T
     ): T? = if (type.matches(request)) block() else null
+
+    infix fun ResponseDTO?.or(
+        block: Negotiator.() -> ResponseDTO?
+    ): ResponseDTO? =
+        this ?: block()
+
 }
 
 object JsonType : Negotiator.NegotiateType() {
