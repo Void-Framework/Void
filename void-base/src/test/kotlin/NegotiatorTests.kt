@@ -136,7 +136,7 @@ class NegotiatorTests {
 
     @Test
     fun `test custom NegotiateType can be created and used`() {
-        val xml = object : Negotiator.NegotiateType() {
+        val xml = object : Negotiator.NegotiateType {
             override val contentType = "application/xml"
             override fun matches(request: RequestDTO) = request["Content-Type"]?.startsWith(contentType) == true
         }
@@ -154,7 +154,7 @@ class NegotiatorTests {
 
     @Test
     fun `test custom NegotiateType with complex matching logic`() {
-        val complex = object : Negotiator.NegotiateType() {
+        val complex = object : Negotiator.NegotiateType {
             override val contentType = "application/vnd.api+json"
             override fun matches(request: RequestDTO): Boolean {
                 val ct = request["Content-Type"] ?: return false
@@ -201,7 +201,7 @@ class NegotiatorTests {
         val request = RequestDTO(Method.GET, "/test", mutableMapOf("Content-Type" to "application/json"), "")
         val negotiator = Negotiator(request)
 
-        val xml = object : Negotiator.NegotiateType() {
+        val xml = object : Negotiator.NegotiateType {
             override val contentType = "application/xml"
             override fun matches(request: RequestDTO) = request["Content-Type"]?.startsWith(contentType) == true
         }
