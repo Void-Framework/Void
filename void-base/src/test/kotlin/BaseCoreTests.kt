@@ -57,7 +57,7 @@ class BaseCoreTests {
         var afterCalled = false
         val page =
             route("/hello") {
-                GET { _ ->
+                GET {
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
