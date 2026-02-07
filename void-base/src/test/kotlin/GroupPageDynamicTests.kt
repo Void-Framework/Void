@@ -134,7 +134,8 @@ class GroupPageDynamicTests {
         root.content()
 
         // Both middleware should be called due to inheritance
-        assert(parentBeforeCalled || childBeforeCalled) { "At least one middleware should be called" }
+        assert(parentBeforeCalled) { "Parent middleware should be called" }
+        assert(childBeforeCalled) { "Child middleware should be called" }
     }
 
     @Test
