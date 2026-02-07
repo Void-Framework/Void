@@ -10,20 +10,21 @@ import kotlin.test.assertEquals
 class GroupPageDynamicTests {
     @Test
     fun `test dynamic segments in group paths`() {
-        val root = groupRoute("/users") {
-            group("/{userId}") {
-                GET { 
-                    val userId = path<String>("userId")
-                    ok("User ID: $userId") 
-                }
-                group("/posts") {
+        val root =
+            groupRoute("/users") {
+                group("/{userId}") {
                     GET {
                         val userId = path<String>("userId")
-                        ok("Posts for user: $userId")
+                        ok("User ID: $userId")
+                    }
+                    group("/posts") {
+                        GET {
+                            val userId = path<String>("userId")
+                            ok("Posts for user: $userId")
+                        }
                     }
                 }
             }
-        }
 
         // Test /users/123
         root.request = RequestDTO(Method.GET, "/users/123", mutableMapOf(), "")
@@ -40,19 +41,20 @@ class GroupPageDynamicTests {
 
     @Test
     fun `test multiple dynamic segments in hierarchy`() {
-        val root = groupRoute("/org") {
-            group("/{orgId}") {
-                group("/projects") {
-                    group("/{projectId}") {
-                        GET {
-                            val orgId = path<String>("orgId")
-                            val projectId = path<String>("projectId")
-                            ok("Org: $orgId, Project: $projectId")
+        val root =
+            groupRoute("/org") {
+                group("/{orgId}") {
+                    group("/projects") {
+                        group("/{projectId}") {
+                            GET {
+                                val orgId = path<String>("orgId")
+                                val projectId = path<String>("projectId")
+                                ok("Org: $orgId, Project: $projectId")
+                            }
                         }
                     }
                 }
             }
-        }
 
         root.request = RequestDTO(Method.GET, "/org/voidx/projects/1", mutableMapOf(), "")
         val resp = root.content()
