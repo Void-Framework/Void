@@ -91,7 +91,7 @@ class Router :
         recomputeMiddlewareSnapshot()
     }
 
-    private fun recomputeMiddlewareSnapshot() {
+    internal fun recomputeMiddlewareSnapshot() {
         internalRelay = relay.sortedByDescending { it.priority }
     }
 
@@ -185,7 +185,6 @@ class Router :
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
         val query: Map<String, String> = parseQuery(rawTarget)
         var usedPage: Page? = null
-        var pageBeforeEmitted = false
         val pre = middlewareProcessBefore(requestDTO.toResult())
         val response =
             if (pre != null) {
@@ -200,15 +199,14 @@ class Router :
                 } else {
                     val staticPage = routes[target]
                     if (staticPage != null) {
-                        val page = staticPage
-                        usedPage = page
-                        synchronized(page) {
-                            page.queries = query
-                            page.request = requestDTO
+                        usedPage = staticPage
+                        synchronized(staticPage) {
+                            staticPage.queries = query
+                            staticPage.request = requestDTO
                             // Per-page event system removed; keep behavior otherwise
 
-                            page.middlewareProcessBefore()
-                                ?: handleResponse(page, clientHandler, target)
+                            staticPage.middlewareProcessBefore()
+                                ?: handleResponse(staticPage, clientHandler, target)
                         }
                     } else {
                         handleDynamic(requestDTO, query)
@@ -232,7 +230,7 @@ class Router :
         response._request = requestDTO
 
         if (usedPage != null) {
-            val page = usedPage!!
+            val page = usedPage
             synchronized(page) {
                 page.middlewareProcessAfter(response.toResult())
             }
@@ -330,7 +328,10 @@ fun listResourcePaths(folder: String): List<String> {
 }
 
 /**
- * DSL entry to create a [Router] and configure it with the provided [builder] block.
+ * Create a Router and apply the given configuration block to it.
+ *
+ * @param builder Configuration block invoked on the newly created Router.
+ * @return The configured Router instance.
  */
 fun router(builder: Router.() -> Unit): Router {
     val router = Router()

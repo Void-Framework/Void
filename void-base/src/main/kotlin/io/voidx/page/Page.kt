@@ -19,7 +19,8 @@ abstract class Page(
     open val target: String,
 ) {
     /** The current request bound to this page during handling. */
-    lateinit var request: RequestDTO
+    open lateinit var request: RequestDTO
+        internal set
     internal val relaysBefore = mutableListOf<Relay>()
     internal val relaysAfter = mutableListOf<Relay>()
 
@@ -77,7 +78,7 @@ abstract class Page(
      *
      * @return The first `ResponseDTO` produced by a BEFORE middleware with its `_request` set, or `null` if none produced a response.
      */
-    fun middlewareProcessBefore(): ResponseDTO? {
+    internal open fun middlewareProcessBefore(): ResponseDTO? {
         relaysBefore.forEach {
             val newResponse = (it as? RelayBefore)?.processBefore(request.toResult())
             if (newResponse != null) {
@@ -91,7 +92,7 @@ abstract class Page(
     /**
      * Runs all registered [RelayAfter] middlewares with the produced [response].
      */
-    internal fun middlewareProcessAfter(response: Result<ResponseDTO>) {
+    internal open fun middlewareProcessAfter(response: Result<ResponseDTO>) {
         relaysAfter.forEach {
             (it as? RelayAfter)?.processAfter(response)
         }
@@ -134,10 +135,17 @@ fun exceptionPage(block: ExceptionPage.() -> ResponseDTO): ExceptionPage =
     }
 
 /**
- * Defines a 404 page rendered when no route matches the request.
- * The [block] is invoked to produce a raw [ResponseDTO].
+ * Creates a NotFoundPage that renders when no route matches the request.
+ *
+ * @param block Lambda executed as the page's `content()` to produce the response.
+ * @return A NotFoundPage whose `content()` returns the `ResponseDTO` produced by `block`.
  */
 fun notFoundPage(block: NotFoundPage.() -> ResponseDTO): NotFoundPage =
     object : NotFoundPage() {
+        /**
+         * Execute the configured block to build the page response.
+         *
+         * @return The ResponseDTO produced by the provided block.
+         */
         override fun content() = block()
     }
