@@ -27,7 +27,7 @@ dependencies {
     api(libs.org.jetbrains.kotlin.kotlin.stdlib)
     api(libs.org.jetbrains.kotlin.kotlin.reflect)
     api(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
-    api("org.slf4j:slf4j-api:2.0.17")
+    api("org.slf4j:slf4j-api:2.0.18")
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
