@@ -1,9 +1,7 @@
 package test
 
-import io.voidx.util.readResourceText
-import kotlin.test.Test
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import io.voidx.util.*
+import kotlin.test.*
 
 class UtilFunctionsTests {
     @Test
@@ -30,5 +28,35 @@ class UtilFunctionsTests {
         assertFailsWith<IllegalStateException> {
             readResourceText("/nope/never.txt", UtilFunctionsTests::class.java)
         }
+    }
+
+    @Test
+    fun toResult_wraps_correctly() {
+        val success = "ok".toResult()
+        assertTrue(success.isSuccess)
+        assertEquals("ok", success.getOrNull())
+
+        val ex = Exception("fail")
+        val failure = ex.toResult<String>()
+        assertTrue(failure.isFailure)
+        assertEquals(ex, failure.exceptionOrNull())
+    }
+
+    @Test
+    fun trimTrailingEmpty_removes_only_last_if_empty() {
+        val list1 = mutableListOf("a", "b", "")
+        assertTrue(list1.trimTrailingEmpty())
+        assertEquals(listOf("a", "b"), list1)
+
+        val list2 = mutableListOf("a", "b")
+        assertFalse(list2.trimTrailingEmpty())
+        assertEquals(listOf("a", "b"), list2)
+
+        val list3 = mutableListOf<String>()
+        assertFalse(list3.trimTrailingEmpty())
+
+        val list4 = mutableListOf("", "")
+        assertTrue(list4.trimTrailingEmpty())
+        assertEquals(listOf(""), list4)
     }
 }
