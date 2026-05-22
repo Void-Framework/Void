@@ -1,6 +1,5 @@
 package test
 
-import io.voidx.ClientHandler
 import io.voidx.Server
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.buildResponse

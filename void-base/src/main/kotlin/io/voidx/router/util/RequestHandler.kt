@@ -1,12 +1,10 @@
 package io.voidx.router.util
 
-import io.voidx.ClientHandler
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.page.DynamicPage
 import io.voidx.page.Page
 import io.voidx.page.Path
-import io.voidx.util.toResult
 import io.voidx.util.trimTrailingEmpty
 import java.util.concurrent.ConcurrentHashMap
 
@@ -89,14 +87,10 @@ internal interface RequestHandler {
      * Obtain the response for a static page by evaluating its content.
      *
      * @param page The static page whose content will be evaluated to build the response.
-     * @param clientHandler The client handler associated with the request (provided for context).
-     * @param target The request target path that led to this page.
      * @return The ResponseDTO produced by the page's content.
      */
     fun handleResponse(
         page: Page,
-        clientHandler: ClientHandler,
-        target: String,
         requestDTO: RequestDTO,
         query: Map<String, String>
     ): ResponseDTO = page.content(requestDTO, query)

@@ -1,6 +1,5 @@
 package test
 
-import io.voidx.ClientHandler
 import io.voidx.Server
 import io.voidx.dto.buildResponse
 import io.voidx.page.exceptionPage

@@ -1,6 +1,5 @@
 package io.voidx.bootstrap
 
-import io.voidx.ClientHandler
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.dto.buildResponse
@@ -45,7 +44,7 @@ object Bootstrap {
     // ---- Special route handlers (pre-dispatch short-circuit) ----
     private data class SpecialRoute(
         val priority: Int,
-        val handler: (RequestDTO, Map<String, String>, ClientHandler) -> ResponseDTO?,
+        val handler: (RequestDTO, Map<String, String>) -> ResponseDTO?,
     )
 
     private val specialRoutes = mutableSetOf<SpecialRoute>()
@@ -121,7 +120,7 @@ object Bootstrap {
     /** Register a prioritized pre-dispatch special route handler. Higher [priority] runs first. */
     fun registerSpecialRoute(
         priority: Int = 0,
-        handler: (RequestDTO, Map<String, String>, ClientHandler) -> ResponseDTO?,
+        handler: (RequestDTO, Map<String, String>) -> ResponseDTO?,
     ) {
         specialRoutes += SpecialRoute(priority, handler)
         // recompute snapshot sorted by priority desc
@@ -129,7 +128,7 @@ object Bootstrap {
     }
 
     /** Unregister a previously registered [handler]. */
-    fun unregisterSpecialRoute(handler: (RequestDTO, Map<String, String>, ClientHandler) -> ResponseDTO?) {
+    fun unregisterSpecialRoute(handler: (RequestDTO, Map<String, String>) -> ResponseDTO?) {
         // remove all entries with the same handler instance
         specialRoutes.removeAll { it.handler === handler }
         specialRoutesSnapshot = specialRoutes.sortedByDescending { it.priority }
@@ -138,7 +137,7 @@ object Bootstrap {
     /** Register and get an [AutoCloseable] handle to unregister. */
     fun addSpecialRoute(
         priority: Int = 0,
-        handler: (RequestDTO, Map<String, String>, ClientHandler) -> ResponseDTO?,
+        handler: (RequestDTO, Map<String, String>) -> ResponseDTO?,
     ): AutoCloseable {
         registerSpecialRoute(priority, handler)
         return AutoCloseable { unregisterSpecialRoute(handler) }
@@ -148,12 +147,11 @@ object Bootstrap {
     internal fun tryHandleSpecialRoute(
         request: RequestDTO,
         query: Map<String, String>,
-        clientHandler: ClientHandler,
     ): ResponseDTO? {
         val snapshot = specialRoutesSnapshot
         for (sr in snapshot) {
             try {
-                val resp = sr.handler(request, query, clientHandler)
+                val resp = sr.handler(request, query)
                 if (resp != null) return resp
             } catch (_: Throwable) {
                 // ignore faulty handlers
@@ -309,13 +307,13 @@ object Bootstrap {
         /** Register a prioritized special route handler (pre-dispatch). */
         fun registerSpecialRoute(
             priority: Int = 0,
-            handler: (RequestDTO, Map<String, String>, ClientHandler) -> ResponseDTO?,
+            handler: (RequestDTO, Map<String, String>) -> ResponseDTO?,
         ) = Bootstrap.registerSpecialRoute(priority, handler)
 
         /** Register a special route and get a handle to unregister. */
         fun addSpecialRoute(
             priority: Int = 0,
-            handler: (RequestDTO, Map<String, String>, ClientHandler) -> ResponseDTO?,
+            handler: (RequestDTO, Map<String, String>) -> ResponseDTO?,
         ): AutoCloseable = Bootstrap.addSpecialRoute(priority, handler)
     }
 
