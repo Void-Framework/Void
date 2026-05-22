@@ -1,10 +1,12 @@
 package io.voidx.dto
 
-import io.voidx.ClientHandler
 import io.voidx.Method
+import io.voidx.error
+import io.voidx.router.Router
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.net.Socket
 import java.net.URI
 import java.net.http.HttpRequest
 import java.util.*
@@ -64,9 +66,10 @@ data class RequestDTO(
          * and a minimal default GET request is returned to allow graceful handling.
          */
         internal fun parse(
-            inputStream: InputStream,
-            clientHandler: ClientHandler,
+            socket: Socket,
+            router: Router
         ): RequestDTO {
+            val inputStream = socket.getInputStream()
             val headers: MutableMap<String, String> = mutableMapOf()
             val method: Method
             val path: String
@@ -76,7 +79,7 @@ data class RequestDTO(
                 if (line.size < 2) throw IllegalArgumentException("Invalid request line")
                 method = Method.valueOf(line[0].uppercase(Locale.getDefault()))
             } catch (e: Exception) {
-                clientHandler.router.error(clientHandler, e)
+                socket.error(1.1, router, e)
                 return buildRequest {
                     this.method = Method.GET
                     target = "/"

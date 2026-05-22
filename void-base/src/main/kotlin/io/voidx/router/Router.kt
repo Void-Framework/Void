@@ -1,6 +1,5 @@
 package io.voidx.router
 
-import io.voidx.ClientHandler
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
@@ -14,6 +13,7 @@ import io.voidx.router.util.RequestHandler
 import io.voidx.router.util.RouteCheck
 import io.voidx.util.toResult
 import java.io.File
+import java.net.Socket
 import java.net.URLDecoder
 import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarFile
@@ -177,16 +177,15 @@ class Router :
      */
     internal fun route(
         requestDTO: RequestDTO,
-        clientHandler: ClientHandler,
+        client: Socket,
+        version: Number
     ) {
-        val client = clientHandler.client
         // Request lifecycle events removed; Bootstrap manages explicit hooks only
         val rawTarget = requestDTO.target
         val qMark = rawTarget.indexOf('?')
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
         val query: Map<String, String> = parseQuery(rawTarget)
         var usedPage: Page? = null
-        var pageBeforeEmitted = false
         val pre = middlewareProcessBefore(requestDTO.toResult())
         val response =
             if (pre != null) {
@@ -195,7 +194,7 @@ class Router :
                 pre
             } else {
                 // Give special routes a chance to short-circuit (no per-page hooks when they do)
-                val special = Bootstrap.tryHandleSpecialRoute(requestDTO, query, clientHandler)
+                val special = Bootstrap.tryHandleSpecialRoute(requestDTO, query)
                 if (special != null) {
                     special
                 } else {
@@ -204,7 +203,7 @@ class Router :
                         val page = staticPage
                         usedPage = page
                         page.middlewareProcessBefore(requestDTO)
-                            ?: handleResponse(page, clientHandler, target, requestDTO, query)
+                            ?: handleResponse(page, requestDTO, query)
                     } else {
                         handleDynamic(requestDTO, query)
                             ?: run {
@@ -222,10 +221,8 @@ class Router :
         response._request = requestDTO
 
         if (usedPage != null) {
-            val page = usedPage!!
-            synchronized(page) {
-                page.middlewareProcessAfter(response.toResult())
-            }
+            val page = usedPage
+            page.middlewareProcessAfter(response.toResult())
         }
 
         middlewareProcessAfter(
@@ -234,7 +231,7 @@ class Router :
         val out = client.getOutputStream()
         out.writeHTTP(
             response,
-            clientHandler.server.httpVersion,
+            version,
         )
     }
 
@@ -243,10 +240,10 @@ class Router :
      * occurs during request handling for the given [clientHandler].
      */
     internal fun error(
-        clientHandler: ClientHandler,
+        client: Socket,
         e: Exception,
+        version: Number
     ) {
-        val client = clientHandler.client
         // Invoke Bootstrap error handlers; request is unknown at this point
         Bootstrap.fireError(null, e)
         val exPage = RouteCheck.exceptionPage
@@ -254,7 +251,7 @@ class Router :
             response = exPage.content(buildRequest {  }.apply {
                 attributes["exception"] = e
             }, emptyMap()),
-            version = clientHandler.server.httpVersion,
+            version = version,
         )
     }
 

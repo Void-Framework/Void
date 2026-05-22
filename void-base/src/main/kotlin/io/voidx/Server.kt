@@ -1,11 +1,13 @@
 package io.voidx
 
 import io.voidx.bootstrap.Bootstrap
+import io.voidx.dto.RequestDTO
 import io.voidx.dto.buildResponse
 import io.voidx.dto.headers
 import io.voidx.dto.writeHTTP
 import io.voidx.exception.NotEnoughCarriers
 import io.voidx.router.Router
+import io.voidx.util.toResult
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileInputStream
@@ -94,9 +96,9 @@ class Server(
                     } else {
                         scope.launch {
                             try {
-                                client.handle(this@Server, router)
+                                client.handle(this@Server.httpVersion, router)
                             } catch (e: Exception) {
-                                client.error(this@Server, router, e)
+                                client.error(this@Server.httpVersion, router, e)
                             }
                         }
                     }
@@ -152,9 +154,9 @@ class Server(
                     client.startHandshake()
                     scope.launch {
                         try {
-                            client.handle(this@Server, router)
+                            client.handle(this@Server.httpVersion, router)
                         } catch (e: Exception) {
-                            client.error(this@Server, router, e)
+                            client.error(this@Server.httpVersion, router, e)
                         }
                     }
                 }
@@ -275,24 +277,52 @@ fun simpleServer(
 }
 
 /**
- * Handles an incoming connection [Socket] by delegating processing to [ClientHandler].
+ * Handles an incoming connection [Socket].
  */
 fun Socket.handle(
-    server: Server,
+    version: Number,
     router: Router,
 ) {
-    ClientHandler(this, server, router).start()
+    try {
+        val request =
+            RequestDTO.parse(
+                inputStream = this.getInputStream()
+            )
+        router.route(
+            requestDTO = request,
+            client = this,
+            version = version
+        )
+    } catch (e: Exception) {
+        this.error(version, router, e)
+    } finally {
+        this.close()
+    }
 }
 
 /**
- * Handles an error that occurred while processing a connection by delegating to [ClientHandler.error].
+ * Handles an error that occurred while processing a connection by delegating to [Socket.error].
  *
  * @param exception The exception that was thrown during request processing.
  */
 fun Socket.error(
-    server: Server,
+    version: Number,
     router: Router,
     exception: Exception,
 ) {
-    ClientHandler(this, server, router).error(exception)
+    val response = router.middlewareProcessBefore(exception.toResult())
+    if (response != null) {
+        this.getOutputStream().writeHTTP(
+            response = response,
+            version = version,
+        )
+        return
+    }
+    try {
+        router.error(this, exception, version)
+    } catch (error: Exception) {
+        error.printStackTrace()
+    } finally {
+        this.close()
+    }
 }
