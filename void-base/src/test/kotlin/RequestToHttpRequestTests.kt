@@ -52,10 +52,11 @@ class RequestToHttpRequestTests {
     @Test
     fun buildRequest_various_methods() {
         Method.values().forEach { m ->
-            val req = buildRequest {
-                method = m
-                target = "/path"
-            }
+            val req =
+                buildRequest {
+                    method = m
+                    target = "/path"
+                }
             assertEquals(m, req.method)
             assertEquals("/path", req.target)
         }
@@ -63,12 +64,13 @@ class RequestToHttpRequestTests {
 
     @Test
     fun buildRequest_headers_dsl() {
-        val req = buildRequest {
-            headers {
-                put("A", "1")
-                put("B", "2")
+        val req =
+            buildRequest {
+                headers {
+                    put("A", "1")
+                    put("B", "2")
+                }
             }
-        }
         assertEquals("1", req.get("A"))
         assertEquals("2", req.get("B"))
         assertEquals("1", req.headers["A"])

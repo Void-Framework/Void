@@ -6,8 +6,8 @@ import io.voidx.handle
 import io.voidx.page.exceptionPage
 import io.voidx.page.notFoundPage
 import io.voidx.page.route
-import io.voidx.router.router
 import io.voidx.router.CustomPages
+import io.voidx.router.router
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import java.io.ByteArrayInputStream

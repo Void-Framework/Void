@@ -33,7 +33,10 @@ class RequestHandlerOptionalSegmentTests {
         val r = router { }
         val p =
             object : DynamicPage("/blog/{slug?}") {
-                override fun content(request: io.voidx.dto.RequestDTO, queries: Map<String, String>) = ok(data["slug"] ?: "index")
+                override fun content(
+                    request: io.voidx.dto.RequestDTO,
+                    queries: Map<String, String>,
+                ) = ok(data["slug"] ?: "index")
             }
         r.addRoute(p)
         val srv = Server(r, 1.1)
@@ -50,7 +53,10 @@ class RequestHandlerOptionalSegmentTests {
         // A dynamic that would match anything under root if not for favicon bypass
         val p =
             object : DynamicPage("/{x}") {
-                override fun content(request: io.voidx.dto.RequestDTO, queries: Map<String, String>) = ok("dyn")
+                override fun content(
+                    request: io.voidx.dto.RequestDTO,
+                    queries: Map<String, String>,
+                ) = ok("dyn")
             }
         r.addRoute(p)
 

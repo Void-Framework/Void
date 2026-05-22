@@ -26,6 +26,7 @@ import java.util.jar.JarFile
  */
 class Router {
     private var internalRelay: List<Relay> = emptyList()
+
     /**
      * Set of global middlewares registered in this router.
      * Higher priority relays run earlier for BEFORE hooks and earlier for AFTER hooks.
@@ -170,7 +171,7 @@ class Router {
     internal fun route(
         requestDTO: RequestDTO,
         client: Socket,
-        version: Number
+        version: Number,
     ) {
         // Request lifecycle events removed; Bootstrap manages explicit hooks only
         val rawTarget = requestDTO.target
@@ -179,12 +180,15 @@ class Router {
         val query: Map<String, String> by lazy { parseQuery(rawTarget) }
         var usedPage: Page? = null
 
-        val response = middlewareProcessBefore(requestDTO.toResult())
-            ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query)
-            ?: rootNode.match(target.split("/"), 1, mutableMapOf()).also {
-                usedPage = it
-            }?.content(requestDTO, query)
-            ?: CustomPages.nullPage.also { usedPage = it }.content(requestDTO, query)
+        val response =
+            middlewareProcessBefore(requestDTO.toResult())
+                ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query)
+                ?: rootNode
+                    .match(target.split("/"), 1, mutableMapOf())
+                    .also {
+                        usedPage = it
+                    }?.content(requestDTO, query)
+                ?: CustomPages.nullPage.also { usedPage = it }.content(requestDTO, query)
 
         // After deciding the response from BEFORE middleware/handler
         response._request = requestDTO
@@ -208,15 +212,19 @@ class Router {
     internal fun error(
         client: Socket,
         e: Exception,
-        version: Number
+        version: Number,
     ) {
         // Invoke Bootstrap error handlers; request is unknown at this point
         Bootstrap.fireError(null, e)
         val exPage = CustomPages.exceptionPage
         client.getOutputStream().writeHTTP(
-            response = exPage.content(buildRequest {  }.apply {
-                attributes["exception"] = e
-            }, emptyMap()),
+            response =
+                exPage.content(
+                    buildRequest { }.apply {
+                        attributes["exception"] = e
+                    },
+                    emptyMap(),
+                ),
             version = version,
         )
     }

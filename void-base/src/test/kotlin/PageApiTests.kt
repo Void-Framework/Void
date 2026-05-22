@@ -33,7 +33,10 @@ private class TestAfter : RelayAfter {
 }
 
 private class P : Page("/p") {
-    override fun content(request: RequestDTO, queries: Map<String, String>): ResponseDTO =
+    override fun content(
+        request: RequestDTO,
+        queries: Map<String, String>,
+    ): ResponseDTO =
         buildResponse<String> {
             status = 200
             statusText = "OK"

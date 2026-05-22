@@ -87,11 +87,12 @@ class Server(
                 socket = ServerSocket(port)
                 Bootstrap.fireAfterServerStart(Bootstrap.ServerKind.HTTP, port)
                 while (socket.isBound && !socket.isClosed) {
-                    val client = try {
-                        socket.accept()
-                    } catch (e: Exception) {
-                        if (socket.isClosed) break else throw e
-                    }
+                    val client =
+                        try {
+                            socket.accept()
+                        } catch (e: Exception) {
+                            if (socket.isClosed) break else throw e
+                        }
                     if (routeToHTTPS) {
                         scope.launch {
                             waitForHTTPSAndRedirect(client)
@@ -149,11 +150,12 @@ class Server(
                 httpsSocket.needClientAuth = needsAuth
                 Bootstrap.fireAfterServerStart(Bootstrap.ServerKind.HTTPS, port)
                 while (httpsSocket.isBound && !httpsSocket.isClosed) {
-                    val client = try {
-                        httpsSocket.accept() as SSLSocket
-                    } catch (e: Exception) {
-                        if (httpsSocket.isClosed) break else throw e
-                    }
+                    val client =
+                        try {
+                            httpsSocket.accept() as SSLSocket
+                        } catch (e: Exception) {
+                            if (httpsSocket.isClosed) break else throw e
+                        }
                     client.startHandshake()
                     scope.launch {
                         try {
@@ -293,12 +295,12 @@ fun Socket.handle(
     try {
         val request =
             RequestDTO.parse(
-                inputStream = this.getInputStream()
+                inputStream = this.getInputStream(),
             )
         router.route(
             requestDTO = request,
             client = this,
-            version = version
+            version = version,
         )
     } catch (e: Exception) {
         this.error(version, router, e)

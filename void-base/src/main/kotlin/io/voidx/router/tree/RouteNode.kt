@@ -14,10 +14,11 @@ import io.voidx.router.exceptions.RouteTargetUsedException
  */
 internal class RouteNode(
     val optional: Boolean = false,
-    val paramName: String? = null
+    val paramName: String? = null,
 ) {
     /** Map of static child segments to their respective nodes. */
     val staticChildren = HashMap<String, RouteNode>()
+
     /** The dynamic child node, if any. */
     var dynamicChild: RouteNode? = null
 
@@ -32,7 +33,11 @@ internal class RouteNode(
      * @param page The [Page] to associate with this route.
      * @throws RouteTargetUsedException if the route is already registered.
      */
-    fun insert(segments: List<String>, index: Int, page: Page) {
+    fun insert(
+        segments: List<String>,
+        index: Int,
+        page: Page,
+    ) {
         if (index == segments.size) {
             if (handler != null) {
                 throw RouteTargetUsedException(page.target)
@@ -46,33 +51,37 @@ internal class RouteNode(
         val isDynamic = part.matches(DYNAMIC_REGEX)
         val isOptional = part.matches(OPTIONAL_REGEX)
 
-        val node = when {
-            isOptional -> {
-                if (dynamicChild == null) {
-                    val name = extractParamName(part)
-                    dynamicChild = RouteNode(
-                        paramName = name,
-                        optional = true
-                    )
+        val node =
+            when {
+                isOptional -> {
+                    if (dynamicChild == null) {
+                        val name = extractParamName(part)
+                        dynamicChild =
+                            RouteNode(
+                                paramName = name,
+                                optional = true,
+                            )
+                    }
+                    dynamicChild!!
                 }
-                dynamicChild!!
-            }
-            isDynamic || isOptional -> {
-                if (dynamicChild == null) {
-                    val name = extractParamName(part)
-                    dynamicChild = RouteNode(
-                        paramName = name
-                    )
-                }
-                dynamicChild!!
-            }
 
-            else -> {
-                staticChildren.getOrPut(part) {
-                    RouteNode()
+                isDynamic || isOptional -> {
+                    if (dynamicChild == null) {
+                        val name = extractParamName(part)
+                        dynamicChild =
+                            RouteNode(
+                                paramName = name,
+                            )
+                    }
+                    dynamicChild!!
+                }
+
+                else -> {
+                    staticChildren.getOrPut(part) {
+                        RouteNode()
+                    }
                 }
             }
-        }
 
         node.insert(segments, index + 1, page)
     }
@@ -88,7 +97,7 @@ internal class RouteNode(
     fun match(
         segments: List<String>,
         index: Int,
-        params: MutableMap<String, String>
+        params: MutableMap<String, String>,
     ): Page? {
         if (index == segments.size) {
             if (dynamicChild != null && dynamicChild!!.optional) {
@@ -138,10 +147,9 @@ internal class RouteNode(
         /**
          * Extracts the parameter name from a segment string if it matches dynamic or optional patterns.
          */
-        private fun extractParamName(part: String): String {
-            return DYNAMIC_REGEX.matchEntire(part)?.groupValues?.get(1)
+        private fun extractParamName(part: String): String =
+            DYNAMIC_REGEX.matchEntire(part)?.groupValues?.get(1)
                 ?: OPTIONAL_REGEX.matchEntire(part)?.groupValues?.get(1)
                 ?: ""
-        }
     }
 }

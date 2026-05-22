@@ -1,12 +1,9 @@
 package io.voidx.dto
 
 import io.voidx.Method
-import io.voidx.error
-import io.voidx.router.Router
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.net.Socket
 import java.net.URI
 import java.net.http.HttpRequest
 import java.util.*
@@ -63,62 +60,6 @@ data class RequestDTO(
         }
 
     companion object {
-        /**
-         * Parses an incoming HTTP request from the given [socket] and [router] into a [RequestDTO].
-         * In case of malformed requests, the [Socket.error] path is invoked
-         * and a minimal default GET request is returned to allow graceful handling.
-         */
-        internal fun parse(
-            socket: Socket,
-            router: Router
-        ): RequestDTO {
-            val inputStream = socket.getInputStream()
-            val headers: MutableMap<String, String> = mutableMapOf()
-            val method: Method
-            val path: String
-            val reader = BufferedReader(InputStreamReader(inputStream))
-            val line = reader.readLine()?.split(" ") ?: throw IllegalStateException("Empty request received")
-            try {
-                if (line.size < 2) throw IllegalArgumentException("Invalid request line")
-                method = Method.valueOf(line[0].uppercase(Locale.getDefault()))
-            } catch (e: Exception) {
-                socket.error(1.1, router, e)
-                return buildRequest {
-                    this.method = Method.GET
-                    target = "/"
-                    this.headers.putAll(headers)
-                    body = ""
-                } // Provide a default request
-            }
-            path = line[1]
-
-            var headerLine: String?
-            while ((reader.readLine().also { headerLine = it }) != null && headerLine!!.isNotEmpty()) {
-                val header = headerLine.split(": ", limit = 2)
-                if (header.size == 2) headers[header[0]] = header[1]
-            }
-
-            val body = StringBuilder()
-            val contentLength = headers["Content-Length"]?.toIntOrNull()
-            // Per RFC 7231, a payload on GET has no defined semantics; many servers ignore it.
-            // We choose to ignore the body for GET requests even if Content-Length is present.
-            if (method.name != "GET" && contentLength != null && contentLength > 0) {
-                val charArray = CharArray(contentLength)
-                reader.read(charArray, 0, contentLength)
-                body.append(charArray)
-            }
-
-            val requestDTO: RequestDTO =
-                buildRequest {
-                    this.method = method
-                    this.target = path
-                    this.headers.putAll(headers)
-                    this.body = body.toString()
-                }
-
-            return requestDTO
-        }
-
         /**
          * Parses an incoming HTTP request from the given [inputStream] into a [RequestDTO].
          * This overload will return a minimal default GET request on parse errors.

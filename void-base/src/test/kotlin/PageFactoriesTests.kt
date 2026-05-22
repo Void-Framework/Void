@@ -22,9 +22,10 @@ class PageFactoriesTests {
                 }
             }
 
-        val req = io.voidx.dto.buildRequest {  }.apply {
-            attributes["exception"] = Exception()
-        }
+        val req =
+            io.voidx.dto.buildRequest { }.apply {
+                attributes["exception"] = Exception()
+            }
         val resp = p.content(req, emptyMap())
         assertEquals("Internal Server Error", resp.statusText)
         assertTrue(resp.body is ResponseBody.StringBody)
