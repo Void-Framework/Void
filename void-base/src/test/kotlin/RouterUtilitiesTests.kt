@@ -52,12 +52,12 @@ class RouterUtilitiesTests {
         val r = Router()
         val p1 = route("/a") { GET { _, _ -> ok("a") } }
         val p2 = route("/b") { GET { _, _ -> ok("b") } }
-        
+
         r.apply {
             route(p1)
             route(p2)
         }
-        
+
         val params = mutableMapOf<String, String>()
         assertNotNull(r.rootNode.match("/a".split("/"), 1, params))
         assertNotNull(r.rootNode.match("/b".split("/"), 1, params))

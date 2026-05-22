@@ -18,7 +18,10 @@ class NegoFallbackTests {
 
     private fun pageWithAccept(): Page =
         object : Page("/p") {
-            override fun content(request: io.voidx.dto.RequestDTO, queries: Map<String, String>) = throw UnsupportedOperationException()
+            override fun content(
+                request: io.voidx.dto.RequestDTO,
+                queries: Map<String, String>,
+            ) = throw UnsupportedOperationException()
         }
 
     @Test

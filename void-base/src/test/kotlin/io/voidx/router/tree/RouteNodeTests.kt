@@ -15,10 +15,10 @@ class RouteNodeTests {
         val root = RouteNode()
         val p1 = route("/a/b/c") { GET { _, _ -> ok("abc") } }
         val p2 = route("/a/b/d") { GET { _, _ -> ok("abd") } }
-        
+
         root.insert("/a/b/c".split("/"), 1, p1)
         root.insert("/a/b/d".split("/"), 1, p2)
-        
+
         val params = mutableMapOf<String, String>()
         assertEquals(p1, root.match("/a/b/c".split("/"), 1, params))
         assertEquals(p2, root.match("/a/b/d".split("/"), 1, params))
@@ -30,9 +30,9 @@ class RouteNodeTests {
     fun insert_and_match_dynamic_routes() {
         val root = RouteNode()
         val p = route("/user/{id}") { GET { _, _ -> ok("user") } }
-        
+
         root.insert("/user/{id}".split("/"), 1, p)
-        
+
         val params = mutableMapOf<String, String>()
         val matched = root.match("/user/42".split("/"), 1, params)
         assertEquals(p, matched)
@@ -43,9 +43,9 @@ class RouteNodeTests {
     fun insert_and_match_multiple_dynamic_segments() {
         val root = RouteNode()
         val p = route("/blog/{year}/{month}/{day}") { GET { _, _ -> ok("blog") } }
-        
+
         root.insert("/blog/{year}/{month}/{day}".split("/"), 1, p)
-        
+
         val params = mutableMapOf<String, String>()
         val matched = root.match("/blog/2026/05/22".split("/"), 1, params)
         assertEquals(p, matched)
@@ -59,7 +59,7 @@ class RouteNodeTests {
         val root = RouteNode()
         val p1 = route("/a") { GET { _, _ -> ok("1") } }
         val p2 = route("/a") { GET { _, _ -> ok("2") } }
-        
+
         root.insert("/a".split("/"), 1, p1)
         assertFailsWith<RouteTargetUsedException> {
             root.insert("/a".split("/"), 1, p2)
@@ -71,10 +71,10 @@ class RouteNodeTests {
         val root = RouteNode()
         val pStatic = route("/user/me") { GET { _, _ -> ok("me") } }
         val pDynamic = route("/user/{id}") { GET { _, _ -> ok("id") } }
-        
+
         root.insert("/user/me".split("/"), 1, pStatic)
         root.insert("/user/{id}".split("/"), 1, pDynamic)
-        
+
         val params = mutableMapOf<String, String>()
         assertEquals(pStatic, root.match("/user/me".split("/"), 1, params))
         assertEquals(pDynamic, root.match("/user/other".split("/"), 1, params))
@@ -85,15 +85,15 @@ class RouteNodeTests {
     fun insert_and_match_optional_dynamic_routes() {
         val root = RouteNode()
         val p = route("/blog/{slug?}") { GET { _, _ -> ok("blog") } }
-        
+
         root.insert("/blog/{slug?}".split("/"), 1, p)
-        
+
         val params = mutableMapOf<String, String>()
         // Match with value
         val matchedWith = root.match("/blog/hello".split("/"), 1, params)
         assertEquals(p, matchedWith)
         assertEquals("hello", params["slug"])
-        
+
         // Match without value
         params.clear()
         val matchedWithout = root.match("/blog".split("/"), 1, params)
@@ -106,19 +106,19 @@ class RouteNodeTests {
         val root = RouteNode()
         val p1 = route("/a/{b}/c") { GET { _, _ -> ok("1") } }
         val p2 = route("/a/{b}/{d?}") { GET { _, _ -> ok("2") } }
-        
+
         root.insert("/a/{b}/c".split("/"), 1, p1)
         root.insert("/a/{b}/{d?}".split("/"), 1, p2)
-        
+
         var params = mutableMapOf<String, String>()
         assertEquals(p1, root.match("/a/valB/c".split("/"), 1, params))
         assertEquals("valB", params["b"])
-        
+
         params = mutableMapOf()
         assertEquals(p2, root.match("/a/valB/other".split("/"), 1, params))
         assertEquals("valB", params["b"])
         assertEquals("other", params["d"])
-        
+
         params = mutableMapOf()
         assertEquals(p2, root.match("/a/valB".split("/"), 1, params))
         assertEquals("valB", params["b"])

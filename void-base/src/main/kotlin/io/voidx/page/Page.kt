@@ -30,7 +30,7 @@ abstract class Page(
     /** Builds the concrete [ResponseDTO] instance to be returned. */
     abstract fun content(
         request: RequestDTO,
-        queries: Map<String, String>
+        queries: Map<String, String>,
     ): ResponseDTO
 
     /**
@@ -126,7 +126,10 @@ fun route(
  */
 fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPage =
     object : ExceptionPage() {
-        override fun content(request: RequestDTO, queries: Map<String, String>): ResponseDTO = block(request.attributes["exception"] as Exception)
+        override fun content(
+            request: RequestDTO,
+            queries: Map<String, String>,
+        ): ResponseDTO = block(request.attributes["exception"] as Exception)
     }
 
 /**
@@ -135,5 +138,8 @@ fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPag
  */
 fun notFoundPage(block: NotFoundPage.(request: RequestDTO, queries: Map<String, String>) -> ResponseDTO): NotFoundPage =
     object : NotFoundPage() {
-        override fun content(request: RequestDTO, queries: Map<String, String>) = block(request, queries)
+        override fun content(
+            request: RequestDTO,
+            queries: Map<String, String>,
+        ) = block(request, queries)
     }

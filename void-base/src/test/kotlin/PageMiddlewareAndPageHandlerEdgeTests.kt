@@ -30,7 +30,6 @@ private class Sock(
 }
 
 class PageMiddlewareAndPageHandlerEdgeTests {
-
     @Test
     fun page_handler_returns_empty_response_when_method_unhandled() {
         val r = router { }

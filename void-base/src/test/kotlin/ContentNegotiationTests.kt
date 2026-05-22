@@ -19,11 +19,13 @@ class ContentNegotiationTests {
         val age: Int,
     )
 
-    private fun dummyPage(): Page {
-        return object : Page("/test") {
-            override fun content(request: RequestDTO, queries: Map<String, String>) = throw UnsupportedOperationException()
+    private fun dummyPage(): Page =
+        object : Page("/test") {
+            override fun content(
+                request: RequestDTO,
+                queries: Map<String, String>,
+            ) = throw UnsupportedOperationException()
         }
-    }
 
     @Test
     fun autoSerialize_respects_accept_json_by_default() {

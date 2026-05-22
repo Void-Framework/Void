@@ -101,7 +101,10 @@ fun RequestDTO.detectFormat(): Format {
  *
  * Generic overload preserves the static type [T] so kotlinx.serialization can locate the correct serializer.
  */
-inline fun <reified T : Any> Page.autoSerialize(request: RequestDTO, value: T): ResponseDTO {
+inline fun <reified T : Any> Page.autoSerialize(
+    request: RequestDTO,
+    value: T,
+): ResponseDTO {
     val accept = request.headers["Accept"] ?: "application/json"
     return when {
         "application/json" in accept -> {

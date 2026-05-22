@@ -18,7 +18,10 @@ class PageHandler(
     val responses = mutableMapOf<Method, (RequestDTO, Map<String, String>) -> ResponseDTO>()
 
     /** Returns the response from the registered handler for [RequestDTO.method], or an empty response if none. */
-    override fun content(request: RequestDTO, queries: Map<String, String>): ResponseDTO = responses[request.method]?.invoke(request, queries) ?: emptyResponse()
+    override fun content(
+        request: RequestDTO,
+        queries: Map<String, String>,
+    ): ResponseDTO = responses[request.method]?.invoke(request, queries) ?: emptyResponse()
 
     /** Registers a GET handler. */
     infix fun GET(body: (RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler = apply { responses[Method.GET] = body }

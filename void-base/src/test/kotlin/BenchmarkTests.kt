@@ -14,7 +14,6 @@ import kotlin.system.measureTimeMillis
 import kotlin.test.assertTrue
 
 class BenchmarkTests {
-
     companion object {
         private lateinit var server: Server
         private const val PORT = 9999
@@ -23,22 +22,23 @@ class BenchmarkTests {
         @JvmStatic
         @BeforeAll
         fun setup() {
-            val r = router {
-                route("/ping") {
-                    GET { _, _ -> ok("pong") }
+            val r =
+                router {
+                    route("/ping") {
+                        GET { _, _ -> ok("pong") }
+                    }
+                    route("/echo") {
+                        POST { req, _ -> ok(req.body) }
+                    }
+                    route("/user/{id}") {
+                        GET { _, _ -> ok("user ${data["id"]}") }
+                    }
                 }
-                route("/echo") {
-                    POST { req, _ -> ok(req.body) }
-                }
-                route("/user/{id}") {
-                    GET { _, _ -> ok("user ${data["id"]}") }
-                }
-            }
             server = Server(r)
             Thread {
                 server.startHTTPServer(PORT)
             }.start()
-            
+
             // Give server time to start
             Thread.sleep(1000)
         }
@@ -56,18 +56,19 @@ class BenchmarkTests {
     fun `benchmark ping throughput`() {
         val iterations = 2000
         val warmUp = 500
-        
+
         // Warm up
         repeat(warmUp) {
             fetch(BASE_URL, buildRequest { target = "/ping" })
         }
 
-        val time = measureTimeMillis {
-            repeat(iterations) {
-                val resp = fetch(BASE_URL, buildRequest { target = "/ping" })
-                assertTrue(resp.isSuccess)
+        val time =
+            measureTimeMillis {
+                repeat(iterations) {
+                    val resp = fetch(BASE_URL, buildRequest { target = "/ping" })
+                    assertTrue(resp.isSuccess)
+                }
             }
-        }
 
         val avgLatency = time.toDouble() / iterations
         // Using System.out.println to ensure it shows up in some environments if [DEBUG_LOG] doesn't
@@ -87,16 +88,17 @@ class BenchmarkTests {
             fetch(BASE_URL, buildRequest { target = "/user/123" })
         }
 
-        val time = measureTimeMillis {
-            repeat(iterations) {
-                val resp = fetch(BASE_URL, buildRequest { target = "/user/$it" })
-                assertTrue(resp.isSuccess)
+        val time =
+            measureTimeMillis {
+                repeat(iterations) {
+                    val resp = fetch(BASE_URL, buildRequest { target = "/user/$it" })
+                    assertTrue(resp.isSuccess)
+                }
             }
-        }
 
         val avgLatency = time.toDouble() / iterations
         System.out.println("[DEBUG_LOG] Dynamic route average latency: $avgLatency ms")
-        
+
         assertTrue(avgLatency < 2.0, "Dynamic route average latency $avgLatency ms exceeds threshold of 2 ms")
     }
 }

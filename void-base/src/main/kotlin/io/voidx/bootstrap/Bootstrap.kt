@@ -48,6 +48,7 @@ object Bootstrap {
     @Volatile private var errorHandlersSnapshot: List<(RequestDTO?, Throwable) -> Unit> = emptyList()
 
     // ---- Special route handlers (pre-dispatch short-circuit) ----
+
     /**
      * Represents a special route handler that runs before normal routing.
      * @property priority Higher priority handlers run earlier.
@@ -63,6 +64,7 @@ object Bootstrap {
     @Volatile private var specialRoutesSnapshot: List<SpecialRoute> = emptyList()
 
     // ---- Page decorators ----
+
     /**
      * Registers a page decorator globally.
      */
@@ -104,6 +106,7 @@ object Bootstrap {
     }
 
     // ---- Error handlers ----
+
     /**
      * Registers an error handler globally.
      */
