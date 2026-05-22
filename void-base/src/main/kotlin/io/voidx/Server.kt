@@ -28,7 +28,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * - Construct with a [Router]. During initialization, module hooks (see [io.voidx.util.ModuleInit])
  *   are executed and any registered HTML integration is applied to existing routes.
  * - Call [startHTTPServer] and/or [startHTTPSServer] to accept connections.
- * - Each connection is handled on a coroutine via [ClientHandler].
+ * - Each connection is handled on a coroutine via [Socket.handle].
  *
  * @param httpVersion HTTP version used when writing responses.
  */

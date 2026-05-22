@@ -54,7 +54,7 @@ class RouterDynamicAndMethodDispatchTests {
                     "Host: example.com\r\n\r\n",
             )
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
@@ -92,7 +92,7 @@ class RouterDynamicAndMethodDispatchTests {
             DynSock(
                 "GET /m HTTP/1.1\r\nHost: x\r\n\r\n",
             )
-        getSock.handle(srv, r)
+        getSock.handle(1.1, r)
         val getResp = getSock.text()
         assertTrue(getResp.startsWith("HTTP/1.1 200 OK\n"), getResp)
         assertEquals("g", getResp.substringAfter("\n\n"))
@@ -101,7 +101,7 @@ class RouterDynamicAndMethodDispatchTests {
             DynSock(
                 "POST /m HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\n\r\n",
             )
-        postSock.handle(srv, r)
+        postSock.handle(1.1, r)
         val postResp = postSock.text()
         assertTrue(postResp.startsWith("HTTP/1.1 200 OK\n"), postResp)
         assertEquals("p", postResp.substringAfter("\n\n"))
@@ -129,7 +129,7 @@ class RouterDynamicAndMethodDispatchTests {
                 "GET /u/42/ HTTP/1.1\r\nHost: x\r\n\r\n",
             )
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
@@ -158,7 +158,7 @@ class RouterDynamicAndMethodDispatchTests {
                 "GET /favicon.ico HTTP/1.1\r\nHost: x\r\n\r\n",
             )
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)

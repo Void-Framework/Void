@@ -61,8 +61,8 @@ data class RequestDTO(
 
     companion object {
         /**
-         * Parses an incoming HTTP request from the given [inputStream] into a [RequestDTO].
-         * In case of malformed requests, the [clientHandler] router error path is invoked
+         * Parses an incoming HTTP request from the given [socket] and [router] into a [RequestDTO].
+         * In case of malformed requests, the [Socket.error] path is invoked
          * and a minimal default GET request is returned to allow graceful handling.
          */
         internal fun parse(
@@ -118,8 +118,7 @@ data class RequestDTO(
 
         /**
          * Parses an incoming HTTP request from the given [inputStream] into a [RequestDTO].
-         * This overload does not require a [ClientHandler] and will return a minimal
-         * default GET request on parse errors.
+         * This overload will return a minimal default GET request on parse errors.
          */
         fun parse(inputStream: InputStream): RequestDTO {
             val headers: MutableMap<String, String> = mutableMapOf()

@@ -54,9 +54,7 @@ class BootstrapHookTests {
         try {
             val r = router { }
             val sock = TestSocketHooks("")
-            val srv = Server(r, 1.1)
-            val ch = io.voidx.ClientHandler(sock, srv, r)
-            r.error(ch, RuntimeException("boom"))
+            r.error(sock, RuntimeException("boom"), 1.1)
 
             assertEquals(1, called, "Error handler should be invoked once")
         } finally {
@@ -89,11 +87,9 @@ class BootstrapHookTests {
         try {
             val r = router { }
             val sock = TestSocketHooks("")
-            val srv = Server(r, 1.1)
-            val ch = io.voidx.ClientHandler(sock, srv, r)
-            r.error(ch, RuntimeException("boom"))
+            r.error(sock, RuntimeException("boom"), 1.1)
             handle.close()
-            r.error(ch, RuntimeException("boom2"))
+            r.error(sock, RuntimeException("boom2"), 1.1)
             assertEquals(1, count, "Error handler should have been unregistered by handle")
         } finally {
             try {
@@ -112,11 +108,10 @@ class BootstrapHookTests {
             +relayAfter(priority = 10) { resp -> if (resp.isSuccess) calls += "A10" }
         }
 
-        val sr = Bootstrap.addSpecialRoute(priority = 100) { _, _, _ -> ok("s") }
+        val sr = Bootstrap.addSpecialRoute(priority = 100) { _, _ -> ok("s") }
         try {
             val sock = TestSocketHooks("GET /p HTTP/1.1\r\nHost: x\r\n\r\n")
-            val srv = Server(r, 1.1)
-            sock.handle(srv, r)
+            sock.handle(1.1, r)
             assertEquals(listOf("A10", "A1"), calls)
         } finally {
             sr.close()

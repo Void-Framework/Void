@@ -70,7 +70,7 @@ class PageMiddlewareAndPageHandlerEdgeTests {
 
         val sock = Sock("GET /after HTTP/1.1\r\nHost: x\r\n\r\n")
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 418 I'm a teapot\n"), raw)
@@ -96,7 +96,7 @@ class PageMiddlewareAndPageHandlerEdgeTests {
         // Send PUT which has no handler. PageHandler.content() should return emptyResponse() default
         val sock = Sock("PUT /only-get HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\n\r\n")
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)

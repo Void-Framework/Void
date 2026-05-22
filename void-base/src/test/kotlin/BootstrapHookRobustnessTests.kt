@@ -53,9 +53,7 @@ class BootstrapHookRobustnessTests {
         try {
             val r = router { }
             val sock = SockBR("")
-            val srv = Server(r, 1.1)
-            val ch = io.voidx.ClientHandler(sock, srv, r)
-            r.error(ch, RuntimeException("err"))
+            r.error(sock, RuntimeException("err"), 1.1)
             assertEquals(listOf("ok1", "ok3"), called)
         } finally {
             h1.close()

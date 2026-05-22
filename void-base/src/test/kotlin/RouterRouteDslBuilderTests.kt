@@ -63,14 +63,14 @@ class RouterRouteDslBuilderTests {
 
         // GET request
         val s1 = RouteSock("GET /d HTTP/1.1\r\nHost: x\r\n\r\n")
-        s1.handle(srv, r)
+        s1.handle(1.1, r)
         val t1 = s1.text()
         assertTrue(t1.startsWith("HTTP/1.1 200 OK\n"), t1)
         assertEquals("get1", t1.substringAfter("\n\n"))
 
         // POST request
         val s2 = RouteSock("POST /d HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\n\r\n")
-        s2.handle(srv, r)
+        s2.handle(1.1, r)
         val t2 = s2.text()
         assertTrue(t2.startsWith("HTTP/1.1 200 OK\n"), t2)
         assertEquals("post1", t2.substringAfter("\n\n"))
