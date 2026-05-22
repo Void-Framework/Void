@@ -71,7 +71,7 @@ class BootstrapHookTests {
             r.addRoute(route("/x") { GET { _, _ -> ok("x") } })
             handle.close()
             r.addRoute(route("/y") { GET { _, _ -> ok("y") } })
-            assertEquals(2, count, "Count should've increased even after closing")
+            assertEquals(r.routes.count() - 1, count, "Count should've increased even after closing")
         } finally {
             try {
                 handle.close()

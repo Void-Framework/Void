@@ -31,7 +31,7 @@ private class Sock(
 
 class PageMiddlewareAndPageHandlerEdgeTests {
     @Test
-    fun page_handler_returns_empty_response_when_method_unhandled() {
+    fun page_handler_returns_405_when_method_unhandled() {
         val r = router { }
         r.addRoute(
             route("/only-get") {
@@ -52,8 +52,8 @@ class PageMiddlewareAndPageHandlerEdgeTests {
         sock.handle(1.1, r)
 
         val raw = sock.text()
-        assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
+        assertTrue(raw.startsWith("HTTP/1.1 405 Method Not Allowed\n"), raw)
         val body = raw.substringAfter("\n\n")
-        assertEquals("", body)
+        assertEquals("Method Not Allowed", body)
     }
 }

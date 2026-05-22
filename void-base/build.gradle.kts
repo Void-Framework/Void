@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     `maven-publish`
-    kotlin("plugin.serialization") version "2.3.0"
+    kotlin("plugin.serialization") version "2.3.21"
     id("org.jetbrains.dokka")
 }
 
@@ -27,12 +27,12 @@ dependencies {
     api(libs.org.jetbrains.kotlin.kotlin.stdlib)
     api(libs.org.jetbrains.kotlin.kotlin.reflect)
     api(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
-    api("org.slf4j:slf4j-api:2.0.17")
+    api("org.slf4j:slf4j-api:2.0.18")
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
-    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.10.0")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.10.0")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.11.0")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.11.0")
 }
 
 description = "void-base"

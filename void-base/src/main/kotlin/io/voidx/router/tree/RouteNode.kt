@@ -53,24 +53,13 @@ internal class RouteNode(
 
         val node =
             when {
-                isOptional -> {
-                    if (dynamicChild == null) {
-                        val name = extractParamName(part)
-                        dynamicChild =
-                            RouteNode(
-                                paramName = name,
-                                optional = true,
-                            )
-                    }
-                    dynamicChild!!
-                }
-
                 isDynamic || isOptional -> {
                     if (dynamicChild == null) {
                         val name = extractParamName(part)
                         dynamicChild =
                             RouteNode(
                                 paramName = name,
+                                optional = isOptional
                             )
                     }
                     dynamicChild!!
