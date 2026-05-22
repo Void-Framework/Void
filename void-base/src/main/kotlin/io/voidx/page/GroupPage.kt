@@ -35,6 +35,8 @@ class GroupPage(
     /** The collection of nested [PageHandler] routes registered within this group. */
     internal val routes = mutableListOf<PageHandler>()
 
+    internal var flattened = false
+
     /**
      * Creates and registers a nested GroupPage under the current page using the given path.
      *
@@ -57,9 +59,10 @@ class GroupPage(
     }
 
     internal fun flatten(): List<PageHandler> {
-        val pages = mutableListOf<PageHandler>()
+        this.flattened = true
+        val pages = mutableListOf<PageHandler>(this)
         routes.forEach {
-            if (it is GroupPage) pages.addAll(it.flatten())
+            if (it is GroupPage) pages.addAll(it.also { it.flattened = true }.flatten())
             else pages.add(it)
         }
         return pages
