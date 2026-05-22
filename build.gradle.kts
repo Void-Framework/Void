@@ -4,11 +4,11 @@
 
 plugins {
     `java-library`
-    kotlin("jvm") version "2.2.21"
+    kotlin("jvm") version "2.3.21"
 
-    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     // API docs generation
-    id("org.jetbrains.dokka") version "2.1.0"
+    id("org.jetbrains.dokka") version "2.2.0"
     id("jacoco")
 }
 

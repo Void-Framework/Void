@@ -1,4 +1,4 @@
-package test.sl
+package sl
 
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.ok

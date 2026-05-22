@@ -96,7 +96,7 @@ class Router {
         recomputeMiddlewareSnapshot()
     }
 
-    private fun recomputeMiddlewareSnapshot() {
+    internal fun recomputeMiddlewareSnapshot() {
         internalRelay = relay.sortedByDescending { it.priority }
     }
 
@@ -141,6 +141,9 @@ class Router {
 
             is NotFoundPage -> {
                 CustomPages.nullPage = route
+            }
+            is GroupPage -> {
+                addRoutes(route.flatten())
             }
 
             else -> {
@@ -286,7 +289,10 @@ fun listResourcePaths(folder: String): List<String> {
 }
 
 /**
- * DSL entry to create a [Router] and configure it with the provided [builder] block.
+ * Create a Router and apply the given configuration block to it.
+ *
+ * @param builder Configuration block invoked on the newly created Router.
+ * @return The configured Router instance.
  */
 fun router(builder: Router.() -> Unit): Router {
     val router = Router()
