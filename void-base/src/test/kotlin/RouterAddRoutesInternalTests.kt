@@ -18,8 +18,9 @@ class RouterAddRoutesInternalTests {
 
         val returned = r.addRoutes(listOf(p1, p2, p3))
         assertEquals(r, returned)
-        assertNotNull(r.routes["/a"])
-        assertNotNull(r.routes["/b"])
-        assertNotNull(r.routes["/c"])
+        val params = mutableMapOf<String, String>()
+        assertNotNull(r.rootNode.match("/a".split("/"), 1, params))
+        assertNotNull(r.rootNode.match("/b".split("/"), 1, params))
+        assertNotNull(r.rootNode.match("/c".split("/"), 1, params))
     }
 }

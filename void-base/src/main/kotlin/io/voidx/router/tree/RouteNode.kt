@@ -2,9 +2,11 @@ package io.voidx.router.tree
 
 import io.voidx.page.DynamicPage
 import io.voidx.page.Page
+import io.voidx.page.PageHandler
+import io.voidx.router.exceptions.RouteTargetUsedException
 
 internal class RouteNode(
-    val dynamic: Boolean = false,
+    val optional: Boolean = false,
     val paramName: String? = null
 ) {
     val staticChildren = HashMap<String, RouteNode>()
@@ -14,6 +16,9 @@ internal class RouteNode(
 
     fun insert(segments: List<String>, index: Int, page: Page) {
         if (index == segments.size) {
+            if (handler != null) {
+                throw RouteTargetUsedException(page.target)
+            }
             handler = page
             return
         }
@@ -24,11 +29,20 @@ internal class RouteNode(
         val isOptional = part.matches(OPTIONAL_REGEX)
 
         val node = when {
+            isOptional -> {
+                if (dynamicChild == null) {
+                    val name = extractParamName(part)
+                    dynamicChild = RouteNode(
+                        paramName = name,
+                        optional = true
+                    )
+                }
+                dynamicChild!!
+            }
             isDynamic || isOptional -> {
                 if (dynamicChild == null) {
                     val name = extractParamName(part)
                     dynamicChild = RouteNode(
-                        dynamic = true,
                         paramName = name
                     )
                 }
@@ -51,6 +65,16 @@ internal class RouteNode(
         params: MutableMap<String, String>
     ): Page? {
         if (index == segments.size) {
+            if (dynamicChild != null && dynamicChild!!.optional) {
+                params[dynamicChild!!.paramName ?: ""] = ""
+                if (handler is DynamicPage) {
+                    (handler as DynamicPage)._data.putAll(params)
+                }
+                return dynamicChild!!.handler
+            }
+            if (handler is DynamicPage) {
+                (handler as DynamicPage)._data.putAll(params)
+            }
             return handler
         }
 
@@ -65,6 +89,9 @@ internal class RouteNode(
         dynamicChild?.let { dyn ->
             params[dyn.paramName ?: ""] = part
             dyn.match(segments, index + 1, params)?.let {
+                if (it is DynamicPage) {
+                    it._data.putAll(params)
+                }
                 return it
             }
             params.remove(dyn.paramName ?: "")
