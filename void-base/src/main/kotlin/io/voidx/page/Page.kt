@@ -27,7 +27,13 @@ abstract class Page(
      */
     val attributes: MutableMap<String, Any> = mutableMapOf()
 
-    /** Builds the concrete [ResponseDTO] instance to be returned. */
+    /**
+     * Produce a response for the incoming request and its query parameters.
+     *
+     * @param request The incoming request to handle.
+     * @param queries Map of query parameter names to their values.
+     * @return The response to send for the given request and queries.
+     */
     abstract fun content(
         request: RequestDTO,
         queries: Map<String, String>,
@@ -68,12 +74,12 @@ abstract class Page(
     }
 
     /**
-     * Execute registered BEFORE middlewares and return the first middleware-produced response.
+     * Executes registered BEFORE middlewares and returns the first response produced by any middleware.
      *
-     * If a middleware returns a non-null ResponseDTO, that response will have its `_request`
-     * property set to this page's current request before being returned.
+     * The returned response, if any, will have its `_request` property set to the provided `request`.
      *
-     * @return The first `ResponseDTO` produced by a BEFORE middleware with its `_request` set, or `null` if none produced a response.
+     * @param request The request to pass to BEFORE middlewares.
+     * @return The first `ResponseDTO` produced by a BEFORE middleware with its `_request` set to the provided request, or `null` if none produced a response.
      */
     internal fun middlewareProcessBefore(request: RequestDTO): ResponseDTO? {
         relaysBefore.forEach {
@@ -87,7 +93,9 @@ abstract class Page(
     }
 
     /**
-     * Runs all registered [RelayAfter] middlewares with the produced [response].
+     * Invokes every registered after middleware with the provided response.
+     *
+     * @param response The `Result<ResponseDTO>` produced by page handling, forwarded to each `RelayAfter`'s `processAfter`.
      */
     internal fun middlewareProcessAfter(response: Result<ResponseDTO>) {
         relaysAfter.forEach {
@@ -122,10 +130,22 @@ fun route(
 }
 
 /**
- * Defines an exception page that returns a raw [ResponseDTO] via [block].
- */
+     * Creates an ExceptionPage whose content is rendered by the provided block using the exception stored in the request attributes.
+     *
+     * @param block Receiver-style function invoked with the `Exception` extracted from `request.attributes["exception"]` and expected to return the page `ResponseDTO`.
+     * @return An ExceptionPage instance that delegates its `content` to `block`.
+     */
 fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPage =
     object : ExceptionPage() {
+        /**
+         * Delegates page rendering to the configured exception handler by extracting the exception from the request.
+         *
+         * The exception is read from `request.attributes["exception"]` and passed to the handler block.
+         *
+         * @param request The incoming request which must contain the exception under the `"exception"` attribute.
+         * @param queries Unused by this implementation.
+         * @return The response produced by calling the exception handler with the extracted exception.
+         */
         override fun content(
             request: RequestDTO,
             queries: Map<String, String>,
@@ -140,6 +160,13 @@ fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPag
  */
 fun notFoundPage(block: NotFoundPage.(request: RequestDTO, queries: Map<String, String>) -> ResponseDTO): NotFoundPage =
     object : NotFoundPage() {
+        /**
+         * Create the response for a not-found (404) route.
+         *
+         * @param request The incoming request DTO.
+         * @param queries Map of query parameter names to values parsed from the request URI.
+         * @return The response to send to the client.
+         */
         override fun content(
             request: RequestDTO,
             queries: Map<String, String>,

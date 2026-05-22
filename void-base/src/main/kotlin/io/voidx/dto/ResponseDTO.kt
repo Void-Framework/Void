@@ -117,13 +117,20 @@ inline fun <reified T> buildResponse(builder: ResponseBuilder<T>.() -> Unit): Re
     }
 }
 
-/** Applies header mutations within the response builder DSL. */
+/**
+ * Applies the given header mutation block to this builder's headers.
+ *
+ * @param block A receiver lambda that mutates the builder's mutable headers map.
+ */
 fun ResponseBuilder<*>.headers(block: Headers.() -> Unit) {
     headers.block()
 }
 
 /**
- * DSL helper to create a [Headers] map.
+ * Creates a new mutable headers map and applies the provided DSL block to it.
+ *
+ * @param block A lambda with receiver applied to the newly created `Headers` map to populate or modify entries.
+ * @return The populated `Headers` map.
  */
 fun headers(block: Headers.() -> Unit): Headers {
     val map = mutableMapOf<String, String>()
@@ -132,8 +139,15 @@ fun headers(block: Headers.() -> Unit): Headers {
 }
 
 /**
- * Writes the given [response] to this [OutputStream] as an HTTP/1.x message with the provided [version].
- * Ensures Content-Length is present and streams either text or binary bodies appropriately.
+ * Writes the ResponseDTO to this OutputStream as an HTTP/1.x message using the specified version.
+ *
+ * The function writes the status line, headers, `Set-Cookie` lines for any cookies, a blank line, and the response body.
+ * If `Content-Length` is not present it will be set based on the response body size.
+ *
+ * Supports `ResponseBody.StringBody` and `ResponseBody.ByteArrayBody` payloads.
+ *
+ * @param response The response to serialize and send.
+ * @param version The HTTP major.minor version number to use in the status line (for example `1.1`).
  */
 fun OutputStream.writeHTTP(
     response: ResponseDTO,
@@ -182,7 +196,9 @@ fun OutputStream.writeHTTP(
 }
 
 /**
- * Returns an empty HTTP 200 OK response with a string body.
+ * Create an HTTP 200 OK response with an empty string body.
+ *
+ * @return A ResponseDTO with status 200, statusText "OK", empty string body, and default headers and cookies.
  */
 fun emptyResponse(): ResponseDTO = buildResponse<String> { }
 
@@ -202,8 +218,16 @@ sealed class ResponseBody<T>(
 }
 
 /**
- * Returns an HTTP 200 OK response with the given [body].
- */
+     * Create an HTTP 200 OK response using the provided body, headers, and cookies.
+     *
+     * The response will have status `200` and statusText `"OK"`. Supported body types are `String` and
+     * `ByteArray`; other types will cause an `IllegalArgumentException`.
+     *
+     * @param body The response payload.
+     * @param headers HTTP headers to set on the response.
+     * @param cookies Cookies to include as `Set-Cookie` entries.
+     * @return A `ResponseDTO` with status 200, statusText `"OK"`, and the supplied body, headers, and cookies.
+     */
 inline fun <reified T> ok(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -218,8 +242,13 @@ inline fun <reified T> ok(
     }
 
 /**
- * Returns an HTTP 201 Created response with the given [body].
- */
+     * Create an HTTP 201 Created response containing the provided body.
+     *
+     * @param body The response payload.
+     * @param headers Headers to include in the response.
+     * @param cookies Cookies to emit as `Set-Cookie` headers.
+     * @return A ResponseDTO with status 201, statusText "Created", the given body, and the provided headers and cookies.
+     */
 inline fun <reified T> created(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -234,8 +263,13 @@ inline fun <reified T> created(
     }
 
 /**
- * Returns an HTTP 202 Accepted response with the given [body].
- */
+     * Create an HTTP 202 Accepted response containing the provided body.
+     *
+     * @param body The response payload.
+     * @param headers HTTP headers to include in the response.
+     * @param cookies Cookies to include as `Set-Cookie` headers.
+     * @return A ResponseDTO with status 202, statusText "Accepted", and the supplied body, headers, and cookies.
+     */
 inline fun <reified T> accepted(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -250,8 +284,12 @@ inline fun <reified T> accepted(
     }
 
 /**
- * Returns an HTTP 204 No Content response.
- */
+     * Create an HTTP 204 No Content response.
+     *
+     * @param headers Header map to assign to the response.
+     * @param cookies Cookies to include in the response.
+     * @return A ResponseDTO with status 204, statusText "No Content", and an empty body.
+     */
 fun noContent(
     headers: Headers = mutableMapOf(),
     cookies: List<Cookie> = emptyList(),
@@ -265,8 +303,13 @@ fun noContent(
     }
 
 /**
- * Returns an HTTP 301 or 302 redirect response to the given [location].
- */
+     * Create an HTTP redirect response pointing to the given location.
+     *
+     * @param location The target URL placed in the `Location` response header.
+     * @param permanent When `true`, the response status is 301 ("Moved Permanently"); otherwise 302 ("Found").
+     * @param cookies Cookies to include in the response's `Set-Cookie` headers.
+     * @return A `ResponseDTO` with the appropriate redirect status, a `Location` header set to `location`, an empty body, and any provided cookies.
+     */
 fun redirect(
     location: String,
     permanent: Boolean = false,
@@ -281,8 +324,12 @@ fun redirect(
     }
 
 /**
- * Returns an HTTP 307 Temporary Redirect response to the given [location].
- */
+     * Create an HTTP 307 Temporary Redirect response targeting the specified location.
+     *
+     * @param location The URL to set in the `Location` response header.
+     * @param cookies Cookies to include in the response's `Set-Cookie` headers.
+     * @return A ResponseDTO with status 307 ("Temporary Redirect"), the `Location` header set to `location`, an empty body, and any provided cookies.
+     */
 fun temporaryRedirect(
     location: String,
     cookies: List<Cookie> = emptyList(),
@@ -296,8 +343,12 @@ fun temporaryRedirect(
     }
 
 /**
- * Returns an HTTP 308 Permanent Redirect response to the given [location].
- */
+     * Create an HTTP 308 Permanent Redirect response that points to the specified location.
+     *
+     * @param location The value to set for the `Location` response header.
+     * @param cookies Additional cookies to include in the response.
+     * @return A ResponseDTO with status 308, statusText "Permanent Redirect", the `Location` header set to `location`, an empty body, and the provided cookies.
+     */
 fun permanentRedirect(
     location: String,
     cookies: List<Cookie> = emptyList(),
@@ -311,8 +362,16 @@ fun permanentRedirect(
     }
 
 /**
- * Returns an HTTP 400 Bad Request response with the given [body].
- */
+     * Create an HTTP 400 Bad Request response using the provided body.
+     *
+     * The resulting response has status 400 and statusText "Bad Request", and includes
+     * the supplied headers and cookies.
+     *
+     * @param body The response payload.
+     * @param headers HTTP headers to include in the response.
+     * @param cookies Cookies to include as `Set-Cookie` entries.
+     * @return A ResponseDTO with status 400, statusText "Bad Request", and the supplied body, headers, and cookies.
+     */
 inline fun <reified T> badRequest(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -327,8 +386,13 @@ inline fun <reified T> badRequest(
     }
 
 /**
- * Returns an HTTP 401 Unauthorized response with the given [body].
- */
+     * Create an HTTP 401 Unauthorized response containing the provided body.
+     *
+     * @param body The response payload.
+     * @param headers HTTP headers to include in the response.
+     * @param cookies Cookies to include as `Set-Cookie` headers.
+     * @return A ResponseDTO with status 401 ("Unauthorized") containing the given body, headers, and cookies.
+     */
 inline fun <reified T> unauthorized(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -343,8 +407,13 @@ inline fun <reified T> unauthorized(
     }
 
 /**
- * Returns an HTTP 403 Forbidden response with the given [body].
- */
+     * Create a 403 Forbidden HTTP response using the provided body, headers, and cookies.
+     *
+     * @param body The response payload. Only `String` and `ByteArray` are supported as response body types.
+     * @param headers HTTP headers to set on the response; the builder's headers will be replaced with this map.
+     * @param cookies Cookies to include as `Set-Cookie` entries on the response.
+     * @return A `ResponseDTO` with status `403` and statusText `"Forbidden"` containing the supplied body, headers, and cookies.
+     */
 inline fun <reified T> forbidden(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -359,8 +428,10 @@ inline fun <reified T> forbidden(
     }
 
 /**
- * Returns an HTTP 404 Not Found response with the given [body].
- */
+     * Creates a 404 Not Found HTTP response containing the provided body, headers, and cookies.
+     *
+     * @return A ResponseDTO with status 404 and statusText "Not Found" whose body, headers, and cookies are set to the given values.
+     */
 inline fun <reified T> notFound(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -375,8 +446,13 @@ inline fun <reified T> notFound(
     }
 
 /**
- * Returns an HTTP 409 Conflict response with the given [body].
- */
+     * Create an HTTP 409 Conflict response with the provided payload.
+     *
+     * @param body The response payload to set on the returned DTO.
+     * @param headers Response headers to include in the returned DTO.
+     * @param cookies Cookies to include in the returned DTO.
+     * @return A ResponseDTO with status 409, statusText "Conflict", and the provided body, headers, and cookies.
+     */
 inline fun <reified T> conflict(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -391,8 +467,13 @@ inline fun <reified T> conflict(
     }
 
 /**
- * Returns an HTTP 429 Too Many Requests response with the given [body].
- */
+     * Create an HTTP 429 Too Many Requests response.
+     *
+     * @param body The response payload.
+     * @param headers Headers to include in the response.
+     * @param cookies Cookies to include as `Set-Cookie` headers.
+     * @return A ResponseDTO with status 429, statusText "Too Many Requests", and the provided body, headers, and cookies.
+     */
 inline fun <reified T> tooManyRequests(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -407,8 +488,13 @@ inline fun <reified T> tooManyRequests(
     }
 
 /**
- * Returns an HTTP 500 Internal Server Error response with the given [body].
- */
+     * Create a 500 Internal Server Error response using the provided body.
+     *
+     * @param body The response payload.
+     * @param headers HTTP header name/value pairs to include in the response.
+     * @param cookies Cookies to emit as `Set-Cookie` headers.
+     * @return A ResponseDTO with status 500 and status text "Internal Server Error" containing the provided body, headers, and cookies.
+     */
 inline fun <reified T> internalServerError(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -423,8 +509,13 @@ inline fun <reified T> internalServerError(
     }
 
 /**
- * Returns an HTTP 501 Not Implemented response with the given [body].
- */
+     * Create a 501 Not Implemented HTTP response containing the provided body.
+     *
+     * @param body The response payload.
+     * @param headers Headers to include in the response; assigned directly to the response's header map.
+     * @param cookies Cookies to include; appended to the response's cookie list.
+     * @return A ResponseDTO with status `501`, statusText `"Not Implemented"`, and the provided body, headers, and cookies.
+     */
 inline fun <reified T> notImplemented(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -439,8 +530,15 @@ inline fun <reified T> notImplemented(
     }
 
 /**
- * Returns an HTTP 502 Bad Gateway response with the given [body].
- */
+     * Create an HTTP 502 Bad Gateway response using the provided body.
+     *
+     * Sets the response status to 502 and the status text to "Bad Gateway".
+     *
+     * @param body The value to use as the response body.
+     * @param headers Headers to include on the response.
+     * @param cookies Cookies to include in the response.
+     * @return A ResponseDTO with status 502, statusText "Bad Gateway", and the provided body, headers, and cookies.
+     */
 inline fun <reified T> badGateway(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -455,8 +553,13 @@ inline fun <reified T> badGateway(
     }
 
 /**
- * Returns an HTTP 503 Service Unavailable response with the given [body].
- */
+     * Create an HTTP 503 Service Unavailable response using the provided body.
+     *
+     * @param body The response payload.
+     * @param headers Header name/value pairs to set on the response.
+     * @param cookies Cookies to include as `Set-Cookie` headers.
+     * @return A ResponseDTO with status 503 and statusText "Service Unavailable" containing the provided body, headers, and cookies.
+     */
 inline fun <reified T> serviceUnavailable(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -471,8 +574,13 @@ inline fun <reified T> serviceUnavailable(
     }
 
 /**
- * Returns an HTTP 504 Gateway Timeout response with the given [body].
- */
+     * Create an HTTP 504 (Gateway Timeout) response containing the provided body.
+     *
+     * @param body The response payload.
+     * @param headers HTTP headers to include in the response.
+     * @param cookies Cookies to include as `Set-Cookie` headers.
+     * @return A ResponseDTO with status 504, status text "Gateway Timeout", and the supplied body, headers, and cookies.
+     */
 inline fun <reified T> gatewayTimeout(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -487,8 +595,17 @@ inline fun <reified T> gatewayTimeout(
     }
 
 /**
- * Returns an HTTP 200 OK response that triggers a file download of the given [file].
- */
+     * Create an HTTP response that initiates a file download for the given file.
+     *
+     * The response uses status 200 ("OK"), sets `Content-Disposition` to `attachment` with the file's name,
+     * and includes a `Content-Type` header from `contentType` if provided or guessed from the file otherwise.
+     * The file's bytes are read into memory and used as the response body.
+     *
+     * @param file The file to be sent as the downloadable payload.
+     * @param contentType Optional explicit MIME type to set for the `Content-Type` header; when `null` the MIME type is guessed from the file.
+     * @param cookies Additional cookies to include in the response.
+     * @return A ResponseDTO whose body contains the file's bytes and whose headers and status are set to deliver the file as an attachment.
+     */
 fun fileDownload(
     file: File,
     contentType: String? = null,
@@ -506,16 +623,25 @@ fun fileDownload(
     }
 
 /**
- * Attempts to guess the MIME type of the given [file] based on its extension or content.
- */
+         * Determine the MIME content type for the provided file.
+         *
+         * Uses the platform probe for file types first, then falls back to a name-based heuristic, and finally returns
+         * "application/octet-stream" when the type cannot be determined.
+         *
+         * @return The MIME type string for the file, or `"application/octet-stream"` if unknown.
+         */
 fun guessContentType(file: File): String =
     Files.probeContentType(file.toPath())
         ?: URLConnection.guessContentTypeFromName(file.name)
         ?: "application/octet-stream"
 
 /**
- * Returns an HTTP 418 I'm a teapot response.
- */
+     * Produce an HTTP 418 "I'm a teapot" response.
+     *
+     * @param headers Headers to include in the response; replaces the default header map.
+     * @param cookies Cookies to include in the response.
+     * @return A ResponseDTO with status 418 ("I'm a teapot"), body "may be short and stout", and the provided headers and cookies.
+     */
 fun teapot(
     headers: Headers = mutableMapOf(),
     cookies: List<Cookie> = emptyList(),

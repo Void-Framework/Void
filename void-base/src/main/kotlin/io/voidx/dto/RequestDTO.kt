@@ -61,8 +61,13 @@ data class RequestDTO(
 
     companion object {
         /**
-         * Parses an incoming HTTP request from the given [inputStream] into a [RequestDTO].
-         * This overload will return a minimal default GET request on parse errors.
+         * Parse an HTTP request from the given input stream into a RequestDTO.
+         *
+         * If the initial request line is missing or cannot be parsed, returns a minimal GET request targeting "/"
+         * that includes any headers read prior to the failure and an empty body.
+         *
+         * @param inputStream The input stream containing the raw HTTP request.
+         * @return A RequestDTO representing the parsed request; on parse errors, a minimal GET request as described above.
          */
         fun parse(inputStream: InputStream): RequestDTO {
             val headers: MutableMap<String, String> = mutableMapOf()
@@ -136,7 +141,10 @@ class RequestBuilder {
 }
 
 /**
- * DSL helper to build a [RequestDTO] using a [RequestBuilder].
+ * Builds a RequestDTO using a RequestBuilder DSL.
+ *
+ * @param builder Lambda that configures the RequestBuilder.
+ * @return The constructed RequestDTO.
  */
 fun buildRequest(builder: RequestBuilder.() -> Unit): RequestDTO {
     val build = RequestBuilder()
@@ -145,7 +153,9 @@ fun buildRequest(builder: RequestBuilder.() -> Unit): RequestDTO {
 }
 
 /**
- * DSL helper to apply mutations to the headers map in the [RequestBuilder].
+ * Applies the given mutation block to this builder's headers map.
+ *
+ * @param block Receiver lambda invoked on the headers `MutableMap<String, String>` to add, remove, or modify header entries in-place.
  */
 fun RequestBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
