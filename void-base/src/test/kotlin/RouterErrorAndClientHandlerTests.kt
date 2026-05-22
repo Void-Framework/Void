@@ -37,7 +37,7 @@ class RouterErrorAndClientHandlerTests {
         val r = Router()
         // Install an ExceptionPage that returns a distinct response
         val ex =
-            exceptionPage {
+            exceptionPage { exception ->
                 buildResponse<String> {
                     status = 500
                     statusText = "Internal Server Error"

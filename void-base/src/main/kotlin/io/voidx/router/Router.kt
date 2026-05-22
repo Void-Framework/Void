@@ -251,7 +251,9 @@ class Router :
         Bootstrap.fireError(null, e)
         val exPage = RouteCheck.exceptionPage
         client.getOutputStream().writeHTTP(
-            response = exPage.content(buildRequest {  }, emptyMap()),
+            response = exPage.content(buildRequest {  }.apply {
+                attributes["exception"] = e
+            }, emptyMap()),
             version = clientHandler.server.httpVersion,
         )
     }

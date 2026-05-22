@@ -37,7 +37,7 @@ class ResponseRequestPropagationTests {
             +relayAfter { resp -> seenTarget = resp.getOrNull()?._request?.target }
         }
 
-        r.addRoute(route("/rrp") { GET { ok("ok") } })
+        r.addRoute(route("/rrp") { GET { _, _ -> ok("ok") } })
 
         val sock = SockRRP("GET /rrp?x=1 HTTP/1.1\r\nHost: x\r\n\r\n")
         val srv = Server(r, 1.1)

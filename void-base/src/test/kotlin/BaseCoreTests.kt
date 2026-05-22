@@ -57,7 +57,7 @@ class BaseCoreTests {
         var afterCalled = false
         val page =
             route("/hello") {
-                GET { _ ->
+                GET { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -86,8 +86,7 @@ class BaseCoreTests {
         )
 
         val req = buildRequest { target = "/hello" }
-        page.request = req
-        val short = page.middlewareProcessBefore()
+        val short = page.middlewareProcessBefore(req)
         assertNotNull(short)
         page.middlewareProcessAfter(Result.success(short))
         assertTrue(afterCalled)
@@ -97,7 +96,7 @@ class BaseCoreTests {
     fun dynamic_page_path_accessor_and_execution() {
         val dyn =
             route("/users/{id}/{name?}") {
-                GET {
+                GET { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -117,8 +116,7 @@ class BaseCoreTests {
                 method = Method.GET
                 target = "/users/42/neo"
             }
-        dyn.request = req
-        val resp = dyn.content()
+        val resp = dyn.content(req, emptyMap())
         val body = (resp.body as ResponseBody.StringBody).body
         assertEquals("42:neo", body)
     }

@@ -57,7 +57,7 @@ class RouterSpecialRoutesTests {
         Bootstrap.registerSpecialRoute(priority = 10, handler = hHigh)
 
         // A page that should not be reached if special route short-circuits
-        r.addRoute(route("/p") { GET { ok("page") } })
+        r.addRoute(route("/p") { GET { _, _ -> ok("page") } })
 
         val sock = TestSocketSR("GET /p HTTP/1.1\r\nHost: x\r\n\r\n")
         val srv = Server(r, 1.1)
@@ -101,7 +101,7 @@ class RouterSpecialRoutesTests {
         // Register a page with per-page before/after middleware to observe calls
         val p =
             route("/anything") {
-                GET { ok("P") }
+                GET { _, _ -> ok("P") }
             }.apply {
                 before(
                     io.voidx.middleware.relayBefore { _ ->

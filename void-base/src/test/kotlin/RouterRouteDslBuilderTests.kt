@@ -34,7 +34,7 @@ class RouterRouteDslBuilderTests {
 
         // First call should create a new PageHandler and register it
         r.route("/d") {
-            GET {
+            GET { _, _ ->
                 buildResponse<String> {
                     status = 200
                     statusText = "OK"
@@ -49,7 +49,7 @@ class RouterRouteDslBuilderTests {
 
         // Second call for same path should reuse existing handler (adds POST)
         r.route("/d") {
-            POST {
+            POST { _, _ ->
                 buildResponse<String> {
                     status = 200
                     statusText = "OK"

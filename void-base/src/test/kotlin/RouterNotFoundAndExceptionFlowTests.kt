@@ -74,7 +74,7 @@ class RouterNotFoundAndExceptionFlowTests {
     fun custom_not_found_page_overrides_default() {
         val r = router { }
         RouteCheck.nullPage =
-            notFoundPage {
+            notFoundPage { _, _ ->
                 buildResponse<String> {
                     status = 404
                     statusText = "Not Found"
@@ -113,7 +113,7 @@ class RouterNotFoundAndExceptionFlowTests {
             }
         r.addRoute(
             route("/boom") {
-                GET {
+                GET { _, _ ->
                     throw IllegalStateException("explode")
                 }
             },
@@ -139,7 +139,7 @@ class RouterNotFoundAndExceptionFlowTests {
     fun custom_exception_page_overrides_default_during_flow() {
         val r = router { }
         RouteCheck.exceptionPage =
-            exceptionPage {
+            exceptionPage { exception ->
                 buildResponse<String> {
                     status = 500
                     statusText = "Server Error"
@@ -150,7 +150,7 @@ class RouterNotFoundAndExceptionFlowTests {
 
         r.addRoute(
             route("/oops") {
-                GET {
+                GET { _, _ ->
                     error("Bang")
                 }
             },

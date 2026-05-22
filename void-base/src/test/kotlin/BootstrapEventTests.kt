@@ -37,8 +37,8 @@ class BootstrapHookTests {
         val handle = Bootstrap.addPageDecorator { page: Page, _ -> targets += page.target }
         try {
             val r = router { }
-            r.addRoute(route("/a") { GET { ok("A") } })
-            r.addRoute(route("/b/{id}") { GET { ok("B") } })
+            r.addRoute(route("/a") { GET { _, _ -> ok("A") } })
+            r.addRoute(route("/b/{id}") { GET { _, _ -> ok("B") } })
 
             assertTrue("/a" in targets, "Decorator not called for static page")
             assertTrue("/b/{id}" in targets, "Decorator not called for dynamic page")
@@ -70,9 +70,9 @@ class BootstrapHookTests {
         val handle = Bootstrap.addPageDecorator { _, _ -> count += 1 }
         try {
             val r = router { }
-            r.addRoute(route("/x") { GET { ok("x") } })
+            r.addRoute(route("/x") { GET { _, _ -> ok("x") } })
             handle.close()
-            r.addRoute(route("/y") { GET { ok("y") } })
+            r.addRoute(route("/y") { GET { _, _ -> ok("y") } })
             assertEquals(2, count, "Count should've increased even after closing")
         } finally {
             try {

@@ -100,9 +100,7 @@ abstract class Page(
  * Base type for pages rendered when an exception occurs during request handling.
  * The [exception] field is populated before [content] is evaluated.
  */
-abstract class ExceptionPage : Page("") {
-    lateinit var exception: Exception
-}
+abstract class ExceptionPage : Page("")
 
 /**
  * Base type for pages rendered when a route cannot be resolved (HTTP 404).
@@ -126,9 +124,9 @@ fun route(
 /**
  * Defines an exception page that returns a raw [ResponseDTO] via [block].
  */
-fun exceptionPage(block: ExceptionPage.() -> ResponseDTO): ExceptionPage =
+fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPage =
     object : ExceptionPage() {
-        override fun content(request: RequestDTO, queries: Map<String, String>): ResponseDTO = block()
+        override fun content(request: RequestDTO, queries: Map<String, String>): ResponseDTO = block(request.attributes["exception"] as Exception)
     }
 
 /**

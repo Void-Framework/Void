@@ -50,7 +50,7 @@ class PageMiddlewareAndPageHandlerEdgeTests {
         // Page with AFTER that should run and observe the short-circuited response
         r.addRoute(
             route("/after") {
-                GET {
+                GET { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -82,7 +82,7 @@ class PageMiddlewareAndPageHandlerEdgeTests {
         val r = router { }
         r.addRoute(
             route("/only-get") {
-                GET {
+                GET { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"

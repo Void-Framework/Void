@@ -35,7 +35,7 @@ class BootstrapHookRobustnessTests {
         val h2 = Bootstrap.addPageDecorator { _, _ -> throw RuntimeException("boom") }
         val h3 = Bootstrap.addPageDecorator { _, _ -> called += "ok3" }
         try {
-            r.addRoute(route("/x") { GET { ok("x") } })
+            r.addRoute(route("/x") { GET { _, _ -> ok("x") } })
             assertEquals(listOf("ok1", "ok3"), called)
         } finally {
             h1.close()
