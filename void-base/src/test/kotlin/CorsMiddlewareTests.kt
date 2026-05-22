@@ -42,7 +42,7 @@ class CorsMiddlewareTests {
         val page =
             route("/test") {
                 corsMiddleware()
-                GET { _, _ -> ok("Hello") }
+                GET { _, _ ->   ok("Hello") }
             }
 
         val req =
@@ -62,7 +62,7 @@ class CorsMiddlewareTests {
         val page =
             route("/test") {
                 corsMiddleware(allowed)
-                GET { _, _ -> ok("ok") }
+                GET { _, _ ->   ok("ok") }
             }
 
         // allowed origin
@@ -98,14 +98,14 @@ class CorsMiddlewareTests {
                 corsMiddleware(allowed)
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.OPTIONS
                 headers["Origin"] = "https://trusted.com"
                 headers["Access-Control-Request-Method"] = "POST"
             }
 
-        val resp = page.middlewareProcessBefore()
+        val resp = page.middlewareProcessBefore(req)
         assertNotNull(resp)
         assertEquals(200, resp?.status)
         assertEquals("https://trusted.com", resp?.headers["Access-Control-Allow-Origin"])
@@ -119,14 +119,14 @@ class CorsMiddlewareTests {
                 corsMiddleware(null) // wildcard
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.OPTIONS
                 headers["Origin"] = "http://any.com"
                 headers["Access-Control-Request-Method"] = "POST"
             }
 
-        val resp = page.middlewareProcessBefore()
+        val resp = page.middlewareProcessBefore(req)
         assertNotNull(resp)
         assertEquals("*", resp?.headers["Access-Control-Allow-Origin"])
         assertNull(resp?.headers["Access-Control-Allow-Credentials"])
@@ -139,14 +139,14 @@ class CorsMiddlewareTests {
                 corsMiddleware()
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.OPTIONS
                 headers["Access-Control-Request-Method"] = "POST"
                 // No Origin header
             }
 
-        val resp = page.middlewareProcessBefore()
+        val resp = page.middlewareProcessBefore(req)
         assertNull(resp) // should not short-circuit
     }
 
@@ -157,14 +157,14 @@ class CorsMiddlewareTests {
                 corsMiddleware()
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.OPTIONS
                 headers["Origin"] = "http://example.com"
                 // No Access-Control-Request-Method
             }
 
-        val resp = page.middlewareProcessBefore()
+        val resp = page.middlewareProcessBefore(req)
         assertNull(resp) // should not short-circuit
     }
 
@@ -176,14 +176,14 @@ class CorsMiddlewareTests {
                 corsMiddleware(allowed)
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.OPTIONS
                 headers["Origin"] = "https://not-this.com"
                 headers["Access-Control-Request-Method"] = "POST"
             }
 
-        val resp = page.middlewareProcessBefore()
+        val resp = page.middlewareProcessBefore(req)
         assertNotNull(resp)
         assertEquals(200, resp?.status)
         assertNull(resp?.headers["Access-Control-Allow-Origin"])
@@ -198,14 +198,14 @@ class CorsMiddlewareTests {
                 ok("test")
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.GET
                 // No Origin header
             }
 
-        val resp = page.content()
-        resp._request = page.request
+        val resp = page.content(req, emptyMap())
+        resp._request = req
         page.middlewareProcessAfter(resp.toResult())
         assertNull(resp.headers["Access-Control-Allow-Origin"])
     }
@@ -219,14 +219,14 @@ class CorsMiddlewareTests {
                 ok("content")
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.POST
                 headers["Origin"] = "https://example.com"
             }
 
-        val resp = page.content()
-        resp._request = page.request
+        val resp = page.content(req, emptyMap())
+        resp._request = req
         page.middlewareProcessAfter(resp.toResult())
         assertEquals("https://example.com", resp.headers["Access-Control-Allow-Origin"])
         assertEquals("GET, POST, PUT, DELETE, OPTIONS", resp.headers["Access-Control-Allow-Methods"])
@@ -242,14 +242,14 @@ class CorsMiddlewareTests {
                 ok("content")
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.POST
                 headers["Origin"] = "http://any-origin.com"
             }
 
-        val resp = page.content()
-        resp._request = page.request
+        val resp = page.content(req, emptyMap())
+        resp._request = req
         page.middlewareProcessAfter(resp.toResult())
         assertEquals("*", resp.headers["Access-Control-Allow-Origin"])
         assertNull(resp.headers["Access-Control-Allow-Credentials"])
@@ -260,17 +260,17 @@ class CorsMiddlewareTests {
         val page =
             route("/test") {
                 corsMiddleware()
-                OPTIONS { ok("options response") }
+                OPTIONS { _, _ ->  ok("options response") }
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.OPTIONS
                 headers["Origin"] = "http://example.com"
                 // Missing Access-Control-Request-Method makes this not a preflight
             }
 
-        val resp = page.middlewareProcessBefore()
+        val resp = page.middlewareProcessBefore(req)
         assertNull(resp) // should not intercept, proceed to handler
     }
 }

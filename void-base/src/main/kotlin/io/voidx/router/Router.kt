@@ -143,7 +143,12 @@ class Router {
                 CustomPages.nullPage = route
             }
             is GroupPage -> {
-                addRoutes(route.flatten())
+                if (!route.flattened) {
+                    addRoutes(route.flatten())
+                } else {
+                    if (!route.target.startsWith("/")) throw RouteNoTargetException(route.target)
+                    rootNode.insert(route.target.split("/"), 1, route)
+                }
             }
 
             else -> {

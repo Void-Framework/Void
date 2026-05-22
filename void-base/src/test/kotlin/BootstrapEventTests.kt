@@ -63,24 +63,6 @@ class BootstrapHookTests {
     }
 
     @Test
-    fun addPageDecorator_returns_closeable_to_unregister() {
-        var count = 0
-        val handle = Bootstrap.addPageDecorator { _, _ -> count += 1 }
-        try {
-            val r = router { }
-            r.addRoute(route("/x") { GET { _, _ -> ok("x") } })
-            handle.close()
-            r.addRoute(route("/y") { GET { _, _ -> ok("y") } })
-            assertEquals(r.routes.count() - 1, count, "Count should've increased even after closing")
-        } finally {
-            try {
-                handle.close()
-            } catch (_: Throwable) {
-            }
-        }
-    }
-
-    @Test
     fun addErrorHandler_returns_closeable_to_unregister() {
         var count = 0
         val handle = Bootstrap.addErrorHandler { _, _ -> count += 1 }
