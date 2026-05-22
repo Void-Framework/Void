@@ -55,6 +55,9 @@ class Server(
         it.close()
     }
 
+    /**
+     * Stops the server by closing HTTP and HTTPS sockets and cancelling the coroutine scope.
+     */
     fun stop() {
         if (::socket.isInitialized) {
             socket.close()
@@ -277,7 +280,11 @@ fun simpleServer(
 }
 
 /**
- * Handles an incoming connection [Socket].
+ * Handles an incoming connection [Socket] by parsing the request and routing it through the [router].
+ * The socket is automatically closed after processing.
+ *
+ * @param version The HTTP version to use for the response.
+ * @param router The [Router] to use for routing the request.
  */
 fun Socket.handle(
     version: Number,

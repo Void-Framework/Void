@@ -7,6 +7,7 @@ import io.voidx.dto.toHttpRequest
 import java.net.http.HttpClient
 import java.net.http.HttpResponse
 
+/** Shared HTTP client for [fetch] calls. */
 internal val client = HttpClient.newHttpClient()
 
 /**

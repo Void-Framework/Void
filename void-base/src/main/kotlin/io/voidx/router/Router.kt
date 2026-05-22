@@ -26,6 +26,10 @@ import java.util.jar.JarFile
  */
 class Router {
     private var internalRelay: List<Relay> = emptyList()
+    /**
+     * Set of global middlewares registered in this router.
+     * Higher priority relays run earlier for BEFORE hooks and earlier for AFTER hooks.
+     */
     val relay = mutableSetOf<Relay>()
 
     internal val rootNode = RouteNode()
@@ -83,6 +87,9 @@ class Router {
         addRoute(page)
     }
 
+    /**
+     * Convenience operator to add a global middleware to the router: `+MyRelay()`.
+     */
     operator fun Relay.unaryPlus() {
         relay.add(this)
         recomputeMiddlewareSnapshot()
@@ -104,6 +111,9 @@ class Router {
         return null
     }
 
+    /**
+     * Executes all registered global AFTER middleware with the produced [response].
+     */
     fun middlewareProcessAfter(response: Result<ResponseDTO>) {
         val relays = internalRelay
         for (i in relays.indices) {

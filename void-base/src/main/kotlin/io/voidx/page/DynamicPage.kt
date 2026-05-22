@@ -14,6 +14,7 @@ typealias Path = String
 abstract class DynamicPage(
     target: String,
 ) : Page(target = target) {
+    /** Internal storage for dynamic path parameters. */
     internal var _data = mutableMapOf<Path, String>()
 
     /** Map of dynamic path segment name to value for the current request. */
