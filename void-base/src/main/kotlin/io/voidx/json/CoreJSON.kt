@@ -96,10 +96,13 @@ fun RequestDTO.detectFormat(): Format {
 }
 
 /**
- * Creates a [ResponseDTO] by serializing [value] according to the request `Accept` header.
- * Defaults to `application/json` when the header is missing.
+ * Creates a ResponseDTO by serializing the provided value according to the request Accept header.
  *
- * Generic overload preserves the static type [T] so kotlinx.serialization can locate the correct serializer.
+ * Defaults to "application/json" when the header is missing.
+ *
+ * @param request The incoming request whose Accept header determines the response format.
+ * @param value The value to serialize.
+ * @return A ResponseDTO whose body and Content-Type match the selected format: JSON for "application/json", ProtoBuf-encoded bytes for "application/xml", or the value's string representation for other Accept values.
  */
 inline fun <reified T : Any> Page.autoSerialize(
     request: RequestDTO,

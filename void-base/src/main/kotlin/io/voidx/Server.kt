@@ -69,10 +69,10 @@ class Server(
     }
 
     /**
-     * Starts the HTTP server on the given [port].
+     * Starts an HTTP server bound to the specified port.
      *
-     * @param routeToHTTPS If true, new HTTP connections will wait until HTTPS is ready and then
-     * redirect the client to the HTTPS host using a 301 response.
+     * @param routeToHTTPS If true, new HTTP connections wait for HTTPS to become available and receive a 301 redirect to the HTTPS host.
+     * @throws NotEnoughCarriers when `useCarriers` is enabled and the server cannot start.
      */
     fun startHTTPServer(
         port: Int,
@@ -119,10 +119,13 @@ class Server(
     }
 
     /**
-     * Starts the HTTPS server on the given [port] using the provided PKCS12 keystore [file].
+     * Start an HTTPS server that accepts TLS connections and routes requests through the configured router.
      *
-     * @param password Keystore password.
-     * @param needsAuth Whether to require client certificate authentication.
+     * @param port TCP port to listen for HTTPS connections.
+     * @param password Password for the PKCS12 keystore.
+     * @param file PKCS12 keystore file containing the server certificate and key.
+     * @param needsAuth If `true`, require client certificate authentication.
+     * @throws NotEnoughCarriers If carrier mode is enabled and there are not enough carriers to start the server.
      */
     fun startHTTPSServer(
         port: Int,
@@ -179,6 +182,15 @@ class Server(
     /** Returns true if the HTTPS server socket is initialized, bound, open, and HTTPS mode is enabled. */
     fun isHTTPSServerRunning(): Boolean = isHTTPSOn && ::httpsSocket.isInitialized && httpsSocket.isBound && !httpsSocket.isClosed
 
+    /**
+     * Waits until the HTTPS server is available, then writes a 301 redirect to the client and closes the socket.
+     *
+     * Repeatedly checks the server HTTPS status and, once available, sends a "Moved Permanently" response
+     * with a Location header pointing to the client's host on the HTTPS scheme. Ensures the client socket
+     * is closed on error or after the redirect.
+     *
+     * @param client The accepted HTTP client socket to which the redirect response will be written.
+     */
     private suspend fun waitForHTTPSAndRedirect(client: Socket) {
         try {
             // Keep checking until HTTPS is available
@@ -268,7 +280,11 @@ fun server(builder: ServerBuilder.() -> Unit): Server {
 }
 
 /**
- * Convenience function to spin up a simple HTTP server quickly on [port] with routes defined in [builder].
+ * Creates and starts an HTTP Server bound to the given port and configured with the provided router DSL.
+ *
+ * @param port TCP port to bind the HTTP server to.
+ * @param builder DSL block that configures the server's Router.
+ * @return The started Server instance.
  */
 fun simpleServer(
     port: Int = 8080,
@@ -310,9 +326,13 @@ fun Socket.handle(
 }
 
 /**
- * Handles an error that occurred while processing a connection by delegating to [Socket.error].
+ * Process an exception for this socket connection, optionally sending a middleware-provided response or delegating to the router's error handler.
  *
- * @param exception The exception that was thrown during request processing.
+ * If the router's middleware provides a response for the exception, that response is written to the socket and handling ends. Otherwise the router's error handler is invoked. The socket is closed after handling; any exception thrown by the router's error handler is caught and its stack trace is printed.
+ *
+ * @param version The HTTP version to use when writing a response.
+ * @param router The router responsible for producing or handling error responses.
+ * @param exception The exception that occurred during request processing.
  */
 fun Socket.error(
     version: Number,
