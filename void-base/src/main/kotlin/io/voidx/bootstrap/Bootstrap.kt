@@ -3,6 +3,7 @@ package io.voidx.bootstrap
 import io.voidx.ClientHandler
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
+import io.voidx.dto.buildResponse
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
@@ -222,10 +223,10 @@ object Bootstrap {
                 val relative = if (cpPath.startsWith("$folder/")) cpPath.removePrefix("$folder/") else cpPath
                 val urlPath = "$normalizedPrefix/$relative"
                 route(urlPath) {
-                    GET {
+                    GET { _, _ ->
                         val stream = cl.getResourceAsStream(cpPath)
                         if (stream == null) {
-                            io.voidx.dto.buildResponse<String> {
+                            buildResponse<String> {
                                 status = 404
                                 statusText = "Not Found"
                                 headers["Content-Type"] = "text/plain"
@@ -234,7 +235,7 @@ object Bootstrap {
                         } else {
                             val bytes = stream.use { it.readAllBytes() }
                             val ct = contentTypeFor(urlPath)
-                            io.voidx.dto.buildResponse<ByteArray> {
+                            buildResponse<ByteArray> {
                                 status = 200
                                 statusText = "OK"
                                 headers["Content-Type"] = ct
@@ -254,10 +255,10 @@ object Bootstrap {
             val normalizedUrl = if (urlPath.startsWith('/')) urlPath else "/$urlPath"
             val cl = Thread.currentThread().contextClassLoader
             route(normalizedUrl) {
-                GET {
+                GET { _, _ ->
                     val stream = cl.getResourceAsStream(resourcePath)
                     if (stream == null) {
-                        io.voidx.dto.buildResponse<String> {
+                        buildResponse<String> {
                             status = 404
                             statusText = "Not Found"
                             headers["Content-Type"] = "text/plain"
@@ -266,7 +267,7 @@ object Bootstrap {
                     } else {
                         val bytes = stream.use { it.readAllBytes() }
                         val ct = contentTypeFor(normalizedUrl)
-                        io.voidx.dto.buildResponse<ByteArray> {
+                        buildResponse<ByteArray> {
                             status = 200
                             statusText = "OK"
                             headers["Content-Type"] = ct

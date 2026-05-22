@@ -17,6 +17,7 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
 import javax.net.ssl.SSLSocket
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Minimal HTTP/HTTPS server used by Void to serve routes from a [Router].
@@ -175,7 +176,7 @@ class Server(
         try {
             // Keep checking until HTTPS is available
             while (!isHTTPSServerRunning()) {
-                delay(50)
+                delay(50.milliseconds)
             }
 
             // Send redirect once HTTPS is ready

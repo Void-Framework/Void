@@ -76,11 +76,9 @@ internal interface RequestHandler {
             }
 
             route._data = dynamics
-            route.request = requestDTO
-            route.queries = query
 
-            val response = route.middlewareProcessBefore()
-            val produced = response ?: route.content()
+            val response = route.middlewareProcessBefore(requestDTO)
+            val produced = response ?: route.content(requestDTO, query)
 
             return produced
         }
@@ -99,5 +97,7 @@ internal interface RequestHandler {
         page: Page,
         clientHandler: ClientHandler,
         target: String,
-    ): ResponseDTO = page.content()
+        requestDTO: RequestDTO,
+        query: Map<String, String>
+    ): ResponseDTO = page.content(requestDTO, query)
 }

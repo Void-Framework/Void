@@ -128,8 +128,7 @@ internal interface RouteCheck {
                 }
             }
         internal var nullPage: NotFoundPage =
-            notFoundPage {
-                val req = request
+            notFoundPage { req, _ ->
                 return@notFoundPage buildResponse {
                     status = 404
                     statusText = "Not Found"

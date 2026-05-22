@@ -18,8 +18,6 @@ import kotlin.reflect.full.createInstance
 abstract class Page(
     open val target: String,
 ) {
-    /** The current request bound to this page during handling. */
-    lateinit var request: RequestDTO
     internal val relaysBefore = mutableListOf<Relay>()
     internal val relaysAfter = mutableListOf<Relay>()
 
@@ -29,11 +27,11 @@ abstract class Page(
      */
     val attributes: MutableMap<String, Any> = mutableMapOf()
 
-    /** URL query parameters for the current request. */
-    lateinit var queries: Map<String, String>
-
     /** Builds the concrete [ResponseDTO] instance to be returned. */
-    abstract fun content(): ResponseDTO
+    abstract fun content(
+        request: RequestDTO,
+        queries: Map<String, String>
+    ): ResponseDTO
 
     /**
      * Registers a BEFORE middleware by class reference. The instance is created via reflection
@@ -77,7 +75,7 @@ abstract class Page(
      *
      * @return The first `ResponseDTO` produced by a BEFORE middleware with its `_request` set, or `null` if none produced a response.
      */
-    fun middlewareProcessBefore(): ResponseDTO? {
+    fun middlewareProcessBefore(request: RequestDTO): ResponseDTO? {
         relaysBefore.forEach {
             val newResponse = (it as? RelayBefore)?.processBefore(request.toResult())
             if (newResponse != null) {
@@ -130,14 +128,14 @@ fun route(
  */
 fun exceptionPage(block: ExceptionPage.() -> ResponseDTO): ExceptionPage =
     object : ExceptionPage() {
-        override fun content() = block()
+        override fun content(request: RequestDTO, queries: Map<String, String>): ResponseDTO = block()
     }
 
 /**
  * Defines a 404 page rendered when no route matches the request.
  * The [block] is invoked to produce a raw [ResponseDTO].
  */
-fun notFoundPage(block: NotFoundPage.() -> ResponseDTO): NotFoundPage =
+fun notFoundPage(block: NotFoundPage.(request: RequestDTO, queries: Map<String, String>) -> ResponseDTO): NotFoundPage =
     object : NotFoundPage() {
-        override fun content() = block()
+        override fun content(request: RequestDTO, queries: Map<String, String>) = block(request, queries)
     }
