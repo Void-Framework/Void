@@ -52,6 +52,16 @@ class Server(
         it.close()
     }
 
+    fun stop() {
+        if (::socket.isInitialized) {
+            socket.close()
+        }
+        if (::httpsSocket.isInitialized) {
+            httpsSocket.close()
+        }
+        scope.cancel()
+    }
+
     /**
      * Starts the HTTP server on the given [port].
      *
@@ -70,8 +80,12 @@ class Server(
                 Bootstrap.fireBeforeServerStart(Bootstrap.ServerKind.HTTP, port)
                 socket = ServerSocket(port)
                 Bootstrap.fireAfterServerStart(Bootstrap.ServerKind.HTTP, port)
-                while (socket.isBound) {
-                    val client = socket.accept()
+                while (socket.isBound && !socket.isClosed) {
+                    val client = try {
+                        socket.accept()
+                    } catch (e: Exception) {
+                        if (socket.isClosed) break else throw e
+                    }
                     if (routeToHTTPS) {
                         scope.launch {
                             waitForHTTPSAndRedirect(client)
@@ -128,8 +142,12 @@ class Server(
                 isHTTPSOn = true
                 httpsSocket.needClientAuth = needsAuth
                 Bootstrap.fireAfterServerStart(Bootstrap.ServerKind.HTTPS, port)
-                while (httpsSocket.isBound) {
-                    val client = httpsSocket.accept() as SSLSocket
+                while (httpsSocket.isBound && !httpsSocket.isClosed) {
+                    val client = try {
+                        httpsSocket.accept() as SSLSocket
+                    } catch (e: Exception) {
+                        if (httpsSocket.isClosed) break else throw e
+                    }
                     client.startHandshake()
                     scope.launch {
                         try {
