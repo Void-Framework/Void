@@ -7,7 +7,7 @@ import io.voidx.page.route
 class MySLModule : Bootstrap.Module {
     override fun onRouterCreated(ctx: Bootstrap.Context) {
         ctx.addRoute(
-            route("/sl") { GET { ok("sl") } },
+            route("/sl") { GET { _, _ -> ok("sl") } },
         )
     }
 }

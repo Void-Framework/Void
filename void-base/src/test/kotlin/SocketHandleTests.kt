@@ -40,7 +40,7 @@ class SocketHandleTests {
         val r = router { }
         r.addRoute(
             route("/ping") {
-                GET {
+                GET { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"

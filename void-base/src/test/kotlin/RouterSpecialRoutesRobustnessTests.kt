@@ -35,7 +35,7 @@ class RouterSpecialRoutesRobustnessTests {
     fun throwing_high_priority_allows_lower_priority_to_handle() {
         val r = router { }
         // a normal page, should be bypassed by special route
-        r.addRoute(route("/p") { GET { ok("page") } })
+        r.addRoute(route("/p") { GET { _, _ -> ok("page") } })
 
         // high priority throws
         val high: (RequestDTO, Map<String, String>, io.voidx.ClientHandler) -> ResponseDTO? = { _, _, _ ->

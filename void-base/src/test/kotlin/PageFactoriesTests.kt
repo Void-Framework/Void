@@ -22,8 +22,10 @@ class PageFactoriesTests {
                 }
             }
 
-        val resp = p.content()
-        assertEquals(500, resp.status)
+        val req = io.voidx.dto.buildRequest {  }.apply {
+            attributes["exception"] = Exception()
+        }
+        val resp = p.content(req, emptyMap())
         assertEquals("Internal Server Error", resp.statusText)
         assertTrue(resp.body is ResponseBody.StringBody)
         assertEquals("oops", (resp.body as ResponseBody.StringBody).body)
@@ -32,7 +34,7 @@ class PageFactoriesTests {
     @Test
     fun not_found_page_factory_executes_block_and_returns_response() {
         val p =
-            notFoundPage {
+            notFoundPage { _, _ ->
                 buildResponse<String> {
                     status = 404
                     statusText = "Not Found"
@@ -41,7 +43,8 @@ class PageFactoriesTests {
                 }
             }
 
-        val resp = p.content()
+        val req = io.voidx.dto.buildRequest { }
+        val resp = p.content(req, emptyMap())
         assertEquals(404, resp.status)
         assertEquals("Not Found", resp.statusText)
         assertTrue(resp.body is ResponseBody.StringBody)

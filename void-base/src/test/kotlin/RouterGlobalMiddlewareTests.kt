@@ -66,7 +66,7 @@ class RouterGlobalMiddlewareTests {
         // Register a page which should NOT be reached due to short-circuit
         r.addRoute(
             route("/x") {
-                GET { ok("ok", mutableMapOf("Content-Type" to "text/plain")) }
+                GET { _, _ -> ok("ok", mutableMapOf("Content-Type" to "text/plain")) }
             },
         )
 

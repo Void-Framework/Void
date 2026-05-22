@@ -25,13 +25,13 @@ class BenchmarkTests {
         fun setup() {
             val r = router {
                 route("/ping") {
-                    GET { ok("pong") }
+                    GET { _, _ -> ok("pong") }
                 }
                 route("/echo") {
-                    POST { ok(request.body) }
+                    POST { req, _ -> ok(req.body) }
                 }
                 route("/user/{id}") {
-                    GET { ok("user ${data["id"]}") }
+                    GET { _, _ -> ok("user ${data["id"]}") }
                 }
             }
             server = Server(r)

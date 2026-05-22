@@ -23,15 +23,15 @@ class CorsMiddlewareTests {
                 corsMiddleware()
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.OPTIONS
                 headers["Origin"] = "http://example.com"
                 headers["Access-Control-Request-Method"] = "POST" // required for preflight
             }
 
-        val resp = page.middlewareProcessBefore()
-        resp?.let { page.middlewareProcessAfter(resp.toResult()) }
+        val resp = page.middlewareProcessBefore(req)
+        resp?.let { page.middlewareProcessAfter(Result.success(resp)) }
         assertNotNull(resp)
         assertEquals(200, resp?.status)
         assertEquals("", resp?.body?.body as String)
@@ -46,17 +46,17 @@ class CorsMiddlewareTests {
         val page =
             route("/test") {
                 corsMiddleware()
-                ok("Hello")
+                GET { _, _ -> ok("Hello") }
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.GET
                 headers["Origin"] = "http://example.com"
             }
 
-        val resp = page.middlewareProcessBefore()
-        resp?.let { page.middlewareProcessAfter(resp.toResult()) }
+        val resp = page.middlewareProcessBefore(req)
+        resp?.let { page.middlewareProcessAfter(Result.success(resp)) }
         assertNull(resp)
     }
 
@@ -66,34 +66,31 @@ class CorsMiddlewareTests {
         val page =
             route("/test") {
                 corsMiddleware(allowed)
-                ok("ok")
+                GET { _, _ -> ok("ok") }
             }
 
         // allowed origin
-        page.request =
+        val req1 =
             buildRequest {
                 method = Method.GET
                 headers["Origin"] = "https://allowed.com"
             }
 
-        val resp = page.content()
+        val resp = page.content(req1, emptyMap())
         // allowed origin
-        resp._request =
-            buildRequest {
-                method = Method.GET
-                headers["Origin"] = "https://allowed.com"
-            }
-        resp.let { page.middlewareProcessAfter(resp.toResult()) }
+        resp._request = req1
+        page.middlewareProcessAfter(Result.success(resp))
         assertEquals("https://allowed.com", resp.headers["Access-Control-Allow-Origin"])
 
-        val resp2 = page.content()
         // disallowed origin
-        resp2._request =
+        val req2 =
             buildRequest {
                 method = Method.GET
                 headers["Origin"] = "https://notallowed.com"
             }
-        resp2.let { page.middlewareProcessAfter(it.toResult()) }
+        val resp2 = page.content(req2, emptyMap())
+        resp2._request = req2
+        page.middlewareProcessAfter(Result.success(resp2))
         assertNull(resp2.headers["Access-Control-Allow-Origin"]) // no header
     }
 }

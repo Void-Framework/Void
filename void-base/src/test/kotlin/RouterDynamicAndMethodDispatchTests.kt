@@ -34,7 +34,7 @@ class RouterDynamicAndMethodDispatchTests {
         val r = router { }
         r.addRoute(
             route("/u/{id}/{name?}") {
-                GET {
+                GET { _, _ ->
                     // Access dynamic path variables via helper (implicit DynamicPage receiver)
                     val id: String? = path<String>("id")
                     val name: String? = path<String>("name?")
@@ -67,7 +67,7 @@ class RouterDynamicAndMethodDispatchTests {
         val r = router { }
         r.addRoute(
             route("/m") {
-                GET {
+                GET { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -75,7 +75,7 @@ class RouterDynamicAndMethodDispatchTests {
                         body = "g"
                     }
                 }
-                POST {
+                POST { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -112,7 +112,7 @@ class RouterDynamicAndMethodDispatchTests {
         val r = router { }
         r.addRoute(
             route("/u/{id}") {
-                GET {
+                GET { _, _ ->
                     val id: String? = path<String>("id")
                     buildResponse<String> {
                         status = 200
@@ -142,7 +142,7 @@ class RouterDynamicAndMethodDispatchTests {
         // This would normally match any single segment, including "favicon.ico" without the special-case bypass
         r.addRoute(
             route("/{name}") {
-                GET {
+                GET { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"

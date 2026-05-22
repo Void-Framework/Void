@@ -35,8 +35,7 @@ internal interface RouteCheck {
      */
     companion object {
         internal var exceptionPage: ExceptionPage =
-            exceptionPage {
-                val ex = exception
+            exceptionPage { ex ->
                 return@exceptionPage buildResponse {
                     status = 500
                     statusText = "Server Error"
