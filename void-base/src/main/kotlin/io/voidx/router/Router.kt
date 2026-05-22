@@ -9,6 +9,7 @@ import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
 import io.voidx.page.*
+import io.voidx.router.exceptions.RouteNoTargetException
 import io.voidx.router.tree.RouteNode
 import io.voidx.util.toResult
 import java.io.File
@@ -132,6 +133,7 @@ class Router {
             }
 
             else -> {
+                if (!route.target.startsWith("/")) throw RouteNoTargetException(route.target)
                 rootNode.insert(route.target.split("/"), 1, route)
             }
         }
@@ -169,7 +171,7 @@ class Router {
 
         val response = middlewareProcessBefore(requestDTO.toResult())
             ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query)
-            ?: rootNode.match(target.split("/"), 0, mutableMapOf()).also {
+            ?: rootNode.match(target.split("/"), 1, mutableMapOf()).also {
                 usedPage = it
             }?.content(requestDTO, query)
             ?: CustomPages.nullPage.also { usedPage = it }.content(requestDTO, query)
@@ -218,9 +220,13 @@ class Router {
         path: String,
         builder: PageHandler.() -> Unit,
     ) {
-        val page = PageHandler(path)
-        addRoute(page)
-        page.builder()
+        rootNode.match(path.split("/"), 1, mutableMapOf())?.let {
+            (it as? PageHandler)?.builder()
+        } ?: run {
+            val page = PageHandler(path)
+            addRoute(page)
+            page.builder()
+        }
     }
 }
 

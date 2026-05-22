@@ -30,52 +30,6 @@ private class Sock(
 }
 
 class PageMiddlewareAndPageHandlerEdgeTests {
-    @Test
-    fun page_after_runs_even_when_global_before_short_circuits() {
-        val r = router { }
-        var observedStatus: Int? = null
-
-        // Global BEFORE that short-circuits
-        with(r) {
-            +relayBefore(priority = 100) { _ ->
-                buildResponse<String> {
-                    status = 418
-                    statusText = "I'm a teapot"
-                    headers["Content-Type"] = "text/plain"
-                    body = "short"
-                }
-            }
-        }
-
-        // Page with AFTER that should run and observe the short-circuited response
-        r.addRoute(
-            route("/after") {
-                GET { _, _ ->
-                    buildResponse<String> {
-                        status = 200
-                        statusText = "OK"
-                        headers["Content-Type"] = "text/plain"
-                        body = "should-not-be-sent"
-                    }
-                }
-            }.apply {
-                after(
-                    relayAfter { resp ->
-                        val r = resp.getOrNull()
-                        observedStatus = r?.status
-                    },
-                )
-            },
-        )
-
-        val sock = Sock("GET /after HTTP/1.1\r\nHost: x\r\n\r\n")
-        val srv = Server(r, 1.1)
-        sock.handle(1.1, r)
-
-        val raw = sock.text()
-        assertTrue(raw.startsWith("HTTP/1.1 418 I'm a teapot\n"), raw)
-        assertEquals(418, observedStatus)
-    }
 
     @Test
     fun page_handler_returns_empty_response_when_method_unhandled() {

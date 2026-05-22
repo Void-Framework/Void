@@ -45,7 +45,8 @@ class RouterRouteDslBuilderTests {
         }
 
         // Ensure it was registered
-        assertNotNull(r.routes["/d"], "Route should be registered on first builder call")
+        val params = mutableMapOf<String, String>()
+        assertNotNull(r.rootNode.match("/d".split("/"), 1, params), "Route should be registered on first builder call")
 
         // Second call for same path should reuse existing handler (adds POST)
         r.route("/d") {

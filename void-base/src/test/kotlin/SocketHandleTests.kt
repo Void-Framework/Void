@@ -63,6 +63,7 @@ class SocketHandleTests {
 
         // Exercise the extension function which processes the request
         sock.handle(1.1, r)
+        println(r.rootNode)
 
         val raw = sock.outputString()
         assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
