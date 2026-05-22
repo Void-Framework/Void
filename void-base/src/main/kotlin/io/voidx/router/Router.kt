@@ -4,6 +4,7 @@ import io.voidx.ClientHandler
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
+import io.voidx.dto.buildRequest
 import io.voidx.dto.writeHTTP
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
@@ -202,26 +203,15 @@ class Router :
                     if (staticPage != null) {
                         val page = staticPage
                         usedPage = page
-                        synchronized(page) {
-                            page.queries = query
-                            page.request = requestDTO
-                            // Per-page event system removed; keep behavior otherwise
-
-                            page.middlewareProcessBefore()
-                                ?: handleResponse(page, clientHandler, target)
-                        }
+                        page.middlewareProcessBefore(requestDTO)
+                            ?: handleResponse(page, clientHandler, target, requestDTO, query)
                     } else {
                         handleDynamic(requestDTO, query)
                             ?: run {
                                 val page = RouteCheck.nullPage
                                 usedPage = page
-                                synchronized(page) {
-                                    page.queries = query
-                                    page.request = requestDTO
-                                    // No per-page events; just run middleware/content
-                                    page.middlewareProcessBefore()
-                                        ?: page.content()
-                                }
+                                page.middlewareProcessBefore(requestDTO)
+                                    ?: page.content(requestDTO, query)
                             }
                     }
                 }
@@ -260,13 +250,10 @@ class Router :
         // Invoke Bootstrap error handlers; request is unknown at this point
         Bootstrap.fireError(null, e)
         val exPage = RouteCheck.exceptionPage
-        synchronized(exPage) {
-            exPage.exception = e
-            client.getOutputStream().writeHTTP(
-                response = exPage.content(),
-                version = clientHandler.server.httpVersion,
-            )
-        }
+        client.getOutputStream().writeHTTP(
+            response = exPage.content(buildRequest {  }, emptyMap()),
+            version = clientHandler.server.httpVersion,
+        )
     }
 
     /**
