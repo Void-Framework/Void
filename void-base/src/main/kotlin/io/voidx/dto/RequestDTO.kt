@@ -38,6 +38,9 @@ data class RequestDTO(
      */
     val attributes: MutableMap<String, Any> = mutableMapOf()
 
+    /**
+     * Parsed cookies from the "Cookie" header.
+     */
     val cookies: Map<String, String>
         get() {
             val percentRegex = "%([0-9A-Fa-f]{2})".toRegex()
@@ -200,6 +203,9 @@ fun buildRequest(builder: RequestBuilder.() -> Unit): RequestDTO {
     return build.build()
 }
 
+/**
+ * DSL helper to apply mutations to the headers map in the [RequestBuilder].
+ */
 fun RequestBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
 }

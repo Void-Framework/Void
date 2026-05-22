@@ -4,7 +4,13 @@ import io.voidx.dto.buildResponse
 import io.voidx.dto.headers
 import io.voidx.page.*
 
+/**
+ * Internal storage for custom error and not-found pages.
+ */
 internal object CustomPages {
+    /**
+     * The default page to display when an unhandled exception occurs.
+     */
     internal var exceptionPage: ExceptionPage =
         exceptionPage { ex ->
             return@exceptionPage buildResponse {
@@ -97,6 +103,9 @@ internal object CustomPages {
                         "</html>"
             }
         }
+    /**
+     * The default page to display when no route matches the request.
+     */
     internal var nullPage: NotFoundPage =
         notFoundPage { req, _ ->
             return@notFoundPage buildResponse {

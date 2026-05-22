@@ -26,6 +26,12 @@ import java.util.*
  */
 object Bootstrap {
     // ---- Hook registries (explicit Bootstrap-managed, no generic events) ----
+    /**
+     * Entry for a page decorator.
+     * @property id Unique identifier for the decorator.
+     * @property fn The decorator function to apply to a [Page].
+     * @property active Whether this decorator is currently active.
+     */
     private data class DecoratorEntry(
         val id: Long,
         val fn: (Page, Router) -> Unit,
@@ -42,6 +48,11 @@ object Bootstrap {
     @Volatile private var errorHandlersSnapshot: List<(RequestDTO?, Throwable) -> Unit> = emptyList()
 
     // ---- Special route handlers (pre-dispatch short-circuit) ----
+    /**
+     * Represents a special route handler that runs before normal routing.
+     * @property priority Higher priority handlers run earlier.
+     * @property handler The handler function. Returns a [ResponseDTO] to short-circuit, or null to continue.
+     */
     private data class SpecialRoute(
         val priority: Int,
         val handler: (RequestDTO, Map<String, String>) -> ResponseDTO?,
@@ -52,12 +63,18 @@ object Bootstrap {
     @Volatile private var specialRoutesSnapshot: List<SpecialRoute> = emptyList()
 
     // ---- Page decorators ----
+    /**
+     * Registers a page decorator globally.
+     */
     fun registerPageDecorator(decorator: (Page, Router) -> Unit) {
         val entry = DecoratorEntry(nextDecoratorId++, decorator, active = true)
         pageDecorators += entry
         pageDecoratorsSnapshot = pageDecorators.filter { it.active }
     }
 
+    /**
+     * Unregisters a previously registered page decorator.
+     */
     fun unregisterPageDecorator(decorator: (Page, Router) -> Unit) {
         pageDecorators.forEach { if (it.fn === decorator) it.active = false }
         pageDecoratorsSnapshot = pageDecorators.filter { it.active }
@@ -87,11 +104,17 @@ object Bootstrap {
     }
 
     // ---- Error handlers ----
+    /**
+     * Registers an error handler globally.
+     */
     fun registerErrorHandler(handler: (RequestDTO?, Throwable) -> Unit) {
         errorHandlers += handler
         errorHandlersSnapshot = errorHandlers.toList()
     }
 
+    /**
+     * Unregisters a previously registered error handler.
+     */
     fun unregisterErrorHandler(handler: (RequestDTO?, Throwable) -> Unit) {
         errorHandlers.remove(handler)
         errorHandlersSnapshot = errorHandlers.toList()

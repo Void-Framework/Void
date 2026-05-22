@@ -33,6 +33,9 @@ data class ResponseDTO(
     /** Mutable map of response headers. "Content-Length" will be added if missing during write. */
     var headers = mutableMapOf<String, String>()
 
+    /**
+     * Set of cookies to be included in the response via "Set-Cookie" headers.
+     */
     val cookies = mutableListOf<Cookie>()
 
     /**
@@ -119,6 +122,9 @@ fun ResponseBuilder<*>.headers(block: Headers.() -> Unit) {
     headers.block()
 }
 
+/**
+ * DSL helper to create a [Headers] map.
+ */
 fun headers(block: Headers.() -> Unit): Headers {
     val map = mutableMapOf<String, String>()
     map.block()
@@ -175,8 +181,14 @@ fun OutputStream.writeHTTP(
     }
 }
 
+/**
+ * Returns an empty HTTP 200 OK response with a string body.
+ */
 fun emptyResponse(): ResponseDTO = buildResponse<String> { }
 
+/**
+ * Represents the body of an HTTP response, specializing in [String] or [ByteArray].
+ */
 sealed class ResponseBody<T>(
     open val body: T,
 ) {
@@ -189,6 +201,9 @@ sealed class ResponseBody<T>(
     ) : ResponseBody<ByteArray>(body)
 }
 
+/**
+ * Returns an HTTP 200 OK response with the given [body].
+ */
 inline fun <reified T> ok(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -202,6 +217,9 @@ inline fun <reified T> ok(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 201 Created response with the given [body].
+ */
 inline fun <reified T> created(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -215,6 +233,9 @@ inline fun <reified T> created(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 202 Accepted response with the given [body].
+ */
 inline fun <reified T> accepted(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -228,6 +249,9 @@ inline fun <reified T> accepted(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 204 No Content response.
+ */
 fun noContent(
     headers: Headers = mutableMapOf(),
     cookies: List<Cookie> = emptyList(),
@@ -240,6 +264,9 @@ fun noContent(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 301 or 302 redirect response to the given [location].
+ */
 fun redirect(
     location: String,
     permanent: Boolean = false,
@@ -253,6 +280,9 @@ fun redirect(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 307 Temporary Redirect response to the given [location].
+ */
 fun temporaryRedirect(
     location: String,
     cookies: List<Cookie> = emptyList(),
@@ -265,6 +295,9 @@ fun temporaryRedirect(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 308 Permanent Redirect response to the given [location].
+ */
 fun permanentRedirect(
     location: String,
     cookies: List<Cookie> = emptyList(),
@@ -277,6 +310,9 @@ fun permanentRedirect(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 400 Bad Request response with the given [body].
+ */
 inline fun <reified T> badRequest(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -290,6 +326,9 @@ inline fun <reified T> badRequest(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 401 Unauthorized response with the given [body].
+ */
 inline fun <reified T> unauthorized(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -303,6 +342,9 @@ inline fun <reified T> unauthorized(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 403 Forbidden response with the given [body].
+ */
 inline fun <reified T> forbidden(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -316,6 +358,9 @@ inline fun <reified T> forbidden(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 404 Not Found response with the given [body].
+ */
 inline fun <reified T> notFound(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -329,6 +374,9 @@ inline fun <reified T> notFound(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 409 Conflict response with the given [body].
+ */
 inline fun <reified T> conflict(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -342,6 +390,9 @@ inline fun <reified T> conflict(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 429 Too Many Requests response with the given [body].
+ */
 inline fun <reified T> tooManyRequests(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -355,6 +406,9 @@ inline fun <reified T> tooManyRequests(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 500 Internal Server Error response with the given [body].
+ */
 inline fun <reified T> internalServerError(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -368,6 +422,9 @@ inline fun <reified T> internalServerError(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 501 Not Implemented response with the given [body].
+ */
 inline fun <reified T> notImplemented(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -381,6 +438,9 @@ inline fun <reified T> notImplemented(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 502 Bad Gateway response with the given [body].
+ */
 inline fun <reified T> badGateway(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -394,6 +454,9 @@ inline fun <reified T> badGateway(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 503 Service Unavailable response with the given [body].
+ */
 inline fun <reified T> serviceUnavailable(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -407,6 +470,9 @@ inline fun <reified T> serviceUnavailable(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 504 Gateway Timeout response with the given [body].
+ */
 inline fun <reified T> gatewayTimeout(
     body: T,
     headers: Headers = mutableMapOf(),
@@ -420,6 +486,9 @@ inline fun <reified T> gatewayTimeout(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Returns an HTTP 200 OK response that triggers a file download of the given [file].
+ */
 fun fileDownload(
     file: File,
     contentType: String? = null,
@@ -436,11 +505,17 @@ fun fileDownload(
         this.cookies.addAll(cookies)
     }
 
+/**
+ * Attempts to guess the MIME type of the given [file] based on its extension or content.
+ */
 fun guessContentType(file: File): String =
     Files.probeContentType(file.toPath())
         ?: URLConnection.guessContentTypeFromName(file.name)
         ?: "application/octet-stream"
 
+/**
+ * Returns an HTTP 418 I'm a teapot response.
+ */
 fun teapot(
     headers: Headers = mutableMapOf(),
     cookies: List<Cookie> = emptyList(),
