@@ -44,7 +44,7 @@ class BootstrapServeClasspathFileTests {
 
         // Existing resource
         val okSock = SockSCF("GET /static/elements.json HTTP/1.1\r\nHost: x\r\n\r\n")
-        okSock.handle(srv, r)
+        okSock.handle(1.1, r)
         val okOut = okSock.text()
         assertTrue(okOut.startsWith("HTTP/1.1 200 OK\n"), okOut)
         assertTrue(okOut.contains("Content-Type: application/json\n"), okOut)
@@ -53,7 +53,7 @@ class BootstrapServeClasspathFileTests {
 
         // Missing resource should 404
         val missSock = SockSCF("GET /static/missing.js HTTP/1.1\r\nHost: x\r\n\r\n")
-        missSock.handle(srv, r)
+        missSock.handle(1.1, r)
         val missOut = missSock.text()
         assertTrue(missOut.startsWith("HTTP/1.1 404 Not Found\n"), missOut)
         assertTrue(missOut.contains("Content-Type: text/plain\n"), missOut)

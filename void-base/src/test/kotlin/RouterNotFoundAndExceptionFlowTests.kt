@@ -62,7 +62,7 @@ class RouterNotFoundAndExceptionFlowTests {
 
         val sock = InlineSocket(rawRequest)
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.output()
         assertTrue(raw.startsWith("HTTP/1.1 404 Not Found\n"), raw)
@@ -91,7 +91,7 @@ class RouterNotFoundAndExceptionFlowTests {
         )
         val sock = InlineSocket(rawRequest)
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.output()
         assertTrue(raw.startsWith("HTTP/1.1 404 Not Found\n"), raw)
@@ -127,7 +127,7 @@ class RouterNotFoundAndExceptionFlowTests {
         )
         val sock = InlineSocket(rawRequest)
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.output()
         assertTrue(raw.startsWith("HTTP/1.1 500 Server Error\n"), raw)
@@ -164,7 +164,7 @@ class RouterNotFoundAndExceptionFlowTests {
         )
         val sock = InlineSocket(rawRequest)
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.output()
         assertTrue(raw.startsWith("HTTP/1.1 500 Server Error\n"), raw)

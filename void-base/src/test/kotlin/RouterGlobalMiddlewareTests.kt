@@ -76,7 +76,7 @@ class RouterGlobalMiddlewareTests {
                     "Host: example.com\r\n\r\n",
             )
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 401 Unauthorized\n"), raw)

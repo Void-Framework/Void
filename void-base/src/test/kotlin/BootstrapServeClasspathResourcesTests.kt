@@ -42,7 +42,7 @@ class BootstrapServeClasspathResourcesTests {
 
         fun fetch(path: String): String {
             val sock = SockSCR("GET $path HTTP/1.1\r\nHost: x\r\n\r\n")
-            sock.handle(srv, r)
+            sock.handle(1.1, r)
             return sock.text()
         }
 
