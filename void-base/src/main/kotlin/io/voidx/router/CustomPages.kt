@@ -1,49 +1,20 @@
-package io.voidx.router.util
+package io.voidx.router
 
 import io.voidx.dto.buildResponse
 import io.voidx.dto.headers
 import io.voidx.page.*
-import io.voidx.router.exceptions.RouteNoTargetException
-import io.voidx.router.exceptions.RouteTargetUsedException
-import java.util.concurrent.ConcurrentHashMap
 
-internal interface RouteCheck {
-    /**
-     * Validates and registers the [route] target into [routes].
-     *
-     * - Throws [io.voidx.router.exceptions.RouteTargetUsedException] if the path is already in use.
-     * - Throws [io.voidx.router.exceptions.RouteNoTargetException] if the path does not start with "/".
-     */
-    fun handleTargetChecking(
-        route: Page,
-        routes: ConcurrentHashMap<String, Page>,
-    ) {
-        if (routes.containsKey(route.target)) {
-            throw RouteTargetUsedException(target = route.target)
-        } else {
-            if (route.target.startsWith("/")) {
-                routes[route.target] = route
-            } else {
-                throw RouteNoTargetException(target = route.target)
-            }
-        }
-    }
-
-    /**
-     * Defaults used by the router when an exception is thrown or a route is not found.
-     * These can be overridden by registering custom pages in the router.
-     */
-    companion object {
-        internal var exceptionPage: ExceptionPage =
-            exceptionPage { ex ->
-                return@exceptionPage buildResponse {
-                    status = 500
-                    statusText = "Server Error"
-                    headers {
-                        put("Content-Type", "text/html")
-                        put("Connection", "close")
-                    }
-                    body = "<!doctype html><html>" +
+internal object CustomPages {
+    internal var exceptionPage: ExceptionPage =
+        exceptionPage { ex ->
+            return@exceptionPage buildResponse {
+                status = 500
+                statusText = "Server Error"
+                headers {
+                    put("Content-Type", "text/html")
+                    put("Connection", "close")
+                }
+                body = "<!doctype html><html>" +
                         "<head>" +
                         "  <style>" +
                         "#__next-dev-overlay {\n" +
@@ -124,19 +95,19 @@ internal interface RouteCheck {
                         "</div>" +
                         "</body>" +
                         "</html>"
-                }
             }
-        internal var nullPage: NotFoundPage =
-            notFoundPage { req, _ ->
-                return@notFoundPage buildResponse {
-                    status = 404
-                    statusText = "Not Found"
-                    headers {
-                        put("Content-Type", "text/html")
-                        put("Connection", "close")
-                    }
-                    body =
-                        """
+        }
+    internal var nullPage: NotFoundPage =
+        notFoundPage { req, _ ->
+            return@notFoundPage buildResponse {
+                status = 404
+                statusText = "Not Found"
+                headers {
+                    put("Content-Type", "text/html")
+                    put("Connection", "close")
+                }
+                body =
+                    """
                         <!doctype html>
                         <html lang="en">
                         <head>
@@ -197,7 +168,6 @@ internal interface RouteCheck {
                         </body>
                         </html>
                         """.trimIndent()
-                }
             }
-    }
+        }   
 }
