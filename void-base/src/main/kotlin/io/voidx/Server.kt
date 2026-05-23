@@ -2,6 +2,7 @@ package io.voidx
 
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.RequestDTO
+import io.voidx.dto.badRequest
 import io.voidx.dto.buildResponse
 import io.voidx.dto.headers
 import io.voidx.dto.writeHTTP
@@ -28,7 +29,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * - Construct with a [Router]. During initialization, module hooks (see [io.voidx.util.ModuleInit])
  *   are executed and any registered HTML integration is applied to existing routes.
  * - Call [startHTTPServer] and/or [startHTTPSServer] to accept connections.
- * - Each connection is handled on a coroutine via [Socket.handle].
+ * - Each connection is handled on a coroutine via [handle].
  *
  * @param httpVersion HTTP version used when writing responses.
  */
@@ -311,8 +312,17 @@ fun Socket.handle(
     try {
         val request =
             RequestDTO.parse(
-                inputStream = this.getInputStream(),
+                inputStream = this.getInputStream()
             )
+        if (request.attributes["Malformed"] as Boolean) {
+            this.getOutputStream().writeHTTP(
+                badRequest(
+                    router.badRequestPage.content(request, emptyMap()),
+                    mutableMapOf()
+                ),
+                version = version
+            )
+        }
         router.route(
             requestDTO = request,
             client = this,
