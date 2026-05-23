@@ -49,12 +49,14 @@ class PageEnhancedTests {
         }
 
         val page = TestPage()
+        // Since it's a test we can suppress it, tho, TODO: Remove KClass registration
+        @Suppress("UNCHECKED_CAST")
         page.before(TestBeforeRelay::class as KClass<RelayBefore>)
         val req = buildRequest { method = Method.GET }
 
         val resp = page.middlewareProcessBefore(req)
         assertNotNull(resp)
-        assertEquals(403, resp?.status)
+        assertEquals(403, resp.status)
     }
 
     @Test
@@ -190,7 +192,7 @@ class PageEnhancedTests {
 
         val resp = page.middlewareProcessBefore(req)
         assertNotNull(resp)
-        assertEquals(req, resp?._request)
+        assertEquals(req, resp._request)
     }
 
     @Test
