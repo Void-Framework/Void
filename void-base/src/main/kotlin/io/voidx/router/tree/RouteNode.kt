@@ -76,12 +76,14 @@ internal class RouteNode(
     }
 
     /**
-     * Attempts to match a list of path segments against the tree.
+     * Matches the given path segments against this routing subtree, filling `params` with any extracted dynamic segment values.
      *
-     * @param segments The path segments from the request URI.
-     * @param index The current segment index being matched.
-     * @param params A mutable map to collect dynamic path parameters.
-     * @return The matched [Page], or null if no match is found.
+     * Attempts a static-child-first match for the segment at `index`, then a dynamic-child match; when the path is exhausted an optional dynamic child may match the empty segment. If a matching `DynamicPage` is found, its internal `_data` map is populated with the collected `params`.
+     *
+     * @param segments The sequence of path segments to match.
+     * @param index The current index within `segments` to match.
+     * @param params Mutable map that will be populated with dynamic parameter names to values.
+     * @return The matching `Page` if one is found for the path, or `null` otherwise.
      */
     fun match(
         segments: List<String>,
@@ -135,8 +137,11 @@ internal class RouteNode(
             Regex("^\\{([a-zA-Z_][a-zA-Z0-9_]*)\\?\\}$")
 
         /**
-         * Extracts the parameter name from a segment string if it matches dynamic or optional patterns.
-         */
+                 * Extracts the parameter name captured from a dynamic segment like `{id}` or `{id?}`.
+                 *
+                 * @param part The path segment to inspect.
+                 * @return The captured parameter name, or an empty string if `part` is not a dynamic or optional segment.
+                 */
         private fun extractParamName(part: String): String =
             DYNAMIC_REGEX.matchEntire(part)?.groupValues?.get(1)
                 ?: OPTIONAL_REGEX.matchEntire(part)?.groupValues?.get(1)
