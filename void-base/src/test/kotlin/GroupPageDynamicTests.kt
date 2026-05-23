@@ -18,28 +18,13 @@ import kotlin.test.assertNotNull
 
 class GroupPageDynamicTests {
     private fun Router.dispatch(req: RequestDTO): ResponseDTO {
-        var capturedResponse: ResponseDTO? = null
-        val mockSocket = object : Socket() {
-            override fun getOutputStream() = object : java.io.OutputStream() {
-                override fun write(b: Int) {}
-                override fun write(b: ByteArray) {
-                    // This is a bit hacky but we just want the response object
-                }
-            }
-        }
-        // We need a way to get the response without writing to socket if possible, 
-        // or just rely on the fact that Router.route calls content() and middleware.
-        // Actually, Router.route doesn't return anything. 
-        // Let's use rootNode.match directly in tests to simulate what Router does, 
-        // or better, use a simplified version of Router.route logic.
-        
-        val rawTarget = req.target
+        val rawTarget = req.target.removeSuffix(if (req.target.last() == '/') "/" else "")
         val qMark = rawTarget.indexOf('?')
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
         val query = Router.parseQuery(rawTarget)
         
         return rootNode.match(target.split("/"), 1, mutableMapOf())?.content(req, query)
-            ?: io.voidx.router.CustomPages.nullPage.content(req, query)
+            ?: nullPage.content(req, query)
     }
 
     @Test

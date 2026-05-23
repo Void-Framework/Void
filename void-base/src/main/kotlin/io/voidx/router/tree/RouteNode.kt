@@ -93,10 +93,11 @@ internal class RouteNode(
         if (index == segments.size) {
             if (dynamicChild != null && dynamicChild!!.optional) {
                 params[dynamicChild!!.paramName ?: ""] = ""
-                if (handler is DynamicPage) {
-                    (handler as DynamicPage)._data.putAll(params)
+                val matched = dynamicChild!!.handler
+                if (matched is DynamicPage) {
+                    matched._data.putAll(params)
                 }
-                return dynamicChild!!.handler
+                return matched
             }
             if (handler is DynamicPage) {
                 (handler as DynamicPage)._data.putAll(params)
@@ -123,7 +124,7 @@ internal class RouteNode(
             params.remove(dyn.paramName ?: "")
         }
 
-        return handler
+        return null
     }
 
     companion object {
