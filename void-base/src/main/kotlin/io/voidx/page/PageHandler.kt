@@ -5,7 +5,7 @@ import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.dto.buildResponse
 import io.voidx.json.Negotiator
-import io.voidx.router.CustomPages
+import io.voidx.router.router
 
 /**
  * Lightweight page that dispatches to verb-specific handlers for API-style routes.
@@ -44,7 +44,8 @@ open class PageHandler(
         request: RequestDTO,
         queries: Map<String, String>,
     ): ResponseDTO = responses[request.method]?.invoke(Negotiator(request), request, queries)
-        ?: CustomPages.nullPage.content(request, queries)
+        // Stupid fix, TODO: Make a better fix
+        ?: router {}.nullPage.content(request, queries)
 
     /**
  * Registers the handler to invoke for HTTP GET requests on this page.

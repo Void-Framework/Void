@@ -305,13 +305,13 @@ class RouterEnhancedTests {
     fun `test router exception page registration`() {
         val r = Router()
         val exPage =
-            exceptionPage {
+            exceptionPage { _, _, it ->
                 ok("error: ${it.message}")
             }
         r.addRoute(exPage)
 
         // Check that global exception page is set
-        assertEquals(exPage, io.voidx.router.CustomPages.exceptionPage)
+        assertEquals(exPage, r.exceptionPage)
     }
 
     @Test
