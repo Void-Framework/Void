@@ -335,12 +335,9 @@ fun Socket.handle(
             RequestDTO.parse(
                 inputStream = this.getInputStream(),
             )
-        if (request.attributes["Malformed"] as? Boolean == true) {
+        if (request.attributes["Malformed"] is Boolean && request.attributes["Malformed"] == true) {
             this.getOutputStream().writeHTTP(
-                badRequest(
-                    router.badRequestPage.content(request, emptyMap()),
-                    mutableMapOf(),
-                ),
+                router.badRequestPage.content(request, emptyMap()),
                 version = version,
             )
         }
