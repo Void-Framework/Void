@@ -1,0 +1,139 @@
+package io.voidx.router.tree
+
+import io.voidx.page.Page
+import io.voidx.router.exceptions.RouteTargetUsedException
+
+/**
+ * Represents a node in the routing tree.
+ * Handles both static segments and dynamic parameters.
+ *
+ * @property optional Whether this node represents an optional path segment.
+ * @property paramName The name of the dynamic parameter, if this is a dynamic node.
+ */
+internal class RouteNode(
+    val optional: Boolean = false,
+    val paramName: String? = null,
+) {
+    /** Map of static child segments to their respective nodes. */
+    val staticChildren = HashMap<String, RouteNode>()
+
+    /** The dynamic child node, if any. */
+    var dynamicChild: RouteNode? = null
+
+    /** The page handler associated with this route, if it's a leaf node. */
+    var handler: Page? = null
+
+    /**
+     * Inserts a route into the tree.
+     *
+     * @param segments The path segments to insert.
+     * @param index The current segment index being processed.
+     * @param page The [Page] to associate with this route.
+     * @throws RouteTargetUsedException if the route is already registered.
+     */
+    fun insert(
+        segments: List<String>,
+        index: Int,
+        page: Page,
+    ) {
+        if (index == segments.size) {
+            if (handler != null) {
+                throw RouteTargetUsedException(page.target)
+            }
+            handler = page
+            return
+        }
+
+        val part = segments[index]
+
+        val isDynamic = part.matches(DYNAMIC_REGEX)
+        val isOptional = part.matches(OPTIONAL_REGEX)
+
+        val node =
+            when {
+                isDynamic || isOptional -> {
+                    if (dynamicChild == null) {
+                        val name = extractParamName(part)
+                        dynamicChild =
+                            RouteNode(
+                                paramName = name,
+                                optional = isOptional,
+                            )
+                    }
+                    dynamicChild!!
+                }
+
+                else -> {
+                    staticChildren.getOrPut(part) {
+                        RouteNode()
+                    }
+                }
+            }
+
+        node.insert(segments, index + 1, page)
+    }
+
+    /**
+     * Matches the given path segments against this routing subtree, filling `params` with any extracted dynamic segment values.
+     *
+     * Attempts a static-child-first match for the segment at `index`, then a dynamic-child match; when the path is exhausted an optional dynamic child may match the empty segment. If a matching `DynamicPage` is found, its internal `_data` map is populated with the collected `params`.
+     *
+     * @param segments The sequence of path segments to match.
+     * @param index The current index within `segments` to match.
+     * @param params Mutable map that will be populated with dynamic parameter names to values.
+     * @return The matching `Page` if one is found for the path, or `null` otherwise.
+     */
+    fun match(
+        segments: List<String>,
+        index: Int,
+        params: MutableMap<String, String>,
+    ): Page? {
+        if (index == segments.size) {
+            if (dynamicChild != null && dynamicChild!!.optional) {
+                params[dynamicChild!!.paramName ?: ""] = ""
+                val matched = dynamicChild!!.handler
+                return matched
+            }
+            return handler
+        }
+
+        val part = segments[index]
+
+        // 1. static first
+        staticChildren[part]?.match(segments, index + 1, params)?.let {
+            return it
+        }
+
+        // 2. dynamic second
+        dynamicChild?.let { dyn ->
+            params[dyn.paramName ?: ""] = part
+            dyn.match(segments, index + 1, params)?.let {
+                return it
+            }
+            params.remove(dyn.paramName ?: "")
+        }
+
+        return null
+    }
+
+    companion object {
+        /** Matches a required dynamic segment like `{id}`. */
+        private val DYNAMIC_REGEX =
+            Regex("^\\{([a-zA-Z_][a-zA-Z0-9_]*)}$")
+
+        /** Matches an optional dynamic segment like `{slug?}`. */
+        private val OPTIONAL_REGEX =
+            Regex("^\\{([a-zA-Z_][a-zA-Z0-9_]*)\\?\\}$")
+
+        /**
+         * Extracts the parameter name captured from a dynamic segment like `{id}` or `{id?}`.
+         *
+         * @param part The path segment to inspect.
+         * @return The captured parameter name, or an empty string if `part` is not a dynamic or optional segment.
+         */
+        private fun extractParamName(part: String): String =
+            DYNAMIC_REGEX.matchEntire(part)?.groupValues?.get(1)
+                ?: OPTIONAL_REGEX.matchEntire(part)?.groupValues?.get(1)
+                ?: ""
+    }
+}

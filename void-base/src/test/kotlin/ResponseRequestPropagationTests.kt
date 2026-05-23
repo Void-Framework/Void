@@ -1,6 +1,5 @@
 package test
 
-import io.voidx.Server
 import io.voidx.dto.ok
 import io.voidx.handle
 import io.voidx.middleware.relayAfter
@@ -37,11 +36,10 @@ class ResponseRequestPropagationTests {
             +relayAfter { resp -> seenTarget = resp.getOrNull()?._request?.target }
         }
 
-        r.addRoute(route("/rrp") { GET { ok("ok") } })
+        r.addRoute(route("/rrp") { GET { _, _ -> ok("ok") } })
 
         val sock = SockRRP("GET /rrp?x=1 HTTP/1.1\r\nHost: x\r\n\r\n")
-        val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)

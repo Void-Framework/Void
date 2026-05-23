@@ -40,7 +40,7 @@ class SocketHandleTests {
         val r = router { }
         r.addRoute(
             route("/ping") {
-                GET {
+                GET { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -61,15 +61,15 @@ class SocketHandleTests {
         val sock = InMemorySocket(rawRequest)
         val srv = Server(r, 1.1)
 
-        // Exercise the extension function which creates a ClientHandler and processes the request
-        sock.handle(srv, r)
+        // Exercise the extension function which processes the request
+        sock.handle(1.1, r)
 
         val raw = sock.outputString()
         assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
         assertTrue(raw.contains("Content-Type: text/plain\n"), raw)
         // Body after header separator
         assertEquals("pong", raw.substringAfter("\n\n"))
-        // ClientHandler.start closes the socket in finally
+        // handle closes the socket in finally
         assertTrue(sock.wasClosed())
     }
 }

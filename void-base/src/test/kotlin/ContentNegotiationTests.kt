@@ -1,7 +1,9 @@
 package test
 
+import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseBody
 import io.voidx.dto.buildRequest
+import io.voidx.dto.headers
 import io.voidx.json.autoSerialize
 import io.voidx.page.Page
 import kotlinx.serialization.Serializable
@@ -17,22 +19,19 @@ class ContentNegotiationTests {
         val age: Int,
     )
 
-    private fun dummyPage(accept: String?): Page {
-        val p =
-            object : Page("/test") {
-                override fun content() = throw UnsupportedOperationException()
-            }
-        p.request =
-            buildRequest {
-                if (accept != null) headers["Accept"] = accept
-            }
-        return p
-    }
+    private fun dummyPage(): Page =
+        object : Page("/test") {
+            override fun content(
+                request: RequestDTO,
+                queries: Map<String, String>,
+            ) = throw UnsupportedOperationException()
+        }
 
     @Test
     fun autoSerialize_respects_accept_json_by_default() {
-        val page = dummyPage(null) // default to application/json
-        val resp = page.autoSerialize<Person>(Person("Ada", 36))
+        val page = dummyPage()
+        val req = buildRequest { } // default to application/json in autoSerialize
+        val resp = page.autoSerialize<Person>(req, Person("Ada", 36))
         assertEquals("application/json", resp.headers["Content-Type"])
         val body = resp.body
         assertIs<ResponseBody.StringBody>(body)
@@ -41,12 +40,13 @@ class ContentNegotiationTests {
 
     @Test
     fun autoSerialize_respects_accept_header_variants() {
-        val pageJson = dummyPage("application/json")
-        val rJson = pageJson.autoSerialize<Person>(Person("Bob", 40))
+        val page = dummyPage()
+        val reqJson = buildRequest { headers { put("Accept", "application/json") } }
+        val rJson = page.autoSerialize<Person>(reqJson, Person("Bob", 40))
         assertEquals("application/json", rJson.headers["Content-Type"])
 
-        val pageXml = dummyPage("application/xml")
-        val rXml = pageXml.autoSerialize<Person>(Person("Bob", 40))
+        val reqXml = buildRequest { headers { put("Accept", "application/xml") } }
+        val rXml = page.autoSerialize<Person>(reqXml, Person("Bob", 40))
         assertEquals("application/xml", rXml.headers["Content-Type"])
         // For XML/ProtoBuf path we currently return bytes; ensure a body exists
         // Body type may be String or ByteArray depending on implementation; just check it's non-empty when string.

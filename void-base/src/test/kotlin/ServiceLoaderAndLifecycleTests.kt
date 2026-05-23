@@ -33,7 +33,7 @@ class ServiceLoaderAndLifecycleTests {
         val r = router { }
         val srv = Server(r, 1.1)
         val sock = SockSL("GET /sl HTTP/1.1\r\nHost: x\r\n\r\n")
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
         val out = sock.text()
         assertTrue(out.startsWith("HTTP/1.1 200 OK\n"), out)
         assertTrue(out.endsWith("\n\nsl"), out)

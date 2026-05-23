@@ -63,10 +63,12 @@ fun relayAfter(
 
 /** Backing builder used by [relayBefore]. */
 class RelayBeforeBuilder {
+    /** The before-hook function to execute. */
     var before: (Result<RequestDTO>) -> ResponseDTO? = { null }
 }
 
 /** Backing builder used by [relayAfter]. */
 class RelayAfterBuilder {
+    /** The after-hook function to execute. */
     var after: (Result<ResponseDTO>) -> Unit = { }
 }
