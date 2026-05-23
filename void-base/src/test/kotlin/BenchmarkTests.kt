@@ -10,6 +10,8 @@ import io.voidx.router.router
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 import kotlin.test.assertTrue
 
@@ -22,6 +24,7 @@ class BenchmarkTests {
         @JvmStatic
         @BeforeAll
         fun setup() {
+            val latch = CountDownLatch(1)
             val r =
                 router {
                     route("/ping") {
@@ -36,11 +39,19 @@ class BenchmarkTests {
                 }
             server = Server(r)
             Thread {
-                server.startHTTPServer(PORT)
+                try {
+                    server.startHTTPServer(PORT)
+                    latch.countDown()
+                } catch (e: Exception) {
+                    System.err.println("Server failed to start: ${e.message}")
+                    throw e
+                }
             }.start()
 
             // Give server time to start
-            Thread.sleep(1000)
+            if (!latch.await(5, TimeUnit.SECONDS)) {
+                throw IllegalStateException("Server failed to start within timeout")
+            }
         }
 
         @JvmStatic
