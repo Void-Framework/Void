@@ -61,7 +61,6 @@ class RouterNotFoundAndExceptionFlowTests {
         )
 
         val sock = InlineSocket(rawRequest)
-        val srv = Server(r, 1.1)
         sock.handle(1.1, r)
 
         val raw = sock.output()
