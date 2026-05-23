@@ -1,6 +1,5 @@
 package test
 
-import io.voidx.Server
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.ok
 import io.voidx.page.route
@@ -35,7 +34,7 @@ class BootstrapHookRobustnessTests {
         val h2 = Bootstrap.addPageDecorator { _, _ -> throw RuntimeException("boom") }
         val h3 = Bootstrap.addPageDecorator { _, _ -> called += "ok3" }
         try {
-            r.addRoute(route("/x") { GET { ok("x") } })
+            r.addRoute(route("/x") { GET { _, _ -> ok("x") } })
             assertEquals(listOf("ok1", "ok3"), called)
         } finally {
             h1.close()
@@ -53,9 +52,7 @@ class BootstrapHookRobustnessTests {
         try {
             val r = router { }
             val sock = SockBR("")
-            val srv = Server(r, 1.1)
-            val ch = io.voidx.ClientHandler(sock, srv, r)
-            r.error(ch, RuntimeException("err"))
+            r.error(sock, RuntimeException("err"), 1.1)
             assertEquals(listOf("ok1", "ok3"), called)
         } finally {
             h1.close()

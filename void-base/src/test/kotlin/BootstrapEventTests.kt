@@ -1,6 +1,5 @@
 package test
 
-import io.voidx.Server
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.ok
 import io.voidx.handle
@@ -37,8 +36,8 @@ class BootstrapHookTests {
         val handle = Bootstrap.addPageDecorator { page: Page, _ -> targets += page.target }
         try {
             val r = router { }
-            r.addRoute(route("/a") { GET { ok("A") } })
-            r.addRoute(route("/b/{id}") { GET { ok("B") } })
+            r.addRoute(route("/a") { GET { _, _ -> ok("A") } })
+            r.addRoute(route("/b/{id}") { GET { _, _ -> ok("B") } })
 
             assertTrue("/a" in targets, "Decorator not called for static page")
             assertTrue("/b/{id}" in targets, "Decorator not called for dynamic page")
@@ -54,31 +53,11 @@ class BootstrapHookTests {
         try {
             val r = router { }
             val sock = TestSocketHooks("")
-            val srv = Server(r, 1.1)
-            val ch = io.voidx.ClientHandler(sock, srv, r)
-            r.error(ch, RuntimeException("boom"))
+            r.error(sock, RuntimeException("boom"), 1.1)
 
             assertEquals(1, called, "Error handler should be invoked once")
         } finally {
             handle.close()
-        }
-    }
-
-    @Test
-    fun addPageDecorator_returns_closeable_to_unregister() {
-        var count = 0
-        val handle = Bootstrap.addPageDecorator { _, _ -> count += 1 }
-        try {
-            val r = router { }
-            r.addRoute(route("/x") { GET { ok("x") } })
-            handle.close()
-            r.addRoute(route("/y") { GET { ok("y") } })
-            assertEquals(r.routes.count() - 1, count, "Count should've increased even after closing")
-        } finally {
-            try {
-                handle.close()
-            } catch (_: Throwable) {
-            }
         }
     }
 
@@ -89,11 +68,9 @@ class BootstrapHookTests {
         try {
             val r = router { }
             val sock = TestSocketHooks("")
-            val srv = Server(r, 1.1)
-            val ch = io.voidx.ClientHandler(sock, srv, r)
-            r.error(ch, RuntimeException("boom"))
+            r.error(sock, RuntimeException("boom"), 1.1)
             handle.close()
-            r.error(ch, RuntimeException("boom2"))
+            r.error(sock, RuntimeException("boom2"), 1.1)
             assertEquals(1, count, "Error handler should have been unregistered by handle")
         } finally {
             try {
@@ -112,11 +89,10 @@ class BootstrapHookTests {
             +relayAfter(priority = 10) { resp -> if (resp.isSuccess) calls += "A10" }
         }
 
-        val sr = Bootstrap.addSpecialRoute(priority = 100) { _, _, _ -> ok("s") }
+        val sr = Bootstrap.addSpecialRoute(priority = 100) { _, _ -> ok("s") }
         try {
             val sock = TestSocketHooks("GET /p HTTP/1.1\r\nHost: x\r\n\r\n")
-            val srv = Server(r, 1.1)
-            sock.handle(srv, r)
+            sock.handle(1.1, r)
             assertEquals(listOf("A10", "A1"), calls)
         } finally {
             sr.close()

@@ -1,11 +1,10 @@
 package io.voidx
 
 import io.voidx.bootstrap.Bootstrap
-import io.voidx.dto.buildResponse
-import io.voidx.dto.headers
-import io.voidx.dto.writeHTTP
+import io.voidx.dto.*
 import io.voidx.exception.NotEnoughCarriers
 import io.voidx.router.Router
+import io.voidx.util.toResult
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileInputStream
@@ -17,6 +16,7 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLServerSocket
 import javax.net.ssl.SSLSocket
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Minimal HTTP/HTTPS server used by Void to serve routes from a [Router].
@@ -25,7 +25,7 @@ import javax.net.ssl.SSLSocket
  * - Construct with a [Router]. During initialization, module hooks (see [io.voidx.util.ModuleInit])
  *   are executed and any registered HTML integration is applied to existing routes.
  * - Call [startHTTPServer] and/or [startHTTPSServer] to accept connections.
- * - Each connection is handled on a coroutine via [ClientHandler].
+ * - Each connection is handled on a coroutine via [handle].
  *
  * @param httpVersion HTTP version used when writing responses.
  */
@@ -52,11 +52,29 @@ class Server(
         it.close()
     }
 
+    @Volatile
+    private var isShuttingDown = false
+
     /**
-     * Starts the HTTP server on the given [port].
+     * Stops the server by closing HTTP and HTTPS sockets and cancelling the coroutine scope.
+     */
+    fun stop() {
+        isShuttingDown = true
+
+        if (::socket.isInitialized) {
+            socket.close()
+        }
+        if (::httpsSocket.isInitialized) {
+            httpsSocket.close()
+        }
+        scope.cancel()
+    }
+
+    /**
+     * Starts an HTTP server bound to the specified port.
      *
-     * @param routeToHTTPS If true, new HTTP connections will wait until HTTPS is ready and then
-     * redirect the client to the HTTPS host using a 301 response.
+     * @param routeToHTTPS If true, new HTTP connections wait for HTTPS to become available and receive a 301 redirect to the HTTPS host.
+     * @throws NotEnoughCarriers when `useCarriers` is enabled and the server cannot start.
      */
     fun startHTTPServer(
         port: Int,
@@ -70,8 +88,13 @@ class Server(
                 Bootstrap.fireBeforeServerStart(Bootstrap.ServerKind.HTTP, port)
                 socket = ServerSocket(port)
                 Bootstrap.fireAfterServerStart(Bootstrap.ServerKind.HTTP, port)
-                while (socket.isBound) {
-                    val client = socket.accept()
+                while (socket.isBound && !socket.isClosed) {
+                    val client =
+                        try {
+                            socket.accept()
+                        } catch (e: Exception) {
+                            if (socket.isClosed) break else throw e
+                        }
                     if (routeToHTTPS) {
                         scope.launch {
                             waitForHTTPSAndRedirect(client)
@@ -79,9 +102,9 @@ class Server(
                     } else {
                         scope.launch {
                             try {
-                                client.handle(this@Server, router)
+                                client.handle(this@Server.httpVersion, router)
                             } catch (e: Exception) {
-                                client.error(this@Server, router, e)
+                                client.error(this@Server.httpVersion, router, e)
                             }
                         }
                     }
@@ -98,10 +121,13 @@ class Server(
     }
 
     /**
-     * Starts the HTTPS server on the given [port] using the provided PKCS12 keystore [file].
+     * Start an HTTPS server that accepts TLS connections and routes requests through the configured router.
      *
-     * @param password Keystore password.
-     * @param needsAuth Whether to require client certificate authentication.
+     * @param port TCP port to listen for HTTPS connections.
+     * @param password Password for the PKCS12 keystore.
+     * @param file PKCS12 keystore file containing the server certificate and key.
+     * @param needsAuth If `true`, require client certificate authentication.
+     * @throws NotEnoughCarriers If carrier mode is enabled and there are not enough carriers to start the server.
      */
     fun startHTTPSServer(
         port: Int,
@@ -128,14 +154,19 @@ class Server(
                 isHTTPSOn = true
                 httpsSocket.needClientAuth = needsAuth
                 Bootstrap.fireAfterServerStart(Bootstrap.ServerKind.HTTPS, port)
-                while (httpsSocket.isBound) {
-                    val client = httpsSocket.accept() as SSLSocket
+                while (httpsSocket.isBound && !httpsSocket.isClosed) {
+                    val client =
+                        try {
+                            httpsSocket.accept() as SSLSocket
+                        } catch (e: Exception) {
+                            if (httpsSocket.isClosed) break else throw e
+                        }
                     client.startHandshake()
                     scope.launch {
                         try {
-                            client.handle(this@Server, router)
+                            client.handle(this@Server.httpVersion, router)
                         } catch (e: Exception) {
-                            client.error(this@Server, router, e)
+                            client.error(this@Server.httpVersion, router, e)
                         }
                     }
                 }
@@ -153,15 +184,44 @@ class Server(
     /** Returns true if the HTTPS server socket is initialized, bound, open, and HTTPS mode is enabled. */
     fun isHTTPSServerRunning(): Boolean = isHTTPSOn && ::httpsSocket.isInitialized && httpsSocket.isBound && !httpsSocket.isClosed
 
+    /**
+     * Waits until the HTTPS server is available, then writes a 301 redirect to the client and closes the socket.
+     *
+     * Repeatedly checks the server HTTPS status and, once available, sends a "Moved Permanently" response
+     * with a Location header pointing to the client's host on the HTTPS scheme. Ensures the client socket
+     * is closed on error or after the redirect.
+     *
+     * @param client The accepted HTTP client socket to which the redirect response will be written.
+     */
     private suspend fun waitForHTTPSAndRedirect(client: Socket) {
         try {
-            // Keep checking until HTTPS is available
-            while (!isHTTPSServerRunning()) {
-                delay(50)
-            }
+            val httpsReady =
+                withTimeoutOrNull(5_000.milliseconds) {
+                    while (!isHTTPSServerRunning()) {
+                        if (isShuttingDown) {
+                            return@withTimeoutOrNull false
+                        }
 
-            // Send redirect once HTTPS is ready
+                        delay(50.milliseconds)
+                    }
+
+                    true
+                } ?: false
+
             withContext(Dispatchers.IO) {
+                if (!httpsReady) {
+                    client.getOutputStream().writeHTTP(
+                        response =
+                            buildResponse {
+                                status = 503
+                                statusText = "Service Unavailable"
+                                body = "HTTPS server unavailable"
+                            },
+                        version = httpVersion,
+                    )
+                    return@withContext
+                }
+
                 client.getOutputStream().writeHTTP(
                     response =
                         buildResponse {
@@ -175,10 +235,10 @@ class Server(
                     version = httpVersion,
                 )
             }
-        } catch (e: Exception) {
-            withContext(Dispatchers.IO) {
-                runCatching { client.close() }
-            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // no-op, socket closed in finally
         } finally {
             withContext(Dispatchers.IO) {
                 runCatching { client.close() }
@@ -242,7 +302,11 @@ fun server(builder: ServerBuilder.() -> Unit): Server {
 }
 
 /**
- * Convenience function to spin up a simple HTTP server quickly on [port] with routes defined in [builder].
+ * Creates and starts an HTTP Server bound to the given port and configured with the provided router DSL.
+ *
+ * @param port TCP port to bind the HTTP server to.
+ * @param builder DSL block that configures the server's Router.
+ * @return The started Server instance.
  */
 fun simpleServer(
     port: Int = 8080,
@@ -256,24 +320,70 @@ fun simpleServer(
 }
 
 /**
- * Handles an incoming connection [Socket] by delegating processing to [ClientHandler].
+ * Handles an incoming connection [Socket] by parsing the request and routing it through the [router].
+ * The socket is automatically closed after processing.
+ *
+ * @param version The HTTP version to use for the response.
+ * @param router The [Router] to use for routing the request.
  */
 fun Socket.handle(
-    server: Server,
+    version: Number,
     router: Router,
 ) {
-    ClientHandler(this, server, router).start()
+    try {
+        val request =
+            RequestDTO.parse(
+                inputStream = this.getInputStream(),
+            )
+        if (request.attributes["Malformed"] as? Boolean == true) {
+            this.getOutputStream().writeHTTP(
+                badRequest(
+                    router.badRequestPage.content(request, emptyMap()),
+                    mutableMapOf(),
+                ),
+                version = version,
+            )
+        }
+        router.route(
+            requestDTO = request,
+            client = this,
+            version = version,
+        )
+    } catch (e: Exception) {
+        this.error(version, router, e)
+    } finally {
+        this.close()
+    }
 }
 
 /**
- * Handles an error that occurred while processing a connection by delegating to [ClientHandler.error].
+ * Process an exception for this socket connection, optionally sending a middleware-provided response or delegating to the router's error handler.
  *
- * @param exception The exception that was thrown during request processing.
+ * If the router's middleware provides a response for the exception, that response is written to the socket and handling ends. Otherwise the router's error handler is invoked. The socket is closed after handling; any exception thrown by the router's error handler is caught and its stack trace is printed.
+ *
+ * @param version The HTTP version to use when writing a response.
+ * @param router The router responsible for producing or handling error responses.
+ * @param exception The exception that occurred during request processing.
  */
 fun Socket.error(
-    server: Server,
+    version: Number,
     router: Router,
     exception: Exception,
 ) {
-    ClientHandler(this, server, router).error(exception)
+    val response = router.middlewareProcessBefore(exception.toResult())
+    if (response != null) {
+        router.middlewareProcessAfter(response.toResult())
+        this.getOutputStream().writeHTTP(
+            response = response,
+            version = version,
+        )
+        return
+    }
+    try {
+        router.error(this, exception, version)
+    } catch (error: Exception) {
+        error.printStackTrace()
+    } finally {
+        this.close()
+    }
 }

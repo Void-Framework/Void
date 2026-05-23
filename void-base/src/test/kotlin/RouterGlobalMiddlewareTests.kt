@@ -66,7 +66,7 @@ class RouterGlobalMiddlewareTests {
         // Register a page which should NOT be reached due to short-circuit
         r.addRoute(
             route("/x") {
-                GET { ok("ok", mutableMapOf("Content-Type" to "text/plain")) }
+                GET { _, _ -> ok("ok", mutableMapOf("Content-Type" to "text/plain")) }
             },
         )
 
@@ -76,7 +76,7 @@ class RouterGlobalMiddlewareTests {
                     "Host: example.com\r\n\r\n",
             )
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 401 Unauthorized\n"), raw)

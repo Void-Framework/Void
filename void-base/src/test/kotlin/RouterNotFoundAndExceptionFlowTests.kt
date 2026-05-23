@@ -7,7 +7,6 @@ import io.voidx.page.exceptionPage
 import io.voidx.page.notFoundPage
 import io.voidx.page.route
 import io.voidx.router.router
-import io.voidx.router.util.RouteCheck
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import java.io.ByteArrayInputStream
@@ -32,28 +31,49 @@ private class InlineSocket(
 }
 
 class RouterNotFoundAndExceptionFlowTests {
-    private var prevExceptionPage = RouteCheck.exceptionPage
-    private var prevNullPage = RouteCheck.nullPage
+    private val r = router { }
+    private var prevExceptionPage = r.exceptionPage
+    private var prevNullPage = r.nullPage
 
     @BeforeEach
     fun setUp() {
         // Capture current globals to restore later for test isolation
-        prevExceptionPage = RouteCheck.exceptionPage
-        prevNullPage = RouteCheck.nullPage
+        prevExceptionPage = r.exceptionPage
+        prevNullPage = r.nullPage
     }
 
     @AfterEach
     fun tearDown() {
         // Restore global pages so tests don't leak state
-        RouteCheck.exceptionPage = prevExceptionPage
-        RouteCheck.nullPage = prevNullPage
+        r.exceptionPage = prevExceptionPage
+        r.nullPage = prevNullPage
+    }
+
+    @Test
+    fun unknown_route_uses_default_404_page() {
+        val r = router { }
+
+        val rawRequest = (
+            "GET /nope HTTP/1.1\r\n" +
+                "Host: example.com\r\n" +
+                "Connection: close\r\n" +
+                "\r\n"
+        )
+
+        val sock = InlineSocket(rawRequest)
+        sock.handle(1.1, r)
+
+        val raw = sock.output()
+        assertTrue(raw.startsWith("HTTP/1.1 404 Not Found\n"), raw)
+        // Default not-found page title marker
+        assertTrue(raw.contains("\"message\": \"The requested resource could not be found.\""), raw)
     }
 
     @Test
     fun custom_not_found_page_overrides_default() {
         val r = router { }
-        RouteCheck.nullPage =
-            notFoundPage {
+        r.nullPage =
+            notFoundPage { _, _ ->
                 buildResponse<String> {
                     status = 404
                     statusText = "Not Found"
@@ -70,7 +90,7 @@ class RouterNotFoundAndExceptionFlowTests {
         )
         val sock = InlineSocket(rawRequest)
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.output()
         assertTrue(raw.startsWith("HTTP/1.1 404 Not Found\n"), raw)
@@ -81,8 +101,8 @@ class RouterNotFoundAndExceptionFlowTests {
     fun exception_in_handler_triggers_exception_page_via_client_handler_flow() {
         val r = router { }
         // Ensure a known exception page with a recognizable marker is installed
-        RouteCheck.exceptionPage =
-            exceptionPage {
+        r.exceptionPage =
+            exceptionPage { _, _, _ ->
                 buildResponse<String> {
                     status = 500
                     statusText = "Server Error"
@@ -92,7 +112,7 @@ class RouterNotFoundAndExceptionFlowTests {
             }
         r.addRoute(
             route("/boom") {
-                GET {
+                GET { _, _ ->
                     throw IllegalStateException("explode")
                 }
             },
@@ -106,7 +126,7 @@ class RouterNotFoundAndExceptionFlowTests {
         )
         val sock = InlineSocket(rawRequest)
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.output()
         assertTrue(raw.startsWith("HTTP/1.1 500 Server Error\n"), raw)
@@ -117,8 +137,8 @@ class RouterNotFoundAndExceptionFlowTests {
     @Test
     fun custom_exception_page_overrides_default_during_flow() {
         val r = router { }
-        RouteCheck.exceptionPage =
-            exceptionPage {
+        r.exceptionPage =
+            exceptionPage { _, _, exception ->
                 buildResponse<String> {
                     status = 500
                     statusText = "Server Error"
@@ -129,7 +149,7 @@ class RouterNotFoundAndExceptionFlowTests {
 
         r.addRoute(
             route("/oops") {
-                GET {
+                GET { _, _ ->
                     error("Bang")
                 }
             },
@@ -143,7 +163,7 @@ class RouterNotFoundAndExceptionFlowTests {
         )
         val sock = InlineSocket(rawRequest)
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.output()
         assertTrue(raw.startsWith("HTTP/1.1 500 Server Error\n"), raw)

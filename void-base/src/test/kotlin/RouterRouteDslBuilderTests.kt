@@ -34,7 +34,7 @@ class RouterRouteDslBuilderTests {
 
         // First call should create a new PageHandler and register it
         r.route("/d") {
-            GET {
+            GET { _, _ ->
                 buildResponse<String> {
                     status = 200
                     statusText = "OK"
@@ -45,11 +45,12 @@ class RouterRouteDslBuilderTests {
         }
 
         // Ensure it was registered
-        assertNotNull(r.routes["/d"], "Route should be registered on first builder call")
+        val params = mutableMapOf<String, String>()
+        assertNotNull(r.rootNode.match("/d".split("/"), 1, params), "Route should be registered on first builder call")
 
         // Second call for same path should reuse existing handler (adds POST)
         r.route("/d") {
-            POST {
+            POST { _, _ ->
                 buildResponse<String> {
                     status = 200
                     statusText = "OK"
@@ -63,14 +64,14 @@ class RouterRouteDslBuilderTests {
 
         // GET request
         val s1 = RouteSock("GET /d HTTP/1.1\r\nHost: x\r\n\r\n")
-        s1.handle(srv, r)
+        s1.handle(1.1, r)
         val t1 = s1.text()
         assertTrue(t1.startsWith("HTTP/1.1 200 OK\n"), t1)
         assertEquals("get1", t1.substringAfter("\n\n"))
 
         // POST request
         val s2 = RouteSock("POST /d HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\n\r\n")
-        s2.handle(srv, r)
+        s2.handle(1.1, r)
         val t2 = s2.text()
         assertTrue(t2.startsWith("HTTP/1.1 200 OK\n"), t2)
         assertEquals("post1", t2.substringAfter("\n\n"))

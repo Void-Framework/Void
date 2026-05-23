@@ -10,6 +10,7 @@ plugins {
     // API docs generation
     id("org.jetbrains.dokka") version "2.2.0"
     id("jacoco")
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
 }
 
 group = "io.jadiefication"
@@ -87,4 +88,9 @@ tasks.register<JacocoReport>("jacocoRootReport") {
 
     // Ensure subproject reports are generated first
     dependsOn(subprojects.mapNotNull { it.tasks.findByName("jacocoTestReport") })
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    autoCorrect = false
 }

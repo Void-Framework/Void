@@ -33,7 +33,10 @@ private class TestAfter : RelayAfter {
 }
 
 private class P : Page("/p") {
-    override fun content(): ResponseDTO =
+    override fun content(
+        request: RequestDTO,
+        queries: Map<String, String>,
+    ): ResponseDTO =
         buildResponse<String> {
             status = 200
             statusText = "OK"
@@ -59,8 +62,7 @@ class PageApiTests {
         val req = RequestDTO(method = io.voidx.Method.GET, target = "/p", headers = mutableMapOf(), body = "")
 
         // BEFORE should short-circuit and return a response
-        page.request = req
-        val short = page.middlewareProcessBefore()
+        val short = page.middlewareProcessBefore(req)
         assertNotNull(short)
         assertEquals(401, short.status)
         assertTrue(short.body is ResponseBody.StringBody)

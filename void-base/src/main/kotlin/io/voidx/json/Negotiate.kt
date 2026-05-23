@@ -12,7 +12,7 @@ import io.voidx.dto.ResponseDTO
  *
  * @property request The request to perform negotiation on.
  */
-class Negotiator(
+open class Negotiator(
     val request: RequestDTO,
 ) {
     /**
@@ -64,7 +64,6 @@ class Negotiator(
      * @return The original response if not null, otherwise the response produced by `block`.
      */
     infix fun ResponseDTO?.or(block: Negotiator.() -> ResponseDTO?): ResponseDTO? = this ?: block()
-
 
     /**
      * Provide a fallback ResponseDTO by invoking the given block when the receiver is null.

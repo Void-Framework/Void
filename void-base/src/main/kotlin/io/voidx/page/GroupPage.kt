@@ -1,14 +1,5 @@
 package io.voidx.page
 
-import io.voidx.dto.RequestDTO
-import io.voidx.dto.ResponseDTO
-import io.voidx.json.Negotiator
-import io.voidx.middleware.RelayAfter
-import io.voidx.middleware.RelayBefore
-import io.voidx.router.util.RouteCheck
-import io.voidx.util.toResult
-import io.voidx.util.trimTrailingEmpty
-
 /**
  * Lightweight page container that supports route grouping and hierarchical dispatching.
  *
@@ -35,82 +26,10 @@ import io.voidx.util.trimTrailingEmpty
 class GroupPage(
     override val target: String,
 ) : PageHandler(target) {
-    /**
-     * The current request for this page and all nested routes.
-     *
-     * Updating this request automatically propagates the new value to every child route registered in [routes].
-     */
-    override var request: RequestDTO
-        get() = super.request
-        internal set(value) {
-            super.request = value
-            routes.forEach { it.request = value }
-        }
-
     /** The collection of nested [PageHandler] routes registered within this group. */
     internal val routes = mutableListOf<PageHandler>()
 
-    private val segmentRegex = Regex("""^\{([^{}]+)}$""")
-    private val optionalSegment = Regex("""^\{([^{}?]+)\?}$""")
-
-    /**
-     * Attempts to match a route target pattern against an actual request target path.
-     *
-     * This method splits both paths into segments and compares them. It supports:
-     * - Literal segment matching (e.g., "users" matches "users").
-     * - Required dynamic segments (e.g., "{id}" matches "123").
-     * - Optional trailing segments (e.g., "{slug?}" matches "my-post" or is omitted if the request path is shorter).
-     *
-     * If a match is successful, it extracts all dynamic segment values into a map.
-     *
-     * @param routeTarget The template path defined in the route (may contain curly braces for dynamic segments).
-     * @param requestTarget The actual path from the HTTP request.
-     * @return A map of parameter names to values if the path matches, or `null` if it doesn't.
-     */
-    private fun match(
-        routeTarget: String,
-        requestTarget: String,
-    ): Map<String, String>? {
-        val route = routeTarget.split('/').toMutableList().apply { trimTrailingEmpty() }
-        val url = requestTarget.split('/').toMutableList().apply { trimTrailingEmpty() }
-
-        val params = mutableMapOf<String, String>()
-
-        if (route.size != url.size) {
-            if (route.lastOrNull()?.matches(optionalSegment) == true &&
-                route.size == url.size + 1
-            ) {
-                route.removeLast()
-            } else {
-                return null
-            }
-        }
-
-        for (i in route.indices) {
-            val r = route[i]
-            val u = url[i]
-
-            when {
-                r == u -> {
-                    Unit
-                }
-
-                segmentRegex.matches(r) -> {
-                    params[segmentRegex.matchEntire(r)!!.groupValues[1]] = u
-                }
-
-                optionalSegment.matches(r) -> {
-                    params[optionalSegment.matchEntire(r)!!.groupValues[1]] = u
-                }
-
-                else -> {
-                    return null
-                }
-            }
-        }
-
-        return params
-    }
+    internal var flattened = false
 
     /**
      * Creates and registers a nested GroupPage under the current page using the given path.
@@ -134,127 +53,23 @@ class GroupPage(
     }
 
     /**
-     * Executes the BEFORE middleware chain for the most specific matching route.
+     * Collects this group and all nested page handlers into a flattened list.
      *
-     * This method resolves the target route for the current request. If the resolved route is a
-     * leaf node (not a GroupPage), it delegates middleware processing to that route. Otherwise,
-     * it executes the [relaysBefore] registered on the matched group.
+     * Marks this GroupPage and any nested GroupPage instances as flattened (`flattened = true`) as it traverses.
      *
-     * @return The first [ResponseDTO] produced by a middleware, or `null` if none intercepted the request.
+     * @return A depth-first list containing this GroupPage followed by all nested PageHandler instances.
      */
-    override fun middlewareProcessBefore(): ResponseDTO? {
-        val targetRoute = findProperRoute()
-
-        if (targetRoute != null && targetRoute !is GroupPage) {
-            return targetRoute.middlewareProcessBefore()
-        } else {
-            targetRoute?.relaysBefore?.forEach {
-                val newResponse = (it as? RelayBefore)?.processBefore(request.toResult())
-                if (newResponse != null) {
-                    newResponse._request = request
-                    return newResponse
-                }
-            }
-        }
-        return null
-    }
-
-    /**
-     * Executes the AFTER middleware chain for the most specific matching route.
-     *
-     * Resolves the target route for the current request and delegates the processing of [response]
-     * to it if it's a leaf node. If the matched route is a group, it executes that group's
-     * [relaysAfter] chain.
-     *
-     * @param response The [Result] containing either the [ResponseDTO] or an exception.
-     */
-    override fun middlewareProcessAfter(response: Result<ResponseDTO>) {
-        val targetRoute = findProperRoute()
-        if (targetRoute != null && targetRoute !is GroupPage) {
-            targetRoute.middlewareProcessAfter(response)
-        } else {
-            targetRoute?.relaysAfter?.forEach {
-                (it as? RelayAfter)?.processAfter(response)
-            }
-        }
-    }
-
-    /**
-     * Identifies the most specific route matching the current request's target path.
-     *
-     * Performs a recursive search through the registered [routes], prioritizing longer (more specific)
-     * paths. It ensures that path matches occur only at segment boundaries (i.e., matching "/api/v1"
-     * against "/api/v1/users" but not against "/api/v1-legacy").
-     *
-     * @return The [PageHandler] that best matches the request path, or `null` if no match is found.
-     */
-    private fun findProperRoute(): PageHandler? {
-        val rootParams = match(target, request.target)
-        if (rootParams != null) {
-            _data = rootParams.toMutableMap()
-            return this
-        }
-
-        return routes
-            .sortedByDescending { it.target.length }
-            .firstNotNullOfOrNull { child ->
-                when (child) {
-                    is GroupPage -> {
-                        val params = match(child.target, request.target)
-                        if (params != null) {
-                            child._data = params.toMutableMap()
-                            child
-                        } else {
-                            val prefixParams = matchPrefix(child.target, request.target)
-                            if (prefixParams != null) {
-                                child._data = prefixParams.toMutableMap()
-                                child.findProperRoute()
-                            } else {
-                                null
-                            }
-                        }
-                    }
-
-                    else -> {
-                        val params = match(child.target, request.target)
-                        if (params != null) {
-                            child._data = params.toMutableMap()
-                            child
-                        } else {
-                            null
-                        }
-                    }
-                }
-            }
-    }
-
-    private fun matchPrefix(
-        routeTarget: String,
-        requestTarget: String,
-    ): Map<String, String>? {
-        val route = routeTarget.split('/').toMutableList().apply { trimTrailingEmpty() }
-        val url = requestTarget.split('/').toMutableList().apply { trimTrailingEmpty() }
-        if (url.size < route.size) return null
-        val prefix = url.take(route.size).joinToString("/")
-        return match(routeTarget, prefix)
-    }
-
-    /**
-     * Resolve and return the response for the current request by delegating to a matching child route, a registered method handler, or an empty response.
-     *
-     * @return The resolved ResponseDTO: the response produced by a matching child route if one handles the request, the response from a handler registered for the request method if present, or an empty response otherwise.
-     */
-    override fun content(): ResponseDTO {
-        val route = findProperRoute()
-        val handledByChild = if (route == this) super.content() else route?.content()
-        val isThisIt = route == this && match(target, request.target) != null
-
-        return handledByChild
-            ?: if (isThisIt) {
-                responses[request.method]?.invoke(Negotiator(request))
+    internal fun flatten(): List<PageHandler> {
+        this.flattened = true
+        val pages = mutableListOf<PageHandler>(this)
+        routes.forEach {
+            if (it is GroupPage) {
+                pages.addAll(it.also { it.flattened = true }.flatten())
             } else {
-                RouteCheck.nullPage.apply { this.request = this@GroupPage.request }.content()
-            }!!
+                pages.add(it)
+            }
+        }
+        return pages
     }
 }
 

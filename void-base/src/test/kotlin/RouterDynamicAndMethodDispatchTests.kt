@@ -3,7 +3,6 @@ package test
 import io.voidx.Server
 import io.voidx.dto.buildResponse
 import io.voidx.handle
-import io.voidx.page.path
 import io.voidx.page.route
 import io.voidx.router.router
 import java.io.ByteArrayInputStream
@@ -34,10 +33,10 @@ class RouterDynamicAndMethodDispatchTests {
         val r = router { }
         r.addRoute(
             route("/u/{id}/{name?}") {
-                GET {
+                GET { _, query ->
                     // Access dynamic path variables via helper (implicit DynamicPage receiver)
-                    val id: String? = path<String>("id")
-                    val name: String? = path<String>("name?")
+                    val id: String? = query["id"]
+                    val name: String? = query["name?"]
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -54,7 +53,7 @@ class RouterDynamicAndMethodDispatchTests {
                     "Host: example.com\r\n\r\n",
             )
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
@@ -67,7 +66,7 @@ class RouterDynamicAndMethodDispatchTests {
         val r = router { }
         r.addRoute(
             route("/m") {
-                GET {
+                GET { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -75,7 +74,7 @@ class RouterDynamicAndMethodDispatchTests {
                         body = "g"
                     }
                 }
-                POST {
+                POST { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -92,7 +91,7 @@ class RouterDynamicAndMethodDispatchTests {
             DynSock(
                 "GET /m HTTP/1.1\r\nHost: x\r\n\r\n",
             )
-        getSock.handle(srv, r)
+        getSock.handle(1.1, r)
         val getResp = getSock.text()
         assertTrue(getResp.startsWith("HTTP/1.1 200 OK\n"), getResp)
         assertEquals("g", getResp.substringAfter("\n\n"))
@@ -101,7 +100,7 @@ class RouterDynamicAndMethodDispatchTests {
             DynSock(
                 "POST /m HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\n\r\n",
             )
-        postSock.handle(srv, r)
+        postSock.handle(1.1, r)
         val postResp = postSock.text()
         assertTrue(postResp.startsWith("HTTP/1.1 200 OK\n"), postResp)
         assertEquals("p", postResp.substringAfter("\n\n"))
@@ -112,8 +111,8 @@ class RouterDynamicAndMethodDispatchTests {
         val r = router { }
         r.addRoute(
             route("/u/{id}") {
-                GET {
-                    val id: String? = path<String>("id")
+                GET { _, query ->
+                    val id: String? = query["id"]
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -129,7 +128,7 @@ class RouterDynamicAndMethodDispatchTests {
                 "GET /u/42/ HTTP/1.1\r\nHost: x\r\n\r\n",
             )
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
@@ -142,7 +141,7 @@ class RouterDynamicAndMethodDispatchTests {
         // This would normally match any single segment, including "favicon.ico" without the special-case bypass
         r.addRoute(
             route("/{name}") {
-                GET {
+                GET { _, _ ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -158,7 +157,7 @@ class RouterDynamicAndMethodDispatchTests {
                 "GET /favicon.ico HTTP/1.1\r\nHost: x\r\n\r\n",
             )
         val srv = Server(r, 1.1)
-        sock.handle(srv, r)
+        sock.handle(1.1, r)
 
         val raw = sock.text()
         assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
