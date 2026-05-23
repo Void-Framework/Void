@@ -4,6 +4,8 @@ import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO
 import io.voidx.dto.buildRequest
+import io.voidx.dto.buildResponse
+import io.voidx.dto.headers
 import io.voidx.dto.writeHTTP
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
@@ -136,11 +138,11 @@ class Router {
         Bootstrap.runPageDecorators(route, this)
         when (route) {
             is ExceptionPage -> {
-                CustomPages.exceptionPage = route
+                exceptionPage = route
             }
 
             is NotFoundPage -> {
-                CustomPages.nullPage = route
+                nullPage = route
             }
             is GroupPage -> {
                 if (!route.flattened) {
@@ -181,36 +183,43 @@ class Router {
         client: Socket,
         version: Number,
     ) {
-        // Request lifecycle events removed; Bootstrap manages explicit hooks only
-        val rawTarget = requestDTO.target
-        val qMark = rawTarget.indexOf('?')
-        val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
-        val query: Map<String, String> by lazy { parseQuery(rawTarget) }
-        var usedPage: Page? = null
+        try {
+            // Request lifecycle events removed; Bootstrap manages explicit hooks only
+            val rawTarget = requestDTO.target.removeSuffix(if (requestDTO.target.last() == '/') "/" else "")
+            val qMark = rawTarget.indexOf('?')
+            val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
+            val query: Map<String, String> by lazy { parseQuery(rawTarget) }
+            var usedPage: Page? = null
 
-        val response =
-            middlewareProcessBefore(requestDTO.toResult())
-                ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query)
-                ?: rootNode
-                    .match(target.split("/"), 1, mutableMapOf())
-                    .also {
-                        usedPage = it
-                    }?.content(requestDTO, query)
-                ?: CustomPages.nullPage.also { usedPage = it }.content(requestDTO, query)
+            val response =
+                middlewareProcessBefore(requestDTO.toResult())
+                    ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query)
+                    ?: rootNode
+                        .match(target.split("/"), 1, mutableMapOf())
+                        .also {
+                            usedPage = it
+                        }?.let { page ->
+                            page.middlewareProcessBefore(requestDTO)
+                                ?: page.content(requestDTO, query)
+                        }
+                    ?: nullPage.also { usedPage = it }.content(requestDTO, query)
 
-        // After deciding the response from BEFORE middleware/handler
-        response._request = requestDTO
+            // After deciding the response from BEFORE middleware/handler
+            response._request = requestDTO
 
-        usedPage?.middlewareProcessAfter(response.toResult())
+            usedPage?.middlewareProcessAfter(response.toResult())
 
-        middlewareProcessAfter(
-            response.toResult(),
-        )
-        val out = client.getOutputStream()
-        out.writeHTTP(
-            response,
-            version,
-        )
+            middlewareProcessAfter(
+                response.toResult(),
+            )
+            val out = client.getOutputStream()
+            out.writeHTTP(
+                response,
+                version,
+            )
+        } catch (e: Exception) {
+            error(client, e, version, requestDTO)
+        }
     }
 
     /**
@@ -221,14 +230,15 @@ class Router {
         client: Socket,
         e: Exception,
         version: Number,
+        request: RequestDTO? = null
     ) {
         // Invoke Bootstrap error handlers; request is unknown at this point
         Bootstrap.fireError(null, e)
-        val exPage = CustomPages.exceptionPage
+        val exPage = exceptionPage
         client.getOutputStream().writeHTTP(
             response =
                 exPage.content(
-                    buildRequest { }.apply {
+                    (request ?: buildRequest { }).apply {
                         attributes["exception"] = e
                     },
                     emptyMap(),
@@ -254,6 +264,197 @@ class Router {
             page.builder()
         }
     }
+
+    private fun escapeHtml(input: String?): String {
+        if (input == null) return ""
+        return input
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#39;")
+    }
+
+    /**
+     * Replace with your real flag if already exists elsewhere.
+     */
+    var isDebugMode = false
+
+    /**
+     * The default page to display when an unhandled exception occurs.
+     */
+    internal var exceptionPage: ExceptionPage =
+        exceptionPage { req, queries, ex ->
+            return@exceptionPage buildResponse {
+                status = 500
+                statusText = "Server Error"
+                headers {
+                    put("Content-Type", "text/html")
+                    put("Connection", "close")
+                }
+                body = "<!doctype html><html>" +
+                        "<head>" +
+                        "  <style>" +
+                        "#__next-dev-overlay {\n" +
+                        "  position: fixed;\n" +
+                        "  top: 0;\n" +
+                        "  left: 0;\n" +
+                        "  width: 100%;\n" +
+                        "  height: 100%;\n" +
+                        "  background: rgba(0, 0, 0, 0.8);\n" +
+                        "  color: #fff;\n" +
+                        "  font-family: system-ui, sans-serif;\n" +
+                        "  z-index: 2147483647; /* Ensures it stays on top */\n" +
+                        "}\n" +
+                        "\n" +
+                        "/* Main overlay styling */\n" +
+                        ".overlay {\n" +
+                        "  max-width: 800px;\n" +
+                        "  margin: 50px auto;\n" +
+                        "  background: #1e1e1e;\n" +
+                        "  padding: 20px;\n" +
+                        "  border-radius: 4px;\n" +
+                        "  box-shadow: 0 2px 10px rgba(0,0,0,0.3);\n" +
+                        "}\n" +
+                        "\n" +
+                        "/* Header section with title and close button */\n" +
+                        ".overlay__header {\n" +
+                        "  display: flex;\n" +
+                        "  justify-content: space-between;\n" +
+                        "  align-items: center;\n" +
+                        "  margin-bottom: 15px;\n" +
+                        "}\n" +
+                        "\n" +
+                        ".overlay__title {\n" +
+                        "  font-size: 1.5em;\n" +
+                        "  font-weight: bold;\n" +
+                        "}\n" +
+                        "\n" +
+                        ".overlay__close {\n" +
+                        "  background: transparent;\n" +
+                        "  border: none;\n" +
+                        "  font-size: 1.5em;\n" +
+                        "  color: #fff;\n" +
+                        "  cursor: pointer;\n" +
+                        "}\n" +
+                        "\n" +
+                        "/* Styling for the error message and stack trace */\n" +
+                        ".overlay__content {\n" +
+                        "  color: #FF4C4C;\n" +
+                        "}\n" +
+                        ".error-message pre,\n" +
+                        ".stack-trace pre {\n" +
+                        "  margin: 0;\n" +
+                        "  padding: 10px;\n" +
+                        "  overflow: auto;\n" +
+                        "  background: #2d2d2d;\n" +
+                        "  border-radius: 4px;\n" +
+                        "  font-size: 0.9em;\n" +
+                        "}" +
+                        "  </style>" +
+                        "</head>" +
+                        "<body>" +
+                        "<div id=\"__next-dev-overlay\">\n" +
+                        "  <div class=\"overlay\">\n" +
+                        "    <div class=\"overlay__header\">\n" +
+                        "      <span class=\"overlay__title\">${escapeHtml(ex::class.simpleName)}: ${escapeHtml(ex.message)}</span>\n" +
+                        "    </div>\n" +
+                        "    <div class=\"overlay__content\">\n" +
+                        "      <div class=\"error-message\">\n" +
+                        "        <pre>${escapeHtml(ex::class.simpleName)}: ${escapeHtml(ex.message)}</pre>\n" +
+                        "      </div>\n" +
+                        "      <div class=\"stack-trace\">\n" +
+                        "        <pre>\n" +
+                        if (isDebugMode)
+                            ex.stackTrace.joinToString("\n") { escapeHtml(it.toString()) }
+                        else
+                            "Stack trace hidden"
+                "        </pre>\n" +
+                        "      </div>\n" +
+                        "    </div>\n" +
+                        "  </div>\n" +
+                        "</div>" +
+                        "</body>" +
+                        "</html>"
+            }
+        }
+
+    /**
+     * The default page to display when no route matches the request.
+     */
+    internal var nullPage: NotFoundPage =
+        notFoundPage { req, _ ->
+            return@notFoundPage buildResponse {
+                status = 404
+                statusText = "Not Found"
+                headers {
+                    put("Content-Type", "text/html")
+                    put("Connection", "close")
+                }
+                body =
+                    """
+                    <!doctype html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="utf-8">
+                        <title>404 | Page Not Found</title>
+                        <style>
+                            body {
+                                margin: 0;
+                                height: 100vh;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-family: system-ui, sans-serif;
+                                background: #0f0f0f;
+                                color: #e5e5e5;
+                            }
+                            .container {
+                                text-align: center;
+                                padding: 2rem;
+                                max-width: 600px;
+                            }
+                            h1 {
+                                font-size: 5rem;
+                                margin-bottom: 0.5rem;
+                                color: #ff5555;
+                            }
+                            p {
+                                margin: 0.5rem 0 1.5rem;
+                                color: #aaa;
+                            }
+                            a {
+                                color: #61dafb;
+                                text-decoration: none;
+                                font-weight: 600;
+                                border: 1px solid #61dafb;
+                                border-radius: 6px;
+                                padding: 0.5rem 1rem;
+                                transition: 0.2s;
+                            }
+                            a:hover {
+                                background: #61dafb;
+                                color: #0f0f0f;
+                            }
+                            .path {
+                                font-size: 0.85rem;
+                                opacity: 0.7;
+                                margin-top: 1rem;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <h1>404</h1>
+                            <p>The page you're looking for could not be found.</p>
+                            <a href="/">Return Home</a>
+                            <div class="path">Requested: ${escapeHtml(req.target)}</div>
+                        </div>
+                    </body>
+                    </html>
+                    """.trimIndent()
+            }
+        }
 }
 
 /**

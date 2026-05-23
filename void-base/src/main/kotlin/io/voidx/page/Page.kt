@@ -124,12 +124,16 @@ fun route(
 /**
  * Defines an exception page that returns a raw [ResponseDTO] via [block].
  */
-fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPage =
+fun exceptionPage(block: ExceptionPage.(RequestDTO, Map<String, String>, Exception) -> ResponseDTO): ExceptionPage =
     object : ExceptionPage() {
         override fun content(
             request: RequestDTO,
             queries: Map<String, String>,
-        ): ResponseDTO = block(request.attributes["exception"] as Exception)
+        ): ResponseDTO {
+            val exception = request.attributes["exception"] as? Exception
+                ?: error("ExceptionPage requires request.attributes[\"exception\"]")
+            return block(request, queries, exception)
+        }
     }
 
 /**
