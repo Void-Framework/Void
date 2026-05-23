@@ -103,12 +103,13 @@ class ByteResponseBuilder : ResponseBuilder<ByteArray> {
  * The generic [T] determines which underlying builder is used.
  */
 inline fun <reified T> buildResponse(builder: ResponseBuilder<T>.() -> Unit): ResponseDTO {
-    val build: ResponseBuilder<T> =
+    @Suppress("UNCHECKED_CAST")
+    val build =
         when (T::class) {
-            String::class -> StringResponseBuilder() as ResponseBuilder<T>
-            ByteArray::class -> ByteResponseBuilder() as ResponseBuilder<T>
+            String::class -> StringResponseBuilder()
+            ByteArray::class -> ByteResponseBuilder()
             else -> throw IllegalArgumentException("Unsupported response type: ${T::class}")
-        }
+        } as ResponseBuilder<T>
     build.builder()
     return when (build) {
         is StringResponseBuilder -> build.build()

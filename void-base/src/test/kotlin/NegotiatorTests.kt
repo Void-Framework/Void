@@ -53,7 +53,7 @@ class NegotiatorTests {
             }
 
         assertNotNull(result)
-        assertEquals("fallback", result?.body?.body as String)
+        assertEquals("fallback", result.body.body as String)
     }
 
     @Test
@@ -124,7 +124,7 @@ class NegotiatorTests {
             }
 
         assertNotNull(result)
-        assertEquals("json response", result?.body?.body as String)
+        assertEquals("json response", result.body.body as String)
     }
 
     @Test
@@ -207,7 +207,7 @@ class NegotiatorTests {
             }
 
         assertNotNull(result)
-        assertEquals("fallback", result?.body?.body as String)
+        assertEquals("fallback", result.body.body as String)
     }
 
     @Test
@@ -227,7 +227,7 @@ class NegotiatorTests {
 
         assertNull(xmlResult)
         assertNotNull(jsonResult)
-        assertEquals("json", jsonResult?.body?.body as String)
+        assertEquals("json", jsonResult.body.body as String)
     }
 
     @Test
