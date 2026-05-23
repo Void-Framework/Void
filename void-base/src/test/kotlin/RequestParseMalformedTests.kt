@@ -23,9 +23,11 @@ class RequestParseMalformedTests {
     fun empty_stream_sets_malformed_attribute_true() {
         val input = ByteArrayInputStream(ByteArray(0))
         val result = RequestDTO.parse(input)
+        val malformed = result.attributes["Malformed"] as? Boolean
 
-        assertTrue(
-            result.attributes["Malformed"] as? Boolean == true,
+        assertEquals(
+            true,
+            malformed,
             "Expected Malformed=true for empty stream, but was: ${result.attributes["Malformed"]}",
         )
         assertEquals(Method.GET, result.method)
