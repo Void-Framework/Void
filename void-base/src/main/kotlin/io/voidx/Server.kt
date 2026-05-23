@@ -321,6 +321,7 @@ fun Socket.error(
 ) {
     val response = router.middlewareProcessBefore(exception.toResult())
     if (response != null) {
+        router.middlewareProcessAfter(response.toResult())
         this.getOutputStream().writeHTTP(
             response = response,
             version = version,
