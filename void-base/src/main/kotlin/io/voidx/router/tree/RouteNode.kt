@@ -94,13 +94,7 @@ internal class RouteNode(
             if (dynamicChild != null && dynamicChild!!.optional) {
                 params[dynamicChild!!.paramName ?: ""] = ""
                 val matched = dynamicChild!!.handler
-                if (matched is DynamicPage) {
-                    matched._data.putAll(params)
-                }
                 return matched
-            }
-            if (handler is DynamicPage) {
-                (handler as DynamicPage)._data.putAll(params)
             }
             return handler
         }
@@ -116,9 +110,6 @@ internal class RouteNode(
         dynamicChild?.let { dyn ->
             params[dyn.paramName ?: ""] = part
             dyn.match(segments, index + 1, params)?.let {
-                if (it is DynamicPage) {
-                    it._data.putAll(params)
-                }
                 return it
             }
             params.remove(dyn.paramName ?: "")
