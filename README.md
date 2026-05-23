@@ -66,7 +66,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Jadiefication:Void:VERSION")
+    implementation("com.github.Void-Framework:Void:VERSION")
 }
 ```
 
