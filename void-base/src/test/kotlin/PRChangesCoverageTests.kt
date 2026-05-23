@@ -342,7 +342,8 @@ class PRChangesCoverageTests {
         page.middlewareProcessAfter(Result.success(response))
 
         assertNotNull(afterCalledWith)
-        assertEquals(response, afterCalledWith.getOrNull())
+        val captured = afterCalledWith ?: fail("after middleware should capture a Result")
+        assertEquals(response, captured.getOrNull())
     }
 
     // Additional regression test: verify router.route() DSL creates page via tree
