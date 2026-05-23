@@ -17,7 +17,7 @@ package io.voidx.page
  *
  * Behavior and Guarantees:
  * - Nested routes inherit middleware ([relaysBefore], [relaysAfter]) from their parent group at the time of creation.
- * - When [content] is called, it first attempts to delegate to a child route that matches the [request] target.
+ * - When [content] is called, the router assumes [flatten] was called, therefore acts as it is a normal page that the router owns.
  * - If no child matches, it falls back to method handlers registered on the group itself.
  * - [target] paths are concatenated: a group "/api" with a sub-group "/v1" results in a target of "/api/v1".
  *

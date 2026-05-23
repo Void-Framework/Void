@@ -106,7 +106,7 @@ abstract class Page(
 
 /**
  * Base type for pages rendered when an exception occurs during request handling.
- * The [exception] field is populated before [content] is evaluated.
+ * Receives an [Exception] on [content] evaluation.
  */
 abstract class ExceptionPage : Page("")
 
