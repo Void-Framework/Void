@@ -14,7 +14,10 @@ import kotlin.test.*
 
 class PageEnhancedTests {
     private class TestPage : Page("/test") {
-        override fun content(): ResponseDTO =
+        override fun content(
+            request: RequestDTO,
+            queries: Map<String, String>,
+        ): ResponseDTO =
             buildResponse<String> {
                 status = 200
                 statusText = "OK"
@@ -33,15 +36,6 @@ class PageEnhancedTests {
     }
 
     @Test
-    fun `test queries are set correctly`() {
-        val page = TestPage()
-        page.queries = mapOf("search" to "test", "page" to "1")
-
-        assertEquals("test", page.queries["search"])
-        assertEquals("1", page.queries["page"])
-    }
-
-    @Test
     fun `test before middleware with KClass registration`() {
         class TestBeforeRelay : RelayBefore {
             override val priority = 5
@@ -55,12 +49,14 @@ class PageEnhancedTests {
         }
 
         val page = TestPage()
+        // Since it's a test we can suppress it, tho, TODO: Remove KClass registration
+        @Suppress("UNCHECKED_CAST")
         page.before(TestBeforeRelay::class as KClass<RelayBefore>)
-        page.request = buildRequest { method = Method.GET }
+        val req = buildRequest { method = Method.GET }
 
-        val resp = page.middlewareProcessBefore()
+        val resp = page.middlewareProcessBefore(req)
         assertNotNull(resp)
-        assertEquals(403, resp?.status)
+        assertEquals(403, resp.status)
     }
 
     @Test
@@ -70,9 +66,9 @@ class PageEnhancedTests {
 
         val page = TestPage()
         page.after(afterRelay)
-        page.request = buildRequest { method = Method.GET }
+        val req = buildRequest { method = Method.GET }
 
-        val resp = page.content()
+        val resp = page.content(req, emptyMap())
         page.middlewareProcessAfter(resp.toResult())
 
         assertTrue(wasCalled)
@@ -102,8 +98,8 @@ class PageEnhancedTests {
             },
         )
 
-        page.request = buildRequest { method = Method.GET }
-        page.middlewareProcessBefore()
+        val req = buildRequest { method = Method.GET }
+        page.middlewareProcessBefore(req)
 
         assertEquals(listOf(1, 2, 3), callOrder)
     }
@@ -125,8 +121,8 @@ class PageEnhancedTests {
             },
         )
 
-        page.request = buildRequest { method = Method.GET }
-        val resp = page.middlewareProcessBefore()
+        val req = buildRequest { method = Method.GET }
+        val resp = page.middlewareProcessBefore(req)
 
         assertNotNull(resp)
         assertEquals("stopped", resp.body.body as String)
@@ -142,8 +138,8 @@ class PageEnhancedTests {
         page.after(relayAfter { callCount.add(2) })
         page.after(relayAfter { callCount.add(3) })
 
-        page.request = buildRequest { method = Method.GET }
-        val resp = page.content()
+        val req = buildRequest { method = Method.GET }
+        val resp = page.content(req, emptyMap())
         page.middlewareProcessAfter(resp.toResult())
 
         assertEquals(3, callCount.size)
@@ -160,8 +156,8 @@ class PageEnhancedTests {
             },
         )
 
-        page.request = buildRequest { method = Method.GET }
-        val resp = page.content()
+        val req = buildRequest { method = Method.GET }
+        val resp = page.content(req, emptyMap())
         page.middlewareProcessAfter(resp.toResult())
 
         assertEquals(200, receivedStatus)
@@ -178,7 +174,6 @@ class PageEnhancedTests {
             },
         )
 
-        page.request = buildRequest { method = Method.GET }
         val error = RuntimeException("test error")
         page.middlewareProcessAfter(Result.failure(error))
 
@@ -194,17 +189,16 @@ class PageEnhancedTests {
                 method = Method.GET
                 target = "/test"
             }
-        page.request = req
 
-        val resp = page.middlewareProcessBefore()
+        val resp = page.middlewareProcessBefore(req)
         assertNotNull(resp)
-        assertEquals(req, resp?._request)
+        assertEquals(req, resp._request)
     }
 
     @Test
     fun `test exceptionPage factory creates proper page`() {
         val page =
-            exceptionPage {
+            exceptionPage { _, _, exception ->
                 buildResponse<String> {
                     status = 500
                     statusText = "Internal Server Error"
@@ -212,8 +206,13 @@ class PageEnhancedTests {
                 }
             }
 
-        page.exception = RuntimeException("Test exception")
-        val resp = page.content()
+        val resp =
+            page.content(
+                buildRequest { }.apply {
+                    attributes["exception"] = RuntimeException("Test exception")
+                },
+                emptyMap(),
+            )
 
         assertEquals(500, resp.status)
         assertEquals("Test exception", resp.body.body as String)
@@ -222,7 +221,7 @@ class PageEnhancedTests {
     @Test
     fun `test notFoundPage factory creates proper page`() {
         val page =
-            notFoundPage {
+            notFoundPage { request, _ ->
                 buildResponse<String> {
                     status = 404
                     statusText = "Not Found"
@@ -230,12 +229,12 @@ class PageEnhancedTests {
                 }
             }
 
-        page.request =
+        val req =
             buildRequest {
                 method = Method.GET
                 target = "/missing"
             }
-        val resp = page.content()
+        val resp = page.content(req, emptyMap())
 
         assertEquals(404, resp.status)
         assertEquals("Page not found: /missing", resp.body.body as String)
@@ -244,39 +243,10 @@ class PageEnhancedTests {
     @Test
     fun `test exceptionPage has empty target`() {
         val page =
-            exceptionPage {
+            exceptionPage { _, _, _ ->
                 ok("error")
             }
         assertEquals("", page.target)
-    }
-
-    @Test
-    fun `test notFoundPage has empty target`() {
-        val page =
-            notFoundPage {
-                ok("not found")
-            }
-        assertEquals("", page.target)
-    }
-
-    @Test
-    fun `test page request can be updated`() {
-        val page = TestPage()
-        val req1 =
-            buildRequest {
-                method = Method.GET
-                target = "/test1"
-            }
-        page.request = req1
-        assertEquals(req1, page.request)
-
-        val req2 =
-            buildRequest {
-                method = Method.POST
-                target = "/test2"
-            }
-        page.request = req2
-        assertEquals(req2, page.request)
     }
 
     @Test
@@ -304,8 +274,8 @@ class PageEnhancedTests {
             },
         )
 
-        page.request = buildRequest { method = Method.GET }
-        page.middlewareProcessBefore()
+        val req = buildRequest { method = Method.GET }
+        page.middlewareProcessBefore(req)
 
         assertEquals(listOf("high", "low", "med"), order)
     }
@@ -316,12 +286,12 @@ class PageEnhancedTests {
         page.before(relayBefore { null })
         page.before(relayBefore { null })
 
-        page.request = buildRequest { method = Method.GET }
-        val middlewareResp = page.middlewareProcessBefore()
+        val req = buildRequest { method = Method.GET }
+        val middlewareResp = page.middlewareProcessBefore(req)
         assertNull(middlewareResp)
 
         // Should proceed to content
-        val resp = page.content()
+        val resp = page.content(req, emptyMap())
         assertEquals(200, resp.status)
     }
 

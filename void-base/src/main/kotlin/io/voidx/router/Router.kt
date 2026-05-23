@@ -1,20 +1,17 @@
 package io.voidx.router
 
-import io.voidx.ClientHandler
 import io.voidx.bootstrap.Bootstrap
-import io.voidx.dto.RequestDTO
-import io.voidx.dto.ResponseDTO
-import io.voidx.dto.writeHTTP
+import io.voidx.dto.*
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
 import io.voidx.page.*
-import io.voidx.router.util.RequestHandler
-import io.voidx.router.util.RouteCheck
+import io.voidx.router.exceptions.RouteNoTargetException
+import io.voidx.router.tree.RouteNode
 import io.voidx.util.toResult
 import java.io.File
+import java.net.Socket
 import java.net.URLDecoder
-import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarFile
 
 /**
@@ -24,14 +21,16 @@ import java.util.jar.JarFile
  * - Manages global middleware execution order and processing.
  * - Serves embedded JS/CSS resources and wires them into page metadata.
  */
-class Router :
-    RouteCheck,
-    RequestHandler {
+class Router {
     private var internalRelay: List<Relay> = emptyList()
+
+    /**
+     * Set of global middlewares registered in this router.
+     * Higher priority relays run earlier for BEFORE hooks and earlier for AFTER hooks.
+     */
     val relay = mutableSetOf<Relay>()
 
-    val routes: ConcurrentHashMap<String, Page> = ConcurrentHashMap()
-    override val dynamicRoutes: ConcurrentHashMap<List<String>, DynamicPage> = ConcurrentHashMap()
+    internal val rootNode = RouteNode()
 
     companion object {
         val routers = mutableSetOf<Router>()
@@ -86,6 +85,9 @@ class Router :
         addRoute(page)
     }
 
+    /**
+     * Convenience operator to add a global middleware to the router: `+MyRelay()`.
+     */
     operator fun Relay.unaryPlus() {
         relay.add(this)
         recomputeMiddlewareSnapshot()
@@ -95,9 +97,17 @@ class Router :
         internalRelay = relay.sortedByDescending { it.priority }
     }
 
+    /**
+     * Executes global BEFORE middleware in priority order and returns the first produced response.
+     *
+     * Iterates the router's snapshot of relays and invokes `processBefore` on those that implement `RelayBefore`.
+     *
+     * @param requestDTO The incoming request wrapped as a `Result<RequestDTO>` passed to middleware.
+     * @return A `ResponseDTO` returned by the first middleware that short-circuits the request, or `null` if none did.
+     */
     internal fun middlewareProcessBefore(requestDTO: Result<RequestDTO>): ResponseDTO? {
         val relays = internalRelay
-        for (i in 0 until relays.size) {
+        for (i in relays.indices) {
             val relay = relays[i]
             val newResponse = (relay as? RelayBefore)?.processBefore(requestDTO)
             if (newResponse != null) {
@@ -107,9 +117,12 @@ class Router :
         return null
     }
 
+    /**
+     * Executes all registered global AFTER middleware with the produced [response].
+     */
     fun middlewareProcessAfter(response: Result<ResponseDTO>) {
         val relays = internalRelay
-        for (i in 0 until relays.size) {
+        for (i in relays.indices) {
             (relays[i] as? RelayAfter)?.processAfter(response)
         }
     }
@@ -128,29 +141,29 @@ class Router :
         Bootstrap.runPageDecorators(route, this)
         when (route) {
             is ExceptionPage -> {
-                RouteCheck.exceptionPage = route
+                exceptionPage = route
             }
 
             is NotFoundPage -> {
-                RouteCheck.nullPage = route
+                nullPage = route
             }
 
-            is PageHandler -> {
-                if (route.target.contains("\\{[^}]+}".toRegex())) {
-                    val target = route.target.split("/")
-                    dynamicRoutes[target] = route
+            is BadRequestPage -> {
+                badRequestPage = route
+            }
+
+            is GroupPage -> {
+                if (!route.flattened) {
+                    addRoutes(route.flatten())
                 } else {
-                    handleTargetChecking(route, routes)
+                    if (!route.target.startsWith("/")) throw RouteNoTargetException(route.target)
+                    rootNode.insert(route.target.split("/"), 1, route)
                 }
             }
 
-            is DynamicPage -> {
-                val target = route.target.split("/")
-                dynamicRoutes[target] = route
-            }
-
             else -> {
-                handleTargetChecking(route, routes)
+                if (!route.target.startsWith("/")) throw RouteNoTargetException(route.target)
+                rootNode.insert(route.target.split("/"), 1, route)
             }
         }
         return this
@@ -167,127 +180,217 @@ class Router :
     }
 
     /**
-     * Dispatches an incoming request through middleware and the matched page, then writes the resulting HTTP response to the client's socket.
+     * Dispatches a request through global middleware, special handlers, and the route tree, then writes the HTTP response to the client's socket.
      *
-     * Resolves the target and query from the request, runs global BEFORE middleware (which may short-circuit), gives special/KTS handlers a chance to handle the request, then resolves a static or dynamic page (falling back to the configured 404). For resolved pages the function runs per-page BEFORE (which may short-circuit) and per-page AFTER middleware, runs global AFTER middleware, attaches the original request to the response, and writes the response using the server's HTTP version.
+     * The response is resolved in this order: global BEFORE middleware (may short-circuit), Bootstrap special/KTS handlers, matched route handler, or the configured 404 page. The original request is attached to the response; per-page AFTER middleware (if a page was selected) and global AFTER middleware are executed before the response is written.
      *
-     * @param requestDTO The incoming request data transfer object.
-     * @param clientHandler The client handler containing the socket and server context used to write the response.
+     * @param requestDTO Incoming request data transfer object.
+     * @param client Client TCP socket to which the HTTP response will be written.
+     * @param version HTTP version number used when writing the response.
      */
     internal fun route(
         requestDTO: RequestDTO,
-        clientHandler: ClientHandler,
+        client: Socket,
+        version: Number,
     ) {
-        val client = clientHandler.client
-        // Request lifecycle events removed; Bootstrap manages explicit hooks only
-        val rawTarget = requestDTO.target
-        val qMark = rawTarget.indexOf('?')
-        val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
-        val query: Map<String, String> = parseQuery(rawTarget)
-        var usedPage: Page? = null
-        val pre = middlewareProcessBefore(requestDTO.toResult())
-        val response =
-            if (pre != null) {
-                // Global BEFORE short-circuited: still run per-page AFTER for the target page (or 404)
-                usedPage = routes[target] ?: RouteCheck.nullPage
-                pre
-            } else {
-                // Give special routes a chance to short-circuit (no per-page hooks when they do)
-                val special = Bootstrap.tryHandleSpecialRoute(requestDTO, query, clientHandler)
-                if (special != null) {
-                    special
-                } else {
-                    val staticPage = routes[target]
-                    if (staticPage != null) {
-                        usedPage = staticPage
-                        synchronized(staticPage) {
-                            staticPage.queries = query
-                            staticPage.request = requestDTO
-                            // Per-page event system removed; keep behavior otherwise
+        try {
+            // Request lifecycle events removed; Bootstrap manages explicit hooks only
+            val rawTarget = requestDTO.target.removeSuffix(if (requestDTO.target.last() == '/') "/" else "")
+            val qMark = rawTarget.indexOf('?')
+            val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
+            val query: Map<String, String> by lazy { parseQuery(rawTarget) }
+            var usedPage: Page? = null
+            val pathParams = mutableMapOf<String, String>()
 
-                            staticPage.middlewareProcessBefore()
-                                ?: handleResponse(staticPage, clientHandler, target)
+            val response =
+                middlewareProcessBefore(requestDTO.toResult())
+                    ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query + pathParams)
+                    ?: rootNode
+                        .match(target.split("/"), 1, pathParams)
+                        .also {
+                            usedPage = it
+                        }?.let { page ->
+                            page.middlewareProcessBefore(requestDTO)
+                                ?: page.content(requestDTO, query + pathParams)
                         }
-                    } else {
-                        handleDynamic(requestDTO, query)
-                            ?: run {
-                                val page = RouteCheck.nullPage
-                                usedPage = page
-                                synchronized(page) {
-                                    page.queries = query
-                                    page.request = requestDTO
-                                    // No per-page events; just run middleware/content
-                                    page.middlewareProcessBefore()
-                                        ?: page.content()
-                                }
-                            }
-                    }
-                }
-            }
+                    ?: nullPage.also { usedPage = it }.content(requestDTO, query + pathParams)
 
-        // After deciding the response from BEFORE middleware/handler
+            // After deciding the response from BEFORE middleware/handler
+            response._request = requestDTO
 
-        response._request = requestDTO
+            usedPage?.middlewareProcessAfter(response.toResult())
 
-        if (usedPage != null) {
-            val page = usedPage
-            synchronized(page) {
-                page.middlewareProcessAfter(response.toResult())
-            }
+            middlewareProcessAfter(
+                response.toResult(),
+            )
+            val out = client.getOutputStream()
+            out.writeHTTP(
+                response,
+                version,
+            )
+        } catch (e: Exception) {
+            error(client, e, version, requestDTO)
         }
-
-        middlewareProcessAfter(
-            response.toResult(),
-        )
-        val out = client.getOutputStream()
-        out.writeHTTP(
-            response,
-            clientHandler.server.httpVersion,
-        )
     }
 
     /**
      * Sends an error response using the configured [ExceptionPage] when an exception [e]
-     * occurs during request handling for the given [clientHandler].
+     * occurs during request handling for the given [client].
      */
     internal fun error(
-        clientHandler: ClientHandler,
+        client: Socket,
         e: Exception,
+        version: Number,
+        request: RequestDTO? = null,
     ) {
-        val client = clientHandler.client
         // Invoke Bootstrap error handlers; request is unknown at this point
         Bootstrap.fireError(null, e)
-        val exPage = RouteCheck.exceptionPage
-        synchronized(exPage) {
-            exPage.exception = e
-            client.getOutputStream().writeHTTP(
-                response = exPage.content(),
-                version = clientHandler.server.httpVersion,
-            )
-        }
+        val exPage = exceptionPage
+        client.getOutputStream().writeHTTP(
+            response =
+                exPage.content(
+                    (request ?: buildRequest { }).apply {
+                        attributes["exception"] = e
+                    },
+                    emptyMap(),
+                ),
+            version = version,
+        )
     }
 
     /**
-     * Returns a [PageHandler] for the static [path], creating and registering one
-     * if it does not exist yet. Allows fluent per-method handlers, e.g.:
-     * router.on("/api").GET { ... }
+     * Retrieves the PageHandler for the given static path, creating and registering one if none exists.
+     *
+     * @param path The static route path (e.g., "/api").
+     * @param builder A configuration block applied to the retrieved or newly created PageHandler.
      */
     fun route(
         path: String,
         builder: PageHandler.() -> Unit,
     ) {
-        val page =
-            if (routes.containsKey(path)) {
-                routes[path] as PageHandler
-            } else if (dynamicRoutes.contains(path)) {
-                dynamicRoutes[path.split("/")] as PageHandler
-            } else {
-                val page = PageHandler(path)
-                addRoute(page)
-                page
-            }
-        page.builder()
+        rootNode.match(path.split("/"), 1, mutableMapOf())?.let {
+            (it as? PageHandler)?.builder()
+        } ?: run {
+            val page = PageHandler(path)
+            addRoute(page)
+            page.builder()
+        }
     }
+
+    private fun escapeHtml(input: String?): String {
+        if (input == null) return ""
+        return input
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#39;")
+    }
+
+    /**
+     * Replace with your real flag if already exists elsewhere.
+     */
+    var isDebugMode = false
+
+    /**
+     * The default page to display when an unhandled exception occurs.
+     */
+    internal var exceptionPage: ExceptionPage =
+        exceptionPage { req, queries, ex ->
+            return@exceptionPage buildResponse {
+                status = 500
+                statusText = "Server Error"
+
+                headers {
+                    put("Content-Type", "application/json")
+                    put("Connection", "close")
+                }
+
+                body =
+                    """
+                    {
+                      "success": false,
+                      "error": {
+                        "code": 500,
+                        "type": "${escapeHtml(ex::class.simpleName ?: "Exception")}",
+                        "message": "${escapeHtml(ex.message ?: "Unknown server error")}",
+                        "path": "${escapeHtml(req.target)}",
+                        "stackTrace": ${
+                        if (isDebugMode) {
+                            """
+                            [
+                              ${
+                                ex.stackTrace.joinToString(",\n") {
+                                    "\"${escapeHtml(it.toString())}\""
+                                }
+                            }
+                            ]
+                            """.trimIndent()
+                        } else {
+                            "null"
+                        }
+                    }
+                      }
+                    }
+                    """.trimIndent()
+            }
+        }
+
+    /**
+     * The default page to display when no route matches the request.
+     */
+    internal var nullPage: NotFoundPage =
+        notFoundPage { req, _ ->
+            return@notFoundPage buildResponse {
+                status = 404
+                statusText = "Not Found"
+
+                headers {
+                    put("Content-Type", "application/json")
+                    put("Connection", "close")
+                }
+
+                body =
+                    """
+                    {
+                      "success": false,
+                      "error": {
+                        "code": 404,
+                        "type": "NotFound",
+                        "message": "The requested resource could not be found.",
+                        "path": "${escapeHtml(req.target)}"
+                      }
+                    }
+                    """.trimIndent()
+            }
+        }
+
+    internal var badRequestPage: BadRequestPage =
+        badRequestPage { req, queries ->
+
+            return@badRequestPage buildResponse {
+                status = 400
+                statusText = "Bad Request"
+
+                headers {
+                    put("Content-Type", "application/json")
+                    put("Connection", "close")
+                }
+
+                body =
+                    """
+                    {
+                      "success": false,
+                      "error": {
+                        "code": 400,
+                        "type": "BadRequest",
+                        "message": "The request could not be understood or was missing required parameters.",
+                        "path": "${escapeHtml(req.target)}"
+                      }
+                    }
+                    """.trimIndent()
+            }
+        }
 }
 
 /**

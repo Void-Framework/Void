@@ -26,11 +26,11 @@ class CoreJSONTests {
     fun json_roundtrip_default_and_pretty() {
         val foo = Foo(42, "answer")
         val json = foo.toJson().getOrThrow()
-        val decoded = json.fromJson<Foo>().getOrThrow()
+        val decoded = json.fromCbor<Foo>().getOrThrow()
         assertEquals(foo, decoded)
 
         val prettyJson = foo.toJson(pretty = true).getOrThrow()
-        val decodedPretty = prettyJson.fromJson<Foo>().getOrThrow()
+        val decodedPretty = prettyJson.fromCbor<Foo>().getOrThrow()
         assertEquals(foo, decodedPretty)
         assertTrue(prettyJson.contains("\n"), "Pretty JSON should contain newlines")
     }
@@ -39,7 +39,7 @@ class CoreJSONTests {
     fun cbor_roundtrip_via_bytes_alias() {
         val foo = Foo(7, "seven")
         val bytes = foo.toBytes().getOrThrow()
-        val decoded = bytes.fromJson<Foo>().getOrThrow()
+        val decoded = bytes.fromCbor<Foo>().getOrThrow()
         assertEquals(foo, decoded)
     }
 

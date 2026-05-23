@@ -29,4 +29,25 @@ class ServerAndResponseBuilderTests {
             buildResponse<Int> { }
         }
     }
+
+    @Test
+    fun build_response_string_and_byte_array() {
+        val resp1 =
+            buildResponse<String> {
+                status = 201
+                statusText = "Created"
+                body = "Done"
+            }
+        assertEquals(201, resp1.status)
+        assertEquals("Created", resp1.statusText)
+        assertEquals("Done", resp1.body.body)
+
+        val bytes = byteArrayOf(1, 2, 3)
+        val resp2 =
+            buildResponse<ByteArray> {
+                body = bytes
+            }
+        assertEquals(200, resp2.status)
+        assertEquals(bytes, resp2.body.body)
+    }
 }

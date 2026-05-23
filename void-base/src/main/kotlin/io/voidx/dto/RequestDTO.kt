@@ -1,6 +1,5 @@
 package io.voidx.dto
 
-import io.voidx.ClientHandler
 import io.voidx.Method
 import java.io.BufferedReader
 import java.io.InputStream
@@ -36,10 +35,13 @@ data class RequestDTO(
      */
     val attributes: MutableMap<String, Any> = mutableMapOf()
 
+    /**
+     * Parsed cookies from the "Cookie" header.
+     */
     val cookies: Map<String, String>
         get() {
             val percentRegex = "%([0-9A-Fa-f]{2})".toRegex()
-            val pairs = headers["Cookie"]?.split(";") ?: return mapOf()
+            val pairs = this["Cookie"]?.split(";") ?: return emptyMap()
             val map = mutableMapOf<String, String>()
             for (it in pairs) {
                 val pair = it.trim().split("=", limit = 2)
@@ -59,64 +61,13 @@ data class RequestDTO(
 
     companion object {
         /**
-         * Parses an incoming HTTP request from the given [inputStream] into a [RequestDTO].
-         * In case of malformed requests, the [clientHandler] router error path is invoked
-         * and a minimal default GET request is returned to allow graceful handling.
-         */
-        internal fun parse(
-            inputStream: InputStream,
-            clientHandler: ClientHandler,
-        ): RequestDTO {
-            val headers: MutableMap<String, String> = mutableMapOf()
-            val method: Method
-            val path: String
-            val reader = BufferedReader(InputStreamReader(inputStream))
-            val line = reader.readLine()?.split(" ") ?: throw IllegalStateException("Empty request received")
-            try {
-                if (line.size < 2) throw IllegalArgumentException("Invalid request line")
-                method = Method.valueOf(line[0].uppercase(Locale.getDefault()))
-            } catch (e: Exception) {
-                clientHandler.router.error(clientHandler, e)
-                return buildRequest {
-                    this.method = Method.GET
-                    target = "/"
-                    this.headers.putAll(headers)
-                    body = ""
-                } // Provide a default request
-            }
-            path = line[1]
-
-            var headerLine: String?
-            while ((reader.readLine().also { headerLine = it }) != null && headerLine!!.isNotEmpty()) {
-                val header = headerLine.split(": ", limit = 2)
-                if (header.size == 2) headers[header[0]] = header[1]
-            }
-
-            val body = StringBuilder()
-            val contentLength = headers["Content-Length"]?.toIntOrNull()
-            // Per RFC 7231, a payload on GET has no defined semantics; many servers ignore it.
-            // We choose to ignore the body for GET requests even if Content-Length is present.
-            if (method.name != "GET" && contentLength != null && contentLength > 0) {
-                val charArray = CharArray(contentLength)
-                reader.read(charArray, 0, contentLength)
-                body.append(charArray)
-            }
-
-            val requestDTO: RequestDTO =
-                buildRequest {
-                    this.method = method
-                    this.target = path
-                    this.headers.putAll(headers)
-                    this.body = body.toString()
-                }
-
-            return requestDTO
-        }
-
-        /**
-         * Parses an incoming HTTP request from the given [inputStream] into a [RequestDTO].
-         * This overload does not require a [ClientHandler] and will return a minimal
-         * default GET request on parse errors.
+         * Parse an HTTP request from the given input stream into a RequestDTO.
+         *
+         * If the initial request line is missing or cannot be parsed, returns a minimal GET request targeting "/"
+         * that includes any headers read prior to the failure and an empty body.
+         *
+         * @param inputStream The input stream containing the raw HTTP request.
+         * @return A RequestDTO representing the parsed request; on parse errors, a minimal GET request as described above.
          */
         fun parse(inputStream: InputStream): RequestDTO {
             val headers: MutableMap<String, String> = mutableMapOf()
@@ -129,6 +80,8 @@ data class RequestDTO(
                     target = "/"
                     this.headers.putAll(headers)
                     body = ""
+                }.also {
+                    it.attributes["Malformed"] = true
                 }
             try {
                 if (line.size < 2) throw IllegalArgumentException("Invalid request line")
@@ -190,7 +143,10 @@ class RequestBuilder {
 }
 
 /**
- * DSL helper to build a [RequestDTO] using a [RequestBuilder].
+ * Builds a RequestDTO using a RequestBuilder DSL.
+ *
+ * @param builder Lambda that configures the RequestBuilder.
+ * @return The constructed RequestDTO.
  */
 fun buildRequest(builder: RequestBuilder.() -> Unit): RequestDTO {
     val build = RequestBuilder()
@@ -198,6 +154,11 @@ fun buildRequest(builder: RequestBuilder.() -> Unit): RequestDTO {
     return build.build()
 }
 
+/**
+ * Applies the given mutation block to this builder's headers map.
+ *
+ * @param block Receiver lambda invoked on the headers `MutableMap<String, String>` to add, remove, or modify header entries in-place.
+ */
 fun RequestBuilder.headers(block: MutableMap<String, String>.() -> Unit) {
     headers.block()
 }

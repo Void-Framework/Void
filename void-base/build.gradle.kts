@@ -21,6 +21,10 @@ java {
 
 kotlin {
     jvmToolchain(21)
+    compilerOptions {
+        allWarningsAsErrors = true
+        freeCompilerArgs.add("-progressive")
+    }
 }
 
 dependencies {

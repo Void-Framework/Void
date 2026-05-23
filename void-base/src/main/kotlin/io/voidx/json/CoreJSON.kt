@@ -54,15 +54,15 @@ inline fun <reified T : Any> T.toJson(pretty: Boolean = false): Result<String> =
     }
 
 /** Deserializes this JSON string into type [T] using the default [kotlinx.serialization.json.Json] instance. */
-inline fun <reified T : Any> String.fromJson(): Result<T> = runCatching { Json.decodeFromString(this) }
+inline fun <reified T : Any> String.fromCbor(): Result<T> = runCatching { Json.decodeFromString(this) }
 
 /** Encodes this object to CBOR bytes using [kotlinx.serialization.cbor.Cbor]. */
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified T : Any> T.toBytes(): Result<ByteArray> = runCatching { Cbor.encodeToByteArray(this) }
 
-/** Decodes CBOR bytes into type [T] using [kotlinx.serialization.cbor.Cbor]. Note: despite the name, this parses CBOR, not JSON. */
+/** Decodes CBOR bytes into type [T] using [kotlinx.serialization.cbor.Cbor]. */
 @OptIn(ExperimentalSerializationApi::class)
-inline fun <reified T : Any> ByteArray.fromJson(): Result<T> = runCatching { Cbor.decodeFromByteArray(this) }
+inline fun <reified T : Any> ByteArray.fromCbor(): Result<T> = runCatching { Cbor.decodeFromByteArray(this) }
 
 /** Encodes this object to ProtoBuf bytes using [kotlinx.serialization.protobuf.ProtoBuf]. */
 @OptIn(ExperimentalSerializationApi::class)
@@ -96,12 +96,18 @@ fun RequestDTO.detectFormat(): Format {
 }
 
 /**
- * Creates a [ResponseDTO] by serializing [value] according to the request `Accept` header.
- * Defaults to `application/json` when the header is missing.
+ * Creates a ResponseDTO by serializing the provided value according to the request Accept header.
  *
- * Generic overload preserves the static type [T] so kotlinx.serialization can locate the correct serializer.
+ * Defaults to "application/json" when the header is missing.
+ *
+ * @param request The incoming request whose Accept header determines the response format.
+ * @param value The value to serialize.
+ * @return A ResponseDTO whose body and Content-Type match the selected format: JSON for "application/json", ProtoBuf-encoded bytes for "application/xml", or the value's string representation for other Accept values.
  */
-inline fun <reified T : Any> Page.autoSerialize(value: T): ResponseDTO {
+inline fun <reified T : Any> Page.autoSerialize(
+    request: RequestDTO,
+    value: T,
+): ResponseDTO {
     val accept = request.headers["Accept"] ?: "application/json"
     return when {
         "application/json" in accept -> {
@@ -144,7 +150,7 @@ inline fun <reified T : Any> T.toJsonFile(
 }
 
 /** Reads JSON content from this [File] into type [T]. */
-inline fun <reified T : Any> File.fromJsonFile(): Result<T> = this.readText().fromJson()
+inline fun <reified T : Any> File.fromJsonFile(): Result<T> = this.readText().fromCbor()
 
 /** Encodes this object's JSON string to Base64. */
 inline fun <reified T : Any> T.toJson64(): Result<String> =
@@ -153,7 +159,7 @@ inline fun <reified T : Any> T.toJson64(): Result<String> =
     }
 
 /** Decodes a Base64-encoded JSON string into type [T]. */
-inline fun <reified T : Any> String.fromJson64(): Result<T> = String(Base64.getDecoder().decode(this)).fromJson()
+inline fun <reified T : Any> String.fromJson64(): Result<T> = String(Base64.getDecoder().decode(this)).fromCbor()
 
 /** Returns true if this instance's class is annotated with [kotlinx.serialization.Serializable]. */
 inline fun <reified T : Any> T.canSerialize(): Boolean = this::class.findAnnotation<Serializable>() != null
