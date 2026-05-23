@@ -1,8 +1,13 @@
 package test
 
 import io.voidx.Method
-import io.voidx.dto.*
-import kotlin.test.*
+import io.voidx.dto.buildRequest
+import io.voidx.dto.headers
+import io.voidx.dto.toHttpRequest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
 
 class RequestToHttpRequestTests {
     @Test

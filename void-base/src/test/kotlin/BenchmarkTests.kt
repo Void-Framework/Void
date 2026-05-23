@@ -1,11 +1,9 @@
 package test
 
-import io.voidx.Method
 import io.voidx.Server
 import io.voidx.dto.buildRequest
 import io.voidx.dto.ok
 import io.voidx.fetch
-import io.voidx.page.route
 import io.voidx.router.router
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll

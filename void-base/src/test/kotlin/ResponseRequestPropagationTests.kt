@@ -1,6 +1,5 @@
 package test
 
-import io.voidx.Server
 import io.voidx.dto.ok
 import io.voidx.handle
 import io.voidx.middleware.relayAfter

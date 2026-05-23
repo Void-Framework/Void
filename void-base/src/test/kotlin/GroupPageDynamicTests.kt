@@ -11,10 +11,8 @@ import io.voidx.router.Router
 import io.voidx.router.exceptions.RouteNoTargetException
 import io.voidx.router.router
 import org.junit.jupiter.api.assertThrows
-import java.net.Socket
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class GroupPageDynamicTests {
     private fun Router.dispatch(req: RequestDTO): ResponseDTO {
@@ -24,7 +22,8 @@ class GroupPageDynamicTests {
         val query = Router.parseQuery(rawTarget)
         val pathParams = mutableMapOf<String, String>()
 
-        return rootNode.match(target.split("/"), 1, pathParams)
+        return rootNode
+            .match(target.split("/"), 1, pathParams)
             ?.content(req, query + pathParams)
             ?: nullPage.content(req, query + pathParams)
     }

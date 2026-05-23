@@ -3,8 +3,6 @@ package test
 import io.voidx.Server
 import io.voidx.dto.buildResponse
 import io.voidx.handle
-import io.voidx.middleware.relayAfter
-import io.voidx.middleware.relayBefore
 import io.voidx.page.route
 import io.voidx.router.router
 import java.io.ByteArrayInputStream

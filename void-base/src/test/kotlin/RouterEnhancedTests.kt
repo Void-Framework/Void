@@ -7,12 +7,9 @@ import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
 import io.voidx.page.PageHandler
 import io.voidx.page.exceptionPage
-import io.voidx.page.notFoundPage
 import io.voidx.page.route
 import io.voidx.router.Router
-import io.voidx.router.exceptions.RouteTargetUsedException
 import io.voidx.router.router
-import org.junit.jupiter.api.assertThrows
 import kotlin.test.*
 
 class RouterEnhancedTests {

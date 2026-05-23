@@ -1,6 +1,5 @@
 package test
 
-import io.voidx.Server
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.RequestDTO
 import io.voidx.dto.ResponseDTO

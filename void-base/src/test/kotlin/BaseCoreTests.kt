@@ -8,7 +8,6 @@ import io.voidx.page.route
 import io.voidx.router.Router
 import io.voidx.router.router
 import org.junit.jupiter.api.Test
-import kotlin.collections.plus
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -21,7 +20,8 @@ class BaseCoreTests {
         val query = Router.parseQuery(rawTarget)
         val pathParams = mutableMapOf<String, String>()
 
-        return rootNode.match(target.split("/"), 1, pathParams)
+        return rootNode
+            .match(target.split("/"), 1, pathParams)
             ?.content(req, query + pathParams)
             ?: nullPage.content(req, query + pathParams)
     }
