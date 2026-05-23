@@ -137,11 +137,11 @@ internal class RouteNode(
             Regex("^\\{([a-zA-Z_][a-zA-Z0-9_]*)\\?\\}$")
 
         /**
-                 * Extracts the parameter name captured from a dynamic segment like `{id}` or `{id?}`.
-                 *
-                 * @param part The path segment to inspect.
-                 * @return The captured parameter name, or an empty string if `part` is not a dynamic or optional segment.
-                 */
+         * Extracts the parameter name captured from a dynamic segment like `{id}` or `{id?}`.
+         *
+         * @param part The path segment to inspect.
+         * @return The captured parameter name, or an empty string if `part` is not a dynamic or optional segment.
+         */
         private fun extractParamName(part: String): String =
             DYNAMIC_REGEX.matchEntire(part)?.groupValues?.get(1)
                 ?: OPTIONAL_REGEX.matchEntire(part)?.groupValues?.get(1)
