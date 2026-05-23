@@ -337,10 +337,7 @@ fun Socket.handle(
             )
         if (request.attributes["Malformed"] as? Boolean == true) {
             this.getOutputStream().writeHTTP(
-                badRequest(
-                    router.badRequestPage.content(request, emptyMap()),
-                    mutableMapOf(),
-                ),
+                router.badRequestPage.content(request, emptyMap()),
                 version = version,
             )
         }
