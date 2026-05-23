@@ -130,12 +130,12 @@ fun route(
 }
 
 /**
-     * Creates an ExceptionPage whose content is rendered by the provided block using the exception stored in the request attributes.
-     *
-     * @param block Receiver-style function invoked with the `Exception` extracted from `request.attributes["exception"]` and expected to return the page `ResponseDTO`.
-     * @return An ExceptionPage instance that delegates its `content` to `block`.
-     */
-fun exceptionPage(block: ExceptionPage.(Exception) -> ResponseDTO): ExceptionPage =
+ * Creates an ExceptionPage whose content is rendered by the provided block using the exception stored in the request attributes.
+ *
+ * @param block Receiver-style function invoked with the `Exception` extracted from `request.attributes["exception"]` and expected to return the page `ResponseDTO`.
+ * @return An ExceptionPage instance that delegates its `content` to `block`.
+ */
+fun exceptionPage(block: ExceptionPage.(RequestDTO, Map<String, String>, Exception) -> ResponseDTO): ExceptionPage =
     object : ExceptionPage() {
         /**
          * Delegates page rendering to the configured exception handler by extracting the exception from the request.
