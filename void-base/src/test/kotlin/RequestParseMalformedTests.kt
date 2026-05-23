@@ -98,7 +98,7 @@ class RequestParseMalformedTests {
         val input = ByteArrayInputStream(raw.toByteArray())
         val result = RequestDTO.parse(input)
 
-        assertFalse(result.attributes["Malformed"] as? Boolean == true)
+        assertFalse(result.attributes["Malformed"] == true)
         assertEquals(Method.GET, result.method)
         assertEquals("/api/items", result.target)
         assertEquals("example.com", result.headers["Host"])
