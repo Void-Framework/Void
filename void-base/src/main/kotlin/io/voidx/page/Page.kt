@@ -115,6 +115,8 @@ abstract class ExceptionPage : Page("")
  */
 abstract class NotFoundPage : Page("")
 
+abstract class BadRequestPage : Page("")
+
 /**
  * Returns a [PageHandler] for the static [path], creating and registering one
  * if it does not exist yet. Allows fluent per-method handlers, e.g.:
@@ -165,6 +167,21 @@ fun exceptionPage(block: ExceptionPage.(RequestDTO, Map<String, String>, Excepti
  */
 fun notFoundPage(block: NotFoundPage.(request: RequestDTO, queries: Map<String, String>) -> ResponseDTO): NotFoundPage =
     object : NotFoundPage() {
+        /**
+         * Create the response for a not-found (404) route.
+         *
+         * @param request The incoming request DTO.
+         * @param queries Map of query parameter names to values parsed from the request URI.
+         * @return The response to send to the client.
+         */
+        override fun content(
+            request: RequestDTO,
+            queries: Map<String, String>,
+        ) = block(request, queries)
+    }
+
+fun badRequestPage(block: BadRequestPage.(request: RequestDTO, queries: Map<String, String>) -> ResponseDTO): BadRequestPage =
+    object : BadRequestPage() {
         /**
          * Create the response for a not-found (404) route.
          *

@@ -41,7 +41,7 @@ data class RequestDTO(
     val cookies: Map<String, String>
         get() {
             val percentRegex = "%([0-9A-Fa-f]{2})".toRegex()
-            val pairs = headers["Cookie"]?.split(";") ?: return mapOf()
+            val pairs = this["Cookie"]?.split(";") ?: return emptyMap()
             val map = mutableMapOf<String, String>()
             for (it in pairs) {
                 val pair = it.trim().split("=", limit = 2)
@@ -80,6 +80,8 @@ data class RequestDTO(
                     target = "/"
                     this.headers.putAll(headers)
                     body = ""
+                }.also {
+                    it.attributes["Malformed"] = true
                 }
             try {
                 if (line.size < 2) throw IllegalArgumentException("Invalid request line")
