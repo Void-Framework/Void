@@ -41,9 +41,10 @@ open class PageHandler(
     override fun content(
         request: RequestDTO,
         queries: Map<String, String>,
-    ): ResponseDTO = responses[request.method]?.invoke(Negotiator(request), request, queries)
-        // Stupid fix, TODO: Make a better fix
-        ?: router {}.nullPage.content(request, queries)
+    ): ResponseDTO =
+        responses[request.method]?.invoke(Negotiator(request), request, queries)
+            // Stupid fix, TODO: Make a better fix
+            ?: router {}.nullPage.content(request, queries)
 
     /**
      * Register a handler invoked for HTTP GET requests on this page.
@@ -83,7 +84,11 @@ open class PageHandler(
      * @param body The handler invoked for DELETE requests; executed with a `Negotiator` receiver and must return a `ResponseDTO`.
      * @return This `PageHandler` instance to allow fluent chaining.
      */
-    infix fun DELETE(body: Negotiator.(RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler = apply { responses[Method.DELETE] = body }
+    infix fun DELETE(body: Negotiator.(RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler =
+        apply {
+            responses[Method.DELETE] =
+                body
+        }
 
     /**
      * Register a handler for HTTP CONNECT requests.
@@ -91,7 +96,11 @@ open class PageHandler(
      * @param body Handler invoked with a Negotiator receiver for CONNECT requests; must return the response DTO.
      * @return This PageHandler instance to allow fluent chaining.
      */
-    infix fun CONNECT(body: Negotiator.(RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler = apply { responses[Method.CONNECT] = body }
+    infix fun CONNECT(body: Negotiator.(RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler =
+        apply {
+            responses[Method.CONNECT] =
+                body
+        }
 
     /**
      * Registers a handler for HTTP OPTIONS requests on this PageHandler.
@@ -99,7 +108,11 @@ open class PageHandler(
      * @param body Lambda executed with a Negotiator receiver that produces the ResponseDTO for OPTIONS requests.
      * @return This PageHandler instance to allow fluent chaining.
      */
-    infix fun OPTIONS(body: Negotiator.(RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler = apply { responses[Method.OPTIONS] = body }
+    infix fun OPTIONS(body: Negotiator.(RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler =
+        apply {
+            responses[Method.OPTIONS] =
+                body
+        }
 
     /**
      * Register a handler for HTTP TRACE requests on this page.
@@ -107,7 +120,8 @@ open class PageHandler(
      * @param body Handler executed with a Negotiator receiver to produce the response for TRACE requests.
      * @return This PageHandler instance to allow fluent chaining.
      */
-    infix fun TRACE(body: Negotiator.(RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler = apply { responses[Method.TRACE] = body }
+    infix fun TRACE(body: Negotiator.(RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler =
+        apply { responses[Method.TRACE] = body }
 
     /**
      * Register a handler to handle HTTP PATCH requests for this page.
@@ -115,5 +129,6 @@ open class PageHandler(
      * @param body Handler invoked with a `Negotiator` receiver to produce the response for a PATCH request.
      * @return This `PageHandler` instance to allow fluent chaining.
      */
-    infix fun PATCH(body: Negotiator.(RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler = apply { responses[Method.PATCH] = body }
+    infix fun PATCH(body: Negotiator.(RequestDTO, Map<String, String>) -> ResponseDTO): PageHandler =
+        apply { responses[Method.PATCH] = body }
 }

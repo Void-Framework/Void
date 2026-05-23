@@ -42,7 +42,7 @@ class CorsMiddlewareTests {
         val page =
             route("/test") {
                 corsMiddleware()
-                GET { _, _ ->   ok("Hello") }
+                GET { _, _ -> ok("Hello") }
             }
 
         val req =
@@ -62,7 +62,7 @@ class CorsMiddlewareTests {
         val page =
             route("/test") {
                 corsMiddleware(allowed)
-                GET { _, _ ->   ok("ok") }
+                GET { _, _ -> ok("ok") }
             }
 
         // allowed origin
@@ -260,7 +260,7 @@ class CorsMiddlewareTests {
         val page =
             route("/test") {
                 corsMiddleware()
-                OPTIONS { _, _ ->  ok("options response") }
+                OPTIONS { _, _ -> ok("options response") }
             }
 
         val req =

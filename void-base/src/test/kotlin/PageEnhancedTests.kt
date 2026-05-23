@@ -14,7 +14,10 @@ import kotlin.test.*
 
 class PageEnhancedTests {
     private class TestPage : Page("/test") {
-        override fun content(request: RequestDTO, queries: Map<String, String>): ResponseDTO =
+        override fun content(
+            request: RequestDTO,
+            queries: Map<String, String>,
+        ): ResponseDTO =
             buildResponse<String> {
                 status = 200
                 statusText = "OK"
@@ -202,9 +205,13 @@ class PageEnhancedTests {
                 }
             }
 
-        val resp = page.content(buildRequest {  }.apply {
-            attributes["exception"] = RuntimeException("Test exception")
-        }, emptyMap())
+        val resp =
+            page.content(
+                buildRequest { }.apply {
+                    attributes["exception"] = RuntimeException("Test exception")
+                },
+                emptyMap(),
+            )
 
         assertEquals(500, resp.status)
         assertEquals("Test exception", resp.body.body as String)
