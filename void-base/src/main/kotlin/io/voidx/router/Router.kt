@@ -102,6 +102,14 @@ class Router {
         internalRelay = relay.sortedByDescending { it.priority }
     }
 
+    /**
+     * Executes global BEFORE middleware in priority order and returns the first produced response.
+     *
+     * Iterates the router's snapshot of relays and invokes `processBefore` on those that implement `RelayBefore`.
+     *
+     * @param requestDTO The incoming request wrapped as a `Result<RequestDTO>` passed to middleware.
+     * @return A `ResponseDTO` returned by the first middleware that short-circuits the request, or `null` if none did.
+     */
     internal fun middlewareProcessBefore(requestDTO: Result<RequestDTO>): ResponseDTO? {
         val relays = internalRelay
         for (i in relays.indices) {
@@ -173,11 +181,13 @@ class Router {
     }
 
     /**
-     * Dispatches an incoming request through middleware and the matched page, then writes the resulting HTTP response to the client's socket.
+     * Dispatches a request through global middleware, special handlers, and the route tree, then writes the HTTP response to the client's socket.
      *
-     * Resolves the target and query from the request, runs global BEFORE middleware (which may short-circuit), gives special/KTS handlers a chance to handle the request, then resolves a static or dynamic page (falling back to the configured 404). For resolved pages the function runs per-page BEFORE (which may short-circuit) and per-page AFTER middleware, runs global AFTER middleware, attaches the original request to the response, and writes the response using the server's HTTP version.
+     * The response is resolved in this order: global BEFORE middleware (may short-circuit), Bootstrap special/KTS handlers, matched route handler, or the configured 404 page. The original request is attached to the response; per-page AFTER middleware (if a page was selected) and global AFTER middleware are executed before the response is written.
      *
-     * @param requestDTO The incoming request data transfer object.
+     * @param requestDTO Incoming request data transfer object.
+     * @param client Client TCP socket to which the HTTP response will be written.
+     * @param version HTTP version number used when writing the response.
      */
     internal fun route(
         requestDTO: RequestDTO,
@@ -249,9 +259,10 @@ class Router {
     }
 
     /**
-     * Returns a [PageHandler] for the static [path], creating and registering one
-     * if it does not exist yet. Allows fluent per-method handlers, e.g.:
-     * router.on("/api").GET { ... }
+     * Retrieves the PageHandler for the given static path, creating and registering one if none exists.
+     *
+     * @param path The static route path (e.g., "/api").
+     * @param builder A configuration block applied to the retrieved or newly created PageHandler.
      */
     fun route(
         path: String,

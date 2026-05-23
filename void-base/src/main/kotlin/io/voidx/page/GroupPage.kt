@@ -52,6 +52,13 @@ class GroupPage(
         routes.add(page)
     }
 
+    /**
+     * Collects this group and all nested page handlers into a flattened list.
+     *
+     * Marks this GroupPage and any nested GroupPage instances as flattened (`flattened = true`) as it traverses.
+     *
+     * @return A depth-first list containing this GroupPage followed by all nested PageHandler instances.
+     */
     internal fun flatten(): List<PageHandler> {
         this.flattened = true
         val pages = mutableListOf<PageHandler>(this)
