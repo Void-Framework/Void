@@ -31,7 +31,7 @@ private class InlineSocket(
 }
 
 class RouterNotFoundAndExceptionFlowTests {
-    private val r = router {  }
+    private val r = router { }
     private var prevExceptionPage = r.exceptionPage
     private var prevNullPage = r.nullPage
 

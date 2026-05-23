@@ -130,8 +130,9 @@ fun exceptionPage(block: ExceptionPage.(RequestDTO, Map<String, String>, Excepti
             request: RequestDTO,
             queries: Map<String, String>,
         ): ResponseDTO {
-            val exception = request.attributes["exception"] as? Exception
-                ?: error("ExceptionPage requires request.attributes[\"exception\"]")
+            val exception =
+                request.attributes["exception"] as? Exception
+                    ?: error("ExceptionPage requires request.attributes[\"exception\"]")
             return block(request, queries, exception)
         }
     }

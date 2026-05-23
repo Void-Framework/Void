@@ -26,7 +26,6 @@ package io.voidx.page
 class GroupPage(
     override val target: String,
 ) : PageHandler(target) {
-
     /** The collection of nested [PageHandler] routes registered within this group. */
     internal val routes = mutableListOf<PageHandler>()
 
@@ -57,8 +56,11 @@ class GroupPage(
         this.flattened = true
         val pages = mutableListOf<PageHandler>(this)
         routes.forEach {
-            if (it is GroupPage) pages.addAll(it.also { it.flattened = true }.flatten())
-            else pages.add(it)
+            if (it is GroupPage) {
+                pages.addAll(it.also { it.flattened = true }.flatten())
+            } else {
+                pages.add(it)
+            }
         }
         return pages
     }

@@ -59,7 +59,7 @@ internal class RouteNode(
                         dynamicChild =
                             RouteNode(
                                 paramName = name,
-                                optional = isOptional
+                                optional = isOptional,
                             )
                     }
                     dynamicChild!!

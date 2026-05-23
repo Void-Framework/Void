@@ -22,7 +22,7 @@ class GroupPageDynamicTests {
         val qMark = rawTarget.indexOf('?')
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
         val query = Router.parseQuery(rawTarget)
-        
+
         return rootNode.match(target.split("/"), 1, mutableMapOf())?.content(req, query)
             ?: nullPage.content(req, query)
     }
@@ -32,12 +32,12 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/users") {
                 group("/{userId}") {
-                    GET { _, _ -> 
+                    GET { _, _ ->
                         val userId = path<String>("userId")
                         ok("User ID: $userId")
                     }
                     group("/posts") {
-                        GET { _, _ -> 
+                        GET { _, _ ->
                             val userId = path<String>("userId")
                             ok("Posts for user: $userId")
                         }
@@ -66,7 +66,7 @@ class GroupPageDynamicTests {
                 group("/{orgId}") {
                     group("/projects") {
                         group("/{projectId}") {
-                            GET { _, _ -> 
+                            GET { _, _ ->
                                 val orgId = path<String>("orgId")
                                 val projectId = path<String>("projectId")
                                 ok("Org: $orgId, Project: $projectId")
@@ -88,7 +88,7 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/docs") {
                 group("/{section}/{page?}") {
-                    GET { _, _ -> 
+                    GET { _, _ ->
                         val section = path<String>("section")
                         val page = path<String>("page")
                         ok("Section: $section, Page: ${page ?: "index"}")
@@ -108,7 +108,7 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/docs") {
                 group("/{section}/{page?}") {
-                    GET { _, _ -> 
+                    GET { _, _ ->
                         val section = path<String>("section")
                         val page = path<String>("page?")
                         ok("Section: $section, Page: ${page ?: "index"}")
@@ -145,7 +145,7 @@ class GroupPageDynamicTests {
                         },
                     )
 
-                    GET { _, _ ->  ok("v1") }
+                    GET { _, _ -> ok("v1") }
                 }
             }
 
@@ -169,7 +169,7 @@ class GroupPageDynamicTests {
                         },
                     )
 
-                    GET { _, _ ->  ok("should not reach") }
+                    GET { _, _ -> ok("should not reach") }
                 }
             }
 
@@ -184,7 +184,7 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/api") {
                 group("/users") {
-                    GET { _, _ ->  ok("users") }
+                    GET { _, _ -> ok("users") }
                 }
             }
         val r = router { addRoute(root) }
@@ -203,7 +203,7 @@ class GroupPageDynamicTests {
                     group("/c") {
                         group("/{d}") {
                             group("/e") {
-                                GET { _, _ -> 
+                                GET { _, _ ->
                                     val b = path<String>("b")
                                     val d = path<String>("d")
                                     ok("b=$b, d=$d")
@@ -238,17 +238,17 @@ class GroupPageDynamicTests {
         assertNotNull(resp)
     }
     TODO: Broken RouteNode handling of PageHandler
-    */
+     */
 
     @Test
     fun `test group with multiple methods on same path`() {
         val root =
             groupRoute("/api") {
                 group("/resource") {
-                    GET { _, _ ->  ok("get resource") }
-                    POST { _, _ ->  ok("create resource") }
-                    PUT { _, _ ->  ok("update resource") }
-                    DELETE { _, _ ->  ok("delete resource") }
+                    GET { _, _ -> ok("get resource") }
+                    POST { _, _ -> ok("create resource") }
+                    PUT { _, _ -> ok("update resource") }
+                    DELETE { _, _ -> ok("delete resource") }
                 }
             }
 
@@ -272,13 +272,13 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/api") {
                 group("/users") {
-                    GET { _, _ ->  ok("users") }
+                    GET { _, _ -> ok("users") }
                 }
                 group("/posts") {
-                    GET { _, _ ->  ok("posts") }
+                    GET { _, _ -> ok("posts") }
                 }
                 group("/comments") {
-                    GET { _, _ ->  ok("comments") }
+                    GET { _, _ -> ok("comments") }
                 }
             }
 
@@ -299,7 +299,7 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/files") {
                 group("/{filename}") {
-                    GET { _, _ -> 
+                    GET { _, _ ->
                         val filename = path<String>("filename")
                         ok("File: $filename")
                     }
@@ -317,10 +317,10 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/api") {
                 group("/users") {
-                    GET { _, _ ->  ok("all users") }
+                    GET { _, _ -> ok("all users") }
 
                     group("/{id}") {
-                        GET { _, _ -> 
+                        GET { _, _ ->
                             val id = path<String>("id")
                             ok("user $id")
                         }
@@ -345,7 +345,7 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/api") {
                 group("/{id}") {
-                    GET { _, _ -> 
+                    GET { _, _ ->
                         capturedMethod = request.method
                         capturedTarget = request.target
                         ok("ok")
@@ -366,7 +366,7 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/api") {
                 group("/items") {
-                    POST { _, _ -> 
+                    POST { _, _ ->
                         ok("Created: ${request.body}")
                     }
                 }
@@ -391,7 +391,7 @@ class GroupPageDynamicTests {
                         },
                     )
 
-                    GET { _, _ ->  ok("response") }
+                    GET { _, _ -> ok("response") }
                 }
             }
 
@@ -409,7 +409,7 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("") {
                 group("/test") {
-                    GET { _, _ ->  ok("empty root") }
+                    GET { _, _ -> ok("empty root") }
                 }
             }
         assertThrows<RouteNoTargetException> { router { addRoute(root) } }
@@ -420,7 +420,7 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/items") {
                 group("/{id}") {
-                    GET { _, _ -> 
+                    GET { _, _ ->
                         val id = path<String>("id")
                         ok("Item: $id")
                     }
@@ -438,7 +438,7 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/search") {
                 group("/{query}/{page?}") {
-                    GET { _, _ -> 
+                    GET { _, _ ->
                         val query = path<String>("query")
                         val page = path<String>("page")
                         ok("Query: $query, Page: ${if (page?.isNotEmpty() == true) page else "1"}")
@@ -462,10 +462,10 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/api") {
                 group("/users") {
-                    GET { _, _ ->  ok("users") }
+                    GET { _, _ -> ok("users") }
                 }
                 group("/users/admin") {
-                    GET { _, _ ->  ok("admin users") }
+                    GET { _, _ -> ok("admin users") }
                 }
             }
 
@@ -484,14 +484,24 @@ class GroupPageDynamicTests {
 
         val root =
             groupRoute("/api") {
-                before(relayBefore { parentBeforeCalled = true; null })
+                before(
+                    relayBefore {
+                        parentBeforeCalled = true
+                        null
+                    },
+                )
                 after(relayAfter { parentAfterCalled = true })
 
                 group("/v1") {
-                    before(relayBefore { childBeforeCalled = true; null })
+                    before(
+                        relayBefore {
+                            childBeforeCalled = true
+                            null
+                        },
+                    )
                     after(relayAfter { childAfterCalled = true })
 
-                    GET { _, _ ->  ok("test") }
+                    GET { _, _ -> ok("test") }
                 }
             }
 
@@ -512,7 +522,7 @@ class GroupPageDynamicTests {
             groupRoute("/{a}") {
                 group("/{b}") {
                     group("/{c}") {
-                        GET { _, _ -> 
+                        GET { _, _ ->
                             val a = path<String>("a")
                             val b = path<String>("b")
                             val c = path<String>("c")
