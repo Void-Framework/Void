@@ -111,8 +111,9 @@ class RequestParseMalformedTests {
         val raw = "GET /search?q=kotlin&page=2 HTTP/1.1\r\nHost: localhost\r\n\r\n"
         val input = ByteArrayInputStream(raw.toByteArray())
         val result = RequestDTO.parse(input)
+        val malformed = result.attributes["Malformed"] as? Boolean
 
-        assertFalse(result.attributes["Malformed"] as? Boolean == true)
+        assertFalse(malformed == true)
         assertEquals("/search?q=kotlin&page=2", result.target)
     }
 
