@@ -1,10 +1,5 @@
 package io.voidx.page
 
-import io.voidx.dto.RequestDTO
-import io.voidx.dto.ResponseDTO
-import io.voidx.json.Negotiator
-import io.voidx.router.CustomPages
-
 /**
  * Lightweight page container that supports route grouping and hierarchical dispatching.
  *

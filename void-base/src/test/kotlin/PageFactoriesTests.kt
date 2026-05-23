@@ -12,7 +12,7 @@ class PageFactoriesTests {
     @Test
     fun exception_page_factory_executes_block_and_returns_response() {
         val p =
-            exceptionPage {
+            exceptionPage { _, _, _ ->
                 // simulate reading exception if needed; here we just return a response
                 buildResponse<String> {
                     status = 500

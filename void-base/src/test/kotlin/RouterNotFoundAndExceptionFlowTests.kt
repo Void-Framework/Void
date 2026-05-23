@@ -6,7 +6,6 @@ import io.voidx.handle
 import io.voidx.page.exceptionPage
 import io.voidx.page.notFoundPage
 import io.voidx.page.route
-import io.voidx.router.CustomPages
 import io.voidx.router.router
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -32,21 +31,22 @@ private class InlineSocket(
 }
 
 class RouterNotFoundAndExceptionFlowTests {
-    private var prevExceptionPage = CustomPages.exceptionPage
-    private var prevNullPage = CustomPages.nullPage
+    private val r = router {  }
+    private var prevExceptionPage = r.exceptionPage
+    private var prevNullPage = r.nullPage
 
     @BeforeEach
     fun setUp() {
         // Capture current globals to restore later for test isolation
-        prevExceptionPage = CustomPages.exceptionPage
-        prevNullPage = CustomPages.nullPage
+        prevExceptionPage = r.exceptionPage
+        prevNullPage = r.nullPage
     }
 
     @AfterEach
     fun tearDown() {
         // Restore global pages so tests don't leak state
-        CustomPages.exceptionPage = prevExceptionPage
-        CustomPages.nullPage = prevNullPage
+        r.exceptionPage = prevExceptionPage
+        r.nullPage = prevNullPage
     }
 
     @Test
@@ -74,7 +74,7 @@ class RouterNotFoundAndExceptionFlowTests {
     @Test
     fun custom_not_found_page_overrides_default() {
         val r = router { }
-        CustomPages.nullPage =
+        r.nullPage =
             notFoundPage { _, _ ->
                 buildResponse<String> {
                     status = 404
@@ -103,8 +103,8 @@ class RouterNotFoundAndExceptionFlowTests {
     fun exception_in_handler_triggers_exception_page_via_client_handler_flow() {
         val r = router { }
         // Ensure a known exception page with a recognizable marker is installed
-        CustomPages.exceptionPage =
-            exceptionPage {
+        r.exceptionPage =
+            exceptionPage { _, _, _ ->
                 buildResponse<String> {
                     status = 500
                     statusText = "Server Error"
@@ -139,8 +139,8 @@ class RouterNotFoundAndExceptionFlowTests {
     @Test
     fun custom_exception_page_overrides_default_during_flow() {
         val r = router { }
-        CustomPages.exceptionPage =
-            exceptionPage { exception ->
+        r.exceptionPage =
+            exceptionPage { _, _, exception ->
                 buildResponse<String> {
                     status = 500
                     statusText = "Server Error"

@@ -194,7 +194,7 @@ class PageEnhancedTests {
     @Test
     fun `test exceptionPage factory creates proper page`() {
         val page =
-            exceptionPage { exception ->
+            exceptionPage { _, _, exception ->
                 buildResponse<String> {
                     status = 500
                     statusText = "Internal Server Error"
@@ -235,7 +235,7 @@ class PageEnhancedTests {
     @Test
     fun `test exceptionPage has empty target`() {
         val page =
-            exceptionPage {
+            exceptionPage { _, _, _ ->
                 ok("error")
             }
         assertEquals("", page.target)
