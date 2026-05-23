@@ -22,7 +22,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * Minimal HTTP/HTTPS server used by Void to serve routes from a [Router].
  *
  * Lifecycle:
- * - Construct with a [Router]. During initialization, module hooks (see [io.voidx.util.ModuleInit])
+ * - Construct with a [Router].
  *   are executed and any registered HTML integration is applied to existing routes.
  * - Call [startHTTPServer] and/or [startHTTPSServer] to accept connections.
  * - Each connection is handled on a coroutine via [handle].
