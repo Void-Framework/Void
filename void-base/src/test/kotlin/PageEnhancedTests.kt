@@ -169,7 +169,6 @@ class PageEnhancedTests {
             },
         )
 
-        val req = buildRequest { method = Method.GET }
         val error = RuntimeException("test error")
         page.middlewareProcessAfter(Result.failure(error))
 
