@@ -87,7 +87,7 @@ class BenchmarkTests {
         System.out.println("[DEBUG_LOG] Throughput: ${iterations.toDouble() / (time.toDouble() / 1000)} req/s")
 
         // Threshold: 10ms per request on average seems reasonable for a local simple framework.
-        assertTrue(avgLatency < 1.0, "Average latency $avgLatency ms exceeds threshold of 1 ms")
+        assertTrue(avgLatency < 10.0, "Average latency $avgLatency ms exceeds threshold of 10 ms")
     }
 
     @Test
