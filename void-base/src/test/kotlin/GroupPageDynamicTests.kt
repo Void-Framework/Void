@@ -22,9 +22,11 @@ class GroupPageDynamicTests {
         val qMark = rawTarget.indexOf('?')
         val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
         val query = Router.parseQuery(rawTarget)
+        val pathParams = mutableMapOf<String, String>()
 
-        return rootNode.match(target.split("/"), 1, mutableMapOf())?.content(req, query)
-            ?: nullPage.content(req, query)
+        return rootNode.match(target.split("/"), 1, pathParams)
+            ?.content(req, query + pathParams)
+            ?: nullPage.content(req, query + pathParams)
     }
 
     @Test
@@ -32,13 +34,13 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/users") {
                 group("/{userId}") {
-                    GET { _, _ ->
-                        val userId = path<String>("userId")
+                    GET { _, query ->
+                        val userId = query["userId"]
                         ok("User ID: $userId")
                     }
                     group("/posts") {
-                        GET { _, _ ->
-                            val userId = path<String>("userId")
+                        GET { _, query ->
+                            val userId = query["userId"]
                             ok("Posts for user: $userId")
                         }
                     }
@@ -66,9 +68,9 @@ class GroupPageDynamicTests {
                 group("/{orgId}") {
                     group("/projects") {
                         group("/{projectId}") {
-                            GET { _, _ ->
-                                val orgId = path<String>("orgId")
-                                val projectId = path<String>("projectId")
+                            GET { _, query ->
+                                val orgId = query["orgId"]
+                                val projectId = query["projectId"]
                                 ok("Org: $orgId, Project: $projectId")
                             }
                         }
@@ -88,9 +90,9 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/docs") {
                 group("/{section}/{page?}") {
-                    GET { _, _ ->
-                        val section = path<String>("section")
-                        val page = path<String>("page")
+                    GET { _, query ->
+                        val section = query["section"]
+                        val page = query["page"]
                         ok("Section: $section, Page: ${page ?: "index"}")
                     }
                 }
@@ -108,9 +110,9 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/docs") {
                 group("/{section}/{page?}") {
-                    GET { _, _ ->
-                        val section = path<String>("section")
-                        val page = path<String>("page?")
+                    GET { _, query ->
+                        val section = query["section"]
+                        val page = query["page?"]
                         ok("Section: $section, Page: ${page ?: "index"}")
                     }
                 }
@@ -203,9 +205,9 @@ class GroupPageDynamicTests {
                     group("/c") {
                         group("/{d}") {
                             group("/e") {
-                                GET { _, _ ->
-                                    val b = path<String>("b")
-                                    val d = path<String>("d")
+                                GET { _, query ->
+                                    val b = query["b"]
+                                    val d = query["d"]
                                     ok("b=$b, d=$d")
                                 }
                             }
@@ -299,8 +301,8 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/files") {
                 group("/{filename}") {
-                    GET { _, _ ->
-                        val filename = path<String>("filename")
+                    GET { _, query ->
+                        val filename = query["filename"]
                         ok("File: $filename")
                     }
                 }
@@ -320,8 +322,8 @@ class GroupPageDynamicTests {
                     GET { _, _ -> ok("all users") }
 
                     group("/{id}") {
-                        GET { _, _ ->
-                            val id = path<String>("id")
+                        GET { _, query ->
+                            val id = query["id"]
                             ok("user $id")
                         }
                     }
@@ -420,8 +422,8 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/items") {
                 group("/{id}") {
-                    GET { _, _ ->
-                        val id = path<String>("id")
+                    GET { _, query ->
+                        val id = query["id"]
                         ok("Item: $id")
                     }
                 }
@@ -438,9 +440,9 @@ class GroupPageDynamicTests {
         val root =
             groupRoute("/search") {
                 group("/{query}/{page?}") {
-                    GET { _, _ ->
-                        val query = path<String>("query")
-                        val page = path<String>("page")
+                    GET { _, q ->
+                        val query = q["query"]
+                        val page = q["page"]
                         ok("Query: $query, Page: ${if (page?.isNotEmpty() == true) page else "1"}")
                     }
                 }
@@ -522,10 +524,10 @@ class GroupPageDynamicTests {
             groupRoute("/{a}") {
                 group("/{b}") {
                     group("/{c}") {
-                        GET { _, _ ->
-                            val a = path<String>("a")
-                            val b = path<String>("b")
-                            val c = path<String>("c")
+                        GET { _, query ->
+                            val a = query["a"]
+                            val b = query["b"]
+                            val c = query["c"]
                             ok("$a/$b/$c")
                         }
                     }
