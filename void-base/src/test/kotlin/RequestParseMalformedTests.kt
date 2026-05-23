@@ -52,7 +52,7 @@ class RequestParseMalformedTests {
         val result = RequestDTO.parse(input)
 
         assertFalse(
-            result.attributes["Malformed"] as? Boolean == true,
+            (result.attributes["Malformed"] as? Boolean) ?: false,
             "Malformed should not be set for a well-formed request",
         )
         assertEquals(Method.GET, result.method)
@@ -66,7 +66,7 @@ class RequestParseMalformedTests {
         val result = RequestDTO.parse(input)
 
         assertFalse(
-            result.attributes["Malformed"] as? Boolean == true,
+            (result.attributes["Malformed"] as? Boolean) ?: false,
             "Malformed should not be set for a valid POST request",
         )
         assertEquals(Method.POST, result.method)
