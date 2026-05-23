@@ -92,6 +92,14 @@ object Bootstrap {
         }
     }
 
+    /**
+     * Runs all registered active page decorators for the specified page and router.
+     *
+     * Invokes each decorator with the provided page and router; exceptions thrown by decorators are caught and ignored.
+     *
+     * @param page The page to decorate.
+     * @param router The router context passed to decorators.
+     */
     internal fun runPageDecorators(
         page: Page,
         router: Router,
@@ -108,7 +116,9 @@ object Bootstrap {
     // ---- Error handlers ----
 
     /**
-     * Registers an error handler globally.
+     * Registers a global error handler invoked when an exception occurs during request handling.
+     *
+     * @param handler A function that receives the optional `RequestDTO` related to the error (or `null`) and the thrown `Throwable`.
      */
     fun registerErrorHandler(handler: (RequestDTO?, Throwable) -> Unit) {
         errorHandlers += handler
@@ -116,7 +126,12 @@ object Bootstrap {
     }
 
     /**
-     * Unregisters a previously registered error handler.
+     * Unregisters an error handler so it will no longer be invoked for fired errors.
+     *
+     * Removes the provided handler from the internal registry and refreshes the snapshot
+     * used for thread-friendly iteration of error handlers.
+     *
+     * @param handler The error handler to remove.
      */
     fun unregisterErrorHandler(handler: (RequestDTO?, Throwable) -> Unit) {
         errorHandlers.remove(handler)
@@ -143,7 +158,15 @@ object Bootstrap {
 
     // ---- Special route API ----
 
-    /** Register a prioritized pre-dispatch special route handler. Higher [priority] runs first. */
+    /**
+     * Register a prioritized pre-dispatch special route handler; handlers with higher priority run first.
+     *
+     * If a registered handler returns a non-null ResponseDTO its result short-circuits normal routing and is returned.
+     * Handlers are invoked in descending priority order; exceptions thrown by handlers are ignored.
+     *
+     * @param priority Priority for ordering handlers; higher values run before lower values.
+     * @param handler Function that may produce a ResponseDTO for a request and query parameters, or `null` to continue routing.
+     */
     fun registerSpecialRoute(
         priority: Int = 0,
         handler: (RequestDTO, Map<String, String>) -> ResponseDTO?,
@@ -153,14 +176,30 @@ object Bootstrap {
         specialRoutesSnapshot = specialRoutes.sortedByDescending { it.priority }
     }
 
-    /** Unregister a previously registered [handler]. */
+    /**
+     * Unregisters a previously registered special-route handler.
+     *
+     * Removes all special-route entries whose handler is the same function instance (compared by reference)
+     * and refreshes the internal snapshot sorted by descending priority.
+     *
+     * @param handler The handler function to remove; comparison uses reference equality (`===`).
+     */
     fun unregisterSpecialRoute(handler: (RequestDTO, Map<String, String>) -> ResponseDTO?) {
         // remove all entries with the same handler instance
         specialRoutes.removeAll { it.handler === handler }
         specialRoutesSnapshot = specialRoutes.sortedByDescending { it.priority }
     }
 
-    /** Register and get an [AutoCloseable] handle to unregister. */
+    /**
+     * Register a prioritized special-route handler and return an AutoCloseable that unregisters it.
+     *
+     * The registered handler is invoked during pre-dispatch in descending priority order; if the handler
+     * returns a non-null ResponseDTO that response short-circuits normal routing, otherwise routing continues.
+     *
+     * @param priority Higher values run before lower values; default is 0.
+     * @param handler Function invoked with the incoming request and parsed query map. Return a `ResponseDTO` to short-circuit routing or `null` to continue.
+     * @return An `AutoCloseable` whose `close()` call unregisters the previously registered handler.
+     */
     fun addSpecialRoute(
         priority: Int = 0,
         handler: (RequestDTO, Map<String, String>) -> ResponseDTO?,
@@ -169,7 +208,13 @@ object Bootstrap {
         return AutoCloseable { unregisterSpecialRoute(handler) }
     }
 
-    /** Internal: give special handlers a chance to return a response before normal routing. */
+    /**
+     * Invoke registered special-route handlers in priority order to allow them to short-circuit normal routing.
+     *
+     * Handlers that return a non-null response are returned immediately; exceptions thrown by handlers are ignored.
+     *
+     * @return The first non-null ResponseDTO produced by a special-route handler, or `null` if no handler handled the request.
+     */
     internal fun tryHandleSpecialRoute(
         request: RequestDTO,
         query: Map<String, String>,
@@ -228,10 +273,16 @@ object Bootstrap {
         fun listResources(folder: String): List<String> = listResourcePaths(folder)
 
         /**
-         * Serve all classpath resources under the given [folder] at the provided URL [prefix].
+         * Registers GET routes that expose all classpath resources under [folder] at the given URL [prefix].
          *
-         * Example: serveClasspathResources(prefix = "/static", folder = "public") will expose
-         * resources like classpath `public/main.css` at `/static/main.css`.
+         * The [prefix] is normalized to ensure a single leading '/' and no trailing '/'. Each classpath entry
+         * under [folder] is mapped to a route at "normalizedPrefix/<relativePath>". If no resources are found
+         * under [folder], the function returns without registering routes. Requests for missing resources
+         * respond with a 404 plain-text "Not Found"; existing resources are served with a 200 status and a
+         * Content-Type inferred from the URL path.
+         *
+         * @param prefix URL path prefix where resources will be served (e.g. "/static" or "static").
+         * @param folder Classpath folder to expose (e.g. "public"); resources at "public/foo.txt" become "<prefix>/foo.txt".
          */
         fun serveClasspathResources(
             prefix: String,
@@ -271,7 +322,16 @@ object Bootstrap {
             }
         }
 
-        /** Serve a single classpath resource [resourcePath] at the URL path [urlPath]. */
+        /**
+         * Registers a GET route that serves a single classpath resource at the given URL path.
+         *
+         * If the resource is not found the route responds with a 404 plain-text "Not Found".
+         * If the resource is found the route responds with a 200 and the resource bytes, and sets the
+         * Content-Type based on the URL path's file extension.
+         *
+         * @param urlPath The public URL path to serve the resource at; a leading '/' will be added if missing.
+         * @param resourcePath The classpath location of the resource to serve.
+         */
         fun serveClasspathFile(
             urlPath: String,
             resourcePath: String,
@@ -330,13 +390,29 @@ object Bootstrap {
         /** Register an error handler and get a handle to unregister. */
         fun addErrorHandler(handler: (RequestDTO?, Throwable) -> Unit): AutoCloseable = Bootstrap.addErrorHandler(handler)
 
-        /** Register a prioritized special route handler (pre-dispatch). */
+        /**
+         * Registers a prioritized special-route handler invoked before normal dispatch.
+         *
+         * The handler is called with the incoming request and query map; if it returns a non-null response that response is used and routing is short-circuited. Handlers are invoked in descending priority order; exceptions thrown by handlers are ignored.
+         *
+         * @param priority Higher values run before lower values.
+         * @param handler Function that may return a `ResponseDTO` to short-circuit routing, or `null` to continue.
+         */
         fun registerSpecialRoute(
             priority: Int = 0,
             handler: (RequestDTO, Map<String, String>) -> ResponseDTO?,
         ) = Bootstrap.registerSpecialRoute(priority, handler)
 
-        /** Register a special route and get a handle to unregister. */
+        /**
+         * Register a pre-dispatch special route handler.
+         *
+         * The handler is invoked before normal routing; if it returns a non-null response that response
+         * short-circuits routing. Higher `priority` handlers run before lower ones.
+         *
+         * @param priority Priority for ordering special routes; higher values run earlier. Defaults to 0.
+         * @param handler Function invoked with the request and parsed query parameters that may return a response to short-circuit routing.
+         * @return An AutoCloseable whose `close()` unregisters the registered special route.
+         */
         fun addSpecialRoute(
             priority: Int = 0,
             handler: (RequestDTO, Map<String, String>) -> ResponseDTO?,
