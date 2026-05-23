@@ -4,14 +4,28 @@ import io.voidx.Method
 import io.voidx.dto.*
 import io.voidx.middleware.relayAfter
 import io.voidx.middleware.relayBefore
-import io.voidx.page.path
 import io.voidx.page.route
+import io.voidx.router.Router
+import io.voidx.router.router
 import org.junit.jupiter.api.Test
+import kotlin.collections.plus
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class BaseCoreTests {
+    private fun Router.dispatch(req: RequestDTO): ResponseDTO {
+        val rawTarget = req.target.removeSuffix(if (req.target.last() == '/') "/" else "")
+        val qMark = rawTarget.indexOf('?')
+        val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
+        val query = Router.parseQuery(rawTarget)
+        val pathParams = mutableMapOf<String, String>()
+
+        return rootNode.match(target.split("/"), 1, pathParams)
+            ?.content(req, query + pathParams)
+            ?: nullPage.content(req, query + pathParams)
+    }
+
     @Test
     fun request_builder_and_headers_roundtrip() {
         val req =
@@ -96,27 +110,25 @@ class BaseCoreTests {
     fun dynamic_page_path_accessor_and_execution() {
         val dyn =
             route("/users/{id}/{name?}") {
-                GET { _, _ ->
+                GET { _, query ->
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
-                        val id: String? = path("id")
-                        val name: String? = path("name?")
+                        val id: String? = query["id"]
+                        val name: String? = query["name"]
                         body = "$id:${name ?: "-"}"
                     }
                 }
             }
 
-        // Simulate router-populated dynamic values
-        dyn._data["id"] = "42"
-        dyn._data["name?"] = "neo"
+        val r = router { addRoute(dyn) }
 
         val req =
             buildRequest {
                 method = Method.GET
                 target = "/users/42/neo"
             }
-        val resp = dyn.content(req, emptyMap())
+        val resp = r.dispatch(req)
         val body = (resp.body as ResponseBody.StringBody).body
         assertEquals("42:neo", body)
     }

@@ -34,7 +34,7 @@ class BenchmarkTests {
                         POST { req, _ -> ok(req.body) }
                     }
                     route("/user/{id}") {
-                        GET { _, _ -> ok("user ${data["id"]}") }
+                        GET { _, query -> ok("user ${query["id"]}") }
                     }
                 }
             server = Server(r)

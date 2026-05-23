@@ -3,7 +3,6 @@ package test
 import io.voidx.Server
 import io.voidx.dto.buildResponse
 import io.voidx.handle
-import io.voidx.page.path
 import io.voidx.page.route
 import io.voidx.router.router
 import java.io.ByteArrayInputStream
@@ -34,10 +33,10 @@ class RouterDynamicAndMethodDispatchTests {
         val r = router { }
         r.addRoute(
             route("/u/{id}/{name?}") {
-                GET { _, _ ->
+                GET { _, query ->
                     // Access dynamic path variables via helper (implicit DynamicPage receiver)
-                    val id: String? = path<String>("id")
-                    val name: String? = path<String>("name?")
+                    val id: String? = query["id"]
+                    val name: String? = query["name?"]
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
@@ -112,8 +111,8 @@ class RouterDynamicAndMethodDispatchTests {
         val r = router { }
         r.addRoute(
             route("/u/{id}") {
-                GET { _, _ ->
-                    val id: String? = path<String>("id")
+                GET { _, query ->
+                    val id: String? = query["id"]
                     buildResponse<String> {
                         status = 200
                         statusText = "OK"
