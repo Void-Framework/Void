@@ -56,10 +56,15 @@ class Server(
         it.close()
     }
 
+    @Volatile
+    private var isShuttingDown = false
+
     /**
      * Stops the server by closing HTTP and HTTPS sockets and cancelling the coroutine scope.
      */
     fun stop() {
+        isShuttingDown = true
+
         if (::socket.isInitialized) {
             socket.close()
         }
@@ -194,13 +199,33 @@ class Server(
      */
     private suspend fun waitForHTTPSAndRedirect(client: Socket) {
         try {
-            // Keep checking until HTTPS is available
-            while (!isHTTPSServerRunning()) {
-                delay(50.milliseconds)
-            }
+            val httpsReady =
+                withTimeoutOrNull(5_000.milliseconds) {
+                    while (!isHTTPSServerRunning()) {
+                        if (isShuttingDown) {
+                            return@withTimeoutOrNull false
+                        }
 
-            // Send redirect once HTTPS is ready
+                        delay(50.milliseconds)
+                    }
+
+                    true
+                } ?: false
+
             withContext(Dispatchers.IO) {
+                if (!httpsReady) {
+                    client.getOutputStream().writeHTTP(
+                        response =
+                            buildResponse {
+                                status = 503
+                                statusText = "Service Unavailable"
+                                body = "HTTPS server unavailable"
+                            },
+                        version = httpVersion,
+                    )
+                    return@withContext
+                }
+
                 client.getOutputStream().writeHTTP(
                     response =
                         buildResponse {
@@ -214,10 +239,10 @@ class Server(
                     version = httpVersion,
                 )
             }
-        } catch (e: Exception) {
-            withContext(Dispatchers.IO) {
-                runCatching { client.close() }
-            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // no-op, socket closed in finally
         } finally {
             withContext(Dispatchers.IO) {
                 runCatching { client.close() }
