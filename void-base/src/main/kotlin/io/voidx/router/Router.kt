@@ -201,19 +201,20 @@ class Router {
             val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
             val query: Map<String, String> by lazy { parseQuery(rawTarget) }
             var usedPage: Page? = null
+            val pathParams = mutableMapOf<String, String>()
 
             val response =
                 middlewareProcessBefore(requestDTO.toResult())
-                    ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query)
+                    ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query + pathParams)
                     ?: rootNode
-                        .match(target.split("/"), 1, mutableMapOf())
+                        .match(target.split("/"), 1, pathParams)
                         .also {
                             usedPage = it
                         }?.let { page ->
                             page.middlewareProcessBefore(requestDTO)
-                                ?: page.content(requestDTO, query)
+                                ?: page.content(requestDTO, query + pathParams)
                         }
-                    ?: nullPage.also { usedPage = it }.content(requestDTO, query)
+                    ?: nullPage.also { usedPage = it }.content(requestDTO, query + pathParams)
 
             // After deciding the response from BEFORE middleware/handler
             response._request = requestDTO
