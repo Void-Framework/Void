@@ -1,6 +1,5 @@
 package test
 
-import io.voidx.Server
 import io.voidx.bootstrap.Bootstrap
 import io.voidx.dto.ok
 import io.voidx.page.route

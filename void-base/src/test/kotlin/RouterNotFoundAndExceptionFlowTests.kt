@@ -66,7 +66,7 @@ class RouterNotFoundAndExceptionFlowTests {
         val raw = sock.output()
         assertTrue(raw.startsWith("HTTP/1.1 404 Not Found\n"), raw)
         // Default not-found page title marker
-        assertTrue(raw.contains("404 | Page Not Found"), raw)
+        assertTrue(raw.contains("\"message\": \"The requested resource could not be found.\""), raw)
     }
 
     @Test

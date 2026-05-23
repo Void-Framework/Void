@@ -1,11 +1,7 @@
 package io.voidx
 
 import io.voidx.bootstrap.Bootstrap
-import io.voidx.dto.RequestDTO
-import io.voidx.dto.badRequest
-import io.voidx.dto.buildResponse
-import io.voidx.dto.headers
-import io.voidx.dto.writeHTTP
+import io.voidx.dto.*
 import io.voidx.exception.NotEnoughCarriers
 import io.voidx.router.Router
 import io.voidx.util.toResult
@@ -337,15 +333,15 @@ fun Socket.handle(
     try {
         val request =
             RequestDTO.parse(
-                inputStream = this.getInputStream()
+                inputStream = this.getInputStream(),
             )
-        if (request.attributes["Malformed"] as Boolean) {
+        if (request.attributes["Malformed"] as? Boolean == true) {
             this.getOutputStream().writeHTTP(
                 badRequest(
                     router.badRequestPage.content(request, emptyMap()),
-                    mutableMapOf()
+                    mutableMapOf(),
                 ),
-                version = version
+                version = version,
             )
         }
         router.route(

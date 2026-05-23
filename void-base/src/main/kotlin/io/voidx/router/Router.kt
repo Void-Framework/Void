@@ -1,12 +1,7 @@
 package io.voidx.router
 
 import io.voidx.bootstrap.Bootstrap
-import io.voidx.dto.RequestDTO
-import io.voidx.dto.ResponseDTO
-import io.voidx.dto.buildRequest
-import io.voidx.dto.buildResponse
-import io.voidx.dto.headers
-import io.voidx.dto.writeHTTP
+import io.voidx.dto.*
 import io.voidx.middleware.Relay
 import io.voidx.middleware.RelayAfter
 import io.voidx.middleware.RelayBefore
@@ -313,14 +308,14 @@ class Router {
 
                 body =
                     """
-                {
-                  "success": false,
-                  "error": {
-                    "code": 500,
-                    "type": "${escapeHtml(ex::class.simpleName ?: "Exception")}",
-                    "message": "${escapeHtml(ex.message ?: "Unknown server error")}",
-                    "path": "${escapeHtml(req.target)}",
-                    "stackTrace": ${
+                    {
+                      "success": false,
+                      "error": {
+                        "code": 500,
+                        "type": "${escapeHtml(ex::class.simpleName ?: "Exception")}",
+                        "message": "${escapeHtml(ex.message ?: "Unknown server error")}",
+                        "path": "${escapeHtml(req.target)}",
+                        "stackTrace": ${
                         if (isDebugMode) {
                             """
                             [
@@ -335,9 +330,9 @@ class Router {
                             "null"
                         }
                     }
-                  }
-                }
-                """.trimIndent()
+                      }
+                    }
+                    """.trimIndent()
             }
         }
 
@@ -357,16 +352,16 @@ class Router {
 
                 body =
                     """
-                {
-                  "success": false,
-                  "error": {
-                    "code": 404,
-                    "type": "NotFound",
-                    "message": "The requested resource could not be found.",
-                    "path": "${escapeHtml(req.target)}"
-                  }
-                }
-                """.trimIndent()
+                    {
+                      "success": false,
+                      "error": {
+                        "code": 404,
+                        "type": "NotFound",
+                        "message": "The requested resource could not be found.",
+                        "path": "${escapeHtml(req.target)}"
+                      }
+                    }
+                    """.trimIndent()
             }
         }
 
@@ -384,16 +379,16 @@ class Router {
 
                 body =
                     """
-                {
-                  "success": false,
-                  "error": {
-                    "code": 400,
-                    "type": "BadRequest",
-                    "message": "The request could not be understood or was missing required parameters.",
-                    "path": "${escapeHtml(req.target)}"
-                  }
-                }
-                """.trimIndent()
+                    {
+                      "success": false,
+                      "error": {
+                        "code": 400,
+                        "type": "BadRequest",
+                        "message": "The request could not be understood or was missing required parameters.",
+                        "path": "${escapeHtml(req.target)}"
+                      }
+                    }
+                    """.trimIndent()
             }
         }
 }
