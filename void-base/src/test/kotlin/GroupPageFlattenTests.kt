@@ -188,7 +188,7 @@ class GroupPageFlattenTests {
         assertEquals(2, pages.size)
         assertEquals("/root", pages[0].target)
         assertEquals("/root/child", pages[1].target)
-        assertTrue(pages[0].flattened, "/root GroupPage should be flattened")
+        assertEquals((pages[0] as? GroupPage)?.flattened, true, "/root GroupPage should be flattened")
         assertTrue((pages[1] as GroupPage).flattened, "/root/child GroupPage should be flattened")
     }
 }

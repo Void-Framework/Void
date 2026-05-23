@@ -189,19 +189,6 @@ class PRChangesCoverageTests {
         assertEquals("42", (resp.body as io.voidx.dto.ResponseBody.StringBody).body)
     }
 
-    @Test
-    fun dynamic_page_is_a_page_subclass() {
-        val dynPage =
-            object : DynamicPage("/test") {
-                override fun content(
-                    request: RequestDTO,
-                    queries: Map<String, String>,
-                ): ResponseDTO = ok("test")
-            }
-
-        assertTrue(dynPage is io.voidx.page.Page, "DynamicPage should be a Page")
-    }
-
     // ---- RequestDTO.cookies case-insensitive lookup ----
 
     @Test
@@ -355,7 +342,7 @@ class PRChangesCoverageTests {
         page.middlewareProcessAfter(Result.success(response))
 
         assertNotNull(afterCalledWith)
-        assertEquals(response, afterCalledWith?.getOrNull())
+        assertEquals(response, afterCalledWith.getOrNull())
     }
 
     // Additional regression test: verify router.route() DSL creates page via tree
