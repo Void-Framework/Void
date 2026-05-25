@@ -7,7 +7,7 @@ org-jetbrains-kotlin-kotlin-stdlib = "2.3.21"
 org-jetbrains-kotlin-kotlin-test-junit5 = "2.3.21"
 org-jetbrains-kotlinx-kotlinx-coroutines-core = "1.11.0"
 org-json-json = "20251224"
-org-junit-jupiter-junit-jupiter = "6.0.3"
+org-junit-jupiter-junit-jupiter = "6.1.0"
 
 [libraries]
 org-jetbrains-kotlin-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "org-jetbrains-kotlin-kotlin-reflect" }
