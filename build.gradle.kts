@@ -10,7 +10,7 @@ plugins {
     // API docs generation
     id("org.jetbrains.dokka") version "2.2.0"
     id("jacoco")
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 group = "io.jadiefication"
