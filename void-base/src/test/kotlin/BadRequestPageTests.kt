@@ -30,7 +30,9 @@ private class TestBadRequestSocket(
 
     override fun getOutputStream(): OutputStream = outBytes
 
-    override fun close() { closed = true }
+    override fun close() {
+        closed = true
+    }
 
     fun text(): String = outBytes.toString().replace("\r\n", "\n")
 
@@ -42,7 +44,6 @@ private class TestBadRequestSocket(
  * plus the Router.badRequestPage instance variable.
  */
 class BadRequestPageTests {
-
     @Test
     fun bad_request_page_factory_creates_valid_page() {
         val page =

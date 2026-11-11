@@ -33,7 +33,9 @@ private class SockPR(
     private val outBytes = ByteArrayOutputStream()
 
     override fun getInputStream(): InputStream = inBytes
+
     override fun getOutputStream(): OutputStream = outBytes
+
     fun text(): String = outBytes.toString().replace("\r\n", "\n")
 }
 
@@ -47,7 +49,6 @@ private class SockPR(
  * - Bootstrap.tryHandleSpecialRoute priority ordering without ClientHandler
  */
 class PRChangesCoverageTests {
-
     // ---- ExceptionPage factory changes ----
 
     @Test
@@ -102,7 +103,11 @@ class PRChangesCoverageTests {
         val page =
             exceptionPage { _, queries, _ ->
                 receivedQueries = queries
-                buildResponse<String> { status = 500; statusText = "Error"; body = "" }
+                buildResponse<String> {
+                    status = 500
+                    statusText = "Error"
+                    body = ""
+                }
             }
 
         val req = buildRequest { target = "/" }

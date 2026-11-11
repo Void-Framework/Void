@@ -89,12 +89,18 @@ internal class RouteNode(
         params: MutableMap<String, String>,
     ): Page? {
         if (index == segments.size) {
+            if (handler != null) {
+                return handler
+            }
             if (dynamicChild != null && dynamicChild!!.optional) {
                 params[dynamicChild!!.paramName ?: ""] = ""
-                val matched = dynamicChild!!.handler
-                return matched
+                val matched = dynamicChild!!.match(segments, index, params)
+                if (matched != null) {
+                    return matched
+                }
+                params.remove(dynamicChild!!.paramName ?: "")
             }
-            return handler
+            return null
         }
 
         val part = segments[index]
@@ -135,5 +141,13 @@ internal class RouteNode(
             DYNAMIC_REGEX.matchEntire(part)?.groupValues?.get(1)
                 ?: OPTIONAL_REGEX.matchEntire(part)?.groupValues?.get(1)
                 ?: ""
+
+        /**
+         * Splits a route or request path into non-empty segments.
+         *
+         * @param path The route or target path to split.
+         * @return A list of non-empty string segments.
+         */
+        internal fun segmentsOf(path: String): List<String> = path.split("/").filter { it.isNotEmpty() }
     }
 }

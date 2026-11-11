@@ -50,7 +50,6 @@ private class TestMalformedSocket(
  * - Socket is always closed after handle()
  */
 class SocketHandleMalformedTests {
-
     @Test
     fun malformed_request_writes_400_response() {
         val r = router { }

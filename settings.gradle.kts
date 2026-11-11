@@ -11,6 +11,9 @@ pluginManagement {
         // add any private plugin repo here:
         // maven { url = uri("https://my.company.repo/plugins") }
     }
+    plugins {
+        kotlin("kapt") version "2.3.21"
+    }
 }
 
 dependencyResolutionManagement {

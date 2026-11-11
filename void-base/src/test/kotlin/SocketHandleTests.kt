@@ -2,6 +2,7 @@ package test
 
 import io.voidx.Server
 import io.voidx.dto.buildResponse
+import io.voidx.dto.ok
 import io.voidx.handle
 import io.voidx.page.route
 import io.voidx.router.router
@@ -70,6 +71,107 @@ class SocketHandleTests {
         // Body after header separator
         assertEquals("pong", raw.substringAfter("\n\n"))
         // handle closes the socket in finally
+        assertTrue(sock.wasClosed())
+    }
+
+    @Test
+    fun root_route_registered_via_public_router_api_does_not_return_404() {
+        val r =
+            router {
+                route("/") {
+                    GET { _, _ ->
+                        ok("root content")
+                    }
+                }
+            }
+
+        val rawRequest = (
+            "GET / HTTP/1.1\r\n" +
+                "Host: example.com\r\n" +
+                "Connection: close\r\n" +
+                "\r\n"
+        )
+
+        val sock = InMemorySocket(rawRequest)
+        val srv = Server(r, 1.1)
+
+        sock.handle(1.1, r)
+
+        val raw = sock.outputString()
+        assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
+        assertTrue(!raw.contains("404 Not Found"), "Response should not return 404 Not Found: $raw")
+        assertEquals("root content", raw.substringAfter("\n\n"))
+        assertTrue(sock.wasClosed())
+    }
+
+    @Test
+    fun query_parameter_with_trailing_slash_is_preserved_during_dispatch() {
+        var observedTarget: String? = null
+        var observedPrefix: String? = null
+
+        val r =
+            router {
+                route("/files") {
+                    GET { req, query ->
+                        observedTarget = req.target
+                        observedPrefix = query["prefix"]
+                        ok("files listing for " + query["prefix"])
+                    }
+                }
+            }
+
+        val rawRequest = (
+            "GET /files?prefix=folder/ HTTP/1.1\r\n" +
+                "Host: example.com\r\n" +
+                "Connection: close\r\n" +
+                "\r\n"
+        )
+
+        val sock = InMemorySocket(rawRequest)
+        val srv = Server(r, 1.1)
+
+        sock.handle(1.1, r)
+
+        val raw = sock.outputString()
+        assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
+        assertEquals("files listing for folder/", raw.substringAfter("\n\n"))
+        assertEquals("/files?prefix=folder/", observedTarget)
+        assertEquals("folder/", observedPrefix)
+        assertTrue(sock.wasClosed())
+    }
+
+    @Test
+    fun trailing_slash_on_path_normalized_while_query_trailing_slash_preserved() {
+        var observedTarget: String? = null
+        var observedPrefix: String? = null
+
+        val r =
+            router {
+                route("/files") {
+                    GET { req, query ->
+                        observedTarget = req.target
+                        observedPrefix = query["prefix"]
+                        ok("files listing")
+                    }
+                }
+            }
+
+        val rawRequest = (
+            "GET //files//?prefix=folder/ HTTP/1.1\r\n" +
+                "Host: example.com\r\n" +
+                "Connection: close\r\n" +
+                "\r\n"
+        )
+
+        val sock = InMemorySocket(rawRequest)
+        val srv = Server(r, 1.1)
+
+        sock.handle(1.1, r)
+
+        val raw = sock.outputString()
+        assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
+        assertEquals("/files?prefix=folder/", observedTarget)
+        assertEquals("folder/", observedPrefix)
         assertTrue(sock.wasClosed())
     }
 }

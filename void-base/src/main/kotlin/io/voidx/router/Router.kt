@@ -157,13 +157,13 @@ class Router {
                     addRoutes(route.flatten())
                 } else {
                     if (!route.target.startsWith("/")) throw RouteNoTargetException(route.target)
-                    rootNode.insert(route.target.split("/"), 1, route)
+                    rootNode.insert(RouteNode.segmentsOf(route.target), 0, route)
                 }
             }
 
             else -> {
                 if (!route.target.startsWith("/")) throw RouteNoTargetException(route.target)
-                rootNode.insert(route.target.split("/"), 1, route)
+                rootNode.insert(RouteNode.segmentsOf(route.target), 0, route)
             }
         }
         return this
@@ -193,30 +193,43 @@ class Router {
         client: Socket,
         version: Number,
     ) {
+        var effectiveRequestDTO = requestDTO
         try {
             // Request lifecycle events removed; Bootstrap manages explicit hooks only
-            val rawTarget = requestDTO.target.removeSuffix(if (requestDTO.target.last() == '/') "/" else "")
+            val rawTarget = requestDTO.target.ifEmpty { "/" }
             val qMark = rawTarget.indexOf('?')
-            val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
-            val query: Map<String, String> by lazy { parseQuery(rawTarget) }
+            val targetPath = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
+            val queryString = if (qMark >= 0) rawTarget.substring(qMark) else ""
+            val segments = RouteNode.segmentsOf(targetPath)
+            val normalizedPath = "/" + segments.joinToString("/")
+            val normalizedTarget = normalizedPath + queryString
+            effectiveRequestDTO =
+                if (requestDTO.target == normalizedTarget) {
+                    requestDTO
+                } else {
+                    requestDTO.copy(target = normalizedTarget).apply {
+                        attributes.putAll(requestDTO.attributes)
+                    }
+                }
+            val query: Map<String, String> by lazy { parseQuery(effectiveRequestDTO.target) }
             var usedPage: Page? = null
             val pathParams = mutableMapOf<String, String>()
 
             val response =
-                middlewareProcessBefore(requestDTO.toResult())
-                    ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query + pathParams)
+                middlewareProcessBefore(effectiveRequestDTO.toResult())
+                    ?: Bootstrap.tryHandleSpecialRoute(effectiveRequestDTO, query + pathParams)
                     ?: rootNode
-                        .match(target.split("/"), 1, pathParams)
+                        .match(segments, 0, pathParams)
                         .also {
                             usedPage = it
                         }?.let { page ->
-                            page.middlewareProcessBefore(requestDTO)
-                                ?: page.content(requestDTO, query + pathParams)
+                            page.middlewareProcessBefore(effectiveRequestDTO)
+                                ?: page.content(effectiveRequestDTO, query + pathParams)
                         }
-                    ?: nullPage.also { usedPage = it }.content(requestDTO, query + pathParams)
+                    ?: nullPage.also { usedPage = it }.content(effectiveRequestDTO, query + pathParams)
 
             // After deciding the response from BEFORE middleware/handler
-            response._request = requestDTO
+            response._request = effectiveRequestDTO
 
             usedPage?.middlewareProcessAfter(response.toResult())
 
@@ -229,7 +242,7 @@ class Router {
                 version,
             )
         } catch (e: Exception) {
-            error(client, e, version, requestDTO)
+            error(client, e, version, effectiveRequestDTO)
         }
     }
 
@@ -268,7 +281,7 @@ class Router {
         path: String,
         builder: PageHandler.() -> Unit,
     ) {
-        rootNode.match(path.split("/"), 1, mutableMapOf())?.let {
+        rootNode.match(RouteNode.segmentsOf(path), 0, mutableMapOf()).let {
             (it as? PageHandler)?.builder()
         } ?: run {
             val page = PageHandler(path)

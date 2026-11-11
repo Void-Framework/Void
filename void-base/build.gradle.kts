@@ -9,6 +9,7 @@ plugins {
     `maven-publish`
     kotlin("plugin.serialization") version "2.4.21"
     id("org.jetbrains.dokka")
+    kotlin("kapt")
 }
 
 java {
@@ -37,6 +38,7 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
     api("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.12.0")
     api("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.12.0")
+    testImplementation(kotlin("test"))
 }
 
 description = "void-base"
@@ -62,4 +64,7 @@ tasks.test {
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showStandardStreams = true
     }
+}
+repositories {
+    mavenCentral()
 }

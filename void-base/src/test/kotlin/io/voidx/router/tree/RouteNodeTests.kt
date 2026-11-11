@@ -3,12 +3,84 @@ package io.voidx.router.tree
 import io.voidx.dto.ok
 import io.voidx.page.route
 import io.voidx.router.exceptions.RouteTargetUsedException
+import io.voidx.router.tree.RouteNode.Companion.segmentsOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class RouteNodeTests {
+    @Test
+    fun insert_and_match_root_route() {
+        val root = RouteNode()
+        val p = route("/") { GET { _, _ -> ok("root") } }
+
+        root.insert(segmentsOf("/"), 0, p)
+
+        val params = mutableMapOf<String, String>()
+        val matched = root.match(segmentsOf("/"), 0, params)
+        assertEquals(p, matched)
+        assertTrue(params.isEmpty())
+    }
+
+    @Test
+    fun insert_duplicate_root_route_throws() {
+        val root = RouteNode()
+        val p1 = route("/") { GET { _, _ -> ok("1") } }
+        val p2 = route("/") { GET { _, _ -> ok("2") } }
+
+        root.insert(segmentsOf("/"), 0, p1)
+        assertFailsWith<RouteTargetUsedException> {
+            root.insert(segmentsOf("/"), 0, p2)
+        }
+    }
+
+    @Test
+    fun segments_of_splits_paths_correctly() {
+        assertEquals(emptyList(), segmentsOf("/"))
+        assertEquals(emptyList(), segmentsOf(""))
+        assertEquals(emptyList(), segmentsOf("///"))
+        assertEquals(listOf("a", "b", "c"), segmentsOf("/a/b/c"))
+        assertEquals(listOf("a", "b", "c"), segmentsOf("/a/b/c/"))
+        assertEquals(listOf("user", "{id}"), segmentsOf("/user/{id}"))
+    }
+
+    @Test
+    fun insert_and_match_routes_with_segmentsOf() {
+        val root = RouteNode()
+        val pRoot = route("/") { GET { _, _ -> ok("root") } }
+        val p1 = route("/a/b/c") { GET { _, _ -> ok("abc") } }
+        val pDynamic = route("/user/{id}") { GET { _, _ -> ok("user") } }
+        val pOptional = route("/blog/{slug?}") { GET { _, _ -> ok("blog") } }
+
+        root.insert(segmentsOf("/"), 0, pRoot)
+        root.insert(segmentsOf("/a/b/c"), 0, p1)
+        root.insert(segmentsOf("/user/{id}"), 0, pDynamic)
+        root.insert(segmentsOf("/blog/{slug?}"), 0, pOptional)
+
+        var params = mutableMapOf<String, String>()
+        assertEquals(pRoot, root.match(segmentsOf("/"), 0, params))
+        assertTrue(params.isEmpty())
+
+        params = mutableMapOf()
+        assertEquals(p1, root.match(segmentsOf("/a/b/c"), 0, params))
+
+        params = mutableMapOf()
+        assertEquals(pDynamic, root.match(segmentsOf("/user/123"), 0, params))
+        assertEquals("123", params["id"])
+
+        params = mutableMapOf()
+        assertEquals(pOptional, root.match(segmentsOf("/blog/news"), 0, params))
+        assertEquals("news", params["slug"])
+
+        params = mutableMapOf()
+        assertEquals(pOptional, root.match(segmentsOf("/blog"), 0, params))
+        assertEquals("", params["slug"])
+
+        assertNull(root.match(segmentsOf("/unknown"), 0, mutableMapOf()))
+    }
+
     @Test
     fun insert_and_match_static_routes() {
         val root = RouteNode()
@@ -122,5 +194,86 @@ class RouteNodeTests {
         assertEquals(p2, root.match("/a/valB".split("/"), 1, params))
         assertEquals("valB", params["b"])
         assertEquals("", params["d"])
+    }
+
+    @Test
+    fun root_route_preferred_over_optional_child() {
+        val root = RouteNode()
+        val pRoot = route("/") { GET { _, _ -> ok("root") } }
+        val pOptional = route("/{slug?}") { GET { _, _ -> ok("optional") } }
+
+        root.insert(segmentsOf("/"), 0, pRoot)
+        root.insert(segmentsOf("/{slug?}"), 0, pOptional)
+
+        var params = mutableMapOf<String, String>()
+        val matchedRoot = root.match(segmentsOf("/"), 0, params)
+        assertEquals(pRoot, matchedRoot)
+        assertTrue(params.isEmpty())
+
+        params = mutableMapOf()
+        val matchedSlug = root.match(segmentsOf("/article"), 0, params)
+        assertEquals(pOptional, matchedSlug)
+        assertEquals("article", params["slug"])
+    }
+
+    @Test
+    fun optional_child_matched_when_root_has_no_handler() {
+        val root = RouteNode()
+        val pOptional = route("/{slug?}") { GET { _, _ -> ok("optional") } }
+
+        root.insert(segmentsOf("/{slug?}"), 0, pOptional)
+
+        var params = mutableMapOf<String, String>()
+        val matched = root.match(segmentsOf("/"), 0, params)
+        assertEquals(pOptional, matched)
+        assertEquals("", params["slug"])
+
+        params = mutableMapOf()
+        val matchedVal = root.match(segmentsOf("/hello"), 0, params)
+        assertEquals(pOptional, matchedVal)
+        assertEquals("hello", params["slug"])
+    }
+
+    @Test
+    fun nested_optional_children_matched_when_node_has_no_handler() {
+        val root = RouteNode()
+        val pAB = route("/{a?}/{b?}") { GET { _, _ -> ok("ab") } }
+
+        root.insert(segmentsOf("/{a?}/{b?}"), 0, pAB)
+
+        var params = mutableMapOf<String, String>()
+        assertEquals(pAB, root.match(segmentsOf("/"), 0, params))
+        assertEquals("", params["a"])
+        assertEquals("", params["b"])
+
+        params = mutableMapOf()
+        assertEquals(pAB, root.match(segmentsOf("/valA"), 0, params))
+        assertEquals("valA", params["a"])
+        assertEquals("", params["b"])
+
+        params = mutableMapOf()
+        assertEquals(pAB, root.match(segmentsOf("/valA/valB"), 0, params))
+        assertEquals("valA", params["a"])
+        assertEquals("valB", params["b"])
+    }
+
+    @Test
+    fun subpath_handler_preferred_over_optional_child() {
+        val root = RouteNode()
+        val pBlog = route("/blog") { GET { _, _ -> ok("blog") } }
+        val pOptional = route("/blog/{slug?}") { GET { _, _ -> ok("blog-slug") } }
+
+        root.insert(segmentsOf("/blog"), 0, pBlog)
+        root.insert(segmentsOf("/blog/{slug?}"), 0, pOptional)
+
+        var params = mutableMapOf<String, String>()
+        val matchedBlog = root.match(segmentsOf("/blog"), 0, params)
+        assertEquals(pBlog, matchedBlog)
+        assertTrue(params.isEmpty())
+
+        params = mutableMapOf()
+        val matchedSlug = root.match(segmentsOf("/blog/first"), 0, params)
+        assertEquals(pOptional, matchedSlug)
+        assertEquals("first", params["slug"])
     }
 }

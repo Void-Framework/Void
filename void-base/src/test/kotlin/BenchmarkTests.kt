@@ -81,8 +81,8 @@ class BenchmarkTests {
 
         val avgLatency = time.toDouble() / iterations
         // Using System.out.println to ensure it shows up in some environments if [DEBUG_LOG] doesn't
-        System.out.println("[DEBUG_LOG] Average latency: $avgLatency ms")
-        System.out.println("[DEBUG_LOG] Throughput: ${iterations.toDouble() / (time.toDouble() / 1000)} req/s")
+        println("[DEBUG_LOG] Average latency: $avgLatency ms")
+        println("[DEBUG_LOG] Throughput: ${iterations.toDouble() / (time.toDouble() / 1000)} req/s")
 
         // Threshold: 10ms per request on average seems reasonable for a local simple framework.
         assertTrue(avgLatency < 10.0, "Average latency $avgLatency ms exceeds threshold of 10 ms")
@@ -106,7 +106,7 @@ class BenchmarkTests {
             }
 
         val avgLatency = time.toDouble() / iterations
-        System.out.println("[DEBUG_LOG] Dynamic route average latency: $avgLatency ms")
+        println("[DEBUG_LOG] Dynamic route average latency: $avgLatency ms")
 
         assertTrue(avgLatency < 2.0, "Dynamic route average latency $avgLatency ms exceeds threshold of 2 ms")
     }
