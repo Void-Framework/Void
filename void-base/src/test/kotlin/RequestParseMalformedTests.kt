@@ -18,7 +18,6 @@ import kotlin.test.assertTrue
  * - For well-formed requests, Malformed attribute is not set.
  */
 class RequestParseMalformedTests {
-
     @Test
     fun empty_stream_sets_malformed_attribute_true() {
         val input = ByteArrayInputStream(ByteArray(0))

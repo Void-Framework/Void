@@ -135,5 +135,7 @@ internal class RouteNode(
             DYNAMIC_REGEX.matchEntire(part)?.groupValues?.get(1)
                 ?: OPTIONAL_REGEX.matchEntire(part)?.groupValues?.get(1)
                 ?: ""
+
+        internal fun segmentsOf(path: String): List<String> = path.split("/").filter { it.isNotEmpty() }
     }
 }

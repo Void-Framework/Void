@@ -157,7 +157,7 @@ class Router {
                     addRoutes(route.flatten())
                 } else {
                     if (!route.target.startsWith("/")) throw RouteNoTargetException(route.target)
-                    rootNode.insert(route.target.split("/"), 1, route)
+                    rootNode.insert(RouteNode.segmentsOf(route.target), 0, route)
                 }
             }
 
@@ -195,7 +195,10 @@ class Router {
     ) {
         try {
             // Request lifecycle events removed; Bootstrap manages explicit hooks only
-            val rawTarget = requestDTO.target.removeSuffix(if (requestDTO.target.last() == '/') "/" else "")
+            val rawTarget =
+                requestDTO.target
+                    .removeSuffix("/")
+                    .ifEmpty { "/" }
             val qMark = rawTarget.indexOf('?')
             val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
             val query: Map<String, String> by lazy { parseQuery(rawTarget) }
@@ -206,7 +209,7 @@ class Router {
                 middlewareProcessBefore(requestDTO.toResult())
                     ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query + pathParams)
                     ?: rootNode
-                        .match(target.split("/"), 1, pathParams)
+                        .match(RouteNode.segmentsOf(target), 0, pathParams)
                         .also {
                             usedPage = it
                         }?.let { page ->
@@ -268,7 +271,7 @@ class Router {
         path: String,
         builder: PageHandler.() -> Unit,
     ) {
-        rootNode.match(path.split("/"), 1, mutableMapOf())?.let {
+        rootNode.match(RouteNode.segmentsOf(path), 0, mutableMapOf()).let {
             (it as? PageHandler)?.builder()
         } ?: run {
             val page = PageHandler(path)

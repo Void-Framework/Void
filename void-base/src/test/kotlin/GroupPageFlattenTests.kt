@@ -18,7 +18,6 @@ import kotlin.test.assertTrue
  * - Multiple levels of nesting
  */
 class GroupPageFlattenTests {
-
     @Test
     fun flatten_sets_flattened_true_on_root() {
         val root = GroupPage("/api")
@@ -70,6 +69,7 @@ class GroupPageFlattenTests {
         root.flatten()
 
         assertTrue(root.flattened, "Root should be flattened")
+
         // All nested GroupPages should be marked flattened
         fun checkFlattened(gp: GroupPage) {
             assertTrue(gp.flattened, "GroupPage ${gp.target} should be flattened")
