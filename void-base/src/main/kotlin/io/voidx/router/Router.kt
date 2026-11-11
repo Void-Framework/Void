@@ -196,15 +196,13 @@ class Router {
         var effectiveRequestDTO = requestDTO
         try {
             // Request lifecycle events removed; Bootstrap manages explicit hooks only
-            val rawTarget =
-                requestDTO.target
-                    .removeSuffix("/")
-                    .ifEmpty { "/" }
+            val rawTarget = requestDTO.target.ifEmpty { "/" }
             val qMark = rawTarget.indexOf('?')
-            val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
-            val segments = RouteNode.segmentsOf(target)
+            val targetPath = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
+            val queryString = if (qMark >= 0) rawTarget.substring(qMark) else ""
+            val segments = RouteNode.segmentsOf(targetPath)
             val normalizedPath = "/" + segments.joinToString("/")
-            val normalizedTarget = if (qMark >= 0) normalizedPath + rawTarget.substring(qMark) else normalizedPath
+            val normalizedTarget = normalizedPath + queryString
             effectiveRequestDTO =
                 if (requestDTO.target == normalizedTarget) {
                     requestDTO
@@ -213,7 +211,7 @@ class Router {
                         attributes.putAll(requestDTO.attributes)
                     }
                 }
-            val query: Map<String, String> by lazy { parseQuery(rawTarget) }
+            val query: Map<String, String> by lazy { parseQuery(effectiveRequestDTO.target) }
             var usedPage: Page? = null
             val pathParams = mutableMapOf<String, String>()
 
