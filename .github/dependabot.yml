@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Keep Gradle dependencies (including Kotlin and plugins) up to date
+  # Keep all Gradle dependencies up to date in one single PR
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
@@ -10,23 +10,14 @@ updates:
       timezone: "UTC"
     open-pull-requests-limit: 10
     labels:
-      - dependencies
-      - gradle
-    # Group common, low-risk updates to reduce PR noise
+      - "dependencies"
+      - "gradle"
     groups:
-      kotlin-and-ktlint:
+      all-gradle-updates:
         patterns:
-          - "org.jetbrains.kotlin:*"
-          - "com.pinterest:ktlint*"
-          - "org.jlleitschuh.gradle:ktlint-gradle"
-        update-types:
-          - "minor"
-          - "patch"
-        dependencies:
-          patterns:
-            - "*"
+          - "*"
 
-  # Keep GitHub Actions used in workflows up to date
+  # Keep all GitHub Actions up to date in one single PR
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -35,5 +26,9 @@ updates:
       time: "09:30"
       timezone: "UTC"
     labels:
-      - dependencies
-      - github-actions
+      - "dependencies"
+      - "github-actions"
+    groups:
+      all-actions-updates:
+        patterns:
+          - "*"
