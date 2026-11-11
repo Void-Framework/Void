@@ -163,7 +163,7 @@ class Router {
 
             else -> {
                 if (!route.target.startsWith("/")) throw RouteNoTargetException(route.target)
-                rootNode.insert(route.target.split("/"), 1, route)
+                rootNode.insert(RouteNode.segmentsOf(route.target), 0, route)
             }
         }
         return this

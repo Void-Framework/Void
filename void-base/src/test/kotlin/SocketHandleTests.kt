@@ -2,6 +2,7 @@ package test
 
 import io.voidx.Server
 import io.voidx.dto.buildResponse
+import io.voidx.dto.ok
 import io.voidx.handle
 import io.voidx.page.route
 import io.voidx.router.router
@@ -70,6 +71,36 @@ class SocketHandleTests {
         // Body after header separator
         assertEquals("pong", raw.substringAfter("\n\n"))
         // handle closes the socket in finally
+        assertTrue(sock.wasClosed())
+    }
+
+    @Test
+    fun root_route_registered_via_public_router_api_does_not_return_404() {
+        val r =
+            router {
+                route("/") {
+                    GET { _, _ ->
+                        ok("root content")
+                    }
+                }
+            }
+
+        val rawRequest = (
+            "GET / HTTP/1.1\r\n" +
+                "Host: example.com\r\n" +
+                "Connection: close\r\n" +
+                "\r\n"
+        )
+
+        val sock = InMemorySocket(rawRequest)
+        val srv = Server(r, 1.1)
+
+        sock.handle(1.1, r)
+
+        val raw = sock.outputString()
+        assertTrue(raw.startsWith("HTTP/1.1 200 OK\n"), raw)
+        assertTrue(!raw.contains("404 Not Found"), "Response should not return 404 Not Found: $raw")
+        assertEquals("root content", raw.substringAfter("\n\n"))
         assertTrue(sock.wasClosed())
     }
 }
