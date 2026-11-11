@@ -136,6 +136,12 @@ internal class RouteNode(
                 ?: OPTIONAL_REGEX.matchEntire(part)?.groupValues?.get(1)
                 ?: ""
 
+        /**
+         * Splits a route or request path into non-empty segments.
+         *
+         * @param path The route or target path to split.
+         * @return A list of non-empty string segments.
+         */
         internal fun segmentsOf(path: String): List<String> = path.split("/").filter { it.isNotEmpty() }
     }
 }

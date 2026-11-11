@@ -3,12 +3,84 @@ package io.voidx.router.tree
 import io.voidx.dto.ok
 import io.voidx.page.route
 import io.voidx.router.exceptions.RouteTargetUsedException
+import io.voidx.router.tree.RouteNode.Companion.segmentsOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class RouteNodeTests {
+    @Test
+    fun insert_and_match_root_route() {
+        val root = RouteNode()
+        val p = route("/") { GET { _, _ -> ok("root") } }
+
+        root.insert(segmentsOf("/"), 0, p)
+
+        val params = mutableMapOf<String, String>()
+        val matched = root.match(segmentsOf("/"), 0, params)
+        assertEquals(p, matched)
+        assertTrue(params.isEmpty())
+    }
+
+    @Test
+    fun insert_duplicate_root_route_throws() {
+        val root = RouteNode()
+        val p1 = route("/") { GET { _, _ -> ok("1") } }
+        val p2 = route("/") { GET { _, _ -> ok("2") } }
+
+        root.insert(segmentsOf("/"), 0, p1)
+        assertFailsWith<RouteTargetUsedException> {
+            root.insert(segmentsOf("/"), 0, p2)
+        }
+    }
+
+    @Test
+    fun segments_of_splits_paths_correctly() {
+        assertEquals(emptyList(), segmentsOf("/"))
+        assertEquals(emptyList(), segmentsOf(""))
+        assertEquals(emptyList(), segmentsOf("///"))
+        assertEquals(listOf("a", "b", "c"), segmentsOf("/a/b/c"))
+        assertEquals(listOf("a", "b", "c"), segmentsOf("/a/b/c/"))
+        assertEquals(listOf("user", "{id}"), segmentsOf("/user/{id}"))
+    }
+
+    @Test
+    fun insert_and_match_routes_with_segmentsOf() {
+        val root = RouteNode()
+        val pRoot = route("/") { GET { _, _ -> ok("root") } }
+        val p1 = route("/a/b/c") { GET { _, _ -> ok("abc") } }
+        val pDynamic = route("/user/{id}") { GET { _, _ -> ok("user") } }
+        val pOptional = route("/blog/{slug?}") { GET { _, _ -> ok("blog") } }
+
+        root.insert(segmentsOf("/"), 0, pRoot)
+        root.insert(segmentsOf("/a/b/c"), 0, p1)
+        root.insert(segmentsOf("/user/{id}"), 0, pDynamic)
+        root.insert(segmentsOf("/blog/{slug?}"), 0, pOptional)
+
+        var params = mutableMapOf<String, String>()
+        assertEquals(pRoot, root.match(segmentsOf("/"), 0, params))
+        assertTrue(params.isEmpty())
+
+        params = mutableMapOf()
+        assertEquals(p1, root.match(segmentsOf("/a/b/c"), 0, params))
+
+        params = mutableMapOf()
+        assertEquals(pDynamic, root.match(segmentsOf("/user/123"), 0, params))
+        assertEquals("123", params["id"])
+
+        params = mutableMapOf()
+        assertEquals(pOptional, root.match(segmentsOf("/blog/news"), 0, params))
+        assertEquals("news", params["slug"])
+
+        params = mutableMapOf()
+        assertEquals(pOptional, root.match(segmentsOf("/blog"), 0, params))
+        assertEquals("", params["slug"])
+
+        assertNull(root.match(segmentsOf("/unknown"), 0, mutableMapOf()))
+    }
+
     @Test
     fun insert_and_match_static_routes() {
         val root = RouteNode()
