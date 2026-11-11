@@ -53,10 +53,6 @@ publishing {
         }
     }
 }
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.compilerOptions {
-    freeCompilerArgs.set(listOf("-Xcontext-parameters"))
-}
 
 tasks.test {
     // Use JUnit Platform (JUnit 5)
