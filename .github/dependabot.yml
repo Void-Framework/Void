@@ -22,6 +22,9 @@ updates:
         update-types:
           - "minor"
           - "patch"
+        dependencies:
+          patterns:
+            - "*"
 
   # Keep GitHub Actions used in workflows up to date
   - package-ecosystem: "github-actions"
