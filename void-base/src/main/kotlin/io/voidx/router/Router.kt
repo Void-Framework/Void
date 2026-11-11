@@ -193,6 +193,7 @@ class Router {
         client: Socket,
         version: Number,
     ) {
+        var effectiveRequestDTO = requestDTO
         try {
             // Request lifecycle events removed; Bootstrap manages explicit hooks only
             val rawTarget =
@@ -201,25 +202,36 @@ class Router {
                     .ifEmpty { "/" }
             val qMark = rawTarget.indexOf('?')
             val target = if (qMark >= 0) rawTarget.take(qMark) else rawTarget
+            val segments = RouteNode.segmentsOf(target)
+            val normalizedPath = "/" + segments.joinToString("/")
+            val normalizedTarget = if (qMark >= 0) normalizedPath + rawTarget.substring(qMark) else normalizedPath
+            effectiveRequestDTO =
+                if (requestDTO.target == normalizedTarget) {
+                    requestDTO
+                } else {
+                    requestDTO.copy(target = normalizedTarget).apply {
+                        attributes.putAll(requestDTO.attributes)
+                    }
+                }
             val query: Map<String, String> by lazy { parseQuery(rawTarget) }
             var usedPage: Page? = null
             val pathParams = mutableMapOf<String, String>()
 
             val response =
-                middlewareProcessBefore(requestDTO.toResult())
-                    ?: Bootstrap.tryHandleSpecialRoute(requestDTO, query + pathParams)
+                middlewareProcessBefore(effectiveRequestDTO.toResult())
+                    ?: Bootstrap.tryHandleSpecialRoute(effectiveRequestDTO, query + pathParams)
                     ?: rootNode
-                        .match(RouteNode.segmentsOf(target), 0, pathParams)
+                        .match(segments, 0, pathParams)
                         .also {
                             usedPage = it
                         }?.let { page ->
-                            page.middlewareProcessBefore(requestDTO)
-                                ?: page.content(requestDTO, query + pathParams)
+                            page.middlewareProcessBefore(effectiveRequestDTO)
+                                ?: page.content(effectiveRequestDTO, query + pathParams)
                         }
-                    ?: nullPage.also { usedPage = it }.content(requestDTO, query + pathParams)
+                    ?: nullPage.also { usedPage = it }.content(effectiveRequestDTO, query + pathParams)
 
             // After deciding the response from BEFORE middleware/handler
-            response._request = requestDTO
+            response._request = effectiveRequestDTO
 
             usedPage?.middlewareProcessAfter(response.toResult())
 
@@ -232,7 +244,7 @@ class Router {
                 version,
             )
         } catch (e: Exception) {
-            error(client, e, version, requestDTO)
+            error(client, e, version, effectiveRequestDTO)
         }
     }
 
