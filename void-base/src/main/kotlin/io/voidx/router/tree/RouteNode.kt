@@ -89,12 +89,18 @@ internal class RouteNode(
         params: MutableMap<String, String>,
     ): Page? {
         if (index == segments.size) {
+            if (handler != null) {
+                return handler
+            }
             if (dynamicChild != null && dynamicChild!!.optional) {
                 params[dynamicChild!!.paramName ?: ""] = ""
-                val matched = dynamicChild!!.handler
-                return matched
+                val matched = dynamicChild!!.match(segments, index, params)
+                if (matched != null) {
+                    return matched
+                }
+                params.remove(dynamicChild!!.paramName ?: "")
             }
-            return handler
+            return null
         }
 
         val part = segments[index]

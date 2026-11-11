@@ -195,4 +195,85 @@ class RouteNodeTests {
         assertEquals("valB", params["b"])
         assertEquals("", params["d"])
     }
+
+    @Test
+    fun root_route_preferred_over_optional_child() {
+        val root = RouteNode()
+        val pRoot = route("/") { GET { _, _ -> ok("root") } }
+        val pOptional = route("/{slug?}") { GET { _, _ -> ok("optional") } }
+
+        root.insert(segmentsOf("/"), 0, pRoot)
+        root.insert(segmentsOf("/{slug?}"), 0, pOptional)
+
+        var params = mutableMapOf<String, String>()
+        val matchedRoot = root.match(segmentsOf("/"), 0, params)
+        assertEquals(pRoot, matchedRoot)
+        assertTrue(params.isEmpty())
+
+        params = mutableMapOf()
+        val matchedSlug = root.match(segmentsOf("/article"), 0, params)
+        assertEquals(pOptional, matchedSlug)
+        assertEquals("article", params["slug"])
+    }
+
+    @Test
+    fun optional_child_matched_when_root_has_no_handler() {
+        val root = RouteNode()
+        val pOptional = route("/{slug?}") { GET { _, _ -> ok("optional") } }
+
+        root.insert(segmentsOf("/{slug?}"), 0, pOptional)
+
+        var params = mutableMapOf<String, String>()
+        val matched = root.match(segmentsOf("/"), 0, params)
+        assertEquals(pOptional, matched)
+        assertEquals("", params["slug"])
+
+        params = mutableMapOf()
+        val matchedVal = root.match(segmentsOf("/hello"), 0, params)
+        assertEquals(pOptional, matchedVal)
+        assertEquals("hello", params["slug"])
+    }
+
+    @Test
+    fun nested_optional_children_matched_when_node_has_no_handler() {
+        val root = RouteNode()
+        val pAB = route("/{a?}/{b?}") { GET { _, _ -> ok("ab") } }
+
+        root.insert(segmentsOf("/{a?}/{b?}"), 0, pAB)
+
+        var params = mutableMapOf<String, String>()
+        assertEquals(pAB, root.match(segmentsOf("/"), 0, params))
+        assertEquals("", params["a"])
+        assertEquals("", params["b"])
+
+        params = mutableMapOf()
+        assertEquals(pAB, root.match(segmentsOf("/valA"), 0, params))
+        assertEquals("valA", params["a"])
+        assertEquals("", params["b"])
+
+        params = mutableMapOf()
+        assertEquals(pAB, root.match(segmentsOf("/valA/valB"), 0, params))
+        assertEquals("valA", params["a"])
+        assertEquals("valB", params["b"])
+    }
+
+    @Test
+    fun subpath_handler_preferred_over_optional_child() {
+        val root = RouteNode()
+        val pBlog = route("/blog") { GET { _, _ -> ok("blog") } }
+        val pOptional = route("/blog/{slug?}") { GET { _, _ -> ok("blog-slug") } }
+
+        root.insert(segmentsOf("/blog"), 0, pBlog)
+        root.insert(segmentsOf("/blog/{slug?}"), 0, pOptional)
+
+        var params = mutableMapOf<String, String>()
+        val matchedBlog = root.match(segmentsOf("/blog"), 0, params)
+        assertEquals(pBlog, matchedBlog)
+        assertTrue(params.isEmpty())
+
+        params = mutableMapOf()
+        val matchedSlug = root.match(segmentsOf("/blog/first"), 0, params)
+        assertEquals(pOptional, matchedSlug)
+        assertEquals("first", params["slug"])
+    }
 }
