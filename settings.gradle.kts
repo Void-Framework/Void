@@ -12,7 +12,7 @@ pluginManagement {
         // maven { url = uri("https://my.company.repo/plugins") }
     }
     plugins {
-        kotlin("kapt") version "2.3.21"
+        kotlin("kapt") version "2.4.21"
     }
 }
 
