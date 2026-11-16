@@ -35,9 +35,9 @@ dependencies {
     api("org.slf4j:slf4j-api:2.0.20")
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit5)
     testImplementation(libs.org.junit.jupiter.junit.jupiter)
-    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.12.0")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.12.0")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.13.0")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.13.0")
+    api("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.13.0")
     testImplementation(kotlin("test"))
 }
 
